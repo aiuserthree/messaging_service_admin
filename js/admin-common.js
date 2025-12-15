@@ -38,6 +38,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const menuItems = document.querySelectorAll('.menu-item.has-submenu');
     menuItems.forEach(item => {
         item.addEventListener('click', function(e) {
+            // 서브메뉴 항목을 클릭한 경우는 링크로 이동
+            if (e.target.closest('.submenu-item')) {
+                return;
+            }
             e.preventDefault();
             const submenu = this.nextElementSibling;
             if (submenu && submenu.classList.contains('submenu')) {
@@ -54,6 +58,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     submenu.classList.add('open');
                     this.classList.add('open');
                 }
+            }
+        });
+    });
+    
+    // 서브메뉴 항목 클릭 시 스크롤 위치 저장
+    const submenuItems = document.querySelectorAll('.submenu-item');
+    submenuItems.forEach(item => {
+        item.addEventListener('click', function() {
+            if (sidebar) {
+                sessionStorage.setItem('sidebarScrollPosition', sidebar.scrollTop.toString());
             }
         });
     });
