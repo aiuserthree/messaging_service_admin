@@ -167,7 +167,7 @@
                         </div>
                         <button class="btn btn-primary" onclick="searchResults()">검색</button>
                         <button class="btn btn-outline" onclick="resetSearch()">초기화</button>
-                        <button class="btn btn-secondary">엑셀 다운로드</button>
+                        <button class="btn btn-secondary" onclick="downloadExcel()">엑셀 다운로드</button>
                     </div>
                 </div>
                 
@@ -270,7 +270,7 @@
                                     <td style="color: #ef4444; font-weight: 600;">5</td>
                                     <td><span class="badge badge-success">완료</span></td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('sendDetailModal')">상세</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openSendDetailModal('COMPLETED', 'hong@example.com')">상세</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -286,7 +286,7 @@
                                     <td style="color: #ef4444; font-weight: 600;">0</td>
                                     <td><span class="badge badge-success">완료</span></td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('sendDetailModal')">상세</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openSendDetailModal('COMPLETED', 'kim@example.com')">상세</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -302,7 +302,7 @@
                                     <td style="color: #ef4444; font-weight: 600;">20</td>
                                     <td><span class="badge badge-success">완료</span></td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('sendDetailModal')">상세</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openSendDetailModal('COMPLETED', 'lee@example.com')">상세</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -318,8 +318,7 @@
                                     <td style="color: #ef4444; font-weight: 600;">50</td>
                                     <td><span class="badge badge-warning">진행중</span></td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('sendDetailModal')">상세</button>
-                                        <button class="btn btn-danger btn-sm" style="margin-left: 4px;">취소</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openSendDetailModal('PROCESSING', 'park@example.com')">상세</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -335,8 +334,8 @@
                                     <td style="color: #ef4444; font-weight: 600;">300</td>
                                     <td><span class="badge badge-danger">실패</span></td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('sendDetailModal')">상세</button>
-                                        <button class="btn btn-success btn-sm" style="margin-left: 4px;">재발송</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openSendDetailModal('FAILED', 'choi@example.com')">상세</button>
+                                        <button class="btn btn-success btn-sm" style="margin-left: 4px;" onclick="handleResendFailed('choi@example.com', this)">재발송</button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -447,7 +446,7 @@
                                     <td>카카오톡 미가입</td>
                                     <td>2024-11-19 14:31:05</td>
                                     <td>
-                                        <button class="btn btn-success btn-sm">재발송</button>
+                                        <button class="btn btn-success btn-sm" onclick="handleResendSingle('010-****-1111')">재발송</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -455,7 +454,7 @@
                                     <td>수신거부</td>
                                     <td>2024-11-19 14:31:10</td>
                                     <td>
-                                        <button class="btn btn-success btn-sm">재발송</button>
+                                        <button class="btn btn-success btn-sm" onclick="handleResendSingle('010-****-2222')">재발송</button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -464,8 +463,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-success">실패 건 재발송</button>
-                <button class="btn btn-secondary">엑셀 다운로드</button>
+                <button class="btn btn-success" id="resendAllBtn" onclick="handleResendAllFailed()">실패 건 재발송</button>
+                <button class="btn btn-secondary" onclick="downloadExcelFromModal()">엑셀 다운로드</button>
                 <button class="btn btn-outline" onclick="closeModal('sendDetailModal')">닫기</button>
             </div>
         </div>
@@ -473,6 +472,9 @@
     
     <script src="js/admin-common.js"></script>
     <script>
+        let currentSendStatus = null;
+        let currentSendId = null;
+        
         createPagination(1, 10, 'pagination');
         
         // 검색 결과 함수
@@ -484,7 +486,7 @@
             
             // 발신번호가 선택되지 않았으면 통계를 표시하지 않음
             if (!callerNumber) {
-                alert('발신번호를 선택해주세요.');
+                showToast('발신번호를 선택해주세요.', 'error');
                 return;
             }
             
@@ -512,6 +514,8 @@
             
             document.getElementById('statCost').textContent = stats.cost;
             document.getElementById('statCostDesc').textContent = '조회 결과';
+            
+            showToast('검색이 완료되었습니다.', 'success');
         }
         
         // 검색 초기화 함수
@@ -539,6 +543,163 @@
             
             document.getElementById('statCost').textContent = '-';
             document.getElementById('statCostDesc').textContent = '조회 후 표시';
+        }
+        
+        // 엑셀 다운로드
+        function downloadExcel() {
+            const callerNumber = document.getElementById('callerNumberFilter').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const messageType = document.getElementById('messageTypeFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            
+            if (!startDate || !endDate) {
+                showToast('날짜를 선택해주세요.', 'error');
+                return;
+            }
+            
+            // 엑셀 다운로드 시뮬레이션
+            showToast('엑셀 다운로드를 시작합니다...', 'info');
+            
+            // 실제로는 서버에서 엑셀 파일을 생성하고 다운로드 링크를 제공해야 함
+            setTimeout(function() {
+                showToast('엑셀 다운로드가 완료되었습니다.', 'success');
+                // 실제로는 다운로드 링크를 클릭하거나 파일을 다운로드해야 함
+            }, 1000);
+        }
+        
+        // 상세 모달 열기
+        function openSendDetailModal(status, sendId) {
+            currentSendStatus = status;
+            currentSendId = sendId;
+            
+            // 상태에 따라 재발송 버튼 표시/숨김
+            const resendAllBtn = document.getElementById('resendAllBtn');
+            if (resendAllBtn) {
+                if (status === 'FAILED') {
+                    resendAllBtn.style.display = 'inline-block';
+                } else {
+                    resendAllBtn.style.display = 'none';
+                }
+            }
+            
+            openModal('sendDetailModal');
+        }
+        
+        // 발송 취소
+        function handleCancelSend(sendId, buttonElement) {
+            confirmAction('진행 중인 발송을 취소하시겠습니까?\n\n취소된 발송은 복구할 수 없습니다.', function() {
+                // API 호출
+                const row = buttonElement.closest('tr');
+                const statusCell = row.querySelector('td:nth-child(8)');
+                if (statusCell) {
+                    statusCell.innerHTML = '<span class="badge badge-danger">취소됨</span>';
+                }
+                
+                // 취소 버튼 제거
+                buttonElement.remove();
+                
+                showToast('발송이 취소되었습니다.', 'success');
+            });
+        }
+        
+        // 실패 건 재발송 (테이블)
+        function handleResendFailed(sendId, buttonElement) {
+            confirmAction('실패한 발송을 재발송하시겠습니까?', function() {
+                // API 호출
+                const row = buttonElement.closest('tr');
+                const statusCell = row.querySelector('td:nth-child(8)');
+                if (statusCell) {
+                    statusCell.innerHTML = '<span class="badge badge-warning">진행중</span>';
+                }
+                
+                // 재발송 버튼을 취소 버튼으로 변경
+                buttonElement.textContent = '취소';
+                buttonElement.className = 'btn btn-danger btn-sm';
+                buttonElement.onclick = function() {
+                    handleCancelSend(sendId, this);
+                };
+                
+                showToast('재발송이 시작되었습니다.', 'success');
+            });
+        }
+        
+        // 실패 건 전체 재발송 (상세 모달)
+        function handleResendAllFailed() {
+            if (!currentSendId) {
+                showToast('발송 정보를 찾을 수 없습니다.', 'error');
+                return;
+            }
+            
+            confirmAction('모든 실패 건을 재발송하시겠습니까?', function() {
+                // API 호출
+                showToast('재발송이 시작되었습니다.', 'success');
+                
+                // 상세 모달의 상태 업데이트
+                const statusBadge = document.querySelector('#sendDetailModal .badge-danger, #sendDetailModal .badge-success');
+                if (statusBadge) {
+                    statusBadge.textContent = '진행중';
+                    statusBadge.className = 'badge badge-warning';
+                }
+                
+                // 재발송 버튼 숨기기
+                const resendAllBtn = document.getElementById('resendAllBtn');
+                if (resendAllBtn) {
+                    resendAllBtn.style.display = 'none';
+                }
+                
+                // 모달 닫기 (선택사항)
+                // closeModal('sendDetailModal');
+            });
+        }
+        
+        // 개별 실패 건 재발송
+        function handleResendSingle(phoneNumber) {
+            confirmAction(`수신번호 ${phoneNumber}로 재발송하시겠습니까?`, function() {
+                // API 호출
+                showToast('재발송이 시작되었습니다.', 'success');
+                
+                // 해당 행 제거 또는 상태 업데이트
+                const rows = document.querySelectorAll('#sendDetailModal tbody tr');
+                rows.forEach(row => {
+                    const phoneCell = row.querySelector('td:first-child');
+                    if (phoneCell && phoneCell.textContent.trim() === phoneNumber) {
+                        row.remove();
+                    }
+                });
+                
+                // 실패 건 수 업데이트
+                const failCountElement = document.querySelector('#sendDetailModal h4');
+                if (failCountElement) {
+                    const currentCount = parseInt(failCountElement.textContent.match(/\d+/)[0]);
+                    const newCount = currentCount - 1;
+                    if (newCount > 0) {
+                        failCountElement.textContent = `실패 상세 (${newCount}건)`;
+                    } else {
+                        failCountElement.textContent = '실패 상세 (0건)';
+                        const failTable = document.querySelector('#sendDetailModal .table-container');
+                        if (failTable) {
+                            failTable.innerHTML = '<p style="padding: 20px; text-align: center; color: #64748b;">실패 건이 없습니다.</p>';
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 상세 모달에서 엑셀 다운로드
+        function downloadExcelFromModal() {
+            if (!currentSendId) {
+                showToast('발송 정보를 찾을 수 없습니다.', 'error');
+                return;
+            }
+            
+            // 엑셀 다운로드 시뮬레이션
+            showToast('엑셀 다운로드를 시작합니다...', 'info');
+            
+            // 실제로는 서버에서 해당 발송의 상세 내역을 엑셀로 생성하고 다운로드 링크를 제공해야 함
+            setTimeout(function() {
+                showToast('엑셀 다운로드가 완료되었습니다.', 'success');
+            }, 1000);
         }
     </script>
 </body>

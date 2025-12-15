@@ -196,8 +196,8 @@
                         <div class="filter-item">
                             <input type="date" class="form-control" id="endDate">
                         </div>
-                        <button class="btn btn-primary">검색</button>
-                        <button class="btn btn-outline">초기화</button>
+                        <button type="button" class="btn btn-primary" onclick="handleSearch()">검색</button>
+                        <button type="button" class="btn btn-outline" onclick="handleReset()">초기화</button>
                     </div>
                 </div>
                 
@@ -340,7 +340,7 @@
                                     <option value="admin1">관리자A</option>
                                     <option value="admin2">관리자B</option>
                                 </select>
-                                <button class="btn btn-primary btn-sm">배정</button>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="handleAssignInquiry()">배정</button>
                             </div>
                         </div>
                     </div>
@@ -359,7 +359,7 @@
                     </div>
                     <div style="margin-top: 12px;">
                         <div style="font-size: 12px; color: #64748b;">첨부 파일: error_screenshot.png</div>
-                        <button class="btn btn-outline btn-sm" style="margin-top: 8px;">다운로드</button>
+                        <button type="button" class="btn btn-outline btn-sm" style="margin-top: 8px;" onclick="handleDownloadAttachment('error_screenshot.png')">다운로드</button>
                     </div>
                 </div>
                 
@@ -374,8 +374,8 @@
                         <input type="file" class="form-control">
                     </div>
                     <div style="margin-top: 16px; display: flex; gap: 8px;">
-                        <button class="btn btn-primary">답변 저장</button>
-                        <button class="btn btn-success">답변 및 완료 처리</button>
+                        <button type="button" class="btn btn-primary" onclick="handleSaveReply()">답변 저장</button>
+                        <button type="button" class="btn btn-success" onclick="handleSaveAndComplete()">답변 및 완료 처리</button>
                     </div>
                 </div>
                 
@@ -390,8 +390,8 @@
                                     <span style="font-size: 12px; color: #64748b; margin-left: 8px;">2024-11-19 15:00</span>
                                 </div>
                                 <div>
-                                    <button class="btn btn-outline btn-sm">수정</button>
-                                    <button class="btn btn-outline btn-sm" style="margin-left: 4px;">삭제</button>
+                                    <button type="button" class="btn btn-outline btn-sm" onclick="handleEditReply(this)">수정</button>
+                                    <button type="button" class="btn btn-outline btn-sm" style="margin-left: 4px;" onclick="handleDeleteReply(this)">삭제</button>
                                 </div>
                             </div>
                             <div style="font-size: 14px; line-height: 1.8;">
@@ -412,6 +412,211 @@
     <script src="js/admin-common.js"></script>
     <script>
         createPagination(1, 10, 'pagination');
+        
+        // 검색 처리
+        function handleSearch() {
+            const searchInput = document.getElementById('searchInput').value;
+            const inquiryType = document.getElementById('inquiryTypeFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const assignee = document.getElementById('assigneeFilter').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            // 검색 조건 로깅 (실제로는 API 호출)
+            console.log('검색 조건:', {
+                search: searchInput,
+                inquiryType,
+                status,
+                assignee,
+                startDate,
+                endDate
+            });
+            
+            showToast('검색이 완료되었습니다.', 'success');
+            
+            // 실제로는 여기서 API 호출 후 테이블 업데이트
+        }
+        
+        // 초기화 처리
+        function handleReset() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('inquiryTypeFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('assigneeFilter').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            
+            showToast('검색 조건이 초기화되었습니다.', 'info');
+            
+            // 실제로는 여기서 전체 목록 다시 로드
+        }
+        
+        // 담당자 배정 처리
+        function handleAssignInquiry() {
+            const assigneeSelect = document.querySelector('#inquiryDetailModal select');
+            const assignee = assigneeSelect.value;
+            
+            if (!assignee) {
+                showToast('담당자를 선택해주세요.', 'error');
+                return;
+            }
+            
+            const assigneeName = assigneeSelect.options[assigneeSelect.selectedIndex].text;
+            
+            confirmAction('담당자를 배정하시겠습니까?', function() {
+                // API 호출
+                
+                // 모달 내 담당자 정보 업데이트
+                const assigneeDisplay = document.querySelector('#inquiryDetailModal .form-group:nth-child(5) .form-control');
+                if (assigneeDisplay) {
+                    assigneeDisplay.textContent = assigneeName;
+                }
+                
+                // 처리 상태를 "처리중"으로 변경
+                const statusBadge = document.querySelector('#inquiryDetailModal .badge-warning');
+                if (statusBadge) {
+                    statusBadge.textContent = '처리중';
+                    statusBadge.className = 'badge badge-info';
+                }
+                
+                showToast('담당자가 배정되었습니다.', 'success');
+            });
+        }
+        
+        // 첨부 파일 다운로드
+        function handleDownloadAttachment(filename) {
+            // 실제로는 파일 다운로드 API 호출
+            showToast('파일 다운로드를 시작합니다.', 'info');
+            
+            // 시뮬레이션: 실제로는 파일 다운로드 링크 생성
+            console.log('다운로드 파일:', filename);
+        }
+        
+        // 답변 저장
+        function handleSaveReply() {
+            const replyTextarea = document.querySelector('#inquiryDetailModal textarea');
+            const replyContent = replyTextarea.value.trim();
+            
+            if (!replyContent) {
+                showToast('답변 내용을 입력해주세요.', 'error');
+                return;
+            }
+            
+            const fileInput = document.querySelector('#inquiryDetailModal input[type="file"]');
+            const hasFile = fileInput && fileInput.files.length > 0;
+            
+            confirmAction('답변을 저장하시겠습니까?', function() {
+                // API 호출
+                
+                // 답변 이력에 추가
+                const replyHistory = document.querySelector('#inquiryDetailModal .card:last-child > div:last-child');
+                if (replyHistory) {
+                    const newReply = document.createElement('div');
+                    newReply.style.cssText = 'padding: 16px; background-color: #f1f5f9; border-radius: 8px;';
+                    newReply.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <div>
+                                <span style="font-weight: 600;">관리자</span>
+                                <span style="font-size: 12px; color: #64748b; margin-left: 8px;">${new Date().toLocaleString('ko-KR')}</span>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-outline btn-sm" onclick="handleEditReply(this)">수정</button>
+                                <button type="button" class="btn btn-outline btn-sm" style="margin-left: 4px;" onclick="handleDeleteReply(this)">삭제</button>
+                            </div>
+                        </div>
+                        <div style="font-size: 14px; line-height: 1.8; white-space: pre-wrap;">${replyContent}</div>
+                    `;
+                    replyHistory.appendChild(newReply);
+                }
+                
+                // 답변 입력란 초기화
+                replyTextarea.value = '';
+                if (fileInput) {
+                    fileInput.value = '';
+                }
+                
+                showToast('답변이 저장되었습니다.', 'success');
+            });
+        }
+        
+        // 답변 및 완료 처리
+        function handleSaveAndComplete() {
+            const replyTextarea = document.querySelector('#inquiryDetailModal textarea');
+            const replyContent = replyTextarea.value.trim();
+            
+            if (!replyContent) {
+                showToast('답변 내용을 입력해주세요.', 'error');
+                return;
+            }
+            
+            confirmAction('답변을 저장하고 완료 처리하시겠습니까?', function() {
+                // 답변 저장 먼저 처리
+                const fileInput = document.querySelector('#inquiryDetailModal input[type="file"]');
+                const replyHistory = document.querySelector('#inquiryDetailModal .card:last-child > div:last-child');
+                if (replyHistory) {
+                    const newReply = document.createElement('div');
+                    newReply.style.cssText = 'padding: 16px; background-color: #f1f5f9; border-radius: 8px;';
+                    newReply.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <div>
+                                <span style="font-weight: 600;">관리자</span>
+                                <span style="font-size: 12px; color: #64748b; margin-left: 8px;">${new Date().toLocaleString('ko-KR')}</span>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-outline btn-sm" onclick="handleEditReply(this)">수정</button>
+                                <button type="button" class="btn btn-outline btn-sm" style="margin-left: 4px;" onclick="handleDeleteReply(this)">삭제</button>
+                            </div>
+                        </div>
+                        <div style="font-size: 14px; line-height: 1.8; white-space: pre-wrap;">${replyContent}</div>
+                    `;
+                    replyHistory.appendChild(newReply);
+                }
+                
+                // 처리 상태를 "완료"로 변경
+                const statusBadge = document.querySelector('#inquiryDetailModal .badge-warning, #inquiryDetailModal .badge-info');
+                if (statusBadge) {
+                    statusBadge.textContent = '완료';
+                    statusBadge.className = 'badge badge-success';
+                }
+                
+                // 답변 입력란 초기화
+                replyTextarea.value = '';
+                if (fileInput) {
+                    fileInput.value = '';
+                }
+                
+                showToast('답변이 저장되고 완료 처리되었습니다.', 'success');
+            });
+        }
+        
+        // 답변 수정
+        function handleEditReply(button) {
+            const replyItem = button.closest('div[style*="padding: 16px"]');
+            const replyContent = replyItem.querySelector('div:last-child').textContent.trim();
+            
+            // 답변 입력란에 내용 채우기
+            const replyTextarea = document.querySelector('#inquiryDetailModal textarea');
+            if (replyTextarea) {
+                replyTextarea.value = replyContent;
+                replyTextarea.focus();
+            }
+            
+            // 수정 중임을 표시하기 위해 임시 클래스 추가
+            replyItem.style.border = '2px solid #3b82f6';
+            
+            showToast('답변을 수정할 수 있습니다. 수정 후 저장 버튼을 클릭하세요.', 'info');
+        }
+        
+        // 답변 삭제
+        function handleDeleteReply(button) {
+            confirmAction('답변을 삭제하시겠습니까?', function() {
+                const replyItem = button.closest('div[style*="padding: 16px"]');
+                if (replyItem) {
+                    replyItem.remove();
+                    showToast('답변이 삭제되었습니다.', 'success');
+                }
+            });
+        }
     </script>
 </body>
 </html>

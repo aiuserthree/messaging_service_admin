@@ -198,9 +198,9 @@
                         <div class="filter-item">
                             <input type="date" class="form-control" id="endDate" value="2024-11-19">
                         </div>
-                        <button class="btn btn-primary">검색</button>
-                        <button class="btn btn-outline">초기화</button>
-                        <button class="btn btn-secondary">엑셀 다운로드</button>
+                        <button class="btn btn-primary" onclick="searchCharges()">검색</button>
+                        <button class="btn btn-outline" onclick="resetSearch()">초기화</button>
+                        <button class="btn btn-secondary" onclick="downloadExcel()">엑셀 다운로드</button>
                     </div>
                 </div>
                 
@@ -235,7 +235,7 @@
                                     <td><span class="badge badge-success">완료</span></td>
                                     <td>-</td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('chargeDetailModal')">상세</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openChargeDetailModal('hong@example.com', 'COMPLETED', '카드')">상세</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -249,8 +249,8 @@
                                     <td><span class="badge badge-warning">대기</span></td>
                                     <td><span class="badge badge-warning">대기</span></td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('chargeDetailModal')">상세</button>
-                                        <button class="btn btn-success btn-sm" style="margin-left: 4px;" onclick="location.href='payment-deposit.html'">입금 확인</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openChargeDetailModal('kim@example.com', 'PENDING', '무통장입금')">상세</button>
+                                        <button class="btn btn-success btn-sm" style="margin-left: 4px;" onclick="handleDepositConfirm('kim@example.com', this)">입금 확인</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -264,7 +264,7 @@
                                     <td><span class="badge badge-success">완료</span></td>
                                     <td>-</td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('chargeDetailModal')">상세</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openChargeDetailModal('lee@example.com', 'COMPLETED', '계좌이체')">상세</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -278,7 +278,7 @@
                                     <td><span class="badge badge-success">완료</span></td>
                                     <td><span class="badge badge-success">확인완료</span></td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('chargeDetailModal')">상세</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openChargeDetailModal('park@example.com', 'COMPLETED', '무통장입금')">상세</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -292,8 +292,8 @@
                                     <td><span class="badge badge-danger">실패</span></td>
                                     <td>-</td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('chargeDetailModal')">상세</button>
-                                        <button class="btn btn-danger btn-sm" style="margin-left: 4px;">취소</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openChargeDetailModal('choi@example.com', 'FAILED', '카드')">상세</button>
+                                        <button class="btn btn-danger btn-sm" style="margin-left: 4px;" onclick="handleCancelCharge('choi@example.com', this)">취소</button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -356,14 +356,281 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-danger">결제 취소</button>
+                <button class="btn btn-danger" id="cancelChargeBtn" onclick="handleCancelChargeFromModal()" style="display: none;">결제 취소</button>
+                <button class="btn btn-success" id="depositConfirmBtn" onclick="handleDepositConfirmFromModal()" style="display: none;">입금 확인</button>
                 <button class="btn btn-outline" onclick="closeModal('chargeDetailModal')">닫기</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 입금 확인 모달 -->
+    <div class="modal" id="depositConfirmModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">입금 확인</h3>
+                <button class="modal-close" onclick="closeModal('depositConfirmModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label class="form-label">입금 확인 금액</label>
+                    <div class="form-control" style="background-color: #f1f5f9; font-size: 20px; font-weight: 600;" id="depositAmount">₩500,000</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">입금 확인 일시</label>
+                    <input type="datetime-local" id="depositConfirmDate" class="form-control" value="">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">비고</label>
+                    <textarea id="depositNote" class="form-control" rows="3" placeholder="입금 확인 관련 비고를 입력하세요 (선택사항)"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="confirmDeposit()">입금 확인</button>
+                <button class="btn btn-outline" onclick="closeModal('depositConfirmModal')">취소</button>
             </div>
         </div>
     </div>
     
     <script src="js/admin-common.js"></script>
     <script>
+        let currentChargeId = null;
+        let currentChargeStatus = null;
+        let currentChargeMethod = null;
+        
+        // 검색
+        function searchCharges() {
+            const searchInput = document.getElementById('searchInput').value;
+            const paymentMethod = document.getElementById('paymentMethodFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            if (!startDate || !endDate) {
+                showToast('날짜를 선택해주세요.', 'error');
+                return;
+            }
+            
+            // API 호출 시뮬레이션
+            showToast('검색이 완료되었습니다.', 'success');
+        }
+        
+        // 검색 초기화
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('paymentMethodFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('startDate').value = '2024-11-19';
+            document.getElementById('endDate').value = '2024-11-19';
+            showToast('검색 조건이 초기화되었습니다.', 'info');
+        }
+        
+        // 엑셀 다운로드
+        function downloadExcel() {
+            const paymentMethod = document.getElementById('paymentMethodFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            if (!startDate || !endDate) {
+                showToast('날짜를 선택해주세요.', 'error');
+                return;
+            }
+            
+            showToast('엑셀 다운로드를 시작합니다...', 'info');
+            
+            // 실제로는 서버에서 엑셀 파일을 생성하고 다운로드 링크를 제공해야 함
+            setTimeout(function() {
+                showToast('엑셀 다운로드가 완료되었습니다.', 'success');
+            }, 1000);
+        }
+        
+        // 충전 상세 모달 열기
+        function openChargeDetailModal(chargeId, status, paymentMethod) {
+            currentChargeId = chargeId;
+            currentChargeStatus = status;
+            currentChargeMethod = paymentMethod;
+            
+            // 상태에 따라 버튼 표시/숨김
+            const cancelBtn = document.getElementById('cancelChargeBtn');
+            const depositBtn = document.getElementById('depositConfirmBtn');
+            
+            if (cancelBtn) cancelBtn.style.display = 'none';
+            if (depositBtn) depositBtn.style.display = 'none';
+            
+            if (status === 'FAILED' || status === 'PENDING') {
+                if (cancelBtn) cancelBtn.style.display = 'inline-block';
+            }
+            
+            if (status === 'PENDING' && paymentMethod === '무통장입금') {
+                if (depositBtn) depositBtn.style.display = 'inline-block';
+            }
+            
+            openModal('chargeDetailModal');
+        }
+        
+        // 입금 확인 (테이블)
+        function handleDepositConfirm(chargeId, buttonElement) {
+            currentChargeId = chargeId;
+            
+            // 입금 확인 모달 열기
+            const depositAmount = buttonElement.closest('tr').querySelector('td:nth-child(3)').textContent.trim();
+            document.getElementById('depositAmount').textContent = depositAmount;
+            
+            // 현재 날짜/시간 설정
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('depositConfirmDate').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            document.getElementById('depositNote').value = '';
+            
+            openModal('depositConfirmModal');
+        }
+        
+        // 입금 확인 (상세 모달)
+        function handleDepositConfirmFromModal() {
+            if (!currentChargeId) {
+                showToast('충전 정보를 찾을 수 없습니다.', 'error');
+                return;
+            }
+            
+            // 입금 확인 모달 열기
+            const depositAmount = document.querySelector('#chargeDetailModal .form-control[style*="font-size: 20px"]').textContent.trim();
+            document.getElementById('depositAmount').textContent = depositAmount;
+            
+            // 현재 날짜/시간 설정
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('depositConfirmDate').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            document.getElementById('depositNote').value = '';
+            
+            openModal('depositConfirmModal');
+        }
+        
+        // 입금 확인 처리
+        function confirmDeposit() {
+            const confirmDate = document.getElementById('depositConfirmDate').value;
+            const note = document.getElementById('depositNote').value;
+            
+            if (!confirmDate) {
+                showToast('입금 확인 일시를 선택해주세요.', 'error');
+                return;
+            }
+            
+            confirmAction('입금을 확인하시겠습니까?', function() {
+                // API 호출
+                
+                // 테이블 업데이트
+                const rows = document.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const memberCell = row.querySelector('td:nth-child(2)');
+                    if (memberCell && memberCell.textContent.includes(currentChargeId)) {
+                        const statusCell = row.querySelector('td:nth-child(5)');
+                        if (statusCell) {
+                            statusCell.innerHTML = '<span class="badge badge-success">완료</span>';
+                        }
+                        const confirmCell = row.querySelector('td:nth-child(6)');
+                        if (confirmCell) {
+                            confirmCell.innerHTML = '<span class="badge badge-success">확인완료</span>';
+                        }
+                        
+                        // 입금 확인 버튼 제거
+                        const depositBtn = row.querySelector('.btn-success');
+                        if (depositBtn && depositBtn.textContent.includes('입금 확인')) {
+                            depositBtn.remove();
+                        }
+                    }
+                });
+                
+                // 상세 모달이 열려있으면 업데이트
+                const detailModal = document.getElementById('chargeDetailModal');
+                if (detailModal && detailModal.classList.contains('show')) {
+                    const statusBadge = document.querySelector('#chargeDetailModal .badge-warning');
+                    if (statusBadge) {
+                        statusBadge.textContent = '완료';
+                        statusBadge.className = 'badge badge-success';
+                    }
+                    
+                    const depositBtn = document.getElementById('depositConfirmBtn');
+                    if (depositBtn) {
+                        depositBtn.style.display = 'none';
+                    }
+                }
+                
+                showToast('입금 확인이 완료되었습니다.', 'success');
+                closeModal('depositConfirmModal');
+            });
+        }
+        
+        // 결제 취소 (테이블)
+        function handleCancelCharge(chargeId, buttonElement) {
+            currentChargeId = chargeId;
+            
+            confirmAction('이 결제를 취소하시겠습니까?\n\n취소된 결제는 복구할 수 없습니다.', function() {
+                // API 호출
+                const row = buttonElement.closest('tr');
+                const statusCell = row.querySelector('td:nth-child(5)');
+                if (statusCell) {
+                    statusCell.innerHTML = '<span class="badge badge-secondary">취소</span>';
+                }
+                
+                // 취소 버튼 제거
+                buttonElement.remove();
+                
+                showToast('결제가 취소되었습니다.', 'success');
+            });
+        }
+        
+        // 결제 취소 (상세 모달)
+        function handleCancelChargeFromModal() {
+            if (!currentChargeId) {
+                showToast('충전 정보를 찾을 수 없습니다.', 'error');
+                return;
+            }
+            
+            confirmAction('이 결제를 취소하시겠습니까?\n\n취소된 결제는 복구할 수 없습니다.', function() {
+                // API 호출
+                
+                // 테이블 업데이트
+                const rows = document.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const memberCell = row.querySelector('td:nth-child(2)');
+                    if (memberCell && memberCell.textContent.includes(currentChargeId)) {
+                        const statusCell = row.querySelector('td:nth-child(5)');
+                        if (statusCell) {
+                            statusCell.innerHTML = '<span class="badge badge-secondary">취소</span>';
+                        }
+                        
+                        // 취소 버튼 제거
+                        const cancelBtn = row.querySelector('.btn-danger');
+                        if (cancelBtn && cancelBtn.textContent.includes('취소')) {
+                            cancelBtn.remove();
+                        }
+                    }
+                });
+                
+                // 상세 모달 업데이트
+                const statusBadge = document.querySelector('#chargeDetailModal .badge-danger, #chargeDetailModal .badge-warning');
+                if (statusBadge) {
+                    statusBadge.textContent = '취소';
+                    statusBadge.className = 'badge badge-secondary';
+                }
+                
+                const cancelBtn = document.getElementById('cancelChargeBtn');
+                if (cancelBtn) {
+                    cancelBtn.style.display = 'none';
+                }
+                
+                showToast('결제가 취소되었습니다.', 'success');
+            });
+        }
+        
         createPagination(1, 10, 'pagination');
     </script>
 </body>

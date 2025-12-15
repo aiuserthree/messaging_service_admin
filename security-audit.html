@@ -124,9 +124,9 @@
             
             <div class="admin-content">
                 <div class="tabs">
-                    <button class="tab active" onclick="switchTab('access')">접근 제어</button>
-                    <button class="tab" onclick="switchTab('security')">보안 로그</button>
-                    <button class="tab" onclick="switchTab('audit')">감사 로그</button>
+                    <button type="button" class="tab active" onclick="switchTab('access', this)">접근 제어</button>
+                    <button type="button" class="tab" onclick="switchTab('security', this)">보안 로그</button>
+                    <button type="button" class="tab" onclick="switchTab('audit', this)">감사 로그</button>
                 </div>
                 
                 <div id="tab-access" class="tab-content">
@@ -138,17 +138,17 @@
                             <div class="form-group">
                                 <label class="form-label">IP 화이트리스트</label>
                                 <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                                    <input type="text" class="form-control" placeholder="IP 주소 입력 (예: 192.168.1.1)">
-                                    <button class="btn btn-primary btn-sm">추가</button>
+                                    <input type="text" id="newIpAddress" class="form-control" placeholder="IP 주소 입력 (예: 192.168.1.1)">
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="handleAddIp()">추가</button>
                                 </div>
-                                <div style="padding: 12px; background-color: #f1f5f9; border-radius: 8px;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div id="ipWhitelist" style="padding: 12px; background-color: #f1f5f9; border-radius: 8px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;" data-ip="192.168.1.100">
                                         <span>192.168.1.100</span>
-                                        <button class="btn btn-danger btn-sm">삭제</button>
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="handleDeleteIp(this)">삭제</button>
                                     </div>
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;" data-ip="192.168.1.101">
                                         <span>192.168.1.101</span>
-                                        <button class="btn btn-danger btn-sm">삭제</button>
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="handleDeleteIp(this)">삭제</button>
                                     </div>
                                 </div>
                             </div>
@@ -163,7 +163,7 @@
                             
                             <div class="form-group">
                                 <label class="form-label">세션 타임아웃 (분)</label>
-                                <input type="number" class="form-control" value="30" placeholder="분">
+                                <input type="number" id="sessionTimeout" class="form-control" value="30" placeholder="분" min="1" max="480">
                             </div>
                             
                             <div class="form-group">
@@ -171,26 +171,26 @@
                                 <div style="margin-top: 8px;">
                                     <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 8px;">
                                         <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" checked>
+                                            <input type="checkbox" id="pwMinLength" checked>
                                             <span>최소 8자 이상</span>
                                         </label>
                                     </div>
                                     <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 8px;">
                                         <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" checked>
+                                            <input type="checkbox" id="pwComplexity" checked>
                                             <span>영문, 숫자, 특수문자 조합</span>
                                         </label>
                                     </div>
                                     <div style="display: flex; gap: 12px; align-items: center;">
                                         <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox">
+                                            <input type="checkbox" id="pwExpiry">
                                             <span>90일마다 변경</span>
                                         </label>
                                     </div>
                                 </div>
                             </div>
                             
-                            <button class="btn btn-primary">저장</button>
+                            <button type="button" class="btn btn-primary" onclick="handleSaveAccessControl(event)">저장</button>
                         </div>
                     </div>
                 </div>
@@ -198,11 +198,11 @@
                 <div id="tab-security" class="tab-content" style="display: none;">
                     <div class="search-filter-bar">
                         <div class="search-box">
-                            <input type="text" class="form-control" placeholder="관리자 ID 또는 IP 주소 검색">
+                            <input type="text" id="securitySearchInput" class="form-control" placeholder="관리자 ID 또는 IP 주소 검색">
                         </div>
                         <div class="filter-group">
                             <div class="filter-item">
-                                <select class="form-control">
+                                <select id="securityEventType" class="form-control">
                                     <option value="">이벤트 유형 (전체)</option>
                                     <option value="LOGIN">로그인</option>
                                     <option value="PERMISSION_CHANGE">권한 변경</option>
@@ -211,18 +211,21 @@
                                 </select>
                             </div>
                             <div class="filter-item">
-                                <input type="date" class="form-control">
+                                <input type="date" id="securityStartDate" class="form-control">
                             </div>
                             <div class="filter-item">
-                                <input type="date" class="form-control">
+                                <input type="date" id="securityEndDate" class="form-control">
                             </div>
-                            <button class="btn btn-primary">검색</button>
+                            <button type="button" class="btn btn-primary" onclick="handleSearchSecurityLog()">검색</button>
+                            <button type="button" class="btn btn-outline" onclick="handleResetSecurityFilter()">초기화</button>
+                            <button type="button" class="btn btn-secondary" onclick="handleExportSecurityLog()">Excel 내보내기</button>
                         </div>
                     </div>
                     
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">보안 로그</h3>
+                            <div class="card-description">총 1,234건</div>
                         </div>
                         <div class="table-container">
                             <table>
@@ -234,6 +237,7 @@
                                         <th>IP 주소</th>
                                         <th>상세 정보</th>
                                         <th>결과</th>
+                                        <th>관리</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -244,6 +248,7 @@
                                         <td>192.168.1.100</td>
                                         <td>/admin/index.html</td>
                                         <td><span class="badge badge-success">성공</span></td>
+                                        <td><button type="button" class="btn btn-primary btn-sm" onclick="openSecurityLogDetail(this)">상세</button></td>
                                     </tr>
                                     <tr>
                                         <td>2024-11-19 13:20</td>
@@ -252,6 +257,7 @@
                                         <td>192.168.1.101</td>
                                         <td>회원 정보 수정</td>
                                         <td><span class="badge badge-success">성공</span></td>
+                                        <td><button type="button" class="btn btn-primary btn-sm" onclick="openSecurityLogDetail(this)">상세</button></td>
                                     </tr>
                                     <tr>
                                         <td>2024-11-19 12:10</td>
@@ -260,6 +266,7 @@
                                         <td>192.168.1.999</td>
                                         <td>/admin/index.html</td>
                                         <td><span class="badge badge-danger">실패</span></td>
+                                        <td><button type="button" class="btn btn-primary btn-sm" onclick="openSecurityLogDetail(this)">상세</button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -271,11 +278,11 @@
                 <div id="tab-audit" class="tab-content" style="display: none;">
                     <div class="search-filter-bar">
                         <div class="search-box">
-                            <input type="text" class="form-control" placeholder="관리자 ID 또는 작업 대상 검색">
+                            <input type="text" id="auditSearchInput" class="form-control" placeholder="관리자 ID 또는 작업 대상 검색">
                         </div>
                         <div class="filter-group">
                             <div class="filter-item">
-                                <select class="form-control">
+                                <select id="auditActionType" class="form-control">
                                     <option value="">작업 유형 (전체)</option>
                                     <option value="USER_MODIFY">사용자 정보 수정</option>
                                     <option value="APPROVAL">발신번호 승인/반려</option>
@@ -287,18 +294,21 @@
                                 </select>
                             </div>
                             <div class="filter-item">
-                                <input type="date" class="form-control">
+                                <input type="date" id="auditStartDate" class="form-control">
                             </div>
                             <div class="filter-item">
-                                <input type="date" class="form-control">
+                                <input type="date" id="auditEndDate" class="form-control">
                             </div>
-                            <button class="btn btn-primary">검색</button>
+                            <button type="button" class="btn btn-primary" onclick="handleSearchAuditLog()">검색</button>
+                            <button type="button" class="btn btn-outline" onclick="handleResetAuditFilter()">초기화</button>
+                            <button type="button" class="btn btn-secondary" onclick="handleExportAuditLog()">Excel 내보내기</button>
                         </div>
                     </div>
                     
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">감사 로그</h3>
+                            <div class="card-description">총 2,567건</div>
                         </div>
                         <div class="table-container">
                             <table>
@@ -310,6 +320,7 @@
                                         <th>작업 대상</th>
                                         <th>작업 내용</th>
                                         <th>작업 결과</th>
+                                        <th>관리</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -320,6 +331,7 @@
                                         <td>hong@example.com</td>
                                         <td>계정 상태 변경: 정상 → 정지</td>
                                         <td><span class="badge badge-success">성공</span></td>
+                                        <td><button type="button" class="btn btn-primary btn-sm" onclick="openAuditLogDetail(this)">상세</button></td>
                                     </tr>
                                     <tr>
                                         <td>2024-11-19 13:20</td>
@@ -328,6 +340,7 @@
                                         <td>010-1234-5678</td>
                                         <td>발신번호 승인 처리</td>
                                         <td><span class="badge badge-success">성공</span></td>
+                                        <td><button type="button" class="btn btn-primary btn-sm" onclick="openAuditLogDetail(this)">상세</button></td>
                                     </tr>
                                     <tr>
                                         <td>2024-11-19 12:10</td>
@@ -336,6 +349,7 @@
                                         <td>발송 설정</td>
                                         <td>발송 큐 크기 변경: 10000 → 15000</td>
                                         <td><span class="badge badge-success">성공</span></td>
+                                        <td><button type="button" class="btn btn-primary btn-sm" onclick="openAuditLogDetail(this)">상세</button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -347,16 +361,380 @@
         </main>
     </div>
     
+    <!-- 보안 로그 상세 모달 -->
+    <div class="modal" id="securityLogDetailModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title">보안 로그 상세</h3>
+                <button class="modal-close" onclick="closeModal('securityLogDetailModal')">&times;</button>
+            </div>
+            <div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">일시</label>
+                        <div id="securityLogDate" class="form-control" style="background-color: #f1f5f9;">-</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">관리자 ID</label>
+                        <div id="securityLogAdmin" class="form-control" style="background-color: #f1f5f9;">-</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">이벤트 유형</label>
+                        <div id="securityLogEventType" class="form-control" style="background-color: #f1f5f9;">-</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">IP 주소</label>
+                        <div id="securityLogIp" class="form-control" style="background-color: #f1f5f9;">-</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">결과</label>
+                        <div id="securityLogResult">-</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">User Agent</label>
+                        <div id="securityLogUserAgent" class="form-control" style="background-color: #f1f5f9; font-size: 12px;">-</div>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label class="form-label">상세 정보</label>
+                    <div id="securityLogDetail" class="form-control" style="background-color: #f1f5f9; min-height: 60px;">-</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">요청 데이터</label>
+                    <div id="securityLogRequestData" style="background-color: #1e293b; color: #10b981; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 12px; white-space: pre-wrap; max-height: 150px; overflow-y: auto;">-</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="handleBlockIp()">IP 차단</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('securityLogDetailModal')">닫기</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 감사 로그 상세 모달 -->
+    <div class="modal" id="auditLogDetailModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title">감사 로그 상세</h3>
+                <button class="modal-close" onclick="closeModal('auditLogDetailModal')">&times;</button>
+            </div>
+            <div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">작업 일시</label>
+                        <div id="auditLogDate" class="form-control" style="background-color: #f1f5f9;">-</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">관리자</label>
+                        <div id="auditLogAdmin" class="form-control" style="background-color: #f1f5f9;">-</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">작업 유형</label>
+                        <div id="auditLogActionType" class="form-control" style="background-color: #f1f5f9;">-</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">작업 대상</label>
+                        <div id="auditLogTarget" class="form-control" style="background-color: #f1f5f9;">-</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">작업 결과</label>
+                        <div id="auditLogResult">-</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">IP 주소</label>
+                        <div id="auditLogIp" class="form-control" style="background-color: #f1f5f9;">-</div>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label class="form-label">작업 내용</label>
+                    <div id="auditLogContent" class="form-control" style="background-color: #f1f5f9; min-height: 60px;">-</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">변경 전 데이터</label>
+                    <div id="auditLogBefore" style="background-color: #fef2f2; color: #991b1b; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 12px; white-space: pre-wrap; max-height: 120px; overflow-y: auto;">-</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">변경 후 데이터</label>
+                    <div id="auditLogAfter" style="background-color: #f0fdf4; color: #166534; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 12px; white-space: pre-wrap; max-height: 120px; overflow-y: auto;">-</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal('auditLogDetailModal')">닫기</button>
+            </div>
+        </div>
+    </div>
+    
     <script src="js/admin-common.js"></script>
     <script>
-        function switchTab(tabName) {
+        function switchTab(tabName, element) {
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
-            event.target.classList.add('active');
+            if (element) {
+                element.classList.add('active');
+            }
             document.getElementById('tab-' + tabName).style.display = 'block';
         }
+        
         createPagination(1, 10, 'pagination-security');
         createPagination(1, 10, 'pagination-audit');
+        
+        // ==================== 접근 제어 ====================
+        
+        // IP 화이트리스트 추가
+        function handleAddIp() {
+            const ipInput = document.getElementById('newIpAddress');
+            const ip = ipInput.value.trim();
+            
+            // IP 주소 유효성 검사
+            const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+            if (!ip) {
+                showToast('IP 주소를 입력해주세요.', 'error');
+                return;
+            }
+            
+            if (!ipRegex.test(ip)) {
+                showToast('올바른 IP 주소 형식이 아닙니다.', 'error');
+                return;
+            }
+            
+            // 중복 확인
+            const existingIps = document.querySelectorAll('#ipWhitelist [data-ip]');
+            for (let item of existingIps) {
+                if (item.dataset.ip === ip) {
+                    showToast('이미 등록된 IP 주소입니다.', 'error');
+                    return;
+                }
+            }
+            
+            confirmAction('IP 주소를 화이트리스트에 추가하시겠습니까?', function() {
+                const whitelist = document.getElementById('ipWhitelist');
+                const newItem = document.createElement('div');
+                newItem.style.cssText = 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;';
+                newItem.dataset.ip = ip;
+                newItem.innerHTML = `
+                    <span>${ip}</span>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="handleDeleteIp(this)">삭제</button>
+                `;
+                whitelist.appendChild(newItem);
+                
+                ipInput.value = '';
+                showToast('IP 주소가 추가되었습니다.', 'success');
+            });
+        }
+        
+        // IP 화이트리스트 삭제
+        function handleDeleteIp(button) {
+            const item = button.closest('[data-ip]');
+            const ip = item.dataset.ip;
+            
+            confirmAction(`${ip} IP 주소를 화이트리스트에서 삭제하시겠습니까?`, function() {
+                item.remove();
+                showToast('IP 주소가 삭제되었습니다.', 'success');
+            });
+        }
+        
+        // 접근 제어 설정 저장
+        function handleSaveAccessControl(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            const twoFactor = document.getElementById('twoFactor').checked;
+            const sessionTimeout = document.getElementById('sessionTimeout').value;
+            const pwMinLength = document.getElementById('pwMinLength').checked;
+            const pwComplexity = document.getElementById('pwComplexity').checked;
+            const pwExpiry = document.getElementById('pwExpiry').checked;
+            
+            if (!sessionTimeout || sessionTimeout < 1 || sessionTimeout > 480) {
+                showToast('세션 타임아웃은 1~480분 사이로 설정해주세요.', 'error');
+                return false;
+            }
+            
+            confirmAction('접근 제어 설정을 저장하시겠습니까?', function() {
+                // API 호출
+                
+                const settings = {
+                    twoFactor,
+                    sessionTimeout,
+                    passwordPolicy: {
+                        minLength: pwMinLength,
+                        complexity: pwComplexity,
+                        expiry: pwExpiry
+                    }
+                };
+                
+                console.log('저장된 설정:', settings);
+                showToast('접근 제어 설정이 저장되었습니다.', 'success');
+            });
+            
+            return false;
+        }
+        
+        // ==================== 보안 로그 ====================
+        
+        // 보안 로그 검색
+        function handleSearchSecurityLog() {
+            const searchInput = document.getElementById('securitySearchInput').value;
+            const eventType = document.getElementById('securityEventType').value;
+            const startDate = document.getElementById('securityStartDate').value;
+            const endDate = document.getElementById('securityEndDate').value;
+            
+            console.log('보안 로그 검색:', { searchInput, eventType, startDate, endDate });
+            showToast('검색이 완료되었습니다.', 'success');
+        }
+        
+        // 보안 로그 필터 초기화
+        function handleResetSecurityFilter() {
+            document.getElementById('securitySearchInput').value = '';
+            document.getElementById('securityEventType').value = '';
+            document.getElementById('securityStartDate').value = '';
+            document.getElementById('securityEndDate').value = '';
+            showToast('검색 조건이 초기화되었습니다.', 'info');
+        }
+        
+        // 보안 로그 Excel 내보내기
+        function handleExportSecurityLog() {
+            confirmAction('보안 로그를 Excel 파일로 내보내시겠습니까?', function() {
+                showToast('보안 로그 Excel 파일 다운로드가 시작되었습니다.', 'success');
+                
+                // 더미 데이터로 CSV 생성
+                const data = [
+                    ['일시', '관리자 ID', '이벤트 유형', 'IP 주소', '상세 정보', '결과'],
+                    ['2024-11-19 14:30', 'admin@example.com', '로그인', '192.168.1.100', '/admin/index.html', '성공'],
+                    ['2024-11-19 13:20', 'operator@example.com', '데이터 수정', '192.168.1.101', '회원 정보 수정', '성공'],
+                    ['2024-11-19 12:10', 'unknown@example.com', '로그인', '192.168.1.999', '/admin/index.html', '실패']
+                ];
+                
+                const csvContent = data.map(row => row.join(',')).join('\n');
+                const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `보안로그_${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+            });
+        }
+        
+        // 보안 로그 상세 보기
+        function openSecurityLogDetail(button) {
+            const row = button.closest('tr');
+            const cells = row.querySelectorAll('td');
+            
+            document.getElementById('securityLogDate').textContent = cells[0].textContent;
+            document.getElementById('securityLogAdmin').textContent = cells[1].textContent;
+            document.getElementById('securityLogEventType').textContent = cells[2].textContent;
+            document.getElementById('securityLogIp').textContent = cells[3].textContent;
+            document.getElementById('securityLogDetail').textContent = cells[4].textContent;
+            document.getElementById('securityLogResult').innerHTML = cells[5].innerHTML;
+            
+            // 추가 정보 (더미 데이터)
+            document.getElementById('securityLogUserAgent').textContent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+            document.getElementById('securityLogRequestData').textContent = JSON.stringify({
+                method: 'POST',
+                path: '/api/admin/login',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Forwarded-For': cells[3].textContent
+                },
+                body: {
+                    email: cells[1].textContent,
+                    timestamp: cells[0].textContent
+                }
+            }, null, 2);
+            
+            openModal('securityLogDetailModal');
+        }
+        
+        // IP 차단
+        function handleBlockIp() {
+            const ip = document.getElementById('securityLogIp').textContent;
+            
+            confirmAction(`${ip} IP 주소를 차단하시겠습니까?`, function() {
+                showToast(`${ip} IP 주소가 차단되었습니다.`, 'success');
+                closeModal('securityLogDetailModal');
+            });
+        }
+        
+        // ==================== 감사 로그 ====================
+        
+        // 감사 로그 검색
+        function handleSearchAuditLog() {
+            const searchInput = document.getElementById('auditSearchInput').value;
+            const actionType = document.getElementById('auditActionType').value;
+            const startDate = document.getElementById('auditStartDate').value;
+            const endDate = document.getElementById('auditEndDate').value;
+            
+            console.log('감사 로그 검색:', { searchInput, actionType, startDate, endDate });
+            showToast('검색이 완료되었습니다.', 'success');
+        }
+        
+        // 감사 로그 필터 초기화
+        function handleResetAuditFilter() {
+            document.getElementById('auditSearchInput').value = '';
+            document.getElementById('auditActionType').value = '';
+            document.getElementById('auditStartDate').value = '';
+            document.getElementById('auditEndDate').value = '';
+            showToast('검색 조건이 초기화되었습니다.', 'info');
+        }
+        
+        // 감사 로그 Excel 내보내기
+        function handleExportAuditLog() {
+            confirmAction('감사 로그를 Excel 파일로 내보내시겠습니까?', function() {
+                showToast('감사 로그 Excel 파일 다운로드가 시작되었습니다.', 'success');
+                
+                // 더미 데이터로 CSV 생성
+                const data = [
+                    ['작업 일시', '관리자', '작업 유형', '작업 대상', '작업 내용', '작업 결과'],
+                    ['2024-11-19 14:30', 'admin@example.com', '사용자 정보 수정', 'hong@example.com', '계정 상태 변경: 정상 → 정지', '성공'],
+                    ['2024-11-19 13:20', 'reviewer@example.com', '발신번호 승인/반려', '010-1234-5678', '발신번호 승인 처리', '성공'],
+                    ['2024-11-19 12:10', 'operator@example.com', '시스템 설정 변경', '발송 설정', '발송 큐 크기 변경: 10000 → 15000', '성공']
+                ];
+                
+                const csvContent = data.map(row => row.join(',')).join('\n');
+                const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `감사로그_${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+            });
+        }
+        
+        // 감사 로그 상세 보기
+        function openAuditLogDetail(button) {
+            const row = button.closest('tr');
+            const cells = row.querySelectorAll('td');
+            
+            document.getElementById('auditLogDate').textContent = cells[0].textContent;
+            document.getElementById('auditLogAdmin').textContent = cells[1].textContent;
+            document.getElementById('auditLogActionType').textContent = cells[2].textContent;
+            document.getElementById('auditLogTarget').textContent = cells[3].textContent;
+            document.getElementById('auditLogContent').textContent = cells[4].textContent;
+            document.getElementById('auditLogResult').innerHTML = cells[5].innerHTML;
+            
+            // 추가 정보 (더미 데이터)
+            document.getElementById('auditLogIp').textContent = '192.168.1.100';
+            
+            // 변경 전/후 데이터 (더미 데이터)
+            const actionType = cells[2].textContent;
+            let beforeData = {};
+            let afterData = {};
+            
+            if (actionType.includes('사용자')) {
+                beforeData = { status: '정상', lastModified: '2024-11-18 10:00:00' };
+                afterData = { status: '정지', lastModified: '2024-11-19 14:30:00', reason: '관리자 요청' };
+            } else if (actionType.includes('발신번호')) {
+                beforeData = { status: '대기', reviewedAt: null };
+                afterData = { status: '승인', reviewedAt: '2024-11-19 13:20:00', reviewer: 'reviewer@example.com' };
+            } else {
+                beforeData = { queueSize: 10000, timeout: 30 };
+                afterData = { queueSize: 15000, timeout: 30 };
+            }
+            
+            document.getElementById('auditLogBefore').textContent = JSON.stringify(beforeData, null, 2);
+            document.getElementById('auditLogAfter').textContent = JSON.stringify(afterData, null, 2);
+            
+            openModal('auditLogDetailModal');
+        }
     </script>
 </body>
 </html>

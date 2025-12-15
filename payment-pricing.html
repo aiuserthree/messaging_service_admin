@@ -131,23 +131,23 @@
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                             <div class="form-group">
                                 <label class="form-label">SMS 단가 (원)</label>
-                                <input type="number" class="form-control" value="20" placeholder="단가 입력">
+                                <input type="number" id="smsPrice" class="form-control" value="20" placeholder="단가 입력" min="0">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">LMS 단가 (원)</label>
-                                <input type="number" class="form-control" value="50" placeholder="단가 입력">
+                                <input type="number" id="lmsPrice" class="form-control" value="50" placeholder="단가 입력" min="0">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">MMS 단가 (원)</label>
-                                <input type="number" class="form-control" value="300" placeholder="단가 입력">
+                                <input type="number" id="mmsPrice" class="form-control" value="300" placeholder="단가 입력" min="0">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">알림톡 단가 (원)</label>
-                                <input type="number" class="form-control" value="25" placeholder="단가 입력">
+                                <input type="number" id="alimtalkPrice" class="form-control" value="25" placeholder="단가 입력" min="0">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">브랜드톡 단가 (원)</label>
-                                <input type="number" class="form-control" value="30" placeholder="단가 입력">
+                                <input type="number" id="brandtalkPrice" class="form-control" value="30" placeholder="단가 입력" min="0">
                             </div>
                         </div>
                     </div>
@@ -172,30 +172,30 @@
                                         <td>₩100,000 이상</td>
                                         <td>5%</td>
                                         <td>
-                                            <button class="btn btn-primary btn-sm" onclick="openModal('editDiscountModal')">수정</button>
-                                            <button class="btn btn-danger btn-sm" style="margin-left: 4px;" onclick="if(confirm('할인 구간을 삭제하시겠습니까?')) { showToast('할인 구간이 삭제되었습니다.', 'success'); }">삭제</button>
+                                            <button class="btn btn-primary btn-sm" onclick="openEditDiscountModal('₩100,000 이상', '5', this)">수정</button>
+                                            <button class="btn btn-danger btn-sm" style="margin-left: 4px;" onclick="handleDeleteDiscount('₩100,000 이상', this)">삭제</button>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>₩500,000 이상</td>
                                         <td>10%</td>
                                         <td>
-                                            <button class="btn btn-primary btn-sm" onclick="openModal('editDiscountModal')">수정</button>
-                                            <button class="btn btn-danger btn-sm" style="margin-left: 4px;" onclick="if(confirm('할인 구간을 삭제하시겠습니까?')) { showToast('할인 구간이 삭제되었습니다.', 'success'); }">삭제</button>
+                                            <button class="btn btn-primary btn-sm" onclick="openEditDiscountModal('₩500,000 이상', '10', this)">수정</button>
+                                            <button class="btn btn-danger btn-sm" style="margin-left: 4px;" onclick="handleDeleteDiscount('₩500,000 이상', this)">삭제</button>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>₩1,000,000 이상</td>
                                         <td>15%</td>
                                         <td>
-                                            <button class="btn btn-primary btn-sm" onclick="openModal('editDiscountModal')">수정</button>
-                                            <button class="btn btn-danger btn-sm" style="margin-left: 4px;" onclick="if(confirm('할인 구간을 삭제하시겠습니까?')) { showToast('할인 구간이 삭제되었습니다.', 'success'); }">삭제</button>
+                                            <button class="btn btn-primary btn-sm" onclick="openEditDiscountModal('₩1,000,000 이상', '15', this)">수정</button>
+                                            <button class="btn btn-danger btn-sm" style="margin-left: 4px;" onclick="handleDeleteDiscount('₩1,000,000 이상', this)">삭제</button>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                        <button class="btn btn-primary" style="margin-top: 16px;" onclick="openModal('addDiscountModal')">할인 구간 추가</button>
+                        <button class="btn btn-primary" style="margin-top: 16px;" onclick="openAddDiscountModal()">할인 구간 추가</button>
                     </div>
                 </div>
                 
@@ -229,8 +229,8 @@
                 </div>
                 
                 <div style="margin-top: 24px; display: flex; gap: 12px;">
-                    <button class="btn btn-primary">즉시 적용</button>
-                    <button class="btn btn-secondary">예약 적용</button>
+                    <button class="btn btn-primary" onclick="applyPricingImmediately()">즉시 적용</button>
+                    <button class="btn btn-secondary" onclick="openScheduleApplyModal()">예약 적용</button>
                 </div>
             </div>
         </main>
@@ -246,21 +246,370 @@
             <div>
                 <div class="form-group">
                     <label class="form-label">충전 금액</label>
-                    <input type="text" class="form-control" value="₩100,000 이상" placeholder="충전 금액">
+                    <input type="text" id="editDiscountAmount" class="form-control" value="₩100,000 이상" placeholder="충전 금액">
                 </div>
                 <div class="form-group">
                     <label class="form-label">할인율 (%)</label>
-                    <input type="number" class="form-control" value="5" placeholder="할인율" min="0" max="100">
+                    <input type="number" id="editDiscountRate" class="form-control" value="5" placeholder="할인율" min="0" max="100">
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" onclick="showToast('할인 구간이 수정되었습니다.', 'success'); closeModal('editDiscountModal');">저장</button>
-                <button class="btn btn-outline" onclick="closeModal('editDiscountModal')">취소</button>
+                <button type="button" class="btn btn-primary" onclick="saveDiscountEdit(event)">저장</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('editDiscountModal')">취소</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 할인 구간 추가 모달 -->
+    <div class="modal" id="addDiscountModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">할인 구간 추가</h3>
+                <button class="modal-close" onclick="closeModal('addDiscountModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label class="form-label">충전 금액</label>
+                    <input type="number" id="newDiscountAmount" class="form-control" placeholder="충전 금액 입력" min="0" step="10000">
+                    <div style="font-size: 12px; color: #64748b; margin-top: 4px;">원 이상</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">할인율 (%)</label>
+                    <input type="number" id="newDiscountRate" class="form-control" placeholder="할인율 입력" min="0" max="100" step="0.1">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveDiscountAdd(event)">추가</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('addDiscountModal')">취소</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 예약 적용 모달 -->
+    <div class="modal" id="scheduleApplyModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">예약 적용</h3>
+                <button class="modal-close" onclick="closeModal('scheduleApplyModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label class="form-label">적용 일시</label>
+                    <input type="datetime-local" id="scheduleApplyDate" class="form-control" value="">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">적용 메모</label>
+                    <textarea id="scheduleApplyMemo" class="form-control" rows="3" placeholder="예약 적용 관련 메모를 입력하세요 (선택사항)"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="confirmScheduleApply()">예약 적용</button>
+                <button class="btn btn-outline" onclick="closeModal('scheduleApplyModal')">취소</button>
             </div>
         </div>
     </div>
     
     <script src="js/admin-common.js"></script>
+    <script>
+        let currentDiscountRow = null;
+        let isEditMode = false;
+        
+        // 할인 구간 수정 모달 열기
+        function openEditDiscountModal(amount, rate, buttonElement) {
+            currentDiscountRow = buttonElement.closest('tr');
+            isEditMode = true;
+            
+            // 모달 정보 업데이트
+            const amountInput = document.getElementById('editDiscountAmount');
+            const rateInput = document.getElementById('editDiscountRate');
+            
+            if (amountInput) {
+                amountInput.value = amount;
+            }
+            if (rateInput) {
+                rateInput.value = rate;
+            }
+            
+            openModal('editDiscountModal');
+        }
+        
+        // 할인 구간 수정 저장
+        function saveDiscountEdit(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            const amountInput = document.getElementById('editDiscountAmount');
+            const rateInput = document.getElementById('editDiscountRate');
+            
+            if (!amountInput || !amountInput.value.trim()) {
+                showToast('충전 금액을 입력해주세요.', 'error');
+                return false;
+            }
+            
+            if (!rateInput || !rateInput.value || rateInput.value < 0 || rateInput.value > 100) {
+                showToast('할인율을 올바르게 입력해주세요. (0-100)', 'error');
+                return false;
+            }
+            
+            confirmAction('할인 구간을 수정하시겠습니까?', function() {
+                // API 호출
+                
+                // 테이블 업데이트
+                if (currentDiscountRow) {
+                    const amountCell = currentDiscountRow.querySelector('td:first-child');
+                    const rateCell = currentDiscountRow.querySelector('td:nth-child(2)');
+                    
+                    if (amountCell) {
+                        amountCell.textContent = amountInput.value;
+                    }
+                    if (rateCell) {
+                        rateCell.textContent = rateInput.value + '%';
+                    }
+                }
+                
+                // 변경 이력 추가
+                addPricingHistory('할인 구간 수정: ' + amountInput.value + ' ' + rateInput.value + '% 할인');
+                
+                showToast('할인 구간이 수정되었습니다.', 'success');
+                closeModal('editDiscountModal');
+                
+                // 변수 초기화
+                currentDiscountRow = null;
+                isEditMode = false;
+            });
+            
+            return false;
+        }
+        
+        // 할인 구간 삭제
+        function handleDeleteDiscount(amount, buttonElement) {
+            const row = buttonElement.closest('tr');
+            
+            confirmAction(`할인 구간을 삭제하시겠습니까?\n\n${amount}`, function() {
+                // API 호출
+                
+                // 변경 이력 추가
+                addPricingHistory('할인 구간 삭제: ' + amount);
+                
+                // 행 제거
+                row.remove();
+                
+                showToast('할인 구간이 삭제되었습니다.', 'success');
+            });
+        }
+        
+        // 할인 구간 추가 모달 열기
+        function openAddDiscountModal() {
+            isEditMode = false;
+            document.getElementById('newDiscountAmount').value = '';
+            document.getElementById('newDiscountRate').value = '';
+            openModal('addDiscountModal');
+        }
+        
+        // 할인 구간 추가 저장
+        function saveDiscountAdd(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            const amount = document.getElementById('newDiscountAmount').value;
+            const rate = document.getElementById('newDiscountRate').value;
+            
+            if (!amount || amount <= 0) {
+                showToast('충전 금액을 입력해주세요.', 'error');
+                return false;
+            }
+            
+            if (!rate || rate < 0 || rate > 100) {
+                showToast('할인율을 올바르게 입력해주세요. (0-100)', 'error');
+                return false;
+            }
+            
+            const formattedAmount = '₩' + parseInt(amount).toLocaleString() + ' 이상';
+            
+            confirmAction('할인 구간을 추가하시겠습니까?', function() {
+                // API 호출
+                
+                // 테이블에 행 추가
+                const tbody = document.querySelector('.table-container tbody');
+                if (tbody) {
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td>${formattedAmount}</td>
+                        <td>${rate}%</td>
+                        <td>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="openEditDiscountModal('${formattedAmount}', '${rate}', this)">수정</button>
+                            <button type="button" class="btn btn-danger btn-sm" style="margin-left: 4px;" onclick="handleDeleteDiscount('${formattedAmount}', this)">삭제</button>
+                        </td>
+                    `;
+                    tbody.appendChild(newRow);
+                }
+                
+                // 변경 이력 추가
+                addPricingHistory('할인 구간 추가: ' + formattedAmount + ' ' + rate + '% 할인');
+                
+                showToast('할인 구간이 추가되었습니다.', 'success');
+                closeModal('addDiscountModal');
+            });
+            
+            return false;
+        }
+        
+        // 즉시 적용
+        function applyPricingImmediately() {
+            // 단가 정보 수집
+            const smsPrice = document.getElementById('smsPrice').value;
+            const lmsPrice = document.getElementById('lmsPrice').value;
+            const mmsPrice = document.getElementById('mmsPrice').value;
+            const alimtalkPrice = document.getElementById('alimtalkPrice').value;
+            const brandtalkPrice = document.getElementById('brandtalkPrice').value;
+            
+            // 유효성 검사
+            const prices = [
+                { name: 'SMS', value: smsPrice },
+                { name: 'LMS', value: lmsPrice },
+                { name: 'MMS', value: mmsPrice },
+                { name: '알림톡', value: alimtalkPrice },
+                { name: '브랜드톡', value: brandtalkPrice }
+            ];
+            
+            for (let price of prices) {
+                if (!price.value || price.value <= 0) {
+                    showToast(price.name + ' 단가를 올바르게 입력해주세요.', 'error');
+                    return;
+                }
+            }
+            
+            const pricingData = {
+                sms: smsPrice,
+                lms: lmsPrice,
+                mms: mmsPrice,
+                alimtalk: alimtalkPrice,
+                brandtalk: brandtalkPrice
+            };
+            
+            confirmAction('요금 설정을 즉시 적용하시겠습니까?\n\n적용된 요금은 즉시 반영됩니다.', function() {
+                // API 호출
+                console.log('Pricing applied:', pricingData);
+                
+                // 변경 이력 추가
+                addPricingHistory('요금 설정 즉시 적용: SMS ' + smsPrice + '원, LMS ' + lmsPrice + '원, MMS ' + mmsPrice + '원, 알림톡 ' + alimtalkPrice + '원, 브랜드톡 ' + brandtalkPrice + '원');
+                
+                showToast('요금 설정이 즉시 적용되었습니다.', 'success');
+            });
+        }
+        
+        // 예약 적용 모달 열기
+        function openScheduleApplyModal() {
+            // 현재 날짜/시간 이후로 설정
+            const now = new Date();
+            now.setHours(now.getHours() + 1); // 최소 1시간 후
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            
+            document.getElementById('scheduleApplyDate').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            document.getElementById('scheduleApplyDate').min = `${year}-${month}-${day}T${hours}:${minutes}`;
+            document.getElementById('scheduleApplyMemo').value = '';
+            
+            openModal('scheduleApplyModal');
+        }
+        
+        // 예약 적용 확인
+        function confirmScheduleApply() {
+            const scheduleDate = document.getElementById('scheduleApplyDate').value;
+            const memo = document.getElementById('scheduleApplyMemo').value;
+            
+            if (!scheduleDate) {
+                showToast('적용 일시를 선택해주세요.', 'error');
+                return;
+            }
+            
+            // 단가 정보 수집
+            const smsPrice = document.getElementById('smsPrice').value;
+            const lmsPrice = document.getElementById('lmsPrice').value;
+            const mmsPrice = document.getElementById('mmsPrice').value;
+            const alimtalkPrice = document.getElementById('alimtalkPrice').value;
+            const brandtalkPrice = document.getElementById('brandtalkPrice').value;
+            
+            // 유효성 검사
+            const prices = [
+                { name: 'SMS', value: smsPrice },
+                { name: 'LMS', value: lmsPrice },
+                { name: 'MMS', value: mmsPrice },
+                { name: '알림톡', value: alimtalkPrice },
+                { name: '브랜드톡', value: brandtalkPrice }
+            ];
+            
+            for (let price of prices) {
+                if (!price.value || price.value <= 0) {
+                    showToast(price.name + ' 단가를 올바르게 입력해주세요.', 'error');
+                    return;
+                }
+            }
+            
+            const scheduleDateTime = new Date(scheduleDate);
+            const formattedDate = scheduleDateTime.toLocaleString('ko-KR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const confirmMessage = `요금 설정을 예약 적용하시겠습니까?\n\n적용 일시: ${formattedDate}\n\n예약된 요금은 지정된 일시에 자동으로 적용됩니다.`;
+            
+            confirmAction(confirmMessage, function() {
+                // API 호출
+                const scheduleData = {
+                    date: scheduleDate,
+                    memo: memo,
+                    pricing: {
+                        sms: smsPrice,
+                        lms: lmsPrice,
+                        mms: mmsPrice,
+                        alimtalk: alimtalkPrice,
+                        brandtalk: brandtalkPrice
+                    }
+                };
+                console.log('Pricing scheduled:', scheduleData);
+                
+                // 변경 이력 추가
+                addPricingHistory('요금 설정 예약 적용: ' + formattedDate + ' (SMS ' + smsPrice + '원, LMS ' + lmsPrice + '원, MMS ' + mmsPrice + '원, 알림톡 ' + alimtalkPrice + '원, 브랜드톡 ' + brandtalkPrice + '원)');
+                
+                showToast('요금 설정이 예약되었습니다.', 'success');
+                closeModal('scheduleApplyModal');
+            });
+        }
+        
+        // 요금 변경 이력 추가
+        function addPricingHistory(changeContent) {
+            const historyTable = document.querySelectorAll('.table-container')[1].querySelector('tbody');
+            if (historyTable) {
+                const now = new Date();
+                const dateStr = now.toLocaleString('ko-KR', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${dateStr}</td>
+                    <td>관리자</td>
+                    <td>${changeContent}</td>
+                `;
+                historyTable.insertBefore(newRow, historyTable.firstChild);
+            }
+        }
+    </script>
 </body>
 </html>
 

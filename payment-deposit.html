@@ -158,8 +158,8 @@
                                     <td>2024-11-19</td>
                                     <td><span class="badge badge-warning">대기</span></td>
                                     <td>
-                                        <button class="btn btn-success btn-sm" onclick="openModal('depositConfirmModal')">입금 확인</button>
-                                        <button class="btn btn-danger btn-sm" style="margin-left: 4px;">미입금</button>
+                                        <button class="btn btn-success btn-sm" onclick="openDepositConfirmModal('kim@example.com', '₩500,000', '신한은행 110-123-456789', '김철수', this)">입금 확인</button>
+                                        <button class="btn btn-danger btn-sm" style="margin-left: 4px;" onclick="handleNoDeposit('kim@example.com', this)">미입금</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -177,8 +177,8 @@
                                     <td>2024-11-19</td>
                                     <td><span class="badge badge-warning">대기</span></td>
                                     <td>
-                                        <button class="btn btn-success btn-sm" onclick="openModal('depositConfirmModal')">입금 확인</button>
-                                        <button class="btn btn-danger btn-sm" style="margin-left: 4px;">미입금</button>
+                                        <button class="btn btn-success btn-sm" onclick="openDepositConfirmModal('park@example.com', '₩1,000,000', 'KB국민은행 123-456-789012', '박민수', this)">입금 확인</button>
+                                        <button class="btn btn-danger btn-sm" style="margin-left: 4px;" onclick="handleNoDeposit('park@example.com', this)">미입금</button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -253,15 +253,263 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-success" onclick="showToast('입금 확인이 완료되었습니다.', 'success'); closeModal('depositConfirmModal');">입금 확인</button>
-                <button class="btn btn-danger" onclick="openModal('depositRejectModal')">미입금 처리</button>
+                <button class="btn btn-success" onclick="confirmDeposit()">입금 확인</button>
+                <button class="btn btn-danger" onclick="openNoDepositModal()">미입금 처리</button>
                 <button class="btn btn-outline" onclick="closeModal('depositConfirmModal')">취소</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 미입금 처리 모달 -->
+    <div class="modal" id="depositRejectModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">미입금 처리</h3>
+                <button class="modal-close" onclick="closeModal('depositRejectModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label class="form-label">회원 정보</label>
+                    <div class="form-control" style="background-color: #f1f5f9;" id="noDepositMember">김철수 (kim@example.com)</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">충전 금액</label>
+                    <div class="form-control" style="background-color: #f1f5f9; font-size: 20px; font-weight: 600;" id="noDepositAmount">₩500,000</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">미입금 사유</label>
+                    <select class="form-control" id="noDepositReason">
+                        <option value="">사유 선택</option>
+                        <option value="not_received">입금 미확인</option>
+                        <option value="wrong_account">잘못된 계좌 입금</option>
+                        <option value="insufficient">입금액 부족</option>
+                        <option value="expired">입금 기한 경과</option>
+                        <option value="other">기타</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">상세 사유</label>
+                    <textarea id="noDepositDetail" class="form-control" rows="4" placeholder="미입금 처리 사유를 상세히 입력하세요"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="confirmNoDeposit()">미입금 처리</button>
+                <button class="btn btn-outline" onclick="closeModal('depositRejectModal')">취소</button>
             </div>
         </div>
     </div>
     
     <script src="js/admin-common.js"></script>
     <script>
+        let currentDepositRow = null;
+        let currentDepositData = null;
+        
+        // 입금 확인 모달 열기
+        function openDepositConfirmModal(memberEmail, amount, account, depositor, buttonElement) {
+            currentDepositRow = buttonElement.closest('tr');
+            currentDepositData = {
+                email: memberEmail,
+                amount: amount,
+                account: account,
+                depositor: depositor
+            };
+            
+            // 모달 정보 업데이트
+            const memberInfo = currentDepositRow.querySelector('td:nth-child(2)').textContent.trim();
+            const memberDiv = document.querySelector('#depositConfirmModal .form-control');
+            if (memberDiv) {
+                memberDiv.textContent = memberInfo;
+            }
+            
+            const amountDiv = document.querySelector('#depositConfirmModal .form-control[style*="font-size: 20px"]');
+            if (amountDiv) {
+                amountDiv.textContent = amount;
+            }
+            
+            const accountDiv = document.querySelectorAll('#depositConfirmModal .form-control')[2];
+            if (accountDiv) {
+                accountDiv.textContent = account;
+            }
+            
+            const depositorDiv = document.querySelectorAll('#depositConfirmModal .form-control')[3];
+            if (depositorDiv) {
+                depositorDiv.textContent = depositor;
+            }
+            
+            const memoTextarea = document.querySelector('#depositConfirmModal textarea');
+            if (memoTextarea) {
+                memoTextarea.value = '';
+            }
+            
+            openModal('depositConfirmModal');
+        }
+        
+        // 입금 확인 처리
+        function confirmDeposit() {
+            const memo = document.querySelector('#depositConfirmModal textarea').value;
+            
+            if (!currentDepositData) {
+                showToast('입금 정보를 찾을 수 없습니다.', 'error');
+                return;
+            }
+            
+            confirmAction(`입금을 확인하시겠습니까?\n\n회원: ${currentDepositData.email}\n금액: ${currentDepositData.amount}`, function() {
+                // API 호출
+                
+                // 테이블에서 행 제거 또는 상태 변경
+                if (currentDepositRow) {
+                    currentDepositRow.remove();
+                    
+                    // 대기 건수 업데이트
+                    const pendingCount = document.querySelector('.card-description');
+                    if (pendingCount) {
+                        const currentCount = parseInt(pendingCount.textContent.match(/\d+/)[0]);
+                        const newCount = Math.max(0, currentCount - 1);
+                        pendingCount.textContent = `대기 건수: ${newCount}건`;
+                    }
+                    
+                    // 입금 확인 이력 테이블에 추가
+                    const historyTable = document.querySelectorAll('.table-container')[1].querySelector('tbody');
+                    if (historyTable) {
+                        const now = new Date();
+                        const dateStr = now.toLocaleString('ko-KR', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        
+                        const newRow = document.createElement('tr');
+                        const memberInfo = currentDepositRow.querySelector('td:nth-child(2)').textContent.trim();
+                        const memberName = memberInfo.split('\n')[0];
+                        const amount = currentDepositRow.querySelector('td:nth-child(3)').textContent.trim();
+                        const depositor = currentDepositRow.querySelector('td:nth-child(5)').textContent.trim();
+                        
+                        newRow.innerHTML = `
+                            <td>${dateStr}</td>
+                            <td>
+                                <div>${memberName}</div>
+                                <div style="font-size: 12px; color: #64748b;">${currentDepositData.email}</div>
+                            </td>
+                            <td style="font-weight: 600;">${amount}</td>
+                            <td>${depositor}</td>
+                            <td><span class="badge badge-success">확인완료</span></td>
+                            <td>관리자</td>
+                        `;
+                        historyTable.insertBefore(newRow, historyTable.firstChild);
+                    }
+                }
+                
+                showToast('입금 확인이 완료되었습니다.', 'success');
+                closeModal('depositConfirmModal');
+                
+                // 변수 초기화
+                currentDepositRow = null;
+                currentDepositData = null;
+            });
+        }
+        
+        // 미입금 처리 (테이블)
+        function handleNoDeposit(memberEmail, buttonElement) {
+            currentDepositRow = buttonElement.closest('tr');
+            currentDepositData = {
+                email: memberEmail
+            };
+            
+            // 미입금 모달 정보 업데이트
+            const memberInfo = currentDepositRow.querySelector('td:nth-child(2)').textContent.trim();
+            const amount = currentDepositRow.querySelector('td:nth-child(3)').textContent.trim();
+            
+            document.getElementById('noDepositMember').textContent = memberInfo;
+            document.getElementById('noDepositAmount').textContent = amount;
+            document.getElementById('noDepositReason').value = '';
+            document.getElementById('noDepositDetail').value = '';
+            
+            openModal('depositRejectModal');
+        }
+        
+        // 미입금 처리 모달 열기 (입금 확인 모달에서)
+        function openNoDepositModal() {
+            // 입금 확인 모달에서 정보 가져오기
+            const memberDiv = document.querySelector('#depositConfirmModal .form-control');
+            const amountDiv = document.querySelector('#depositConfirmModal .form-control[style*="font-size: 20px"]');
+            
+            if (!memberDiv || !amountDiv) {
+                showToast('입금 정보를 찾을 수 없습니다.', 'error');
+                return;
+            }
+            
+            // 입금 확인 모달 닫기
+            closeModal('depositConfirmModal');
+            
+            // 미입금 모달 정보 업데이트
+            document.getElementById('noDepositMember').textContent = memberDiv.textContent.trim();
+            document.getElementById('noDepositAmount').textContent = amountDiv.textContent.trim();
+            document.getElementById('noDepositReason').value = '';
+            document.getElementById('noDepositDetail').value = '';
+            
+            openModal('depositRejectModal');
+        }
+        
+        // 미입금 처리 확인
+        function confirmNoDeposit() {
+            const reason = document.getElementById('noDepositReason').value;
+            const detail = document.getElementById('noDepositDetail').value;
+            
+            if (!reason) {
+                showToast('미입금 사유를 선택해주세요.', 'error');
+                return;
+            }
+            
+            if (!detail.trim()) {
+                showToast('상세 사유를 입력해주세요.', 'error');
+                return;
+            }
+            
+            const reasonText = document.getElementById('noDepositReason').selectedOptions[0].text;
+            const memberInfo = document.getElementById('noDepositMember').textContent.trim();
+            const amount = document.getElementById('noDepositAmount').textContent.trim();
+            const confirmMessage = `미입금으로 처리하시겠습니까?\n\n회원: ${memberInfo}\n금액: ${amount}\n사유: ${reasonText}\n상세: ${detail}`;
+            
+            confirmAction(confirmMessage, function() {
+                // API 호출
+                
+                // 테이블에서 행 제거 또는 상태 변경
+                if (currentDepositRow) {
+                    currentDepositRow.remove();
+                } else {
+                    // 입금 확인 모달에서 열었을 경우, 이메일로 행 찾기
+                    const memberEmail = memberInfo.split('(')[1]?.replace(')', '');
+                    if (memberEmail) {
+                        const rows = document.querySelectorAll('tbody tr');
+                        rows.forEach(row => {
+                            const memberCell = row.querySelector('td:nth-child(2)');
+                            if (memberCell && memberCell.textContent.includes(memberEmail)) {
+                                row.remove();
+                                currentDepositRow = null; // 이미 제거됨
+                            }
+                        });
+                    }
+                }
+                
+                // 대기 건수 업데이트
+                const pendingCount = document.querySelector('.card-description');
+                if (pendingCount) {
+                    const currentCount = parseInt(pendingCount.textContent.match(/\d+/)[0]);
+                    const newCount = Math.max(0, currentCount - 1);
+                    pendingCount.textContent = `대기 건수: ${newCount}건`;
+                }
+                
+                showToast('미입금 처리되었습니다.', 'success');
+                closeModal('depositRejectModal');
+                
+                // 변수 초기화
+                currentDepositRow = null;
+                currentDepositData = null;
+            });
+        }
+        
         createPagination(1, 10, 'pagination');
     </script>
 </body>

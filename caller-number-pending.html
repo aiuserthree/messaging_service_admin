@@ -161,10 +161,10 @@
                 
                 <!-- 일괄 처리 -->
                 <div style="margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
-                    <input type="checkbox" id="selectAll">
+                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
                     <label for="selectAll" style="margin: 0;">전체 선택</label>
-                    <button class="btn btn-success btn-sm">일괄 승인</button>
-                    <button class="btn btn-danger btn-sm">일괄 반려</button>
+                    <button class="btn btn-success btn-sm" onclick="handleBulkApprove()">일괄 승인</button>
+                    <button class="btn btn-danger btn-sm" onclick="handleBulkReject()">일괄 반려</button>
                 </div>
                 
                 <!-- 승인 대기 목록 -->
@@ -192,7 +192,7 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><input type="checkbox"></td>
+                                    <td><input type="checkbox" class="row-checkbox" data-caller-number="010-1234-5678" data-member="홍길동"></td>
                                     <td>2024-11-19 10:30</td>
                                     <td>
                                         <div>홍길동</div>
@@ -208,7 +208,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><input type="checkbox"></td>
+                                    <td><input type="checkbox" class="row-checkbox" data-caller-number="010-9876-5432" data-member="김철수"></td>
                                     <td>2024-11-19 09:15</td>
                                     <td>
                                         <div>김철수</div>
@@ -224,7 +224,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><input type="checkbox"></td>
+                                    <td><input type="checkbox" class="row-checkbox" data-caller-number="02-1234-5678" data-member="이영희"></td>
                                     <td>2024-11-19 08:00</td>
                                     <td>
                                         <div>이영희</div>
@@ -240,7 +240,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><input type="checkbox"></td>
+                                    <td><input type="checkbox" class="row-checkbox" data-caller-number="010-5555-6666" data-member="박민수"></td>
                                     <td>2024-11-18 16:45</td>
                                     <td>
                                         <div>박민수</div>
@@ -385,6 +385,68 @@
         </div>
     </div>
     
+    <!-- 보완 요청 모달 -->
+    <div class="modal" id="supplementModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">보완 요청</h3>
+                <button class="modal-close" onclick="closeModal('supplementModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label class="form-label">보완 요청 사유</label>
+                    <select class="form-control" id="supplementReason">
+                        <option value="">사유 선택</option>
+                        <option value="document_incomplete">서류 미비</option>
+                        <option value="document_unclear">서류 불명확</option>
+                        <option value="document_expired">서류 만료</option>
+                        <option value="info_missing">정보 누락</option>
+                        <option value="info_mismatch">정보 불일치</option>
+                        <option value="additional_document">추가 서류 필요</option>
+                        <option value="other">기타</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">보완 요청 내용</label>
+                    <textarea id="supplementContent" class="form-control" rows="5" placeholder="보완 요청 내용을 상세히 입력하세요&#10;&#10;예: 통신서비스 이용증명원의 발급일자가 최근 3개월 이내가 아닙니다. 최근 발급된 서류를 다시 제출해주세요."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">필수 보완 항목</label>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" value="certificate" class="supplement-item">
+                            <span>통신서비스 이용증명원</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" value="identity" class="supplement-item">
+                            <span>신분증 사본</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" value="business" class="supplement-item">
+                            <span>사업자등록증 (기업의 경우)</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" value="consent" class="supplement-item">
+                            <span>명의자 동의서 (타인/타사 명의의 경우)</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" value="other" class="supplement-item">
+                            <span>기타</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">보완 기한</label>
+                    <input type="date" id="supplementDeadline" class="form-control" min="">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-warning" onclick="handleSupplementRequest()">보완 요청</button>
+                <button class="btn btn-outline" onclick="closeModal('supplementModal')">취소</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- 반려 모달 -->
     <div class="modal" id="rejectModal">
         <div class="modal-content" style="max-width: 500px;">
@@ -405,18 +467,335 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">상세 사유</label>
-                    <textarea class="form-control" rows="4" placeholder="반려 사유를 상세히 입력하세요"></textarea>
+                    <textarea id="rejectDetail" class="form-control" rows="4" placeholder="반려 사유를 상세히 입력하세요"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-danger" onclick="confirmAction('반려 처리하시겠습니까?', function() { showToast('반려 처리되었습니다.', 'success'); closeModal('rejectModal'); closeModal('reviewModal'); })">반려 처리</button>
+                <button class="btn btn-danger" onclick="handleSingleReject()">반려 처리</button>
                 <button class="btn btn-outline" onclick="closeModal('rejectModal')">취소</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 일괄 반려 모달 -->
+    <div class="modal" id="bulkRejectModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">일괄 반려 처리</h3>
+                <button class="modal-close" onclick="closeModal('bulkRejectModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label class="form-label">반려 사유</label>
+                    <select class="form-control" id="bulkRejectReason">
+                        <option value="">사유 선택</option>
+                        <option value="document_incomplete">서류 미비</option>
+                        <option value="document_invalid">서류 유효성 문제</option>
+                        <option value="info_mismatch">정보 불일치</option>
+                        <option value="other">기타</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">상세 사유</label>
+                    <textarea id="bulkRejectDetail" class="form-control" rows="4" placeholder="반려 사유를 상세히 입력하세요"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="confirmBulkRejectFromModal()">일괄 반려 처리</button>
+                <button class="btn btn-outline" onclick="closeModal('bulkRejectModal')">취소</button>
             </div>
         </div>
     </div>
     
     <script src="js/admin-common.js"></script>
     <script>
+        // 보완 요청 처리
+        function handleSupplementRequest() {
+            const reason = document.getElementById('supplementReason').value;
+            const content = document.getElementById('supplementContent').value;
+            const deadline = document.getElementById('supplementDeadline').value;
+            const checkedItems = Array.from(document.querySelectorAll('.supplement-item:checked')).map(item => item.value);
+            
+            // 유효성 검사
+            if (!reason) {
+                showToast('보완 요청 사유를 선택해주세요.', 'error');
+                return;
+            }
+            
+            if (!content.trim()) {
+                showToast('보완 요청 내용을 입력해주세요.', 'error');
+                return;
+            }
+            
+            if (checkedItems.length === 0) {
+                showToast('필수 보완 항목을 최소 1개 이상 선택해주세요.', 'error');
+                return;
+            }
+            
+            if (!deadline) {
+                showToast('보완 기한을 선택해주세요.', 'error');
+                return;
+            }
+            
+            // 날짜 유효성 검사 (오늘 이후)
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const selectedDate = new Date(deadline);
+            selectedDate.setHours(0, 0, 0, 0);
+            
+            if (selectedDate <= today) {
+                showToast('보완 기한은 오늘 이후로 설정해주세요.', 'error');
+                return;
+            }
+            
+            // 확인 다이얼로그
+            const itemNames = {
+                'certificate': '통신서비스 이용증명원',
+                'identity': '신분증 사본',
+                'business': '사업자등록증',
+                'consent': '명의자 동의서',
+                'other': '기타'
+            };
+            
+            const selectedItemNames = checkedItems.map(item => itemNames[item] || item).join(', ');
+            
+            const confirmMessage = `보완 요청을 전송하시겠습니까?\n\n` +
+                `사유: ${document.getElementById('supplementReason').selectedOptions[0].text}\n` +
+                `보완 항목: ${selectedItemNames}\n` +
+                `보완 기한: ${deadline}`;
+            
+            confirmAction(confirmMessage, function() {
+                // API 호출 또는 상태 업데이트
+                // 실제로는 서버에 보완 요청 데이터를 전송해야 함
+                
+                // 검토 이력에 추가
+                const reviewHistory = document.querySelector('#reviewModal .card:last-of-type > div:last-of-type > div');
+                const now = new Date();
+                const dateStr = now.toLocaleString('ko-KR', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                const newHistory = document.createElement('div');
+                newHistory.style.cssText = 'padding: 8px; background-color: #f1f5f9; border-radius: 8px; font-size: 13px;';
+                newHistory.innerHTML = `
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="font-weight: 600;">관리자</span>
+                        <span style="color: #64748b;">${dateStr}</span>
+                    </div>
+                    <div style="margin-top: 4px; color: #f59e0b; font-weight: 600;">보완 요청</div>
+                    <div style="margin-top: 4px;">${content}</div>
+                    <div style="margin-top: 4px; font-size: 12px; color: #64748b;">보완 항목: ${selectedItemNames}</div>
+                    <div style="margin-top: 4px; font-size: 12px; color: #64748b;">보완 기한: ${deadline}</div>
+                `;
+                
+                reviewHistory.insertBefore(newHistory, reviewHistory.firstChild);
+                
+                // 성공 메시지
+                showToast('보완 요청이 전송되었습니다.', 'success');
+                
+                // 모달 닫기
+                closeModal('supplementModal');
+                
+                // 검토 모달은 유지 (보완 요청 후에도 검토 모달을 열어둘 수 있음)
+                // 필요시 검토 모달도 닫으려면: closeModal('reviewModal');
+            });
+        }
+        
+        // 보완 기한 날짜 최소값 설정 (오늘)
+        document.addEventListener('DOMContentLoaded', function() {
+            const deadlineInput = document.getElementById('supplementDeadline');
+            if (deadlineInput) {
+                const today = new Date();
+                today.setDate(today.getDate() + 1); // 최소값을 내일로 설정
+                deadlineInput.min = today.toISOString().split('T')[0];
+            }
+        });
+        
+        // 전체 선택/해제
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+        }
+        
+        // 개별 체크박스 변경 시 전체 선택 상태 업데이트
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            const selectAll = document.getElementById('selectAll');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                    selectAll.checked = allChecked;
+                });
+            });
+        });
+        
+        // 선택된 항목 가져오기
+        function getSelectedItems() {
+            const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+            return Array.from(checkboxes).map(checkbox => ({
+                callerNumber: checkbox.getAttribute('data-caller-number'),
+                member: checkbox.getAttribute('data-member'),
+                row: checkbox.closest('tr')
+            }));
+        }
+        
+        // 일괄 승인
+        function handleBulkApprove() {
+            const selectedItems = getSelectedItems();
+            
+            if (selectedItems.length === 0) {
+                showToast('승인할 항목을 선택해주세요.', 'error');
+                return;
+            }
+            
+            const itemList = selectedItems.map(item => `- ${item.member} (${item.callerNumber})`).join('\n');
+            const confirmMessage = `선택한 ${selectedItems.length}건을 일괄 승인하시겠습니까?\n\n${itemList}`;
+            
+            confirmAction(confirmMessage, function() {
+                // API 호출
+                selectedItems.forEach(item => {
+                    // 상태 업데이트
+                    const statusCell = item.row.querySelector('td:nth-child(7)');
+                    if (statusCell) {
+                        statusCell.innerHTML = '<span class="badge badge-success">승인완료</span>';
+                    }
+                    
+                    // 체크박스 제거
+                    const checkbox = item.row.querySelector('.row-checkbox');
+                    if (checkbox) {
+                        checkbox.remove();
+                    }
+                    
+                    // 행 제거 또는 숨김 (선택사항)
+                    // item.row.remove();
+                });
+                
+                // 전체 선택 체크박스 해제
+                document.getElementById('selectAll').checked = false;
+                
+                // 승인 대기 건수 업데이트
+                const pendingCount = document.querySelector('.card-description');
+                if (pendingCount) {
+                    const currentCount = parseInt(pendingCount.textContent.match(/\d+/)[0]);
+                    const newCount = Math.max(0, currentCount - selectedItems.length);
+                    pendingCount.textContent = `승인 대기 건수: ${newCount}건`;
+                }
+                
+                showToast(`${selectedItems.length}건이 승인되었습니다.`, 'success');
+            });
+        }
+        
+        // 단일 반려 처리 (검토 모달에서)
+        function handleSingleReject() {
+            const reasonSelect = document.getElementById('rejectReason');
+            const reasonDetail = document.getElementById('rejectDetail');
+            
+            if (!reasonSelect || !reasonSelect.value) {
+                showToast('반려 사유를 선택해주세요.', 'error');
+                return;
+            }
+            
+            if (!reasonDetail || !reasonDetail.value.trim()) {
+                showToast('상세 사유를 입력해주세요.', 'error');
+                return;
+            }
+            
+            confirmAction('반려 처리하시겠습니까?', function() {
+                showToast('반려 처리되었습니다.', 'success');
+                closeModal('rejectModal');
+                closeModal('reviewModal');
+            });
+        }
+        
+        // 일괄 반려
+        function handleBulkReject() {
+            const selectedItems = getSelectedItems();
+            
+            if (selectedItems.length === 0) {
+                showToast('반려할 항목을 선택해주세요.', 'error');
+                return;
+            }
+            
+            // 일괄 반려 모달 열기
+            document.getElementById('bulkRejectReason').value = '';
+            document.getElementById('bulkRejectDetail').value = '';
+            window.bulkRejectItems = selectedItems; // 전역 변수에 저장
+            openModal('bulkRejectModal');
+        }
+        
+        // 일괄 반려 확인 및 처리
+        function confirmBulkRejectFromModal() {
+            const selectedItems = window.bulkRejectItems || [];
+            
+            if (selectedItems.length === 0) {
+                showToast('선택된 항목이 없습니다.', 'error');
+                return;
+            }
+            
+            const reasonSelect = document.getElementById('bulkRejectReason');
+            const reasonDetail = document.getElementById('bulkRejectDetail');
+            
+            if (!reasonSelect || !reasonSelect.value) {
+                showToast('반려 사유를 선택해주세요.', 'error');
+                return;
+            }
+            
+            if (!reasonDetail || !reasonDetail.value.trim()) {
+                showToast('상세 사유를 입력해주세요.', 'error');
+                return;
+            }
+            
+            const itemList = selectedItems.map(item => `- ${item.member} (${item.callerNumber})`).join('\n');
+            const confirmMessage = `선택한 ${selectedItems.length}건을 일괄 반려하시겠습니까?\n\n${itemList}`;
+            
+            confirmAction(confirmMessage, function() {
+                // API 호출
+                selectedItems.forEach(item => {
+                    // 상태 업데이트
+                    const statusCell = item.row.querySelector('td:nth-child(7)');
+                    if (statusCell) {
+                        statusCell.innerHTML = '<span class="badge badge-danger">반려</span>';
+                    }
+                    
+                    // 체크박스 제거
+                    const checkbox = item.row.querySelector('.row-checkbox');
+                    if (checkbox) {
+                        checkbox.remove();
+                    }
+                    
+                    // 행 제거 또는 숨김 (선택사항)
+                    // item.row.remove();
+                });
+                
+                // 전체 선택 체크박스 해제
+                document.getElementById('selectAll').checked = false;
+                
+                // 일괄 반려 모달 닫기
+                closeModal('bulkRejectModal');
+                
+                // 승인 대기 건수 업데이트
+                const pendingCount = document.querySelector('.card-description');
+                if (pendingCount) {
+                    const currentCount = parseInt(pendingCount.textContent.match(/\d+/)[0]);
+                    const newCount = Math.max(0, currentCount - selectedItems.length);
+                    pendingCount.textContent = `승인 대기 건수: ${newCount}건`;
+                }
+                
+                // 전역 변수 초기화
+                window.bulkRejectItems = null;
+                
+                showToast(`${selectedItems.length}건이 반려되었습니다.`, 'success');
+            });
+        }
+        
         createPagination(1, 5, 'pagination');
     </script>
 </body>

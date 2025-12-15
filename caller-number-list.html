@@ -187,8 +187,8 @@
                                     <td><span class="badge badge-success">승인완료</span></td>
                                     <td><span class="badge badge-success">사용중</span></td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('callerNumberDetailModal')">상세</button>
-                                        <button class="btn btn-warning btn-sm" style="margin-left: 4px;">정지</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openDetailModal('010-1234-5678', '승인완료')">상세</button>
+                                        <button class="btn btn-warning btn-sm" style="margin-left: 4px;" onclick="handleSuspendCallerNumber('010-1234-5678', this)">정지</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -204,8 +204,8 @@
                                     <td><span class="badge badge-success">승인완료</span></td>
                                     <td><span class="badge badge-success">사용중</span></td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('callerNumberDetailModal')">상세</button>
-                                        <button class="btn btn-warning btn-sm" style="margin-left: 4px;">정지</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openDetailModal('010-9876-5432', '승인완료')">상세</button>
+                                        <button class="btn btn-warning btn-sm" style="margin-left: 4px;" onclick="handleSuspendCallerNumber('010-9876-5432', this)">정지</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -221,8 +221,8 @@
                                     <td><span class="badge badge-warning">정지</span></td>
                                     <td><span class="badge badge-secondary">미사용</span></td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('callerNumberDetailModal')">상세</button>
-                                        <button class="btn btn-success btn-sm" style="margin-left: 4px;">해제</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openDetailModal('02-1234-5678', '정지')">상세</button>
+                                        <button class="btn btn-success btn-sm" style="margin-left: 4px;" onclick="handleReleaseCallerNumber('02-1234-5678', this)">해제</button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -281,14 +281,274 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-warning">정지</button>
+                <button class="btn btn-warning" id="detailModalSuspendBtn" onclick="handleSuspendCallerNumberFromModal()">정지</button>
                 <button class="btn btn-outline" onclick="closeModal('callerNumberDetailModal')">닫기</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 정지 사유 모달 -->
+    <div class="modal" id="suspendModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">발신번호 정지</h3>
+                <button class="modal-close" onclick="closeModal('suspendModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label class="form-label">정지 사유</label>
+                    <select class="form-control" id="suspendReason">
+                        <option value="">사유 선택</option>
+                        <option value="abuse">부정 사용</option>
+                        <option value="spam">스팸 발송</option>
+                        <option value="violation">정책 위반</option>
+                        <option value="complaint">민원 접수</option>
+                        <option value="expired">서류 만료</option>
+                        <option value="request">회원 요청</option>
+                        <option value="other">기타</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">상세 사유</label>
+                    <textarea id="suspendDetail" class="form-control" rows="4" placeholder="정지 사유를 상세히 입력하세요"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-warning" onclick="confirmSuspendCallerNumber()">정지 처리</button>
+                <button class="btn btn-outline" onclick="closeModal('suspendModal')">취소</button>
             </div>
         </div>
     </div>
     
     <script src="js/admin-common.js"></script>
     <script>
+        let currentCallerNumber = null;
+        let currentButtonElement = null;
+        
+        // 상세 모달 열기 (상태에 따라 버튼 설정)
+        function openDetailModal(callerNumber, status) {
+            currentCallerNumber = callerNumber;
+            
+            // 모달의 발신번호 업데이트
+            const callerNumberElement = document.querySelector('#callerNumberDetailModal .form-control');
+            if (callerNumberElement) {
+                callerNumberElement.textContent = callerNumber;
+            }
+            
+            // 상태에 따라 버튼 설정
+            const suspendButton = document.getElementById('detailModalSuspendBtn');
+            if (suspendButton) {
+                if (status === '정지') {
+                    suspendButton.textContent = '해제';
+                    suspendButton.className = 'btn btn-success';
+                    suspendButton.onclick = function() {
+                        handleReleaseCallerNumberFromModal();
+                    };
+                } else {
+                    suspendButton.textContent = '정지';
+                    suspendButton.className = 'btn btn-warning';
+                    suspendButton.onclick = function() {
+                        handleSuspendCallerNumberFromModal();
+                    };
+                }
+            }
+            
+            // 상태 배지 업데이트
+            const statusBadges = document.querySelectorAll('#callerNumberDetailModal .badge');
+            if (statusBadges.length >= 2) {
+                if (status === '정지') {
+                    statusBadges[0].textContent = '정지';
+                    statusBadges[0].className = 'badge badge-warning';
+                    statusBadges[1].textContent = '미사용';
+                    statusBadges[1].className = 'badge badge-secondary';
+                } else {
+                    statusBadges[0].textContent = '승인완료';
+                    statusBadges[0].className = 'badge badge-success';
+                    statusBadges[1].textContent = '사용중';
+                    statusBadges[1].className = 'badge badge-success';
+                }
+            }
+            
+            openModal('callerNumberDetailModal');
+        }
+        
+        // 테이블에서 정지 버튼 클릭
+        function handleSuspendCallerNumber(callerNumber, buttonElement) {
+            currentCallerNumber = callerNumber;
+            currentButtonElement = buttonElement;
+            
+            // 정지 모달 열기
+            document.getElementById('suspendReason').value = '';
+            document.getElementById('suspendDetail').value = '';
+            openModal('suspendModal');
+        }
+        
+        // 테이블에서 해제 버튼 클릭
+        function handleReleaseCallerNumber(callerNumber, buttonElement) {
+            currentCallerNumber = callerNumber;
+            currentButtonElement = buttonElement;
+            
+            confirmAction(`발신번호를 해제하시겠습니까?\n\n발신번호: ${callerNumber}`, function() {
+                // API 호출 또는 상태 업데이트
+                const row = buttonElement.closest('tr');
+                const statusCell = row.querySelector('td:nth-child(7)');
+                if (statusCell) {
+                    statusCell.innerHTML = '<span class="badge badge-success">승인완료</span>';
+                }
+                
+                // 사용 여부 업데이트
+                const usageCell = row.querySelector('td:nth-child(8)');
+                if (usageCell) {
+                    usageCell.innerHTML = '<span class="badge badge-success">사용중</span>';
+                }
+                
+                // 해제 버튼을 정지 버튼으로 변경
+                buttonElement.textContent = '정지';
+                buttonElement.className = 'btn btn-warning btn-sm';
+                buttonElement.onclick = function() {
+                    handleSuspendCallerNumber(callerNumber, this);
+                };
+                
+                showToast('발신번호가 해제되었습니다.', 'success');
+            });
+        }
+        
+        // 상세 모달에서 정지 버튼 클릭
+        function handleSuspendCallerNumberFromModal() {
+            // 상세 모달에서 발신번호 가져오기
+            const callerNumberElement = document.querySelector('#callerNumberDetailModal .form-control');
+            if (callerNumberElement) {
+                currentCallerNumber = callerNumberElement.textContent.trim();
+            } else {
+                currentCallerNumber = '010-1234-5678'; // 기본값
+            }
+            currentButtonElement = null;
+            
+            // 정지 모달 열기
+            document.getElementById('suspendReason').value = '';
+            document.getElementById('suspendDetail').value = '';
+            openModal('suspendModal');
+        }
+        
+        // 정지 확인 및 처리
+        function confirmSuspendCallerNumber() {
+            const reason = document.getElementById('suspendReason').value;
+            const detail = document.getElementById('suspendDetail').value;
+            
+            // 유효성 검사
+            if (!reason) {
+                showToast('정지 사유를 선택해주세요.', 'error');
+                return;
+            }
+            
+            if (!detail.trim()) {
+                showToast('상세 사유를 입력해주세요.', 'error');
+                return;
+            }
+            
+            const reasonText = document.getElementById('suspendReason').selectedOptions[0].text;
+            const confirmMessage = `발신번호를 정지하시겠습니까?\n\n` +
+                `발신번호: ${currentCallerNumber}\n` +
+                `사유: ${reasonText}\n` +
+                `상세: ${detail}`;
+            
+            confirmAction(confirmMessage, function() {
+                // API 호출 또는 상태 업데이트
+                
+                // 테이블의 상태 업데이트
+                if (currentButtonElement) {
+                    const row = currentButtonElement.closest('tr');
+                    const statusCell = row.querySelector('td:nth-child(7)');
+                    if (statusCell) {
+                        statusCell.innerHTML = '<span class="badge badge-warning">정지</span>';
+                    }
+                    
+                    // 사용 여부 업데이트
+                    const usageCell = row.querySelector('td:nth-child(8)');
+                    if (usageCell) {
+                        usageCell.innerHTML = '<span class="badge badge-secondary">미사용</span>';
+                    }
+                    
+                    // 정지 버튼을 해제 버튼으로 변경
+                    currentButtonElement.textContent = '해제';
+                    currentButtonElement.className = 'btn btn-success btn-sm';
+                    currentButtonElement.onclick = function() {
+                        handleReleaseCallerNumber(currentCallerNumber, this);
+                    };
+                }
+                
+                // 상세 모달이 열려있으면 상태 업데이트
+                const detailModal = document.getElementById('callerNumberDetailModal');
+                if (detailModal && detailModal.classList.contains('show')) {
+                    // 상태 배지 찾기 (7번째 form-group의 배지)
+                    const statusBadges = document.querySelectorAll('#callerNumberDetailModal .badge');
+                    if (statusBadges.length >= 2) {
+                        // 첫 번째 배지가 상태 (승인완료/정지)
+                        if (statusBadges[0].textContent.includes('승인완료')) {
+                            statusBadges[0].textContent = '정지';
+                            statusBadges[0].className = 'badge badge-warning';
+                        }
+                        // 두 번째 배지가 사용 여부 (사용중/미사용)
+                        if (statusBadges[1] && statusBadges[1].textContent.includes('사용중')) {
+                            statusBadges[1].textContent = '미사용';
+                            statusBadges[1].className = 'badge badge-secondary';
+                        }
+                    }
+                    
+                    // 정지 버튼을 해제 버튼으로 변경
+                    const suspendButton = document.getElementById('detailModalSuspendBtn');
+                    if (suspendButton) {
+                        suspendButton.textContent = '해제';
+                        suspendButton.className = 'btn btn-success';
+                        suspendButton.onclick = function() {
+                            handleReleaseCallerNumberFromModal();
+                        };
+                    }
+                }
+                
+                // 성공 메시지
+                showToast('발신번호가 정지되었습니다.', 'success');
+                
+                // 정지 모달 닫기
+                closeModal('suspendModal');
+            });
+        }
+        
+        // 상세 모달에서 해제 처리
+        function handleReleaseCallerNumberFromModal() {
+            const callerNumberElement = document.querySelector('#callerNumberDetailModal .form-control');
+            const callerNumber = callerNumberElement ? callerNumberElement.textContent.trim() : '010-1234-5678';
+            
+            confirmAction(`발신번호를 해제하시겠습니까?\n\n발신번호: ${callerNumber}`, function() {
+                // API 호출
+                const statusBadges = document.querySelectorAll('#callerNumberDetailModal .badge');
+                if (statusBadges.length >= 2) {
+                    // 첫 번째 배지가 상태 (정지 -> 승인완료)
+                    if (statusBadges[0].textContent.includes('정지')) {
+                        statusBadges[0].textContent = '승인완료';
+                        statusBadges[0].className = 'badge badge-success';
+                    }
+                    // 두 번째 배지가 사용 여부 (미사용 -> 사용중)
+                    if (statusBadges[1] && statusBadges[1].textContent.includes('미사용')) {
+                        statusBadges[1].textContent = '사용중';
+                        statusBadges[1].className = 'badge badge-success';
+                    }
+                }
+                
+                // 해제 버튼을 정지 버튼으로 변경
+                const releaseButton = document.getElementById('detailModalSuspendBtn');
+                if (releaseButton) {
+                    releaseButton.textContent = '정지';
+                    releaseButton.className = 'btn btn-warning';
+                    releaseButton.onclick = function() {
+                        handleSuspendCallerNumberFromModal();
+                    };
+                }
+                
+                showToast('발신번호가 해제되었습니다.', 'success');
+            });
+        }
+        
         createPagination(1, 10, 'pagination');
     </script>
 </body>

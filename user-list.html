@@ -326,9 +326,9 @@
                         <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
                             <h4 style="margin-bottom: 16px;">계정 관리</h4>
                             <div style="display: flex; gap: 12px;">
-                                <button class="btn btn-warning btn-sm">계정 정지</button>
-                                <button class="btn btn-secondary btn-sm">비밀번호 초기화</button>
-                                <button class="btn btn-danger btn-sm">계정 삭제</button>
+                                <button class="btn btn-warning btn-sm" onclick="handleSuspendAccount()">계정 정지</button>
+                                <button class="btn btn-secondary btn-sm" onclick="handleResetPassword()">비밀번호 초기화</button>
+                                <button class="btn btn-danger btn-sm" onclick="handleDeleteAccount()">계정 삭제</button>
                             </div>
                         </div>
                     </div>
@@ -365,8 +365,8 @@
                         <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
                             <h4 style="margin-bottom: 16px;">잔액 조정</h4>
                             <div style="display: flex; gap: 12px;">
-                                <button class="btn btn-success btn-sm">충전/차감</button>
-                                <button class="btn btn-warning btn-sm">보너스 지급/차감</button>
+                                <button class="btn btn-success btn-sm" onclick="openBalanceAdjustModal('charge')">충전/차감</button>
+                                <button class="btn btn-warning btn-sm" onclick="openBalanceAdjustModal('bonus')">보너스 지급/차감</button>
                             </div>
                         </div>
                     </div>
@@ -396,10 +396,10 @@
                         <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
                             <h4 style="margin-bottom: 16px;">연관 정보 조회</h4>
                             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                                <button class="btn btn-outline btn-sm">발송 내역 조회</button>
-                                <button class="btn btn-outline btn-sm">발신번호 관리</button>
-                                <button class="btn btn-outline btn-sm">충전/사용 내역</button>
-                                <button class="btn btn-outline btn-sm">문의 내역</button>
+                                <button class="btn btn-outline btn-sm" onclick="viewSendHistory()">발송 내역 조회</button>
+                                <button class="btn btn-outline btn-sm" onclick="viewCallerNumbers()">발신번호 관리</button>
+                                <button class="btn btn-outline btn-sm" onclick="viewPaymentHistory()">충전/사용 내역</button>
+                                <button class="btn btn-outline btn-sm" onclick="viewInquiries()">문의 내역</button>
                             </div>
                         </div>
                     </div>
@@ -410,9 +410,9 @@
                     <div class="card" style="border: none; padding: 0;">
                         <div class="form-group">
                             <label class="form-label">메모 작성</label>
-                            <textarea class="form-control" rows="4" placeholder="내부 관리용 메모를 입력하세요"></textarea>
+                            <textarea id="memoText" class="form-control" rows="4" placeholder="내부 관리용 메모를 입력하세요"></textarea>
                         </div>
-                        <button class="btn btn-primary">저장</button>
+                        <button class="btn btn-primary" onclick="saveMemo()">저장</button>
                         <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
                             <h4 style="margin-bottom: 16px;">메모 이력</h4>
                             <div style="display: flex; flex-direction: column; gap: 12px;">
@@ -441,6 +441,37 @@
         </div>
     </div>
     
+    <!-- 잔액 조정 모달 -->
+    <div class="modal" id="balanceAdjustModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="balanceAdjustTitle">잔액 조정</h3>
+                <button class="modal-close" onclick="closeModal('balanceAdjustModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">유형</label>
+                    <select id="adjustType" class="form-control">
+                        <option value="charge">충전</option>
+                        <option value="deduct">차감</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">금액</label>
+                    <input type="number" id="adjustAmount" class="form-control" placeholder="금액을 입력하세요" min="0" step="1000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">사유</label>
+                    <textarea id="adjustReason" class="form-control" rows="3" placeholder="조정 사유를 입력하세요"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('balanceAdjustModal')">취소</button>
+                <button class="btn btn-primary" onclick="confirmBalanceAdjust()">확인</button>
+            </div>
+        </div>
+    </div>
+    
     <script src="js/admin-common.js"></script>
     <script>
         // 탭 전환
@@ -452,6 +483,155 @@
             // 선택한 탭 활성화
             event.target.classList.add('active');
             document.getElementById('tab-' + tabName).style.display = 'block';
+        }
+        
+        // 계정 정지
+        function handleSuspendAccount() {
+            confirmAction('이 회원의 계정을 정지하시겠습니까?', function() {
+                // API 호출 또는 상태 업데이트
+                showToast('계정이 정지되었습니다.', 'success');
+                // 상태 업데이트
+                const statusBadge = document.querySelector('#tab-basic .badge-success');
+                if (statusBadge) {
+                    statusBadge.textContent = '정지';
+                    statusBadge.className = 'badge badge-danger';
+                }
+            });
+        }
+        
+        // 비밀번호 초기화
+        function handleResetPassword() {
+            confirmAction('이 회원의 비밀번호를 초기화하시겠습니까?\n초기화된 비밀번호는 이메일로 전송됩니다.', function() {
+                // API 호출
+                showToast('비밀번호가 초기화되었습니다. 이메일로 전송되었습니다.', 'success');
+            });
+        }
+        
+        // 계정 삭제
+        function handleDeleteAccount() {
+            confirmAction('이 회원의 계정을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.', function() {
+                confirmAction('정말로 삭제하시겠습니까?', function() {
+                    // API 호출
+                    showToast('계정이 삭제되었습니다.', 'success');
+                    setTimeout(() => {
+                        closeModal('userDetailModal');
+                        // 목록 새로고침 또는 해당 행 제거
+                    }, 1500);
+                });
+            });
+        }
+        
+        // 잔액 조정 모달 열기
+        function openBalanceAdjustModal(type) {
+            const modal = document.getElementById('balanceAdjustModal');
+            const title = document.getElementById('balanceAdjustTitle');
+            const adjustType = document.getElementById('adjustType');
+            
+            if (type === 'charge') {
+                title.textContent = '잔액 충전/차감';
+                adjustType.innerHTML = '<option value="charge">충전</option><option value="deduct">차감</option>';
+            } else if (type === 'bonus') {
+                title.textContent = '보너스 지급/차감';
+                adjustType.innerHTML = '<option value="charge">지급</option><option value="deduct">차감</option>';
+            }
+            
+            // 입력 필드 초기화
+            document.getElementById('adjustAmount').value = '';
+            document.getElementById('adjustReason').value = '';
+            
+            openModal('balanceAdjustModal');
+        }
+        
+        // 잔액 조정 확인
+        function confirmBalanceAdjust() {
+            const amount = document.getElementById('adjustAmount').value;
+            const reason = document.getElementById('adjustReason').value;
+            const type = document.getElementById('adjustType').value;
+            
+            if (!amount || amount <= 0) {
+                showToast('금액을 입력해주세요.', 'error');
+                return;
+            }
+            
+            if (!reason.trim()) {
+                showToast('사유를 입력해주세요.', 'error');
+                return;
+            }
+            
+            const action = type === 'charge' ? '충전' : '차감';
+            confirmAction(`정말로 ${action}하시겠습니까?\n금액: ₩${parseInt(amount).toLocaleString()}\n사유: ${reason}`, function() {
+                // API 호출
+                showToast(`잔액이 ${action}되었습니다.`, 'success');
+                closeModal('balanceAdjustModal');
+                // 잔액 정보 새로고침
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            });
+        }
+        
+        // 발송 내역 조회
+        function viewSendHistory() {
+            const userId = 'hong@example.com'; // 실제로는 현재 회원 ID를 가져와야 함
+            window.open(`send-history.html?userId=${userId}`, '_blank');
+        }
+        
+        // 발신번호 관리
+        function viewCallerNumbers() {
+            const userId = 'hong@example.com'; // 실제로는 현재 회원 ID를 가져와야 함
+            window.open(`caller-number-list.html?userId=${userId}`, '_blank');
+        }
+        
+        // 충전/사용 내역
+        function viewPaymentHistory() {
+            const userId = 'hong@example.com'; // 실제로는 현재 회원 ID를 가져와야 함
+            window.open(`payment-charge-list.html?userId=${userId}`, '_blank');
+        }
+        
+        // 문의 내역
+        function viewInquiries() {
+            const userId = 'hong@example.com'; // 실제로는 현재 회원 ID를 가져와야 함
+            window.open(`inquiry-list.html?userId=${userId}`, '_blank');
+        }
+        
+        // 메모 저장
+        function saveMemo() {
+            const memoText = document.getElementById('memoText').value;
+            
+            if (!memoText.trim()) {
+                showToast('메모를 입력해주세요.', 'error');
+                return;
+            }
+            
+            // API 호출
+            showToast('메모가 저장되었습니다.', 'success');
+            
+            // 메모 이력에 추가
+            const memoHistory = document.querySelector('#tab-memo .form-group:last-of-type + div > div');
+            const now = new Date();
+            const dateStr = now.toLocaleString('ko-KR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const newMemo = document.createElement('div');
+            newMemo.style.cssText = 'padding: 12px; background-color: #f1f5f9; border-radius: 8px;';
+            newMemo.innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">관리자</span>
+                    <span style="color: #64748b; font-size: 12px;">${dateStr}</span>
+                </div>
+                <div>${memoText}</div>
+            `;
+            
+            const memoContainer = document.querySelector('#tab-memo > div > div:last-of-type > div');
+            memoContainer.insertBefore(newMemo, memoContainer.firstChild);
+            
+            // 입력 필드 초기화
+            document.getElementById('memoText').value = '';
         }
         
         // 페이지네이션 생성
