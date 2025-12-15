@@ -300,7 +300,31 @@
                                         <td>쿠폰 발급 알림톡</td>
                                         <td><span class="badge badge-success">승인완료</span></td>
                                         <td>
-                                            <button class="btn btn-outline btn-sm">상세</button>
+                                            <button class="btn btn-outline btn-sm" onclick="openApprovedDetail(1)">상세</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-11-16 10:20</td>
+                                        <td>
+                                            <div>김영수</div>
+                                            <div style="font-size: 12px; color: #64748b;">kim@example.com</div>
+                                        </td>
+                                        <td>배송 출발 알림톡</td>
+                                        <td><span class="badge badge-success">승인완료</span></td>
+                                        <td>
+                                            <button class="btn btn-outline btn-sm" onclick="openApprovedDetail(2)">상세</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-11-15 14:45</td>
+                                        <td>
+                                            <div>박민지</div>
+                                            <div style="font-size: 12px; color: #64748b;">park@example.com</div>
+                                        </td>
+                                        <td>결제 완료 알림톡</td>
+                                        <td><span class="badge badge-success">승인완료</span></td>
+                                        <td>
+                                            <button class="btn btn-outline btn-sm" onclick="openApprovedDetail(3)">상세</button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -338,7 +362,33 @@
                                         <td>광고성 문구 포함</td>
                                         <td><span class="badge badge-danger">반려</span></td>
                                         <td>
-                                            <button class="btn btn-outline btn-sm">상세</button>
+                                            <button class="btn btn-outline btn-sm" onclick="openRejectedDetail(1)">상세</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-11-14 16:30</td>
+                                        <td>
+                                            <div>이준호</div>
+                                            <div style="font-size: 12px; color: #64748b;">lee@example.com</div>
+                                        </td>
+                                        <td>회원가입 환영 알림톡</td>
+                                        <td>변수 형식 오류</td>
+                                        <td><span class="badge badge-danger">반려</span></td>
+                                        <td>
+                                            <button class="btn btn-outline btn-sm" onclick="openRejectedDetail(2)">상세</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-11-13 09:15</td>
+                                        <td>
+                                            <div>한지민</div>
+                                            <div style="font-size: 12px; color: #64748b;">han@example.com</div>
+                                        </td>
+                                        <td>예약 확인 알림톡</td>
+                                        <td>카테고리 불일치</td>
+                                        <td><span class="badge badge-danger">반려</span></td>
+                                        <td>
+                                            <button class="btn btn-outline btn-sm" onclick="openRejectedDetail(3)">상세</button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -515,6 +565,133 @@
         </div>
     </div>
     
+    <!-- 승인완료 상세 모달 -->
+    <div class="modal" id="approvedDetailModal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
+            <div class="modal-header">
+                <h3 class="modal-title">승인 완료 템플릿 상세</h3>
+                <button class="modal-close" onclick="closeModal('approvedDetailModal')">&times;</button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <!-- 템플릿 정보 -->
+                <div style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #10b981; color: #1e293b;">템플릿 정보</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">템플릿명</label>
+                            <div class="form-control" id="approvedTemplateName" style="background-color: #f8fafc;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">카테고리</label>
+                            <div class="form-control" id="approvedCategory" style="background-color: #f8fafc;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">회원명</label>
+                            <div class="form-control" id="approvedMember" style="background-color: #f8fafc;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">승인일시</label>
+                            <div class="form-control" id="approvedDate" style="background-color: #f8fafc;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 템플릿 내용 -->
+                <div style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #10b981; color: #1e293b;">템플릿 내용</h4>
+                    <div class="form-group">
+                        <label class="form-label">메시지 내용</label>
+                        <div class="form-control" id="approvedContent" style="background-color: #f8fafc; min-height: 120px; white-space: pre-wrap;"></div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">버튼 타입</label>
+                            <div class="form-control" id="approvedButtonType" style="background-color: #f8fafc;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">버튼명</label>
+                            <div class="form-control" id="approvedButtonName" style="background-color: #f8fafc;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 승인 정보 -->
+                <div style="background-color: #ecfdf5; padding: 16px; border-radius: 8px; border-left: 4px solid #10b981;">
+                    <h4 style="margin-bottom: 12px; color: #065f46;">승인 정보</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; color: #047857;">
+                        <div><strong>승인자:</strong> <span id="approvedBy">관리자</span></div>
+                        <div><strong>카카오 승인번호:</strong> <span id="kakaoApprovalNo">KKO-2024111700123</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('approvedDetailModal')">닫기</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 반려 상세 모달 -->
+    <div class="modal" id="rejectedDetailModal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
+            <div class="modal-header">
+                <h3 class="modal-title">반려 템플릿 상세</h3>
+                <button class="modal-close" onclick="closeModal('rejectedDetailModal')">&times;</button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <!-- 템플릿 정보 -->
+                <div style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #ef4444; color: #1e293b;">템플릿 정보</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">템플릿명</label>
+                            <div class="form-control" id="rejectedTemplateName" style="background-color: #f8fafc;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">카테고리</label>
+                            <div class="form-control" id="rejectedCategory" style="background-color: #f8fafc;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">회원명</label>
+                            <div class="form-control" id="rejectedMember" style="background-color: #f8fafc;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">반려일시</label>
+                            <div class="form-control" id="rejectedDate" style="background-color: #f8fafc;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 템플릿 내용 -->
+                <div style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #ef4444; color: #1e293b;">템플릿 내용</h4>
+                    <div class="form-group">
+                        <label class="form-label">메시지 내용</label>
+                        <div class="form-control" id="rejectedContent" style="background-color: #f8fafc; min-height: 120px; white-space: pre-wrap;"></div>
+                    </div>
+                </div>
+                
+                <!-- 반려 사유 -->
+                <div style="background-color: #fef2f2; padding: 16px; border-radius: 8px; border-left: 4px solid #ef4444; margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 12px; color: #991b1b;">반려 사유</h4>
+                    <div style="color: #b91c1c;">
+                        <div style="margin-bottom: 8px;"><strong>사유 구분:</strong> <span id="rejectedReasonType"></span></div>
+                        <div><strong>상세 사유:</strong></div>
+                        <p id="rejectedReasonDetail" style="margin-top: 8px; padding: 12px; background-color: white; border-radius: 4px;"></p>
+                    </div>
+                </div>
+                
+                <!-- 재검수 요청 -->
+                <div style="background-color: #f8fafc; padding: 16px; border-radius: 8px;">
+                    <h4 style="margin-bottom: 12px; color: #1e293b;">재검수 요청</h4>
+                    <p style="color: #64748b; font-size: 14px;">회원이 템플릿을 수정하여 재검수 요청을 할 수 있습니다.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('rejectedDetailModal')">닫기</button>
+            </div>
+        </div>
+    </div>
+    
     <script src="js/admin-common.js"></script>
     <script>
         // 탭 전환
@@ -526,6 +703,114 @@
             // 선택한 탭 활성화
             event.target.classList.add('active');
             document.getElementById('tab-' + tabName).style.display = 'block';
+        }
+        
+        // 승인완료 샘플 데이터
+        const approvedTemplates = {
+            1: {
+                name: '쿠폰 발급 알림톡',
+                category: '쇼핑/주문',
+                member: '최지영 (choi@example.com)',
+                date: '2024-11-17 15:30',
+                content: '안녕하세요, #{고객명}님!\n\n#{쿠폰명} 쿠폰이 발급되었습니다.\n\n쿠폰 코드: #{쿠폰코드}\n유효기간: #{유효기간}\n할인금액: #{할인금액}원\n\n지금 바로 사용해보세요!',
+                buttonType: '웹링크',
+                buttonName: '쿠폰 사용하기',
+                approvedBy: '관리자',
+                kakaoApprovalNo: 'KKO-2024111700123'
+            },
+            2: {
+                name: '배송 출발 알림톡',
+                category: '배송/물류',
+                member: '김영수 (kim@example.com)',
+                date: '2024-11-16 10:20',
+                content: '안녕하세요, #{고객명}님!\n\n주문하신 상품이 배송 출발하였습니다.\n\n주문번호: #{주문번호}\n배송업체: #{배송업체}\n운송장번호: #{운송장번호}\n\n배송 현황을 확인해보세요.',
+                buttonType: '웹링크',
+                buttonName: '배송 조회',
+                approvedBy: '관리자',
+                kakaoApprovalNo: 'KKO-2024111600098'
+            },
+            3: {
+                name: '결제 완료 알림톡',
+                category: '결제/영수증',
+                member: '박민지 (park@example.com)',
+                date: '2024-11-15 14:45',
+                content: '안녕하세요, #{고객명}님!\n\n결제가 완료되었습니다.\n\n결제금액: #{결제금액}원\n결제수단: #{결제수단}\n결제일시: #{결제일시}\n\n감사합니다.',
+                buttonType: '웹링크',
+                buttonName: '주문 상세보기',
+                approvedBy: '관리자',
+                kakaoApprovalNo: 'KKO-2024111500076'
+            }
+        };
+        
+        // 반려 샘플 데이터
+        const rejectedTemplates = {
+            1: {
+                name: '이벤트 안내 알림톡',
+                category: '마케팅/프로모션',
+                member: '정수진 (jung@example.com)',
+                date: '2024-11-16 11:20',
+                content: '🎉 특별 할인 이벤트! 🎉\n\n지금 바로 최대 50% 할인!\n놓치지 마세요!\n\n📢 선착순 한정 수량!',
+                reasonType: '광고성 문구 포함',
+                reasonDetail: '알림톡은 정보성 메시지만 발송 가능합니다. 이모지, 할인 강조 문구, 선착순 등 광고성 표현이 포함되어 있어 반려되었습니다. 광고성 메시지는 친구톡 또는 광고문자를 이용해주세요.'
+            },
+            2: {
+                name: '회원가입 환영 알림톡',
+                category: '회원/인증',
+                member: '이준호 (lee@example.com)',
+                date: '2024-11-14 16:30',
+                content: '안녕하세요, {고객명}님!\n\n회원가입을 환영합니다.\n가입일: {가입일}\n\n감사합니다.',
+                reasonType: '변수 형식 오류',
+                reasonDetail: '변수 형식이 올바르지 않습니다. 변수는 #{변수명} 형식으로 작성해야 합니다. {고객명}, {가입일}을 #{고객명}, #{가입일}로 수정해주세요.'
+            },
+            3: {
+                name: '예약 확인 알림톡',
+                category: '예약/방문',
+                member: '한지민 (han@example.com)',
+                date: '2024-11-13 09:15',
+                content: '예약이 확인되었습니다.\n\n예약자: #{예약자}\n예약일시: #{예약일시}\n\n방문 시 본 메시지를 보여주세요.',
+                reasonType: '카테고리 불일치',
+                reasonDetail: '선택하신 카테고리(쇼핑/주문)와 템플릿 내용(예약 확인)이 일치하지 않습니다. 올바른 카테고리(예약/방문)를 선택하여 다시 등록해주세요.'
+            }
+        };
+        
+        // 승인완료 상세 모달 열기
+        function openApprovedDetail(id) {
+            const data = approvedTemplates[id];
+            if (!data) {
+                showToast('데이터를 찾을 수 없습니다.', 'error');
+                return;
+            }
+            
+            document.getElementById('approvedTemplateName').textContent = data.name;
+            document.getElementById('approvedCategory').textContent = data.category;
+            document.getElementById('approvedMember').textContent = data.member;
+            document.getElementById('approvedDate').textContent = data.date;
+            document.getElementById('approvedContent').textContent = data.content;
+            document.getElementById('approvedButtonType').textContent = data.buttonType;
+            document.getElementById('approvedButtonName').textContent = data.buttonName;
+            document.getElementById('approvedBy').textContent = data.approvedBy;
+            document.getElementById('kakaoApprovalNo').textContent = data.kakaoApprovalNo;
+            
+            openModal('approvedDetailModal');
+        }
+        
+        // 반려 상세 모달 열기
+        function openRejectedDetail(id) {
+            const data = rejectedTemplates[id];
+            if (!data) {
+                showToast('데이터를 찾을 수 없습니다.', 'error');
+                return;
+            }
+            
+            document.getElementById('rejectedTemplateName').textContent = data.name;
+            document.getElementById('rejectedCategory').textContent = data.category;
+            document.getElementById('rejectedMember').textContent = data.member;
+            document.getElementById('rejectedDate').textContent = data.date;
+            document.getElementById('rejectedContent').textContent = data.content;
+            document.getElementById('rejectedReasonType').textContent = data.reasonType;
+            document.getElementById('rejectedReasonDetail').textContent = data.reasonDetail;
+            
+            openModal('rejectedDetailModal');
         }
         
         createPagination(1, 5, 'pagination');

@@ -177,24 +177,30 @@
                 <div class="search-filter-bar">
                     <div class="filter-group">
                         <div class="filter-item">
-                            <select class="form-control">
+                            <select class="form-control" id="periodType" onchange="toggleDateInputs()">
                                 <option value="daily">일별</option>
                                 <option value="monthly">월별</option>
                             </select>
                         </div>
-                        <div class="filter-item">
-                            <input type="date" class="form-control" value="2024-11-01">
+                        <div class="filter-item" id="dateInputs">
+                            <input type="date" class="form-control" id="startDate" value="2024-11-01">
                         </div>
-                        <div class="filter-item">
-                            <input type="date" class="form-control" value="2024-11-19">
+                        <div class="filter-item" id="dateInputs2">
+                            <input type="date" class="form-control" id="endDate" value="2024-11-19">
                         </div>
-                        <button class="btn btn-primary">조회</button>
+                        <div class="filter-item" id="yearMonthInput" style="display: none;">
+                            <select class="form-control" id="yearSelect">
+                                <option value="2024">2024년</option>
+                                <option value="2023">2023년</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="searchStatistics()">조회</button>
                     </div>
                 </div>
                 
                 <div class="card" style="margin-bottom: 24px;">
                     <div class="card-header">
-                        <h3 class="card-title">일별 발송 건수 추이</h3>
+                        <h3 class="card-title" id="trendChartTitle">일별 발송 건수 추이</h3>
                     </div>
                     <div style="padding: 20px;">
                         <canvas id="dailySendChart" height="100"></canvas>
@@ -252,33 +258,33 @@
                         <h3 class="card-title">TOP 10 발송 회원</h3>
                     </div>
                     <div class="table-container">
-                        <table>
+                        <table id="top10Table">
                             <thead>
                                 <tr>
-                                    <th>순위</th>
+                                    <th style="width: 80px;">순위</th>
                                     <th>회원명</th>
                                     <th>발송 건수</th>
-                                    <th>성공률</th>
+                                    <th style="width: 100px;">성공률</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>1</td>
+                                    <td><span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border-radius: 50%; font-weight: 600; font-size: 12px;">1</span></td>
                                     <td>홍길동</td>
-                                    <td>45,678건</td>
-                                    <td>98.5%</td>
+                                    <td style="font-weight: 600; color: #1e293b;">45,678건</td>
+                                    <td><span class="badge badge-success">98.5%</span></td>
                                 </tr>
                                 <tr>
-                                    <td>2</td>
+                                    <td><span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border-radius: 50%; font-weight: 600; font-size: 12px;">2</span></td>
                                     <td>김철수</td>
-                                    <td>34,567건</td>
-                                    <td>97.8%</td>
+                                    <td style="font-weight: 600; color: #1e293b;">34,567건</td>
+                                    <td><span class="badge badge-success">97.8%</span></td>
                                 </tr>
                                 <tr>
-                                    <td>3</td>
+                                    <td><span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border-radius: 50%; font-weight: 600; font-size: 12px;">3</span></td>
                                     <td>이영희</td>
-                                    <td>23,456건</td>
-                                    <td>99.2%</td>
+                                    <td style="font-weight: 600; color: #1e293b;">23,456건</td>
+                                    <td><span class="badge badge-success">99.2%</span></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -484,7 +490,217 @@
                 }
             }
         });
+
+        // 일별/월별 입력 토글
+        function toggleDateInputs() {
+            const periodType = document.getElementById('periodType').value;
+            const dateInputs = document.getElementById('dateInputs');
+            const dateInputs2 = document.getElementById('dateInputs2');
+            const yearMonthInput = document.getElementById('yearMonthInput');
+            
+            if (periodType === 'monthly') {
+                dateInputs.style.display = 'none';
+                dateInputs2.style.display = 'none';
+                yearMonthInput.style.display = 'block';
+            } else {
+                dateInputs.style.display = 'block';
+                dateInputs2.style.display = 'block';
+                yearMonthInput.style.display = 'none';
+            }
+        }
+
+        // 월별 데이터
+        const monthlyData = {
+            labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+            total: [280000, 310000, 350000, 420000, 480000, 520000, 490000, 530000, 580000, 620000, 680000, 345678],
+            success: [275000, 304000, 343000, 412000, 471000, 510000, 481000, 520000, 569000, 608000, 667000, 339000],
+            fail: [5000, 6000, 7000, 8000, 9000, 10000, 9000, 10000, 11000, 12000, 13000, 6678]
+        };
+
+        const monthlyTypeData = {
+            labels: ['알림톡', 'SMS', 'LMS', 'MMS', '브랜드톡'],
+            data: [42, 28, 16, 9, 5]
+        };
+
+        const monthlySuccessRate = {
+            success: [98.2, 96.8, 96.5, 95.2, 98.5],
+            fail: [1.8, 3.2, 3.5, 4.8, 1.5]
+        };
+
+        const monthlyTop10 = [
+            { rank: 1, name: '(주)글로벌마케팅', count: '1,234,567', rate: '98.7%' },
+            { rank: 2, name: '스타트업컴퍼니', count: '987,654', rate: '97.9%' },
+            { rank: 3, name: '이커머스플랫폼', count: '876,543', rate: '99.1%' },
+            { rank: 4, name: '금융서비스', count: '765,432', rate: '98.5%' },
+            { rank: 5, name: 'ABC주식회사', count: '654,321', rate: '97.2%' },
+            { rank: 6, name: 'XYZ테크', count: '543,210', rate: '98.8%' },
+            { rank: 7, name: '디지털마케팅', count: '432,109', rate: '96.9%' },
+            { rank: 8, name: '온라인쇼핑몰', count: '321,098', rate: '98.3%' },
+            { rank: 9, name: '통신서비스', count: '210,987', rate: '97.5%' },
+            { rank: 10, name: '헬스케어', count: '198,765', rate: '99.0%' }
+        ];
+
+        // 일별 데이터
+        const dailyData = {
+            labels: ['11/1', '11/2', '11/3', '11/4', '11/5', '11/6', '11/7', '11/8', '11/9', '11/10', '11/11', '11/12', '11/13', '11/14', '11/15', '11/16', '11/17', '11/18', '11/19'],
+            total: [15000, 18000, 16500, 19000, 22000, 21000, 17000, 20000, 23000, 25000, 24000, 21500, 26000, 28000, 27000, 29000, 31000, 30000, 32000],
+            success: [14800, 17700, 16200, 18700, 21700, 20700, 16700, 19700, 22700, 24600, 23600, 21200, 25600, 27600, 26600, 28600, 30600, 29600, 31500],
+            fail: [200, 300, 300, 300, 300, 300, 300, 300, 300, 400, 400, 300, 400, 400, 400, 400, 400, 400, 500]
+        };
+
+        const dailyTypeData = {
+            labels: ['알림톡', 'SMS', 'LMS', 'MMS', '브랜드톡'],
+            data: [45, 25, 15, 10, 5]
+        };
+
+        const dailySuccessRate = {
+            success: [98.5, 97.2, 96.8, 95.5, 98.9],
+            fail: [1.5, 2.8, 3.2, 4.5, 1.1]
+        };
+
+        const dailyTop10 = [
+            { rank: 1, name: '홍길동', count: '45,678', rate: '98.5%' },
+            { rank: 2, name: '김철수', count: '34,567', rate: '97.8%' },
+            { rank: 3, name: '이영희', count: '23,456', rate: '99.2%' }
+        ];
+
+        // 통계 조회
+        function searchStatistics() {
+            const periodType = document.getElementById('periodType').value;
+            
+            if (periodType === 'monthly') {
+                updateToMonthly();
+            } else {
+                updateToDaily();
+            }
+            
+            showToast('통계 데이터가 조회되었습니다.', 'success');
+        }
+
+        // 월별로 업데이트
+        function updateToMonthly() {
+            // 제목 변경
+            document.getElementById('trendChartTitle').textContent = '월별 발송 건수 추이';
+            
+            // 추이 차트 업데이트
+            dailySendChart.data.labels = monthlyData.labels;
+            dailySendChart.data.datasets[0].data = monthlyData.total;
+            dailySendChart.data.datasets[1].data = monthlyData.success;
+            dailySendChart.data.datasets[2].data = monthlyData.fail;
+            dailySendChart.update();
+            
+            // 타입별 차트 업데이트
+            messageTypeChart.data.datasets[0].data = monthlyTypeData.data;
+            messageTypeChart.update();
+            
+            // 성공률 차트 업데이트
+            successRateChart.data.datasets[0].data = monthlySuccessRate.success;
+            successRateChart.data.datasets[1].data = monthlySuccessRate.fail;
+            successRateChart.update();
+            
+            // TOP 10 테이블 업데이트
+            updateTop10Table(monthlyTop10);
+            
+            // 상단 카드 업데이트
+            document.querySelectorAll('.stat-card-title')[0].textContent = '연간 발송 건수';
+            document.querySelectorAll('.stat-card-value')[0].textContent = '5,785,678';
+            document.querySelectorAll('.stat-card-title')[1].textContent = '연간 발송 건수';
+            document.querySelectorAll('.stat-card-value')[1].textContent = '5,785,678';
+            document.querySelectorAll('.stat-card-title')[2].textContent = '연간 성공률';
+            document.querySelectorAll('.stat-card-value')[2].textContent = '97.8%';
+            document.querySelectorAll('.stat-card-title')[3].textContent = '연간 실패 건수';
+            document.querySelectorAll('.stat-card-value')[3].textContent = '127,456';
+        }
+
+        // 일별로 업데이트
+        function updateToDaily() {
+            // 제목 변경
+            document.getElementById('trendChartTitle').textContent = '일별 발송 건수 추이';
+            
+            // 추이 차트 업데이트
+            dailySendChart.data.labels = dailyData.labels;
+            dailySendChart.data.datasets[0].data = dailyData.total;
+            dailySendChart.data.datasets[1].data = dailyData.success;
+            dailySendChart.data.datasets[2].data = dailyData.fail;
+            dailySendChart.update();
+            
+            // 타입별 차트 업데이트
+            messageTypeChart.data.datasets[0].data = dailyTypeData.data;
+            messageTypeChart.update();
+            
+            // 성공률 차트 업데이트
+            successRateChart.data.datasets[0].data = dailySuccessRate.success;
+            successRateChart.data.datasets[1].data = dailySuccessRate.fail;
+            successRateChart.update();
+            
+            // TOP 10 테이블 업데이트
+            updateTop10Table(dailyTop10);
+            
+            // 상단 카드 업데이트
+            document.querySelectorAll('.stat-card-title')[0].textContent = '오늘 발송 건수';
+            document.querySelectorAll('.stat-card-value')[0].textContent = '12,345';
+            document.querySelectorAll('.stat-card-title')[1].textContent = '이번 달 발송 건수';
+            document.querySelectorAll('.stat-card-value')[1].textContent = '345,678';
+            document.querySelectorAll('.stat-card-title')[2].textContent = '오늘 성공률';
+            document.querySelectorAll('.stat-card-value')[2].textContent = '98.5%';
+            document.querySelectorAll('.stat-card-title')[3].textContent = '오늘 실패 건수';
+            document.querySelectorAll('.stat-card-value')[3].textContent = '185';
+        }
+
+        // TOP 10 테이블 업데이트
+        function updateTop10Table(data) {
+            const tbody = document.querySelector('#top10Table tbody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = data.map(item => `
+                <tr>
+                    <td><span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: ${item.rank <= 3 ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)' : '#e2e8f0'}; color: ${item.rank <= 3 ? 'white' : '#64748b'}; border-radius: 50%; font-weight: 600; font-size: 12px;">${item.rank}</span></td>
+                    <td>${item.name}</td>
+                    <td style="font-weight: 600; color: #1e293b;">${item.count}건</td>
+                    <td><span class="badge badge-success">${item.rate}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // Toast 메시지
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 24px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            const colors = {
+                success: '#10b981',
+                error: '#ef4444',
+                info: '#3b82f6',
+                warning: '#f59e0b'
+            };
+            toast.style.backgroundColor = colors[type] || colors.info;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
     </script>
+    
+    <style>
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
 </body>
 </html>
 
