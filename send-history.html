@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>발송 내역 모니터링 - 어드민</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- 사이드바 -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h1>Tokbell Admin</h1>
+                <div class="subtitle">관리자 시스템</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-section">
+                    <div class="menu-section-title">메인</div>
+                    <a href="index.html" class="menu-item">
+                        <span>대시보드</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">사용자 관리</div>
+                    <a href="user-list.html" class="menu-item">
+                        <span>회원 관리</span>
+                    </a>
+                    <a href="user-permission.html" class="menu-item">
+                        <span>권한 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">발신번호 관리</div>
+                    <a href="caller-number-pending.html" class="menu-item">
+                        <span>승인 대기</span>
+                    </a>
+                    <a href="caller-number-approved.html" class="menu-item">
+                        <span>승인 완료</span>
+                    </a>
+                    <a href="caller-number-list.html" class="menu-item">
+                        <span>발신번호 목록</span>
+                    </a>
+                    <a href="kakao-profile-list.html" class="menu-item">
+                        <span>발신프로필 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">템플릿 관리</div>
+                    <a href="template-alimtalk-review.html" class="menu-item">
+                        <span>알림톡 템플릿 검수</span>
+                    </a>
+                    <a href="template-brandtalk-list.html" class="menu-item">
+                        <span>브랜드톡 템플릿</span>
+                    </a>
+                    <a href="template-message-list.html" class="menu-item">
+                        <span>문자 템플릿</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">발송 관리</div>
+                    <a href="send-history.html" class="menu-item active">
+                        <span>발송 내역 모니터링</span>
+                    </a>
+                    <a href="send-statistics.html" class="menu-item">
+                        <span>발송 통계</span>
+                    </a>
+                    <a href="send-policy.html" class="menu-item">
+                        <span>발송 정책 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">결제 관리</div>
+                    <a href="payment-charge-list.html" class="menu-item">
+                        <span>충전 내역</span>
+                    </a>
+                    <a href="payment-deposit.html" class="menu-item">
+                        <span>입금 확인</span>
+                    </a>
+                    <a href="payment-pricing.html" class="menu-item">
+                        <span>요금 설정</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">기타 관리</div>
+                    <a href="reject-list.html" class="menu-item">
+                        <span>수신거부 관리</span>
+                    </a>
+                    <a href="inquiry-list.html" class="menu-item">
+                        <span>문의 관리</span>
+                    </a>
+                    <a href="notice-list.html" class="menu-item">
+                        <span>공지사항 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">시스템</div>
+                    <a href="system-settings.html" class="menu-item">
+                        <span>시스템 설정</span>
+                    </a>
+                    <a href="statistics-report.html" class="menu-item">
+                        <span>통계 및 리포트</span>
+                    </a>
+                    <a href="security-audit.html" class="menu-item">
+                        <span>보안 및 감사</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- 메인 컨텐츠 -->
+        <main class="admin-main">
+            <!-- 헤더 -->
+            <header class="admin-header">
+                <div class="header-left">
+                    <h2 class="page-title">발송 내역 모니터링</h2>
+                </div>
+                <div class="header-right">
+                    <div class="admin-user-info">
+                        <div class="user-avatar">관</div>
+                        <div>
+                            <div class="user-name">관리자</div>
+                            <div class="user-role">운영 관리자</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline btn-sm">로그아웃</button>
+                </div>
+            </header>
+            
+            <!-- 컨텐츠 -->
+            <div class="admin-content">
+                <!-- 검색 및 필터 -->
+                <div class="search-filter-bar" style="margin-bottom: 24px;">
+                    <div class="search-box">
+                        <input type="text" class="form-control" placeholder="수신번호 검색" id="searchInput">
+                    </div>
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <select class="form-control" id="messageTypeFilter">
+                                <option value="">메시지 타입 (전체)</option>
+                                <option value="SMS">SMS</option>
+                                <option value="LMS">LMS</option>
+                                <option value="MMS">MMS</option>
+                                <option value="ALIMTALK">알림톡</option>
+                                <option value="BRANDTALK">브랜드톡</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <select class="form-control" id="statusFilter">
+                                <option value="">상태 (전체)</option>
+                                <option value="COMPLETED">완료</option>
+                                <option value="PROCESSING">진행중</option>
+                                <option value="FAILED">실패</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <input type="date" class="form-control" id="startDate" value="2024-11-19">
+                        </div>
+                        <div class="filter-item">
+                            <input type="date" class="form-control" id="endDate" value="2024-11-19">
+                        </div>
+                        <div class="filter-item">
+                            <select class="form-control" id="callerNumberFilter">
+                                <option value="">발신번호 (전체)</option>
+                                <option value="010-1234-5678">010-1234-5678</option>
+                                <option value="010-9876-5432">010-9876-5432</option>
+                                <option value="02-1234-5678">02-1234-5678</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="searchResults()">검색</button>
+                        <button class="btn btn-outline" onclick="resetSearch()">초기화</button>
+                        <button class="btn btn-secondary">엑셀 다운로드</button>
+                    </div>
+                </div>
+                
+                <!-- 실시간 모니터링 카드 -->
+                <div class="stats-grid" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">발송</div>
+                            <div class="stat-card-icon" style="background-color: #d1fae5; color: #065f46;">
+                                📨
+                            </div>
+                        </div>
+                        <div class="stat-card-value" id="statSend">-</div>
+                        <div class="stat-card-change">
+                            <span id="statSendDesc">조회 후 표시</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">성공</div>
+                            <div class="stat-card-icon" style="background-color: #d1fae5; color: #065f46;">
+                                ✅
+                            </div>
+                        </div>
+                        <div class="stat-card-value" id="statSuccess">-</div>
+                        <div class="stat-card-change">
+                            <span id="statSuccessDesc">조회 후 표시</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">실패</div>
+                            <div class="stat-card-icon" style="background-color: #fee2e2; color: #991b1b;">
+                                ❌
+                            </div>
+                        </div>
+                        <div class="stat-card-value" id="statFailed">-</div>
+                        <div class="stat-card-change">
+                            <span id="statFailedDesc">조회 후 표시</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">성공률</div>
+                            <div class="stat-card-icon" style="background-color: #fef3c7; color: #92400e;">
+                                📊
+                            </div>
+                        </div>
+                        <div class="stat-card-value" id="statSuccessRate">-</div>
+                        <div class="stat-card-change">
+                            <span id="statSuccessRateDesc">조회 후 표시</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">비용</div>
+                            <div class="stat-card-icon" style="background-color: #e0e7ff; color: #3730a3;">
+                                💰
+                            </div>
+                        </div>
+                        <div class="stat-card-value" id="statCost">-</div>
+                        <div class="stat-card-change">
+                            <span id="statCostDesc">조회 후 표시</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 발송 내역 목록 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">전체 발송 내역</h3>
+                        <div class="card-description">총 1,234건</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>발송일시</th>
+                                    <th>회원 정보</th>
+                                    <th>발신번호/프로필</th>
+                                    <th>메시지 타입</th>
+                                    <th>발송 건수</th>
+                                    <th>성공</th>
+                                    <th>실패</th>
+                                    <th>상태</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2024-11-19 14:30</td>
+                                    <td>
+                                        <div>홍길동</div>
+                                        <div style="font-size: 12px; color: #64748b;">hong@example.com</div>
+                                    </td>
+                                    <td>@hongchannel</td>
+                                    <td><span class="badge badge-info">알림톡</span></td>
+                                    <td>1,000</td>
+                                    <td style="color: #10b981; font-weight: 600;">995</td>
+                                    <td style="color: #ef4444; font-weight: 600;">5</td>
+                                    <td><span class="badge badge-success">완료</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="openModal('sendDetailModal')">상세</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2024-11-19 13:15</td>
+                                    <td>
+                                        <div>김철수</div>
+                                        <div style="font-size: 12px; color: #64748b;">kim@example.com</div>
+                                    </td>
+                                    <td>010-1234-5678</td>
+                                    <td><span class="badge badge-secondary">SMS</span></td>
+                                    <td>500</td>
+                                    <td style="color: #10b981; font-weight: 600;">500</td>
+                                    <td style="color: #ef4444; font-weight: 600;">0</td>
+                                    <td><span class="badge badge-success">완료</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="openModal('sendDetailModal')">상세</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2024-11-19 12:00</td>
+                                    <td>
+                                        <div>이영희</div>
+                                        <div style="font-size: 12px; color: #64748b;">lee@example.com</div>
+                                    </td>
+                                    <td>@leechannel</td>
+                                    <td><span class="badge badge-warning">브랜드톡</span></td>
+                                    <td>2,000</td>
+                                    <td style="color: #10b981; font-weight: 600;">1,980</td>
+                                    <td style="color: #ef4444; font-weight: 600;">20</td>
+                                    <td><span class="badge badge-success">완료</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="openModal('sendDetailModal')">상세</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2024-11-19 11:45</td>
+                                    <td>
+                                        <div>박민수</div>
+                                        <div style="font-size: 12px; color: #64748b;">park@example.com</div>
+                                    </td>
+                                    <td>@parkchannel</td>
+                                    <td><span class="badge badge-info">알림톡</span></td>
+                                    <td>3,000</td>
+                                    <td style="color: #10b981; font-weight: 600;">2,950</td>
+                                    <td style="color: #ef4444; font-weight: 600;">50</td>
+                                    <td><span class="badge badge-warning">진행중</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="openModal('sendDetailModal')">상세</button>
+                                        <button class="btn btn-danger btn-sm" style="margin-left: 4px;">취소</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2024-11-19 10:20</td>
+                                    <td>
+                                        <div>최지영</div>
+                                        <div style="font-size: 12px; color: #64748b;">choi@example.com</div>
+                                    </td>
+                                    <td>010-9876-5432</td>
+                                    <td><span class="badge badge-secondary">LMS</span></td>
+                                    <td>1,500</td>
+                                    <td style="color: #10b981; font-weight: 600;">1,200</td>
+                                    <td style="color: #ef4444; font-weight: 600;">300</td>
+                                    <td><span class="badge badge-danger">실패</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="openModal('sendDetailModal')">상세</button>
+                                        <button class="btn btn-success btn-sm" style="margin-left: 4px;">재발송</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 발송 상세 모달 -->
+    <div class="modal" id="sendDetailModal">
+        <div class="modal-content" style="max-width: 1000px; max-height: 90vh;">
+            <div class="modal-header">
+                <h3 class="modal-title">발송 상세 내역</h3>
+                <button class="modal-close" onclick="closeModal('sendDetailModal')">&times;</button>
+            </div>
+            <div style="max-height: 70vh; overflow-y: auto;">
+                <!-- 발송 기본 정보 -->
+                <div class="card" style="border: none; padding: 0; margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">발송 기본 정보</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">발송일시</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">2024-11-19 14:30:00</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">회원 정보</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">홍길동 (hong@example.com)</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">발신프로필</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">@hongchannel</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">메시지 타입</label>
+                            <div><span class="badge badge-info">알림톡</span></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">발송 건수</label>
+                            <div class="form-control" style="background-color: #f1f5f9; font-weight: 600;">1,000건</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">상태</label>
+                            <div><span class="badge badge-success">완료</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 발송 결과 -->
+                <div class="card" style="border: none; padding: 0; margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">발송 결과</h4>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                        <div style="text-align: center; padding: 16px; background-color: #f1f5f9; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: 700; color: #10b981;">995</div>
+                            <div style="font-size: 12px; color: #64748b; margin-top: 4px;">성공</div>
+                        </div>
+                        <div style="text-align: center; padding: 16px; background-color: #f1f5f9; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: 700; color: #ef4444;">5</div>
+                            <div style="font-size: 12px; color: #64748b; margin-top: 4px;">실패</div>
+                        </div>
+                        <div style="text-align: center; padding: 16px; background-color: #f1f5f9; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: 700; color: #3b82f6;">99.5%</div>
+                            <div style="font-size: 12px; color: #64748b; margin-top: 4px;">성공률</div>
+                        </div>
+                        <div style="text-align: center; padding: 16px; background-color: #f1f5f9; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: 700; color: #1e293b;">₩1,000</div>
+                            <div style="font-size: 12px; color: #64748b; margin-top: 4px;">사용 금액</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 메시지 내용 -->
+                <div class="card" style="border: none; padding: 0; margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">메시지 내용</h4>
+                    <div style="padding: 20px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <div style="font-size: 14px; line-height: 1.8; white-space: pre-wrap;">
+안녕하세요, 홍길동님
+
+주문이 완료되었습니다.
+
+주문번호: ORD-2024-001
+주문일시: 2024-11-19 14:30
+결제금액: 50,000원
+
+감사합니다.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 실패 상세 -->
+                <div class="card" style="border: none; padding: 0; margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">실패 상세 (5건)</h4>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>수신번호</th>
+                                    <th>실패 사유</th>
+                                    <th>실패 시간</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>010-****-1111</td>
+                                    <td>카카오톡 미가입</td>
+                                    <td>2024-11-19 14:31:05</td>
+                                    <td>
+                                        <button class="btn btn-success btn-sm">재발송</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>010-****-2222</td>
+                                    <td>수신거부</td>
+                                    <td>2024-11-19 14:31:10</td>
+                                    <td>
+                                        <button class="btn btn-success btn-sm">재발송</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success">실패 건 재발송</button>
+                <button class="btn btn-secondary">엑셀 다운로드</button>
+                <button class="btn btn-outline" onclick="closeModal('sendDetailModal')">닫기</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        createPagination(1, 10, 'pagination');
+        
+        // 검색 결과 함수
+        function searchResults() {
+            // 실제로는 서버에서 데이터를 가져와야 하지만, 여기서는 예시 데이터를 사용
+            const callerNumber = document.getElementById('callerNumberFilter').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            // 발신번호가 선택되지 않았으면 통계를 표시하지 않음
+            if (!callerNumber) {
+                alert('발신번호를 선택해주세요.');
+                return;
+            }
+            
+            // 예시 통계 데이터 (실제로는 서버에서 가져와야 함)
+            const stats = {
+                send: '12,345건',
+                success: '12,160건',
+                failed: '185건',
+                successRate: '98.5%',
+                cost: '₩1,234,500'
+            };
+            
+            // 통계 표시
+            document.getElementById('statSend').textContent = stats.send;
+            document.getElementById('statSendDesc').textContent = '조회 결과';
+            
+            document.getElementById('statSuccess').textContent = stats.success;
+            document.getElementById('statSuccessDesc').textContent = '조회 결과';
+            
+            document.getElementById('statFailed').textContent = stats.failed;
+            document.getElementById('statFailedDesc').textContent = '조회 결과';
+            
+            document.getElementById('statSuccessRate').textContent = stats.successRate;
+            document.getElementById('statSuccessRateDesc').textContent = '조회 결과';
+            
+            document.getElementById('statCost').textContent = stats.cost;
+            document.getElementById('statCostDesc').textContent = '조회 결과';
+        }
+        
+        // 검색 초기화 함수
+        function resetSearch() {
+            // 검색 필드 초기화
+            document.getElementById('searchInput').value = '';
+            document.getElementById('messageTypeFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('callerNumberFilter').value = '';
+            document.getElementById('startDate').value = '2024-11-19';
+            document.getElementById('endDate').value = '2024-11-19';
+            
+            // 통계 초기화
+            document.getElementById('statSend').textContent = '-';
+            document.getElementById('statSendDesc').textContent = '조회 후 표시';
+            
+            document.getElementById('statSuccess').textContent = '-';
+            document.getElementById('statSuccessDesc').textContent = '조회 후 표시';
+            
+            document.getElementById('statFailed').textContent = '-';
+            document.getElementById('statFailedDesc').textContent = '조회 후 표시';
+            
+            document.getElementById('statSuccessRate').textContent = '-';
+            document.getElementById('statSuccessRateDesc').textContent = '조회 후 표시';
+            
+            document.getElementById('statCost').textContent = '-';
+            document.getElementById('statCostDesc').textContent = '조회 후 표시';
+        }
+    </script>
+</body>
+</html>
+

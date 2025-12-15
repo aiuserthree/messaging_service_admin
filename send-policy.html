@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>발송 정책 관리 - 어드민</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h1>Tokbell Admin</h1>
+                <div class="subtitle">관리자 시스템</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-section">
+                    <div class="menu-section-title">메인</div>
+                    <a href="index.html" class="menu-item"><span>대시보드</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">사용자 관리</div>
+                    <a href="user-list.html" class="menu-item"><span>회원 관리</span></a>
+                    <a href="user-permission.html" class="menu-item"><span>권한 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">발신번호 관리</div>
+                    <a href="caller-number-pending.html" class="menu-item"><span>승인 대기</span></a>
+                    <a href="caller-number-approved.html" class="menu-item"><span>승인 완료</span></a>
+                    <a href="caller-number-list.html" class="menu-item"><span>발신번호 목록</span></a>
+                    <a href="kakao-profile-list.html" class="menu-item"><span>발신프로필 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">템플릿 관리</div>
+                    <a href="template-alimtalk-review.html" class="menu-item"><span>알림톡 템플릿 검수</span></a>
+                    <a href="template-brandtalk-list.html" class="menu-item"><span>브랜드톡 템플릿</span></a>
+                    <a href="template-message-list.html" class="menu-item"><span>문자 템플릿</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">발송 관리</div>
+                    <a href="send-history.html" class="menu-item"><span>발송 내역 모니터링</span></a>
+                    <a href="send-statistics.html" class="menu-item"><span>발송 통계</span></a>
+                    <a href="send-policy.html" class="menu-item active"><span>발송 정책 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">결제 관리</div>
+                    <a href="payment-charge-list.html" class="menu-item"><span>충전 내역</span></a>
+                    <a href="payment-deposit.html" class="menu-item"><span>입금 확인</span></a>
+                    <a href="payment-pricing.html" class="menu-item"><span>요금 설정</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">기타 관리</div>
+                    <a href="reject-list.html" class="menu-item"><span>수신거부 관리</span></a>
+                    <a href="inquiry-list.html" class="menu-item"><span>문의 관리</span></a>
+                    <a href="notice-list.html" class="menu-item"><span>공지사항 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">시스템</div>
+                    <a href="system-settings.html" class="menu-item"><span>시스템 설정</span></a>
+                    <a href="statistics-report.html" class="menu-item"><span>통계 및 리포트</span></a>
+                    <a href="security-audit.html" class="menu-item"><span>보안 및 감사</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left">
+                    <h2 class="page-title">발송 정책 관리</h2>
+                </div>
+                <div class="header-right">
+                    <div class="admin-user-info">
+                        <div class="user-avatar">관</div>
+                        <div>
+                            <div class="user-name">관리자</div>
+                            <div class="user-role">최고 관리자</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline btn-sm">로그아웃</button>
+                </div>
+            </header>
+            
+            <div class="admin-content">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('limit')">발송 제한 정책</button>
+                    <button class="tab" onclick="switchTab('spam')">스팸 발송 모니터링</button>
+                </div>
+                
+                <div id="tab-limit" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">발송 제한 정책 설정</h3>
+                        </div>
+                        <div style="padding: 24px;">
+                            <div class="form-group">
+                                <label class="form-label">일일 발송 건수 제한 (기본값)</label>
+                                <input type="number" class="form-control" value="10000" placeholder="건수 입력">
+                                <div style="font-size: 12px; color: #64748b; margin-top: 4px;">회원별 기본 일일 발송 제한 건수</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">시간대별 발송 제한</label>
+                                <div style="display: flex; gap: 12px; align-items: center;">
+                                    <input type="time" class="form-control" value="08:00" style="width: 150px;">
+                                    <span>~</span>
+                                    <input type="time" class="form-control" value="21:00" style="width: 150px;">
+                                </div>
+                                <div style="font-size: 12px; color: #64748b; margin-top: 4px;">광고문자 발송 가능 시간 (평일 08:00~21:00)</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">대량 발송 사전 승인 정책</label>
+                                <div style="display: flex; gap: 12px; align-items: center;">
+                                    <input type="checkbox" id="bulkApproval" checked>
+                                    <label for="bulkApproval" style="margin: 0;">활성화</label>
+                                </div>
+                                <div style="margin-top: 12px;">
+                                    <input type="number" class="form-control" value="50000" placeholder="건수 입력" style="width: 200px;">
+                                    <div style="font-size: 12px; color: #64748b; margin-top: 4px;">건 이상 발송 시 승인 필요</div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">스팸 발송 차단 정책</label>
+                                <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
+                                    <input type="checkbox" id="spamBlock" checked>
+                                    <label for="spamBlock" style="margin: 0;">활성화</label>
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    <label style="font-size: 14px; margin-bottom: 8px; display: block;">동일 수신번호 반복 발송 제한</label>
+                                    <input type="number" class="form-control" value="10" placeholder="건수 입력" style="width: 200px;">
+                                    <div style="font-size: 12px; color: #64748b; margin-top: 4px;">건/시간 초과 시 차단</div>
+                                </div>
+                                <div>
+                                    <label style="font-size: 14px; margin-bottom: 8px; display: block;">수신거부율 기준</label>
+                                    <input type="number" class="form-control" value="5" placeholder="%" style="width: 200px;">
+                                    <div style="font-size: 12px; color: #64748b; margin-top: 4px;">% 초과 시 경고</div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+                                <button class="btn btn-primary">정책 저장</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="tab-spam" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">스팸 발송 의심 건</h3>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>발송일시</th>
+                                        <th>회원 정보</th>
+                                        <th>발신번호</th>
+                                        <th>발송 건수</th>
+                                        <th>수신거부율</th>
+                                        <th>의심 사유</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2024-11-19 14:30</td>
+                                        <td>
+                                            <div>홍길동</div>
+                                            <div style="font-size: 12px; color: #64748b;">hong@example.com</div>
+                                        </td>
+                                        <td>010-1234-5678</td>
+                                        <td>10,000</td>
+                                        <td style="color: #ef4444; font-weight: 600;">8.5%</td>
+                                        <td>수신거부율 초과</td>
+                                        <td>
+                                            <button class="btn btn-danger btn-sm">차단</button>
+                                            <button class="btn btn-outline btn-sm" style="margin-left: 4px;">상세</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).style.display = 'block';
+        }
+    </script>
+</body>
+</html>
+

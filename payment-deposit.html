@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>입금 확인 - 어드민</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h1>Tokbell Admin</h1>
+                <div class="subtitle">관리자 시스템</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-section">
+                    <div class="menu-section-title">메인</div>
+                    <a href="index.html" class="menu-item"><span>대시보드</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">사용자 관리</div>
+                    <a href="user-list.html" class="menu-item"><span>회원 관리</span></a>
+                    <a href="user-permission.html" class="menu-item"><span>권한 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">발신번호 관리</div>
+                    <a href="caller-number-pending.html" class="menu-item"><span>승인 대기</span></a>
+                    <a href="caller-number-approved.html" class="menu-item"><span>승인 완료</span></a>
+                    <a href="caller-number-list.html" class="menu-item"><span>발신번호 목록</span></a>
+                    <a href="kakao-profile-list.html" class="menu-item"><span>발신프로필 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">템플릿 관리</div>
+                    <a href="template-alimtalk-review.html" class="menu-item"><span>알림톡 템플릿 검수</span></a>
+                    <a href="template-brandtalk-list.html" class="menu-item"><span>브랜드톡 템플릿</span></a>
+                    <a href="template-message-list.html" class="menu-item"><span>문자 템플릿</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">발송 관리</div>
+                    <a href="send-history.html" class="menu-item"><span>발송 내역 모니터링</span></a>
+                    <a href="send-statistics.html" class="menu-item"><span>발송 통계</span></a>
+                    <a href="send-policy.html" class="menu-item"><span>발송 정책 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">결제 관리</div>
+                    <a href="payment-charge-list.html" class="menu-item"><span>충전 내역</span></a>
+                    <a href="payment-deposit.html" class="menu-item active"><span>입금 확인</span></a>
+                    <a href="payment-pricing.html" class="menu-item"><span>요금 설정</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">기타 관리</div>
+                    <a href="reject-list.html" class="menu-item"><span>수신거부 관리</span></a>
+                    <a href="inquiry-list.html" class="menu-item"><span>문의 관리</span></a>
+                    <a href="notice-list.html" class="menu-item"><span>공지사항 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">시스템</div>
+                    <a href="system-settings.html" class="menu-item"><span>시스템 설정</span></a>
+                    <a href="statistics-report.html" class="menu-item"><span>통계 및 리포트</span></a>
+                    <a href="security-audit.html" class="menu-item"><span>보안 및 감사</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left">
+                    <h2 class="page-title">입금 확인</h2>
+                </div>
+                <div class="header-right">
+                    <div class="admin-user-info">
+                        <div class="user-avatar">관</div>
+                        <div>
+                            <div class="user-name">관리자</div>
+                            <div class="user-role">운영 관리자</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline btn-sm">로그아웃</button>
+                </div>
+            </header>
+            
+            <div class="admin-content">
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">입금 확인 대기</h3>
+                        <div class="card-description">대기 건수: 5건</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>요청일시</th>
+                                    <th>회원 정보</th>
+                                    <th>충전 금액</th>
+                                    <th>입금 계좌</th>
+                                    <th>입금자명</th>
+                                    <th>입금 예정일</th>
+                                    <th>상태</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2024-11-19 13:15</td>
+                                    <td>
+                                        <div>김철수</div>
+                                        <div style="font-size: 12px; color: #64748b;">kim@example.com</div>
+                                    </td>
+                                    <td style="font-weight: 600;">₩500,000</td>
+                                    <td>
+                                        <div>신한은행</div>
+                                        <div style="font-size: 12px; color: #64748b;">110-123-456789</div>
+                                    </td>
+                                    <td>김철수</td>
+                                    <td>2024-11-19</td>
+                                    <td><span class="badge badge-warning">대기</span></td>
+                                    <td>
+                                        <button class="btn btn-success btn-sm" onclick="openModal('depositConfirmModal')">입금 확인</button>
+                                        <button class="btn btn-danger btn-sm" style="margin-left: 4px;">미입금</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2024-11-19 11:30</td>
+                                    <td>
+                                        <div>박민수</div>
+                                        <div style="font-size: 12px; color: #64748b;">park@example.com</div>
+                                    </td>
+                                    <td style="font-weight: 600;">₩1,000,000</td>
+                                    <td>
+                                        <div>KB국민은행</div>
+                                        <div style="font-size: 12px; color: #64748b;">123-456-789012</div>
+                                    </td>
+                                    <td>박민수</td>
+                                    <td>2024-11-19</td>
+                                    <td><span class="badge badge-warning">대기</span></td>
+                                    <td>
+                                        <button class="btn btn-success btn-sm" onclick="openModal('depositConfirmModal')">입금 확인</button>
+                                        <button class="btn btn-danger btn-sm" style="margin-left: 4px;">미입금</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">입금 확인 이력</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>확인일시</th>
+                                    <th>회원 정보</th>
+                                    <th>충전 금액</th>
+                                    <th>입금자명</th>
+                                    <th>결과</th>
+                                    <th>확인자</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2024-11-19 10:20</td>
+                                    <td>
+                                        <div>이영희</div>
+                                        <div style="font-size: 12px; color: #64748b;">lee@example.com</div>
+                                    </td>
+                                    <td style="font-weight: 600;">₩200,000</td>
+                                    <td>이영희</td>
+                                    <td><span class="badge badge-success">확인완료</span></td>
+                                    <td>관리자A</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 입금 확인 모달 -->
+    <div class="modal" id="depositConfirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">입금 확인</h3>
+                <button class="modal-close" onclick="closeModal('depositConfirmModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label class="form-label">회원 정보</label>
+                    <div class="form-control" style="background-color: #f1f5f9;">김철수 (kim@example.com)</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">충전 금액</label>
+                    <div class="form-control" style="background-color: #f1f5f9; font-size: 20px; font-weight: 600;">₩500,000</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">입금 계좌</label>
+                    <div class="form-control" style="background-color: #f1f5f9;">신한은행 110-123-456789</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">입금자명</label>
+                    <div class="form-control" style="background-color: #f1f5f9;">김철수</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">입금 확인 메모</label>
+                    <textarea class="form-control" rows="3" placeholder="입금 확인 관련 메모를 입력하세요"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="showToast('입금 확인이 완료되었습니다.', 'success'); closeModal('depositConfirmModal');">입금 확인</button>
+                <button class="btn btn-danger" onclick="openModal('depositRejectModal')">미입금 처리</button>
+                <button class="btn btn-outline" onclick="closeModal('depositConfirmModal')">취소</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        createPagination(1, 10, 'pagination');
+    </script>
+</body>
+</html>
+

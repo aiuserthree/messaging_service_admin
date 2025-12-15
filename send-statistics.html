@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>발송 통계 - 어드민</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h1>Tokbell Admin</h1>
+                <div class="subtitle">관리자 시스템</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-section">
+                    <div class="menu-section-title">메인</div>
+                    <a href="index.html" class="menu-item"><span>대시보드</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">사용자 관리</div>
+                    <a href="user-list.html" class="menu-item"><span>회원 관리</span></a>
+                    <a href="user-permission.html" class="menu-item"><span>권한 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">발신번호 관리</div>
+                    <a href="caller-number-pending.html" class="menu-item"><span>승인 대기</span></a>
+                    <a href="caller-number-approved.html" class="menu-item"><span>승인 완료</span></a>
+                    <a href="caller-number-list.html" class="menu-item"><span>발신번호 목록</span></a>
+                    <a href="kakao-profile-list.html" class="menu-item"><span>발신프로필 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">템플릿 관리</div>
+                    <a href="template-alimtalk-review.html" class="menu-item"><span>알림톡 템플릿 검수</span></a>
+                    <a href="template-brandtalk-list.html" class="menu-item"><span>브랜드톡 템플릿</span></a>
+                    <a href="template-message-list.html" class="menu-item"><span>문자 템플릿</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">발송 관리</div>
+                    <a href="send-history.html" class="menu-item"><span>발송 내역 모니터링</span></a>
+                    <a href="send-statistics.html" class="menu-item active"><span>발송 통계</span></a>
+                    <a href="send-policy.html" class="menu-item"><span>발송 정책 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">결제 관리</div>
+                    <a href="payment-charge-list.html" class="menu-item"><span>충전 내역</span></a>
+                    <a href="payment-deposit.html" class="menu-item"><span>입금 확인</span></a>
+                    <a href="payment-pricing.html" class="menu-item"><span>요금 설정</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">기타 관리</div>
+                    <a href="reject-list.html" class="menu-item"><span>수신거부 관리</span></a>
+                    <a href="inquiry-list.html" class="menu-item"><span>문의 관리</span></a>
+                    <a href="notice-list.html" class="menu-item"><span>공지사항 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">시스템</div>
+                    <a href="system-settings.html" class="menu-item"><span>시스템 설정</span></a>
+                    <a href="statistics-report.html" class="menu-item"><span>통계 및 리포트</span></a>
+                    <a href="security-audit.html" class="menu-item"><span>보안 및 감사</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left">
+                    <h2 class="page-title">발송 통계</h2>
+                </div>
+                <div class="header-right">
+                    <div class="admin-user-info">
+                        <div class="user-avatar">관</div>
+                        <div>
+                            <div class="user-name">관리자</div>
+                            <div class="user-role">운영 관리자</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline btn-sm">로그아웃</button>
+                </div>
+            </header>
+            
+            <div class="admin-content">
+                <div class="stats-grid" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">오늘 발송 건수</div>
+                            <div class="stat-card-icon" style="background-color: #dbeafe; color: #1e40af;">📨</div>
+                        </div>
+                        <div class="stat-card-value">12,345</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">이번 달 발송 건수</div>
+                            <div class="stat-card-icon" style="background-color: #d1fae5; color: #065f46;">📊</div>
+                        </div>
+                        <div class="stat-card-value">345,678</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">오늘 성공률</div>
+                            <div class="stat-card-icon" style="background-color: #fef3c7; color: #92400e;">✅</div>
+                        </div>
+                        <div class="stat-card-value">98.5%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">오늘 실패 건수</div>
+                            <div class="stat-card-icon" style="background-color: #fee2e2; color: #991b1b;">❌</div>
+                        </div>
+                        <div class="stat-card-value">185</div>
+                    </div>
+                </div>
+                
+                <div class="search-filter-bar">
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <select class="form-control">
+                                <option value="daily">일별</option>
+                                <option value="monthly">월별</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <input type="date" class="form-control" value="2024-11-01">
+                        </div>
+                        <div class="filter-item">
+                            <input type="date" class="form-control" value="2024-11-19">
+                        </div>
+                        <button class="btn btn-primary">조회</button>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">일별 발송 건수 추이</h3>
+                    </div>
+                    <div style="padding: 40px; text-align: center; color: #64748b;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📈</div>
+                        <div>차트 영역 (라인 차트)</div>
+                        <div style="font-size: 12px; margin-top: 8px;">실제 구현 시 Chart.js 또는 다른 차트 라이브러리 사용</div>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">메시지 타입별 발송 현황</h3>
+                        </div>
+                        <div style="padding: 40px; text-align: center; color: #64748b;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">🥧</div>
+                            <div>파이 차트 영역</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">성공률 통계</h3>
+                        </div>
+                        <div style="padding: 40px; text-align: center; color: #64748b;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
+                            <div>바 차트 영역</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">TOP 10 발송 회원</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>순위</th>
+                                    <th>회원명</th>
+                                    <th>발송 건수</th>
+                                    <th>성공률</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>홍길동</td>
+                                    <td>45,678건</td>
+                                    <td>98.5%</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>김철수</td>
+                                    <td>34,567건</td>
+                                    <td>97.8%</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>이영희</td>
+                                    <td>23,456건</td>
+                                    <td>99.2%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+</body>
+</html>
+

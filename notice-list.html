@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항 관리 - 어드민</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h1>Tokbell Admin</h1>
+                <div class="subtitle">관리자 시스템</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-section">
+                    <div class="menu-section-title">메인</div>
+                    <a href="index.html" class="menu-item"><span>대시보드</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">사용자 관리</div>
+                    <a href="user-list.html" class="menu-item"><span>회원 관리</span></a>
+                    <a href="user-permission.html" class="menu-item"><span>권한 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">발신번호 관리</div>
+                    <a href="caller-number-pending.html" class="menu-item"><span>승인 대기</span></a>
+                    <a href="caller-number-approved.html" class="menu-item"><span>승인 완료</span></a>
+                    <a href="caller-number-list.html" class="menu-item"><span>발신번호 목록</span></a>
+                    <a href="kakao-profile-list.html" class="menu-item"><span>발신프로필 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">템플릿 관리</div>
+                    <a href="template-alimtalk-review.html" class="menu-item"><span>알림톡 템플릿 검수</span></a>
+                    <a href="template-brandtalk-list.html" class="menu-item"><span>브랜드톡 템플릿</span></a>
+                    <a href="template-message-list.html" class="menu-item"><span>문자 템플릿</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">발송 관리</div>
+                    <a href="send-history.html" class="menu-item"><span>발송 내역 모니터링</span></a>
+                    <a href="send-statistics.html" class="menu-item"><span>발송 통계</span></a>
+                    <a href="send-policy.html" class="menu-item"><span>발송 정책 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">결제 관리</div>
+                    <a href="payment-charge-list.html" class="menu-item"><span>충전 내역</span></a>
+                    <a href="payment-deposit.html" class="menu-item"><span>입금 확인</span></a>
+                    <a href="payment-pricing.html" class="menu-item"><span>요금 설정</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">기타 관리</div>
+                    <a href="reject-list.html" class="menu-item"><span>수신거부 관리</span></a>
+                    <a href="inquiry-list.html" class="menu-item"><span>문의 관리</span></a>
+                    <a href="notice-list.html" class="menu-item active"><span>공지사항 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">시스템</div>
+                    <a href="system-settings.html" class="menu-item"><span>시스템 설정</span></a>
+                    <a href="statistics-report.html" class="menu-item"><span>통계 및 리포트</span></a>
+                    <a href="security-audit.html" class="menu-item"><span>보안 및 감사</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left">
+                    <h2 class="page-title">공지사항 관리</h2>
+                </div>
+                <div class="header-right">
+                    <div class="admin-user-info">
+                        <div class="user-avatar">관</div>
+                        <div>
+                            <div class="user-name">관리자</div>
+                            <div class="user-role">운영 관리자</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline btn-sm">로그아웃</button>
+                </div>
+            </header>
+            
+            <div class="admin-content">
+                <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0;">공지사항 목록</h3>
+                    <button class="btn btn-primary" onclick="openModal('addNoticeModal')">신규 등록</button>
+                </div>
+                
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>제목</th>
+                                    <th>작성일</th>
+                                    <th>노출 기간</th>
+                                    <th>중요 공지</th>
+                                    <th>조회수</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <span>시스템 점검 안내</span>
+                                            <span class="badge badge-danger" style="font-size: 10px;">중요</span>
+                                        </div>
+                                    </td>
+                                    <td>2024-11-19</td>
+                                    <td>2024-11-19 ~ 2024-11-25</td>
+                                    <td><span class="badge badge-danger">Y</span></td>
+                                    <td>1,234</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="openModal('editNoticeModal')">수정</button>
+                                        <button class="btn btn-danger btn-sm" style="margin-left: 4px;" onclick="if(confirm('공지사항을 삭제하시겠습니까?')) { showToast('공지사항이 삭제되었습니다.', 'success'); }">삭제</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>요금 정책 변경 안내</td>
+                                    <td>2024-11-15</td>
+                                    <td>2024-11-15 ~ 2024-12-15</td>
+                                    <td><span class="badge badge-secondary">N</span></td>
+                                    <td>567</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="openModal('editNoticeModal')">수정</button>
+                                        <button class="btn btn-danger btn-sm" style="margin-left: 4px;" onclick="if(confirm('공지사항을 삭제하시겠습니까?')) { showToast('공지사항이 삭제되었습니다.', 'success'); }">삭제</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 공지사항 등록 모달 -->
+    <div class="modal" id="addNoticeModal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">공지사항 등록</h3>
+                <button class="modal-close" onclick="closeModal('addNoticeModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label class="form-label">제목</label>
+                    <input type="text" class="form-control" placeholder="공지사항 제목">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">내용</label>
+                    <textarea class="form-control" rows="10" placeholder="공지사항 내용"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">첨부 파일</label>
+                    <input type="file" class="form-control">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label class="form-label">노출 시작일</label>
+                        <input type="date" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">노출 종료일</label>
+                        <input type="date" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox">
+                        <span>중요 공지</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="showToast('공지사항이 등록되었습니다.', 'success'); closeModal('addNoticeModal');">등록</button>
+                <button class="btn btn-outline" onclick="closeModal('addNoticeModal')">취소</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 공지사항 수정 모달 -->
+    <div class="modal" id="editNoticeModal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">공지사항 수정</h3>
+                <button class="modal-close" onclick="closeModal('editNoticeModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label class="form-label">제목</label>
+                    <input type="text" class="form-control" value="시스템 점검 안내" placeholder="공지사항 제목">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">내용</label>
+                    <textarea class="form-control" rows="10" placeholder="공지사항 내용">시스템 점검 안내 내용입니다.</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">첨부 파일</label>
+                    <input type="file" class="form-control">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label class="form-label">노출 시작일</label>
+                        <input type="date" class="form-control" value="2024-11-19">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">노출 종료일</label>
+                        <input type="date" class="form-control" value="2024-11-25">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" checked>
+                        <span>중요 공지</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="showToast('공지사항이 수정되었습니다.', 'success'); closeModal('editNoticeModal');">저장</button>
+                <button class="btn btn-outline" onclick="closeModal('editNoticeModal')">취소</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        createPagination(1, 10, 'pagination');
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문자 템플릿 관리 - 어드민</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h1>Tokbell Admin</h1>
+                <div class="subtitle">관리자 시스템</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-section">
+                    <div class="menu-section-title">메인</div>
+                    <a href="index.html" class="menu-item"><span>대시보드</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">사용자 관리</div>
+                    <a href="user-list.html" class="menu-item"><span>회원 관리</span></a>
+                    <a href="user-permission.html" class="menu-item"><span>권한 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">발신번호 관리</div>
+                    <a href="caller-number-pending.html" class="menu-item"><span>승인 대기</span></a>
+                    <a href="caller-number-approved.html" class="menu-item"><span>승인 완료</span></a>
+                    <a href="caller-number-list.html" class="menu-item"><span>발신번호 목록</span></a>
+                    <a href="kakao-profile-list.html" class="menu-item"><span>발신프로필 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">템플릿 관리</div>
+                    <a href="template-alimtalk-review.html" class="menu-item"><span>알림톡 템플릿 검수</span></a>
+                    <a href="template-brandtalk-list.html" class="menu-item"><span>브랜드톡 템플릿</span></a>
+                    <a href="template-message-list.html" class="menu-item active"><span>문자 템플릿</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">발송 관리</div>
+                    <a href="send-history.html" class="menu-item"><span>발송 내역 모니터링</span></a>
+                    <a href="send-statistics.html" class="menu-item"><span>발송 통계</span></a>
+                    <a href="send-policy.html" class="menu-item"><span>발송 정책 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">결제 관리</div>
+                    <a href="payment-charge-list.html" class="menu-item"><span>충전 내역</span></a>
+                    <a href="payment-deposit.html" class="menu-item"><span>입금 확인</span></a>
+                    <a href="payment-pricing.html" class="menu-item"><span>요금 설정</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">기타 관리</div>
+                    <a href="reject-list.html" class="menu-item"><span>수신거부 관리</span></a>
+                    <a href="inquiry-list.html" class="menu-item"><span>문의 관리</span></a>
+                    <a href="notice-list.html" class="menu-item"><span>공지사항 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">시스템</div>
+                    <a href="system-settings.html" class="menu-item"><span>시스템 설정</span></a>
+                    <a href="statistics-report.html" class="menu-item"><span>통계 및 리포트</span></a>
+                    <a href="security-audit.html" class="menu-item"><span>보안 및 감사</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left">
+                    <h2 class="page-title">문자 템플릿 관리</h2>
+                </div>
+                <div class="header-right">
+                    <div class="admin-user-info">
+                        <div class="user-avatar">관</div>
+                        <div>
+                            <div class="user-name">관리자</div>
+                            <div class="user-role">운영 관리자</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline btn-sm">로그아웃</button>
+                </div>
+            </header>
+            
+            <div class="admin-content">
+                <div class="search-filter-bar">
+                    <div class="search-box">
+                        <input type="text" class="form-control" placeholder="템플릿명 또는 회원명 검색">
+                    </div>
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <select class="form-control">
+                                <option value="">메시지 타입 (전체)</option>
+                                <option value="SMS">SMS</option>
+                                <option value="LMS">LMS</option>
+                                <option value="MMS">MMS</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <input type="date" class="form-control">
+                        </div>
+                        <div class="filter-item">
+                            <input type="date" class="form-control">
+                        </div>
+                        <button class="btn btn-primary">검색</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">문자 템플릿 목록</h3>
+                        <div class="card-description">총 1,234건</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>템플릿명</th>
+                                    <th>회원 정보</th>
+                                    <th>메시지 타입</th>
+                                    <th>등록일</th>
+                                    <th>사용 횟수</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>주문 완료 안내</td>
+                                    <td>
+                                        <div>홍길동</div>
+                                        <div style="font-size: 12px; color: #64748b;">hong@example.com</div>
+                                    </td>
+                                    <td><span class="badge badge-secondary">SMS</span></td>
+                                    <td>2024-11-15</td>
+                                    <td>1,234회</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="openModal('messageTemplateDetailModal')">상세</button>
+                                        <button class="btn btn-danger btn-sm" style="margin-left: 4px;">삭제</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>배송 시작 안내</td>
+                                    <td>
+                                        <div>김철수</div>
+                                        <div style="font-size: 12px; color: #64748b;">kim@example.com</div>
+                                    </td>
+                                    <td><span class="badge badge-info">LMS</span></td>
+                                    <td>2024-11-10</td>
+                                    <td>567회</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="openModal('messageTemplateDetailModal')">상세</button>
+                                        <button class="btn btn-danger btn-sm" style="margin-left: 4px;">삭제</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 문자 템플릿 상세 모달 -->
+    <div class="modal" id="messageTemplateDetailModal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h3 class="modal-title">문자 템플릿 상세</h3>
+                <button class="modal-close" onclick="closeModal('messageTemplateDetailModal')">&times;</button>
+            </div>
+            <div style="max-height: 70vh; overflow-y: auto;">
+                <div class="card" style="border: none; padding: 0;">
+                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">기본 정보</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">템플릿명</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">주문 완료 안내</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">회원 정보</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">홍길동 (hong@example.com)</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">메시지 타입</label>
+                            <div><span class="badge badge-secondary">SMS</span></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">등록일</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">2024-11-15</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">사용 횟수</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">1,234회</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="border: none; padding: 0; margin-top: 24px;">
+                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">템플릿 내용</h4>
+                    <div style="padding: 20px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <div style="font-size: 14px; line-height: 1.8; white-space: pre-wrap;">
+주문이 완료되었습니다.
+주문번호: {주문번호}
+감사합니다.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger">삭제</button>
+                <button class="btn btn-outline" onclick="closeModal('messageTemplateDetailModal')">닫기</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        createPagination(1, 10, 'pagination');
+    </script>
+</body>
+</html>
+

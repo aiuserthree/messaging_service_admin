@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>요금 설정 - 어드민</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h1>Tokbell Admin</h1>
+                <div class="subtitle">관리자 시스템</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-section">
+                    <div class="menu-section-title">메인</div>
+                    <a href="index.html" class="menu-item"><span>대시보드</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">사용자 관리</div>
+                    <a href="user-list.html" class="menu-item"><span>회원 관리</span></a>
+                    <a href="user-permission.html" class="menu-item"><span>권한 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">발신번호 관리</div>
+                    <a href="caller-number-pending.html" class="menu-item"><span>승인 대기</span></a>
+                    <a href="caller-number-approved.html" class="menu-item"><span>승인 완료</span></a>
+                    <a href="caller-number-list.html" class="menu-item"><span>발신번호 목록</span></a>
+                    <a href="kakao-profile-list.html" class="menu-item"><span>발신프로필 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">템플릿 관리</div>
+                    <a href="template-alimtalk-review.html" class="menu-item"><span>알림톡 템플릿 검수</span></a>
+                    <a href="template-brandtalk-list.html" class="menu-item"><span>브랜드톡 템플릿</span></a>
+                    <a href="template-message-list.html" class="menu-item"><span>문자 템플릿</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">발송 관리</div>
+                    <a href="send-history.html" class="menu-item"><span>발송 내역 모니터링</span></a>
+                    <a href="send-statistics.html" class="menu-item"><span>발송 통계</span></a>
+                    <a href="send-policy.html" class="menu-item"><span>발송 정책 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">결제 관리</div>
+                    <a href="payment-charge-list.html" class="menu-item"><span>충전 내역</span></a>
+                    <a href="payment-deposit.html" class="menu-item"><span>입금 확인</span></a>
+                    <a href="payment-pricing.html" class="menu-item active"><span>요금 설정</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">기타 관리</div>
+                    <a href="reject-list.html" class="menu-item"><span>수신거부 관리</span></a>
+                    <a href="inquiry-list.html" class="menu-item"><span>문의 관리</span></a>
+                    <a href="notice-list.html" class="menu-item"><span>공지사항 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">시스템</div>
+                    <a href="system-settings.html" class="menu-item"><span>시스템 설정</span></a>
+                    <a href="statistics-report.html" class="menu-item"><span>통계 및 리포트</span></a>
+                    <a href="security-audit.html" class="menu-item"><span>보안 및 감사</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left">
+                    <h2 class="page-title">요금 설정</h2>
+                </div>
+                <div class="header-right">
+                    <div class="admin-user-info">
+                        <div class="user-avatar">관</div>
+                        <div>
+                            <div class="user-name">관리자</div>
+                            <div class="user-role">최고 관리자</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline btn-sm">로그아웃</button>
+                </div>
+            </header>
+            
+            <div class="admin-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">메시지 타입별 단가 설정</h3>
+                    </div>
+                    <div style="padding: 24px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label class="form-label">SMS 단가 (원)</label>
+                                <input type="number" class="form-control" value="20" placeholder="단가 입력">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">LMS 단가 (원)</label>
+                                <input type="number" class="form-control" value="50" placeholder="단가 입력">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">MMS 단가 (원)</label>
+                                <input type="number" class="form-control" value="300" placeholder="단가 입력">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">알림톡 단가 (원)</label>
+                                <input type="number" class="form-control" value="25" placeholder="단가 입력">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">브랜드톡 단가 (원)</label>
+                                <input type="number" class="form-control" value="30" placeholder="단가 입력">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">할인 정책 설정</h3>
+                    </div>
+                    <div style="padding: 24px;">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>충전 금액</th>
+                                        <th>할인율</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>₩100,000 이상</td>
+                                        <td>5%</td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm" onclick="openModal('editDiscountModal')">수정</button>
+                                            <button class="btn btn-danger btn-sm" style="margin-left: 4px;" onclick="if(confirm('할인 구간을 삭제하시겠습니까?')) { showToast('할인 구간이 삭제되었습니다.', 'success'); }">삭제</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>₩500,000 이상</td>
+                                        <td>10%</td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm" onclick="openModal('editDiscountModal')">수정</button>
+                                            <button class="btn btn-danger btn-sm" style="margin-left: 4px;" onclick="if(confirm('할인 구간을 삭제하시겠습니까?')) { showToast('할인 구간이 삭제되었습니다.', 'success'); }">삭제</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>₩1,000,000 이상</td>
+                                        <td>15%</td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm" onclick="openModal('editDiscountModal')">수정</button>
+                                            <button class="btn btn-danger btn-sm" style="margin-left: 4px;" onclick="if(confirm('할인 구간을 삭제하시겠습니까?')) { showToast('할인 구간이 삭제되었습니다.', 'success'); }">삭제</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <button class="btn btn-primary" style="margin-top: 16px;" onclick="openModal('addDiscountModal')">할인 구간 추가</button>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">요금 변경 이력</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>변경일시</th>
+                                    <th>변경자</th>
+                                    <th>변경 내용</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2024-11-15 10:30</td>
+                                    <td>관리자A</td>
+                                    <td>SMS 단가 20원 → 22원 변경</td>
+                                </tr>
+                                <tr>
+                                    <td>2024-11-01 14:20</td>
+                                    <td>관리자B</td>
+                                    <td>할인 정책 추가: ₩1,000,000 이상 15% 할인</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 24px; display: flex; gap: 12px;">
+                    <button class="btn btn-primary">즉시 적용</button>
+                    <button class="btn btn-secondary">예약 적용</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 할인 구간 수정 모달 -->
+    <div class="modal" id="editDiscountModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">할인 구간 수정</h3>
+                <button class="modal-close" onclick="closeModal('editDiscountModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label class="form-label">충전 금액</label>
+                    <input type="text" class="form-control" value="₩100,000 이상" placeholder="충전 금액">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">할인율 (%)</label>
+                    <input type="number" class="form-control" value="5" placeholder="할인율" min="0" max="100">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="showToast('할인 구간이 수정되었습니다.', 'success'); closeModal('editDiscountModal');">저장</button>
+                <button class="btn btn-outline" onclick="closeModal('editDiscountModal')">취소</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+</body>
+</html>
+

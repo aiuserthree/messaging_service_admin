@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>권한 관리 - 어드민</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- 사이드바 -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h1>Tokbell Admin</h1>
+                <div class="subtitle">관리자 시스템</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-section">
+                    <div class="menu-section-title">메인</div>
+                    <a href="index.html" class="menu-item">
+                        <span>대시보드</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">사용자 관리</div>
+                    <a href="user-list.html" class="menu-item">
+                        <span>회원 관리</span>
+                    </a>
+                    <a href="user-permission.html" class="menu-item active">
+                        <span>권한 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">발신번호 관리</div>
+                    <a href="caller-number-pending.html" class="menu-item">
+                        <span>승인 대기</span>
+                    </a>
+                    <a href="caller-number-approved.html" class="menu-item">
+                        <span>승인 완료</span>
+                    </a>
+                    <a href="caller-number-list.html" class="menu-item">
+                        <span>발신번호 목록</span>
+                    </a>
+                    <a href="kakao-profile-list.html" class="menu-item">
+                        <span>발신프로필 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">템플릿 관리</div>
+                    <a href="template-alimtalk-review.html" class="menu-item">
+                        <span>알림톡 템플릿 검수</span>
+                    </a>
+                    <a href="template-brandtalk-list.html" class="menu-item">
+                        <span>브랜드톡 템플릿</span>
+                    </a>
+                    <a href="template-message-list.html" class="menu-item">
+                        <span>문자 템플릿</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">발송 관리</div>
+                    <a href="send-history.html" class="menu-item">
+                        <span>발송 내역 모니터링</span>
+                    </a>
+                    <a href="send-statistics.html" class="menu-item">
+                        <span>발송 통계</span>
+                    </a>
+                    <a href="send-policy.html" class="menu-item">
+                        <span>발송 정책 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">결제 관리</div>
+                    <a href="payment-charge-list.html" class="menu-item">
+                        <span>충전 내역</span>
+                    </a>
+                    <a href="payment-deposit.html" class="menu-item">
+                        <span>입금 확인</span>
+                    </a>
+                    <a href="payment-pricing.html" class="menu-item">
+                        <span>요금 설정</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">기타 관리</div>
+                    <a href="reject-list.html" class="menu-item">
+                        <span>수신거부 관리</span>
+                    </a>
+                    <a href="inquiry-list.html" class="menu-item">
+                        <span>문의 관리</span>
+                    </a>
+                    <a href="notice-list.html" class="menu-item">
+                        <span>공지사항 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">시스템</div>
+                    <a href="system-settings.html" class="menu-item">
+                        <span>시스템 설정</span>
+                    </a>
+                    <a href="statistics-report.html" class="menu-item">
+                        <span>통계 및 리포트</span>
+                    </a>
+                    <a href="security-audit.html" class="menu-item">
+                        <span>보안 및 감사</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- 메인 컨텐츠 -->
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left">
+                    <h2 class="page-title">권한 관리</h2>
+                </div>
+                <div class="header-right">
+                    <div class="admin-user-info">
+                        <div class="user-avatar">관</div>
+                        <div>
+                            <div class="user-name">관리자</div>
+                            <div class="user-role">최고 관리자</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline btn-sm">로그아웃</button>
+                </div>
+            </header>
+            
+            <div class="admin-content">
+                <!-- 탭 -->
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('admin')">관리자 계정</button>
+                    <button class="tab" onclick="switchTab('permission')">권한 그룹</button>
+                    <button class="tab" onclick="switchTab('access')">접근 로그</button>
+                </div>
+                
+                <!-- 관리자 계정 탭 -->
+                <div id="tab-admin" class="tab-content">
+                    <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin: 0;">관리자 목록</h3>
+                        <button class="btn btn-primary" onclick="openModal('addAdminModal')">신규 관리자 등록</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>관리자 ID</th>
+                                        <th>이름</th>
+                                        <th>권한 그룹</th>
+                                        <th>생성일</th>
+                                        <th>최종 로그인</th>
+                                        <th>계정 상태</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>admin@example.com</td>
+                                        <td>최고 관리자</td>
+                                        <td><span class="badge badge-danger">최고 관리자</span></td>
+                                        <td>2024-01-01</td>
+                                        <td>2024-11-19 14:30</td>
+                                        <td><span class="badge badge-success">정상</span></td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm" onclick="openModal('editAdminModal')">수정</button>
+                                            <button class="btn btn-outline btn-sm" onclick="openModal('resetPasswordModal')">비밀번호 초기화</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>operator@example.com</td>
+                                        <td>운영 관리자</td>
+                                        <td><span class="badge badge-warning">운영 관리자</span></td>
+                                        <td>2024-01-15</td>
+                                        <td>2024-11-19 13:20</td>
+                                        <td><span class="badge badge-success">정상</span></td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm" onclick="openModal('editAdminModal')">수정</button>
+                                            <button class="btn btn-outline btn-sm" onclick="openModal('resetPasswordModal')">비밀번호 초기화</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>reviewer@example.com</td>
+                                        <td>심사 관리자</td>
+                                        <td><span class="badge badge-info">심사 관리자</span></td>
+                                        <td>2024-02-01</td>
+                                        <td>2024-11-19 12:10</td>
+                                        <td><span class="badge badge-success">정상</span></td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm" onclick="openModal('editAdminModal')">수정</button>
+                                            <button class="btn btn-outline btn-sm" onclick="openModal('resetPasswordModal')">비밀번호 초기화</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 권한 그룹 탭 -->
+                <div id="tab-permission" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <h3 style="margin-bottom: 24px;">권한 그룹별 기능 권한</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>메뉴</th>
+                                        <th>최고 관리자</th>
+                                        <th>운영 관리자</th>
+                                        <th>심사 관리자</th>
+                                        <th>고객 지원</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>회원 관리</td>
+                                        <td><span class="badge badge-success">읽기/쓰기</span></td>
+                                        <td><span class="badge badge-success">읽기/쓰기</span></td>
+                                        <td><span class="badge badge-secondary">없음</span></td>
+                                        <td><span class="badge badge-info">읽기</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>발신번호 승인</td>
+                                        <td><span class="badge badge-success">읽기/쓰기</span></td>
+                                        <td><span class="badge badge-success">읽기/쓰기</span></td>
+                                        <td><span class="badge badge-success">읽기/쓰기</span></td>
+                                        <td><span class="badge badge-secondary">없음</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>템플릿 검수</td>
+                                        <td><span class="badge badge-success">읽기/쓰기</span></td>
+                                        <td><span class="badge badge-success">읽기/쓰기</span></td>
+                                        <td><span class="badge badge-success">읽기/쓰기</span></td>
+                                        <td><span class="badge badge-secondary">없음</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>발송 관리</td>
+                                        <td><span class="badge badge-success">읽기/쓰기</span></td>
+                                        <td><span class="badge badge-success">읽기/쓰기</span></td>
+                                        <td><span class="badge badge-secondary">없음</span></td>
+                                        <td><span class="badge badge-info">읽기</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>결제 관리</td>
+                                        <td><span class="badge badge-success">읽기/쓰기</span></td>
+                                        <td><span class="badge badge-success">읽기/쓰기</span></td>
+                                        <td><span class="badge badge-secondary">없음</span></td>
+                                        <td><span class="badge badge-secondary">없음</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>문의 관리</td>
+                                        <td><span class="badge badge-success">읽기/쓰기</span></td>
+                                        <td><span class="badge badge-success">읽기/쓰기</span></td>
+                                        <td><span class="badge badge-secondary">없음</span></td>
+                                        <td><span class="badge badge-success">읽기/쓰기</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>시스템 설정</td>
+                                        <td><span class="badge badge-success">읽기/쓰기</span></td>
+                                        <td><span class="badge badge-secondary">없음</span></td>
+                                        <td><span class="badge badge-secondary">없음</span></td>
+                                        <td><span class="badge badge-secondary">없음</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 접근 로그 탭 -->
+                <div id="tab-access" class="tab-content" style="display: none;">
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <input type="text" class="form-control" placeholder="관리자 ID 또는 IP 주소 검색">
+                        </div>
+                        <div class="filter-group">
+                            <div class="filter-item">
+                                <select class="form-control">
+                                    <option value="">이벤트 유형 (전체)</option>
+                                    <option value="LOGIN">로그인</option>
+                                    <option value="PERMISSION_CHANGE">권한 변경</option>
+                                    <option value="DATA_MODIFY">데이터 수정</option>
+                                    <option value="SETTING_CHANGE">설정 변경</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <input type="date" class="form-control">
+                            </div>
+                            <div class="filter-item">
+                                <input type="date" class="form-control">
+                            </div>
+                            <button class="btn btn-primary">검색</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>일시</th>
+                                        <th>관리자 ID</th>
+                                        <th>이벤트 유형</th>
+                                        <th>IP 주소</th>
+                                        <th>접근 기능/페이지</th>
+                                        <th>수행 작업</th>
+                                        <th>결과</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2024-11-19 14:30</td>
+                                        <td>admin@example.com</td>
+                                        <td>로그인</td>
+                                        <td>192.168.1.100</td>
+                                        <td>/admin/index.html</td>
+                                        <td>로그인</td>
+                                        <td><span class="badge badge-success">성공</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-11-19 13:20</td>
+                                        <td>operator@example.com</td>
+                                        <td>데이터 수정</td>
+                                        <td>192.168.1.101</td>
+                                        <td>/admin/user-list.html</td>
+                                        <td>회원 정보 수정</td>
+                                        <td><span class="badge badge-success">성공</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-11-19 12:10</td>
+                                        <td>reviewer@example.com</td>
+                                        <td>권한 변경</td>
+                                        <td>192.168.1.102</td>
+                                        <td>/admin/user-permission.html</td>
+                                        <td>권한 그룹 변경</td>
+                                        <td><span class="badge badge-success">성공</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination" id="pagination"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 관리자 등록 모달 -->
+    <div class="modal" id="addAdminModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">신규 관리자 등록</h3>
+                <button class="modal-close" onclick="closeModal('addAdminModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label class="form-label">관리자 ID (이메일)</label>
+                    <input type="email" class="form-control" placeholder="admin@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">이름</label>
+                    <input type="text" class="form-control" placeholder="관리자 이름">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">비밀번호</label>
+                    <input type="password" class="form-control" placeholder="비밀번호">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">권한 그룹</label>
+                    <select class="form-control">
+                        <option value="">선택</option>
+                        <option value="SUPER">최고 관리자</option>
+                        <option value="OPERATOR">운영 관리자</option>
+                        <option value="REVIEWER">심사 관리자</option>
+                        <option value="SUPPORT">고객 지원</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="showToast('관리자가 등록되었습니다.', 'success'); closeModal('addAdminModal');">등록</button>
+                <button class="btn btn-outline" onclick="closeModal('addAdminModal')">취소</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 관리자 수정 모달 -->
+    <div class="modal" id="editAdminModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">관리자 정보 수정</h3>
+                <button class="modal-close" onclick="closeModal('editAdminModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label class="form-label">관리자 ID (이메일)</label>
+                    <div class="form-control" style="background-color: #f1f5f9;">admin@example.com</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">이름</label>
+                    <input type="text" class="form-control" value="최고 관리자" placeholder="관리자 이름">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">권한 그룹</label>
+                    <select class="form-control">
+                        <option value="SUPER" selected>최고 관리자</option>
+                        <option value="OPERATOR">운영 관리자</option>
+                        <option value="REVIEWER">심사 관리자</option>
+                        <option value="SUPPORT">고객 지원</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">계정 상태</label>
+                    <select class="form-control">
+                        <option value="ACTIVE" selected>정상</option>
+                        <option value="SUSPENDED">정지</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="showToast('관리자 정보가 수정되었습니다.', 'success'); closeModal('editAdminModal');">저장</button>
+                <button class="btn btn-outline" onclick="closeModal('editAdminModal')">취소</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 비밀번호 초기화 모달 -->
+    <div class="modal" id="resetPasswordModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">비밀번호 초기화</h3>
+                <button class="modal-close" onclick="closeModal('resetPasswordModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label class="form-label">관리자 ID</label>
+                    <div class="form-control" style="background-color: #f1f5f9;">admin@example.com</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">초기화된 비밀번호</label>
+                    <div class="form-control" style="background-color: #f1f5f9; font-weight: 600;">TempPass123!</div>
+                </div>
+                <div style="padding: 12px; background-color: #fef3c7; border-radius: 8px; margin-top: 16px;">
+                    <div style="font-size: 12px; color: #92400e;">
+                        초기화된 비밀번호는 관리자에게 전달해주세요. 로그인 후 비밀번호를 변경하도록 안내하세요.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="showToast('비밀번호가 초기화되었습니다.', 'success'); closeModal('resetPasswordModal');">확인</button>
+                <button class="btn btn-outline" onclick="closeModal('resetPasswordModal')">취소</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).style.display = 'block';
+        }
+        createPagination(1, 10, 'pagination');
+    </script>
+</body>
+</html>
+

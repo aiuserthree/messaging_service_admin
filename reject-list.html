@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>수신거부 관리 - 어드민</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h1>Tokbell Admin</h1>
+                <div class="subtitle">관리자 시스템</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-section">
+                    <div class="menu-section-title">메인</div>
+                    <a href="index.html" class="menu-item"><span>대시보드</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">사용자 관리</div>
+                    <a href="user-list.html" class="menu-item"><span>회원 관리</span></a>
+                    <a href="user-permission.html" class="menu-item"><span>권한 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">발신번호 관리</div>
+                    <a href="caller-number-pending.html" class="menu-item"><span>승인 대기</span></a>
+                    <a href="caller-number-approved.html" class="menu-item"><span>승인 완료</span></a>
+                    <a href="caller-number-list.html" class="menu-item"><span>발신번호 목록</span></a>
+                    <a href="kakao-profile-list.html" class="menu-item"><span>발신프로필 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">템플릿 관리</div>
+                    <a href="template-alimtalk-review.html" class="menu-item"><span>알림톡 템플릿 검수</span></a>
+                    <a href="template-brandtalk-list.html" class="menu-item"><span>브랜드톡 템플릿</span></a>
+                    <a href="template-message-list.html" class="menu-item"><span>문자 템플릿</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">발송 관리</div>
+                    <a href="send-history.html" class="menu-item"><span>발송 내역 모니터링</span></a>
+                    <a href="send-statistics.html" class="menu-item"><span>발송 통계</span></a>
+                    <a href="send-policy.html" class="menu-item"><span>발송 정책 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">결제 관리</div>
+                    <a href="payment-charge-list.html" class="menu-item"><span>충전 내역</span></a>
+                    <a href="payment-deposit.html" class="menu-item"><span>입금 확인</span></a>
+                    <a href="payment-pricing.html" class="menu-item"><span>요금 설정</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">기타 관리</div>
+                    <a href="reject-list.html" class="menu-item active"><span>수신거부 관리</span></a>
+                    <a href="inquiry-list.html" class="menu-item"><span>문의 관리</span></a>
+                    <a href="notice-list.html" class="menu-item"><span>공지사항 관리</span></a>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title">시스템</div>
+                    <a href="system-settings.html" class="menu-item"><span>시스템 설정</span></a>
+                    <a href="statistics-report.html" class="menu-item"><span>통계 및 리포트</span></a>
+                    <a href="security-audit.html" class="menu-item"><span>보안 및 감사</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left">
+                    <h2 class="page-title">수신거부 관리</h2>
+                </div>
+                <div class="header-right">
+                    <div class="admin-user-info">
+                        <div class="user-avatar">관</div>
+                        <div>
+                            <div class="user-name">관리자</div>
+                            <div class="user-role">운영 관리자</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline btn-sm">로그아웃</button>
+                </div>
+            </header>
+            
+            <div class="admin-content">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('list')">전체 수신거부 목록</button>
+                    <button class="tab" onclick="switchTab('sync')">080 서비스 동기화</button>
+                </div>
+                
+                <div id="tab-list" class="tab-content">
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <input type="text" class="form-control" placeholder="전화번호 또는 회원명 검색">
+                        </div>
+                        <div class="filter-group">
+                            <div class="filter-item">
+                                <select class="form-control">
+                                    <option value="">수신거부 유형 (전체)</option>
+                                    <option value="ALL">통합</option>
+                                    <option value="AD">광고</option>
+                                    <option value="ELECTION">선거</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <select class="form-control">
+                                    <option value="">등록 경로 (전체)</option>
+                                    <option value="MANUAL">수동</option>
+                                    <option value="080">080서비스</option>
+                                    <option value="EXCEL">엑셀</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <input type="date" class="form-control">
+                            </div>
+                            <div class="filter-item">
+                                <input type="date" class="form-control">
+                            </div>
+                            <button class="btn btn-primary">검색</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">전체 수신거부 목록</h3>
+                            <div class="card-description">총 12,345건</div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>등록일시</th>
+                                        <th>회원 정보</th>
+                                        <th>전화번호</th>
+                                        <th>수신거부 유형</th>
+                                        <th>등록 경로</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2024-11-19 14:30</td>
+                                        <td>
+                                            <div>홍길동</div>
+                                            <div style="font-size: 12px; color: #64748b;">hong@example.com</div>
+                                        </td>
+                                        <td>010-****-5678</td>
+                                        <td><span class="badge badge-info">통합</span></td>
+                                        <td><span class="badge badge-secondary">수동</span></td>
+                                        <td>
+                                            <button class="btn btn-danger btn-sm" onclick="if(confirm('수신거부 항목을 삭제하시겠습니까?')) { showToast('수신거부 항목이 삭제되었습니다.', 'success'); }">삭제</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-11-19 13:15</td>
+                                        <td>
+                                            <div>김철수</div>
+                                            <div style="font-size: 12px; color: #64748b;">kim@example.com</div>
+                                        </td>
+                                        <td>010-****-4321</td>
+                                        <td><span class="badge badge-warning">광고</span></td>
+                                        <td><span class="badge badge-info">080서비스</span></td>
+                                        <td>
+                                            <button class="btn btn-danger btn-sm" onclick="if(confirm('수신거부 항목을 삭제하시겠습니까?')) { showToast('수신거부 항목이 삭제되었습니다.', 'success'); }">삭제</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination" id="pagination"></div>
+                    </div>
+                </div>
+                
+                <div id="tab-sync" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">080 서비스 동기화 관리</h3>
+                        </div>
+                        <div style="padding: 24px;">
+                            <div class="form-group">
+                                <label class="form-label">자동 동기화 주기</label>
+                                <select class="form-control">
+                                    <option value="1">1시간마다</option>
+                                    <option value="6" selected>6시간마다</option>
+                                    <option value="12">12시간마다</option>
+                                    <option value="24">24시간마다</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">동기화 시간</label>
+                                <input type="time" class="form-control" value="02:00">
+                            </div>
+                            <button class="btn btn-primary" onclick="showToast('동기화가 시작되었습니다.', 'success')">수동 동기화 실행</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card" style="margin-top: 24px;">
+                        <div class="card-header">
+                            <h3 class="card-title">동기화 이력</h3>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>동기화 일시</th>
+                                        <th>동기화 결과</th>
+                                        <th>동기화 건수</th>
+                                        <th>오류 내용</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2024-11-19 02:00</td>
+                                        <td><span class="badge badge-success">성공</span></td>
+                                        <td>23건</td>
+                                        <td>-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-11-18 02:00</td>
+                                        <td><span class="badge badge-success">성공</span></td>
+                                        <td>15건</td>
+                                        <td>-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).style.display = 'block';
+        }
+        createPagination(1, 10, 'pagination');
+    </script>
+</body>
+</html>
+

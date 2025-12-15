@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 관리 - 어드민</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- 사이드바 -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h1>Tokbell Admin</h1>
+                <div class="subtitle">관리자 시스템</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-section">
+                    <div class="menu-section-title">메인</div>
+                    <a href="index.html" class="menu-item">
+                        <span>대시보드</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">사용자 관리</div>
+                    <a href="user-list.html" class="menu-item active">
+                        <span>회원 관리</span>
+                    </a>
+                    <a href="user-permission.html" class="menu-item">
+                        <span>권한 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">발신번호 관리</div>
+                    <a href="caller-number-pending.html" class="menu-item">
+                        <span>승인 대기</span>
+                    </a>
+                    <a href="caller-number-approved.html" class="menu-item">
+                        <span>승인 완료</span>
+                    </a>
+                    <a href="caller-number-list.html" class="menu-item">
+                        <span>발신번호 목록</span>
+                    </a>
+                    <a href="kakao-profile-list.html" class="menu-item">
+                        <span>발신프로필 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">템플릿 관리</div>
+                    <a href="template-alimtalk-review.html" class="menu-item">
+                        <span>알림톡 템플릿 검수</span>
+                    </a>
+                    <a href="template-brandtalk-list.html" class="menu-item">
+                        <span>브랜드톡 템플릿</span>
+                    </a>
+                    <a href="template-message-list.html" class="menu-item">
+                        <span>문자 템플릿</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">발송 관리</div>
+                    <a href="send-history.html" class="menu-item">
+                        <span>발송 내역 모니터링</span>
+                    </a>
+                    <a href="send-statistics.html" class="menu-item">
+                        <span>발송 통계</span>
+                    </a>
+                    <a href="send-policy.html" class="menu-item">
+                        <span>발송 정책 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">결제 관리</div>
+                    <a href="payment-charge-list.html" class="menu-item">
+                        <span>충전 내역</span>
+                    </a>
+                    <a href="payment-deposit.html" class="menu-item">
+                        <span>입금 확인</span>
+                    </a>
+                    <a href="payment-pricing.html" class="menu-item">
+                        <span>요금 설정</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">기타 관리</div>
+                    <a href="reject-list.html" class="menu-item">
+                        <span>수신거부 관리</span>
+                    </a>
+                    <a href="inquiry-list.html" class="menu-item">
+                        <span>문의 관리</span>
+                    </a>
+                    <a href="notice-list.html" class="menu-item">
+                        <span>공지사항 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">시스템</div>
+                    <a href="system-settings.html" class="menu-item">
+                        <span>시스템 설정</span>
+                    </a>
+                    <a href="statistics-report.html" class="menu-item">
+                        <span>통계 및 리포트</span>
+                    </a>
+                    <a href="security-audit.html" class="menu-item">
+                        <span>보안 및 감사</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- 메인 컨텐츠 -->
+        <main class="admin-main">
+            <!-- 헤더 -->
+            <header class="admin-header">
+                <div class="header-left">
+                    <h2 class="page-title">회원 관리</h2>
+                </div>
+                <div class="header-right">
+                    <div class="admin-user-info">
+                        <div class="user-avatar">관</div>
+                        <div>
+                            <div class="user-name">관리자</div>
+                            <div class="user-role">최고 관리자</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline btn-sm">로그아웃</button>
+                </div>
+            </header>
+            
+            <!-- 컨텐츠 -->
+            <div class="admin-content">
+                <!-- 검색 및 필터 -->
+                <div class="search-filter-bar">
+                    <div class="search-box">
+                        <input type="text" class="form-control" placeholder="회원명 또는 이메일 검색" id="searchInput">
+                    </div>
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <select class="form-control" id="memberTypeFilter">
+                                <option value="">회원 유형 (전체)</option>
+                                <option value="PERSONAL">개인</option>
+                                <option value="COMPANY">기업</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <select class="form-control" id="statusFilter">
+                                <option value="">계정 상태 (전체)</option>
+                                <option value="ACTIVE">정상</option>
+                                <option value="SUSPENDED">정지</option>
+                                <option value="WITHDRAWN">탈퇴</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <input type="date" class="form-control" id="startDate">
+                        </div>
+                        <div class="filter-item">
+                            <input type="date" class="form-control" id="endDate">
+                        </div>
+                        <button class="btn btn-primary">검색</button>
+                        <button class="btn btn-outline">초기화</button>
+                    </div>
+                </div>
+                
+                <!-- 회원 목록 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">회원 목록</h3>
+                        <div class="card-description">전체 회원 수: 1,234명</div>
+                    </div>
+                    <div class="table-container">
+                        <table id="memberTable">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" id="selectAll">
+                                    </th>
+                                    <th>회원 ID</th>
+                                    <th>회원명</th>
+                                    <th>회원 유형</th>
+                                    <th>가입일</th>
+                                    <th>최종 로그인</th>
+                                    <th>계정 상태</th>
+                                    <th>잔액</th>
+                                    <th>발신번호</th>
+                                    <th>발송 건수</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>hong@example.com</td>
+                                    <td>홍길동</td>
+                                    <td><span class="badge badge-info">개인</span></td>
+                                    <td>2024-01-15</td>
+                                    <td>2024-11-19 14:30</td>
+                                    <td><span class="badge badge-success">정상</span></td>
+                                    <td>₩1,234,567</td>
+                                    <td>2개</td>
+                                    <td>12,345건</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="openModal('userDetailModal')">상세</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>kim@example.com</td>
+                                    <td>김철수</td>
+                                    <td><span class="badge badge-warning">기업</span></td>
+                                    <td>2024-02-20</td>
+                                    <td>2024-11-19 13:15</td>
+                                    <td><span class="badge badge-success">정상</span></td>
+                                    <td>₩5,678,900</td>
+                                    <td>5개</td>
+                                    <td>45,678건</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="openModal('userDetailModal')">상세</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>lee@example.com</td>
+                                    <td>이영희</td>
+                                    <td><span class="badge badge-info">개인</span></td>
+                                    <td>2024-03-10</td>
+                                    <td>2024-11-19 12:00</td>
+                                    <td><span class="badge badge-danger">정지</span></td>
+                                    <td>₩234,567</td>
+                                    <td>1개</td>
+                                    <td>3,456건</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="openModal('userDetailModal')">상세</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>park@example.com</td>
+                                    <td>박민수</td>
+                                    <td><span class="badge badge-warning">기업</span></td>
+                                    <td>2024-04-05</td>
+                                    <td>2024-11-18 18:30</td>
+                                    <td><span class="badge badge-success">정상</span></td>
+                                    <td>₩9,876,543</td>
+                                    <td>8개</td>
+                                    <td>98,765건</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="openModal('userDetailModal')">상세</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>choi@example.com</td>
+                                    <td>최지영</td>
+                                    <td><span class="badge badge-info">개인</span></td>
+                                    <td>2024-05-12</td>
+                                    <td>2024-11-17 10:20</td>
+                                    <td><span class="badge badge-secondary">탈퇴</span></td>
+                                    <td>₩0</td>
+                                    <td>0개</td>
+                                    <td>1,234건</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="openModal('userDetailModal')">상세</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 회원 상세 모달 -->
+    <div class="modal" id="userDetailModal">
+        <div class="modal-content" style="max-width: 1000px;">
+            <div class="modal-header">
+                <h3 class="modal-title">회원 상세 정보</h3>
+                <button class="modal-close" onclick="closeModal('userDetailModal')">&times;</button>
+            </div>
+            <div style="max-height: 70vh; overflow-y: auto;">
+                <!-- 탭 -->
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('basic')">기본 정보</button>
+                    <button class="tab" onclick="switchTab('company')">기업 정보</button>
+                    <button class="tab" onclick="switchTab('account')">계정 정보</button>
+                    <button class="tab" onclick="switchTab('activity')">활동 정보</button>
+                    <button class="tab" onclick="switchTab('memo')">메모</button>
+                </div>
+                
+                <!-- 기본 정보 탭 -->
+                <div id="tab-basic" class="tab-content">
+                    <div class="card" style="border: none; padding: 0;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label class="form-label">회원 ID</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">hong@example.com</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">회원명</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">홍길동</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">회원 유형</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">개인</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">전화번호</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">010-****-5678</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">이메일</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">ho***@example.com</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">가입일</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">2024-01-15 10:30:00</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">최종 로그인</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">2024-11-19 14:30:00</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">계정 상태</label>
+                                <div><span class="badge badge-success">정상</span></div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+                            <h4 style="margin-bottom: 16px;">계정 관리</h4>
+                            <div style="display: flex; gap: 12px;">
+                                <button class="btn btn-warning btn-sm">계정 정지</button>
+                                <button class="btn btn-secondary btn-sm">비밀번호 초기화</button>
+                                <button class="btn btn-danger btn-sm">계정 삭제</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 기업 정보 탭 -->
+                <div id="tab-company" class="tab-content" style="display: none;">
+                    <div class="card" style="border: none; padding: 0;">
+                        <p style="color: #64748b;">기업 회원이 아닙니다.</p>
+                    </div>
+                </div>
+                
+                <!-- 계정 정보 탭 -->
+                <div id="tab-account" class="tab-content" style="display: none;">
+                    <div class="card" style="border: none; padding: 0;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label class="form-label">현재 잔액</label>
+                                <div class="form-control" style="background-color: #f1f5f9; font-size: 20px; font-weight: 600;">₩1,234,567</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">총 충전 금액</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">₩5,000,000</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">총 사용 금액</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">₩3,765,433</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">보너스 포인트</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">₩50,000</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+                            <h4 style="margin-bottom: 16px;">잔액 조정</h4>
+                            <div style="display: flex; gap: 12px;">
+                                <button class="btn btn-success btn-sm">충전/차감</button>
+                                <button class="btn btn-warning btn-sm">보너스 지급/차감</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 활동 정보 탭 -->
+                <div id="tab-activity" class="tab-content" style="display: none;">
+                    <div class="card" style="border: none; padding: 0;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label class="form-label">총 발송 건수</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">12,345건</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">등록된 발신번호</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">2개</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">등록된 템플릿</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">15개</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">주소록 그룹</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">5개</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+                            <h4 style="margin-bottom: 16px;">연관 정보 조회</h4>
+                            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                                <button class="btn btn-outline btn-sm">발송 내역 조회</button>
+                                <button class="btn btn-outline btn-sm">발신번호 관리</button>
+                                <button class="btn btn-outline btn-sm">충전/사용 내역</button>
+                                <button class="btn btn-outline btn-sm">문의 내역</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 메모 탭 -->
+                <div id="tab-memo" class="tab-content" style="display: none;">
+                    <div class="card" style="border: none; padding: 0;">
+                        <div class="form-group">
+                            <label class="form-label">메모 작성</label>
+                            <textarea class="form-control" rows="4" placeholder="내부 관리용 메모를 입력하세요"></textarea>
+                        </div>
+                        <button class="btn btn-primary">저장</button>
+                        <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+                            <h4 style="margin-bottom: 16px;">메모 이력</h4>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="padding: 12px; background-color: #f1f5f9; border-radius: 8px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span style="font-weight: 600;">관리자A</span>
+                                        <span style="color: #64748b; font-size: 12px;">2024-11-19 14:30</span>
+                                    </div>
+                                    <div>VIP 고객으로 분류. 특별 관리 필요.</div>
+                                </div>
+                                <div style="padding: 12px; background-color: #f1f5f9; border-radius: 8px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span style="font-weight: 600;">관리자B</span>
+                                        <span style="color: #64748b; font-size: 12px;">2024-11-18 10:15</span>
+                                    </div>
+                                    <div>문의 접수 - 발송 오류 관련</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('userDetailModal')">닫기</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        // 탭 전환
+        function switchTab(tabName) {
+            // 모든 탭 비활성화
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+            
+            // 선택한 탭 활성화
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).style.display = 'block';
+        }
+        
+        // 페이지네이션 생성
+        createPagination(1, 10, 'pagination');
+    </script>
+</body>
+</html>
+
