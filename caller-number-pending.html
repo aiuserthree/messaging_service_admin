@@ -194,7 +194,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
+                                <tr data-id="1">
                                     <td><input type="checkbox" class="row-checkbox" data-caller-number="010-1234-5678" data-member="홍길동"></td>
                                     <td>2024-11-19 10:30</td>
                                     <td>
@@ -205,12 +205,12 @@
                                     <td>SKT</td>
                                     <td>홍길동</td>
                                     <td><span class="badge badge-info">본인</span></td>
-                                    <td><span class="badge badge-warning">승인대기</span></td>
+                                    <td class="status-cell"><span class="badge badge-warning">승인대기</span></td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('reviewModal')">검토</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openReviewModal(this)">검토</button>
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr data-id="2">
                                     <td><input type="checkbox" class="row-checkbox" data-caller-number="010-9876-5432" data-member="김철수"></td>
                                     <td>2024-11-19 09:15</td>
                                     <td>
@@ -221,12 +221,12 @@
                                     <td>KT</td>
                                     <td>김철수</td>
                                     <td><span class="badge badge-warning">타인</span></td>
-                                    <td><span class="badge badge-warning">승인대기</span></td>
+                                    <td class="status-cell"><span class="badge badge-warning">승인대기</span></td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('reviewModal')">검토</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openReviewModal(this)">검토</button>
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr data-id="3">
                                     <td><input type="checkbox" class="row-checkbox" data-caller-number="02-1234-5678" data-member="이영희"></td>
                                     <td>2024-11-19 08:00</td>
                                     <td>
@@ -237,12 +237,12 @@
                                     <td>KT</td>
                                     <td>이영희</td>
                                     <td><span class="badge badge-info">본인</span></td>
-                                    <td><span class="badge badge-warning">승인대기</span></td>
+                                    <td class="status-cell"><span class="badge badge-warning">승인대기</span></td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('reviewModal')">검토</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openReviewModal(this)">검토</button>
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr data-id="4">
                                     <td><input type="checkbox" class="row-checkbox" data-caller-number="010-5555-6666" data-member="박민수"></td>
                                     <td>2024-11-18 16:45</td>
                                     <td>
@@ -253,9 +253,9 @@
                                     <td>LG U+</td>
                                     <td>박민수</td>
                                     <td><span class="badge badge-danger">타사</span></td>
-                                    <td><span class="badge badge-warning">승인대기</span></td>
+                                    <td class="status-cell"><span class="badge badge-warning">승인대기</span></td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('reviewModal')">검토</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openReviewModal(this)">검토</button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -380,7 +380,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-success" onclick="confirmAction('승인 처리하시겠습니까?', function() { showToast('승인 처리되었습니다.', 'success'); closeModal('reviewModal'); })">승인</button>
+                <button class="btn btn-success" onclick="handleApprove()">승인</button>
                 <button class="btn btn-warning" onclick="openModal('supplementModal')">보완 요청</button>
                 <button class="btn btn-danger" onclick="openModal('rejectModal')">반려</button>
                 <button class="btn btn-outline" onclick="closeModal('reviewModal')">닫기</button>
@@ -512,6 +512,86 @@
     
     <script src="js/admin-common.js"></script>
     <script>
+        // 현재 검토 중인 행 저장
+        let currentReviewRow = null;
+        
+        // 검토 모달 열기
+        function openReviewModal(button) {
+            currentReviewRow = button.closest('tr');
+            
+            // 행에서 데이터 가져오기
+            const cells = currentReviewRow.querySelectorAll('td');
+            const memberName = cells[2].querySelector('div').textContent;
+            const memberType = cells[2].querySelector('div:last-child').textContent;
+            const callerNumber = cells[3].textContent;
+            const carrier = cells[4].textContent;
+            const ownerName = cells[5].textContent;
+            const ownerType = cells[6].textContent.trim();
+            
+            // 모달에 데이터 표시 (동적 업데이트)
+            const modal = document.getElementById('reviewModal');
+            const formControls = modal.querySelectorAll('.form-control');
+            
+            // 신청 정보 업데이트
+            formControls[0].textContent = memberName; // 회원명
+            formControls[1].textContent = memberType; // 회원 유형
+            formControls[4].textContent = callerNumber; // 발신번호
+            formControls[5].textContent = carrier; // 통신사
+            formControls[6].textContent = ownerName; // 명의자
+            formControls[7].textContent = ownerType; // 명의 구분
+            
+            openModal('reviewModal');
+        }
+        
+        // 승인 처리
+        function handleApprove() {
+            confirmAction('승인 처리하시겠습니까?', function() {
+                if (currentReviewRow) {
+                    // 상태 업데이트
+                    const statusCell = currentReviewRow.querySelector('.status-cell');
+                    if (statusCell) {
+                        statusCell.innerHTML = '<span class="badge badge-success">승인완료</span>';
+                    }
+                    
+                    // 검토 버튼 비활성화
+                    const reviewBtn = currentReviewRow.querySelector('button');
+                    if (reviewBtn) {
+                        reviewBtn.disabled = true;
+                        reviewBtn.textContent = '처리완료';
+                        reviewBtn.classList.remove('btn-primary');
+                        reviewBtn.classList.add('btn-secondary');
+                    }
+                    
+                    // 체크박스 비활성화
+                    const checkbox = currentReviewRow.querySelector('.row-checkbox');
+                    if (checkbox) {
+                        checkbox.disabled = true;
+                        checkbox.checked = false;
+                    }
+                    
+                    // 승인 대기 건수 업데이트
+                    updatePendingCount(-1);
+                }
+                
+                showToast('승인 처리되었습니다.', 'success');
+                closeModal('reviewModal');
+                currentReviewRow = null;
+            });
+        }
+        
+        // 승인 대기 건수 업데이트
+        function updatePendingCount(change) {
+            const pendingCount = document.querySelector('.card-description');
+            if (pendingCount) {
+                const match = pendingCount.textContent.match(/\d+/);
+                if (match) {
+                    const currentCount = parseInt(match[0]);
+                    const newCount = Math.max(0, currentCount + change);
+                    pendingCount.textContent = `승인 대기 건수: ${newCount}건`;
+                }
+            }
+        }
+        
         // 보완 요청 처리
         function handleSupplementRequest() {
             const reason = document.getElementById('supplementReason').value;
@@ -568,8 +648,13 @@
                 `보완 기한: ${deadline}`;
             
             confirmAction(confirmMessage, function() {
-                // API 호출 또는 상태 업데이트
-                // 실제로는 서버에 보완 요청 데이터를 전송해야 함
+                // 리스트 상태 업데이트
+                if (currentReviewRow) {
+                    const statusCell = currentReviewRow.querySelector('.status-cell');
+                    if (statusCell) {
+                        statusCell.innerHTML = '<span class="badge badge-info">보완요청</span>';
+                    }
+                }
                 
                 // 검토 이력에 추가
                 const reviewHistory = document.querySelector('#reviewModal .card:last-of-type > div:last-of-type > div');
@@ -602,9 +687,8 @@
                 
                 // 모달 닫기
                 closeModal('supplementModal');
-                
-                // 검토 모달은 유지 (보완 요청 후에도 검토 모달을 열어둘 수 있음)
-                // 필요시 검토 모달도 닫으려면: closeModal('reviewModal');
+                closeModal('reviewModal');
+                currentReviewRow = null;
             });
         }
         
@@ -712,9 +796,41 @@
             }
             
             confirmAction('반려 처리하시겠습니까?', function() {
+                // 리스트 상태 업데이트
+                if (currentReviewRow) {
+                    const statusCell = currentReviewRow.querySelector('.status-cell');
+                    if (statusCell) {
+                        statusCell.innerHTML = '<span class="badge badge-danger">반려</span>';
+                    }
+                    
+                    // 검토 버튼 비활성화
+                    const reviewBtn = currentReviewRow.querySelector('button');
+                    if (reviewBtn) {
+                        reviewBtn.disabled = true;
+                        reviewBtn.textContent = '처리완료';
+                        reviewBtn.classList.remove('btn-primary');
+                        reviewBtn.classList.add('btn-secondary');
+                    }
+                    
+                    // 체크박스 비활성화
+                    const checkbox = currentReviewRow.querySelector('.row-checkbox');
+                    if (checkbox) {
+                        checkbox.disabled = true;
+                        checkbox.checked = false;
+                    }
+                    
+                    // 승인 대기 건수 업데이트
+                    updatePendingCount(-1);
+                }
+                
                 showToast('반려 처리되었습니다.', 'success');
                 closeModal('rejectModal');
                 closeModal('reviewModal');
+                currentReviewRow = null;
+                
+                // 입력 필드 초기화
+                document.getElementById('rejectReason').value = '';
+                document.getElementById('rejectDetail').value = '';
             });
         }
         
