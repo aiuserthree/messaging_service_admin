@@ -280,19 +280,19 @@
                         <div style="padding: 24px;">
                             <div class="form-group">
                                 <label class="form-label">발송 로그 보관 기간 (일)</label>
-                                <input type="number" class="form-control" value="365" placeholder="일">
+                                <input type="number" id="sendLogRetention" class="form-control" value="365" placeholder="일" min="1">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">회원 정보 보관 기간 (일)</label>
-                                <input type="number" class="form-control" value="365" placeholder="일">
+                                <input type="number" id="userRetention" class="form-control" value="365" placeholder="일" min="1">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">결제 내역 보관 기간 (일)</label>
-                                <input type="number" class="form-control" value="1825" placeholder="일">
+                                <input type="number" id="paymentRetention" class="form-control" value="1825" placeholder="일" min="1">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">개인정보 보관 기간 (일)</label>
-                                <input type="number" class="form-control" value="365" placeholder="일">
+                                <input type="number" id="privacyRetention" class="form-control" value="365" placeholder="일" min="1">
                             </div>
                             <button type="button" class="btn btn-primary" onclick="handleSaveDataRetentionSettings(event)">저장</button>
                         </div>
@@ -519,10 +519,10 @@
                 event.stopPropagation();
             }
             
-            const sendLogRetention = document.querySelector('#tab-data input[type="number"]:nth-of-type(1)').value;
-            const userRetention = document.querySelector('#tab-data input[type="number"]:nth-of-type(2)').value;
-            const paymentRetention = document.querySelector('#tab-data input[type="number"]:nth-of-type(3)').value;
-            const privacyRetention = document.querySelector('#tab-data input[type="number"]:nth-of-type(4)').value;
+            const sendLogRetention = document.getElementById('sendLogRetention').value;
+            const userRetention = document.getElementById('userRetention').value;
+            const paymentRetention = document.getElementById('paymentRetention').value;
+            const privacyRetention = document.getElementById('privacyRetention').value;
             
             if (!sendLogRetention || sendLogRetention <= 0) {
                 showToast('발송 로그 보관 기간을 입력해주세요.', 'error');
@@ -546,6 +546,12 @@
             
             confirmAction('데이터 보관 정책을 저장하시겠습니까?', function() {
                 // API 호출
+                console.log('데이터 보관 정책 저장:', {
+                    sendLogRetention: sendLogRetention,
+                    userRetention: userRetention,
+                    paymentRetention: paymentRetention,
+                    privacyRetention: privacyRetention
+                });
                 
                 showToast('데이터 보관 정책이 저장되었습니다.', 'success');
             });
