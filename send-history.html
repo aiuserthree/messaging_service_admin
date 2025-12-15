@@ -83,6 +83,9 @@
                 
                 <div class="menu-section">
                     <div class="menu-section-title">기타 관리</div>
+                    <a href="consultation-list.html" class="menu-item">
+                        <span>상담 신청 관리</span>
+                    </a>
                     <a href="inquiry-list.html" class="menu-item">
                         <span>문의 관리</span>
                     </a>
@@ -128,11 +131,16 @@
             <!-- 컨텐츠 -->
             <div class="admin-content">
                 <!-- 검색 및 필터 -->
-                <div class="search-filter-bar" style="margin-bottom: 24px;">
-                    <div class="search-box">
-                        <input type="text" class="form-control" placeholder="수신번호 검색" id="searchInput">
-                    </div>
-                    <div class="filter-group">
+                <div class="search-filter-bar" style="margin-bottom: 24px; width: 100%;">
+                    <div class="filter-group" style="width: 100%; gap: 12px;">
+                        <div class="filter-item" style="flex: 1; min-width: 180px;">
+                            <select class="form-control" id="callerNumberFilter" style="width: 100%;">
+                                <option value="">발신번호 (전체)</option>
+                                <option value="010-1234-5678">010-1234-5678</option>
+                                <option value="010-9876-5432">010-9876-5432</option>
+                                <option value="02-1234-5678">02-1234-5678</option>
+                            </select>
+                        </div>
                         <div class="filter-item">
                             <select class="form-control" id="messageTypeFilter">
                                 <option value="">메시지 타입 (전체)</option>
@@ -157,27 +165,26 @@
                         <div class="filter-item">
                             <input type="date" class="form-control" id="endDate" value="2024-11-19">
                         </div>
-                        <div class="filter-item">
-                            <select class="form-control" id="callerNumberFilter">
-                                <option value="">발신번호 (전체)</option>
-                                <option value="010-1234-5678">010-1234-5678</option>
-                                <option value="010-9876-5432">010-9876-5432</option>
-                                <option value="02-1234-5678">02-1234-5678</option>
-                            </select>
+                        <div class="filter-item" style="flex: 1; min-width: 180px;">
+                            <input type="text" class="form-control" placeholder="수신번호 검색" id="searchInput" style="width: 100%;">
                         </div>
-                        <button class="btn btn-primary" onclick="searchResults()">검색</button>
-                        <button class="btn btn-outline" onclick="resetSearch()">초기화</button>
-                        <button class="btn btn-secondary" onclick="downloadExcel()">엑셀 다운로드</button>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn btn-primary" onclick="searchResults()">검색</button>
+                            <button class="btn btn-outline" onclick="resetSearch()">초기화</button>
+                            <button class="btn btn-secondary" onclick="downloadExcel()">엑셀 다운로드</button>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- 실시간 모니터링 카드 -->
-                <div class="stats-grid" style="margin-bottom: 24px;">
+                <div class="stats-grid" style="margin-bottom: 24px; grid-template-columns: repeat(5, 1fr);">
                     <div class="stat-card">
                         <div class="stat-card-header">
                             <div class="stat-card-title">발송</div>
-                            <div class="stat-card-icon" style="background-color: #d1fae5; color: #065f46;">
-                                📨
+                            <div class="stat-card-icon icon-send">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
                             </div>
                         </div>
                         <div class="stat-card-value" id="statSend">-</div>
@@ -188,8 +195,10 @@
                     <div class="stat-card">
                         <div class="stat-card-header">
                             <div class="stat-card-title">성공</div>
-                            <div class="stat-card-icon" style="background-color: #d1fae5; color: #065f46;">
-                                ✅
+                            <div class="stat-card-icon icon-success">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
                             </div>
                         </div>
                         <div class="stat-card-value" id="statSuccess">-</div>
@@ -200,8 +209,10 @@
                     <div class="stat-card">
                         <div class="stat-card-header">
                             <div class="stat-card-title">실패</div>
-                            <div class="stat-card-icon" style="background-color: #fee2e2; color: #991b1b;">
-                                ❌
+                            <div class="stat-card-icon icon-fail">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
                             </div>
                         </div>
                         <div class="stat-card-value" id="statFailed">-</div>
@@ -212,8 +223,10 @@
                     <div class="stat-card">
                         <div class="stat-card-header">
                             <div class="stat-card-title">성공률</div>
-                            <div class="stat-card-icon" style="background-color: #fef3c7; color: #92400e;">
-                                📊
+                            <div class="stat-card-icon icon-chart">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                </svg>
                             </div>
                         </div>
                         <div class="stat-card-value" id="statSuccessRate">-</div>
@@ -224,8 +237,10 @@
                     <div class="stat-card">
                         <div class="stat-card-header">
                             <div class="stat-card-title">비용</div>
-                            <div class="stat-card-icon" style="background-color: #e0e7ff; color: #3730a3;">
-                                💰
+                            <div class="stat-card-icon icon-money">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
                             </div>
                         </div>
                         <div class="stat-card-value" id="statCost">-</div>

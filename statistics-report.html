@@ -86,6 +86,9 @@
                 
                 <div class="menu-section">
                     <div class="menu-section-title">기타 관리</div>
+                    <a href="consultation-list.html" class="menu-item">
+                        <span>상담 신청 관리</span>
+                    </a>
                     <a href="inquiry-list.html" class="menu-item">
                         <span>문의 관리</span>
                     </a>
@@ -164,7 +167,7 @@
                     <!-- 일별 리포트 미리보기 영역 -->
                     <div class="card" id="dailyReportPreview" style="display: none; margin-top: 24px;">
                         <div class="card-header">
-                            <h3 class="card-title">📊 일별 리포트 미리보기</h3>
+                            <h3 class="card-title">일별 리포트 미리보기</h3>
                             <div class="card-description" id="dailyReportTitle"></div>
                         </div>
                         <div style="padding: 24px;">
@@ -226,7 +229,7 @@
                     <!-- 월별 리포트 미리보기 영역 -->
                     <div class="card" id="monthlyReportPreview" style="display: none; margin-top: 24px;">
                         <div class="card-header">
-                            <h3 class="card-title">📊 월별 리포트 미리보기</h3>
+                            <h3 class="card-title">월별 리포트 미리보기</h3>
                             <div class="card-description" id="monthlyReportTitle"></div>
                         </div>
                         <div style="padding: 24px;">
@@ -299,7 +302,7 @@
                     <!-- 커스텀 리포트 미리보기 영역 -->
                     <div class="card" id="customReportPreview" style="display: none; margin-top: 24px;">
                         <div class="card-header">
-                            <h3 class="card-title">📊 커스텀 리포트 미리보기</h3>
+                            <h3 class="card-title">커스텀 리포트 미리보기</h3>
                             <div class="card-description" id="customReportTitle"></div>
                         </div>
                         <div style="padding: 24px;">
@@ -409,7 +412,7 @@
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
                     <div>
-                        <h4 style="margin-bottom: 16px; color: #1e293b;">📨 발송 통계 상세</h4>
+                        <h4 style="margin-bottom: 16px; color: #1e293b;">발송 통계 상세</h4>
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr style="border-bottom: 1px solid #e2e8f0;">
                                 <td style="padding: 12px; color: #64748b;">SMS</td>
@@ -426,7 +429,7 @@
                         </table>
                     </div>
                     <div>
-                        <h4 style="margin-bottom: 16px; color: #1e293b;">✅ 처리 현황</h4>
+                        <h4 style="margin-bottom: 16px; color: #1e293b;">처리 현황</h4>
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr style="border-bottom: 1px solid #e2e8f0;">
                                 <td style="padding: 12px; color: #64748b;">승인 처리</td>
@@ -651,7 +654,7 @@
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
                     <div>
-                        <h4 style="margin-bottom: 16px; color: #1e293b;">📨 발송 통계 상세</h4>
+                        <h4 style="margin-bottom: 16px; color: #1e293b;">발송 통계 상세</h4>
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr style="border-bottom: 1px solid #e2e8f0;">
                                 <td style="padding: 12px; color: #64748b;">SMS</td>
@@ -685,7 +688,7 @@
                 </div>
                 
                 <div style="margin-top: 24px;">
-                    <h4 style="margin-bottom: 16px; color: #1e293b;">💰 매출 통계</h4>
+                    <h4 style="margin-bottom: 16px; color: #1e293b;">매출 통계</h4>
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
                         <div style="padding: 16px; background-color: #f8fafc; border-radius: 8px; text-align: center;">
                             <div style="color: #64748b; font-size: 14px;">충전 건수</div>
@@ -896,7 +899,7 @@
             if (customReportData.includeSend && customReportData.sendStats) {
                 html += `
                     <div style="margin-bottom: 24px;">
-                        <h4 style="margin-bottom: 16px; color: #1e293b;">📨 발송 통계</h4>
+                        <h4 style="margin-bottom: 16px; color: #1e293b;">발송 통계</h4>
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
                             <div style="padding: 20px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 12px; color: white;">
                                 <div style="font-size: 14px; opacity: 0.9;">총 발송</div>
@@ -932,7 +935,7 @@
             if (customReportData.includeCharge && customReportData.chargeStats) {
                 html += `
                     <div style="margin-bottom: 24px;">
-                        <h4 style="margin-bottom: 16px; color: #1e293b;">💰 충전 통계</h4>
+                        <h4 style="margin-bottom: 16px; color: #1e293b;">충전 통계</h4>
                         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
                             <div style="padding: 16px; background-color: #f8fafc; border-radius: 8px; text-align: center;">
                                 <div style="color: #64748b; font-size: 14px;">총 충전액</div>

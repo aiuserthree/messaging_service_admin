@@ -83,6 +83,9 @@
                 
                 <div class="menu-section">
                     <div class="menu-section-title">기타 관리</div>
+                    <a href="consultation-list.html" class="menu-item">
+                        <span>상담 신청 관리</span>
+                    </a>
                     <a href="inquiry-list.html" class="menu-item">
                         <span>문의 관리</span>
                     </a>
@@ -662,8 +665,8 @@
             confirmAction(confirmMessage, function() {
                 // API 호출
                 selectedItems.forEach(item => {
-                    // 상태 업데이트
-                    const statusCell = item.row.querySelector('td:nth-child(7)');
+                    // 상태 업데이트 (8번째 열이 상태)
+                    const statusCell = item.row.querySelector('td:nth-child(8)');
                     if (statusCell) {
                         statusCell.innerHTML = '<span class="badge badge-success">승인완료</span>';
                     }
@@ -759,8 +762,8 @@
             confirmAction(confirmMessage, function() {
                 // API 호출
                 selectedItems.forEach(item => {
-                    // 상태 업데이트
-                    const statusCell = item.row.querySelector('td:nth-child(7)');
+                    // 상태 업데이트 (8번째 열이 상태)
+                    const statusCell = item.row.querySelector('td:nth-child(8)');
                     if (statusCell) {
                         statusCell.innerHTML = '<span class="badge badge-danger">반려</span>';
                     }

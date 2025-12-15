@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상담 신청 관리 - 어드민</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- 사이드바 -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h1>Tokbell Admin</h1>
+                <div class="subtitle">관리자 시스템</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-section">
+                    <div class="menu-section-title">메인</div>
+                    <a href="index.html" class="menu-item">
+                        <span>대시보드</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">사용자 관리</div>
+                    <a href="user-list.html" class="menu-item">
+                        <span>회원 관리</span>
+                    </a>
+                    <a href="user-permission.html" class="menu-item">
+                        <span>권한 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">발신번호 관리</div>
+                    <a href="caller-number-pending.html" class="menu-item">
+                        <span>승인 대기</span>
+                    </a>
+                    <a href="caller-number-approved.html" class="menu-item">
+                        <span>승인 완료</span>
+                    </a>
+                    <a href="caller-number-list.html" class="menu-item">
+                        <span>발신번호 목록</span>
+                    </a>
+                    <a href="kakao-profile-list.html" class="menu-item">
+                        <span>발신프로필 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">템플릿 관리</div>
+                    <a href="template-alimtalk-review.html" class="menu-item">
+                        <span>알림톡 템플릿 검수</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">발송 관리</div>
+                    <a href="send-history.html" class="menu-item">
+                        <span>발송 내역 모니터링</span>
+                    </a>
+                    <a href="send-statistics.html" class="menu-item">
+                        <span>발송 통계</span>
+                    </a>
+                    <a href="send-policy.html" class="menu-item">
+                        <span>발송 정책 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">결제 관리</div>
+                    <a href="payment-charge-list.html" class="menu-item">
+                        <span>충전 내역</span>
+                    </a>
+                    <a href="payment-deposit.html" class="menu-item">
+                        <span>입금 확인</span>
+                    </a>
+                    <a href="payment-pricing.html" class="menu-item">
+                        <span>요금 설정</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">기타 관리</div>
+                    <a href="consultation-list.html" class="menu-item active">
+                        <span>상담 신청 관리</span>
+                    </a>
+                    <a href="inquiry-list.html" class="menu-item">
+                        <span>문의 관리</span>
+                    </a>
+                    <a href="notice-list.html" class="menu-item">
+                        <span>공지사항 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">시스템</div>
+                    <a href="system-settings.html" class="menu-item">
+                        <span>시스템 설정</span>
+                    </a>
+                    <a href="statistics-report.html" class="menu-item">
+                        <span>통계 및 리포트</span>
+                    </a>
+                    <a href="security-audit.html" class="menu-item">
+                        <span>보안 및 감사</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- 메인 컨텐츠 -->
+        <main class="admin-main">
+            <!-- 헤더 -->
+            <header class="admin-header">
+                <div class="header-left">
+                    <h2 class="page-title">상담 신청 관리</h2>
+                </div>
+                <div class="header-right">
+                    <div class="admin-user-info">
+                        <div class="user-avatar">관</div>
+                        <div>
+                            <div class="user-name">관리자</div>
+                            <div class="user-role">운영 관리자</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline btn-sm">로그아웃</button>
+                </div>
+            </header>
+            
+            <!-- 컨텐츠 -->
+            <div class="admin-content">
+                <!-- 통계 카드 -->
+                <div class="stats-grid" style="margin-bottom: 24px; grid-template-columns: repeat(4, 1fr);">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">신규 신청</div>
+                            <div class="stat-card-icon icon-pending">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-card-value" id="statNew">5건</div>
+                        <div class="stat-card-change">
+                            <span>오늘 접수: 2건</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">상담 진행중</div>
+                            <div class="stat-card-icon icon-processing">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-card-value" id="statProgress">3건</div>
+                        <div class="stat-card-change">
+                            <span>담당자 배정됨</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">상담 완료</div>
+                            <div class="stat-card-icon icon-success">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-card-value" id="statComplete">28건</div>
+                        <div class="stat-card-change">
+                            <span>이번 달 완료</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">계약 전환</div>
+                            <div class="stat-card-icon icon-money">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-card-value" id="statConvert">12건</div>
+                        <div class="stat-card-change positive">
+                            <span>전환율 42.9%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 검색 및 필터 -->
+                <div class="search-filter-bar" style="margin-bottom: 24px;">
+                    <div class="search-box">
+                        <input type="text" class="form-control" placeholder="회사명 또는 담당자명 검색" id="searchInput">
+                    </div>
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <select class="form-control" id="statusFilter">
+                                <option value="">상태 (전체)</option>
+                                <option value="NEW">신규</option>
+                                <option value="PROGRESS">상담중</option>
+                                <option value="COMPLETE">완료</option>
+                                <option value="CONTRACT">계약완료</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <select class="form-control" id="messageTypeFilter">
+                                <option value="">메시지 유형 (전체)</option>
+                                <option value="일반문자">일반문자</option>
+                                <option value="광고문자">광고문자</option>
+                                <option value="선거문자">선거문자</option>
+                                <option value="알림톡">알림톡</option>
+                                <option value="브랜드메시지">브랜드 메시지</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <input type="date" class="form-control" id="startDate">
+                        </div>
+                        <div class="filter-item">
+                            <input type="date" class="form-control" id="endDate">
+                        </div>
+                        <button class="btn btn-primary" onclick="searchConsultations()">검색</button>
+                        <button class="btn btn-outline" onclick="resetSearch()">초기화</button>
+                        <button class="btn btn-secondary" onclick="downloadExcel()">엑셀 다운로드</button>
+                    </div>
+                </div>
+                
+                <!-- 상담 신청 목록 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">상담 신청 목록</h3>
+                        <div class="card-description">총 36건</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>신청일시</th>
+                                    <th>회사명</th>
+                                    <th>담당자명</th>
+                                    <th>연락처</th>
+                                    <th>메시지 유형</th>
+                                    <th>예상 발송량</th>
+                                    <th>상태</th>
+                                    <th>담당자</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="consultationTableBody">
+                                <tr>
+                                    <td>2024-12-15 14:30</td>
+                                    <td>ABC 주식회사</td>
+                                    <td>김철수</td>
+                                    <td>010-1234-5678</td>
+                                    <td>
+                                        <span class="badge badge-info">알림톡</span>
+                                        <span class="badge badge-secondary">일반문자</span>
+                                    </td>
+                                    <td>월 10만건 이상</td>
+                                    <td><span class="badge badge-warning">신규</span></td>
+                                    <td>-</td>
+                                    <td>
+                                        <button class="btn btn-outline btn-sm" onclick="openDetailModal(1)">상세</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2024-12-15 11:20</td>
+                                    <td>XYZ 테크</td>
+                                    <td>이영희</td>
+                                    <td>010-9876-5432</td>
+                                    <td>
+                                        <span class="badge badge-info">브랜드메시지</span>
+                                    </td>
+                                    <td>월 5만건 ~ 10만건</td>
+                                    <td><span class="badge badge-warning">신규</span></td>
+                                    <td>-</td>
+                                    <td>
+                                        <button class="btn btn-outline btn-sm" onclick="openDetailModal(2)">상세</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2024-12-14 16:45</td>
+                                    <td>스타트업 컴퍼니</td>
+                                    <td>박지민</td>
+                                    <td>010-5555-1234</td>
+                                    <td>
+                                        <span class="badge badge-info">알림톡</span>
+                                    </td>
+                                    <td>월 1만건 ~ 5만건</td>
+                                    <td><span class="badge badge-primary">상담중</span></td>
+                                    <td>홍길동</td>
+                                    <td>
+                                        <button class="btn btn-outline btn-sm" onclick="openDetailModal(3)">상세</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2024-12-14 10:30</td>
+                                    <td>글로벌 마케팅</td>
+                                    <td>최민수</td>
+                                    <td>010-7777-8888</td>
+                                    <td>
+                                        <span class="badge badge-info">광고문자</span>
+                                        <span class="badge badge-secondary">알림톡</span>
+                                    </td>
+                                    <td>월 10만건 이상</td>
+                                    <td><span class="badge badge-primary">상담중</span></td>
+                                    <td>김영수</td>
+                                    <td>
+                                        <button class="btn btn-outline btn-sm" onclick="openDetailModal(4)">상세</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2024-12-13 09:15</td>
+                                    <td>이커머스 플랫폼</td>
+                                    <td>정하나</td>
+                                    <td>010-3333-4444</td>
+                                    <td>
+                                        <span class="badge badge-info">알림톡</span>
+                                        <span class="badge badge-secondary">일반문자</span>
+                                    </td>
+                                    <td>월 5만건 ~ 10만건</td>
+                                    <td><span class="badge badge-success">완료</span></td>
+                                    <td>홍길동</td>
+                                    <td>
+                                        <button class="btn btn-outline btn-sm" onclick="openDetailModal(5)">상세</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2024-12-12 14:00</td>
+                                    <td>금융서비스</td>
+                                    <td>강민호</td>
+                                    <td>010-2222-3333</td>
+                                    <td>
+                                        <span class="badge badge-info">알림톡</span>
+                                    </td>
+                                    <td>월 10만건 이상</td>
+                                    <td><span class="badge badge-info">계약완료</span></td>
+                                    <td>김영수</td>
+                                    <td>
+                                        <button class="btn btn-outline btn-sm" onclick="openDetailModal(6)">상세</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination">
+                        <button class="pagination-btn" disabled>&lt;</button>
+                        <button class="pagination-btn active">1</button>
+                        <button class="pagination-btn">2</button>
+                        <button class="pagination-btn">3</button>
+                        <button class="pagination-btn">4</button>
+                        <button class="pagination-btn">&gt;</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 상담 상세 모달 -->
+    <div class="modal" id="consultationDetailModal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>상담 신청 상세</h3>
+                <button class="modal-close" onclick="closeModal('consultationDetailModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 신청 정보 -->
+                <div style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; color: #1e293b; font-size: 16px; border-bottom: 2px solid #3b82f6; padding-bottom: 8px;">신청 정보</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>신청일시</label>
+                            <input type="text" class="form-control" id="detailDate" readonly style="background-color: #f8fafc;">
+                        </div>
+                        <div class="form-group">
+                            <label>상태</label>
+                            <select class="form-control" id="detailStatus">
+                                <option value="NEW">신규</option>
+                                <option value="PROGRESS">상담중</option>
+                                <option value="COMPLETE">완료</option>
+                                <option value="CONTRACT">계약완료</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>회사명</label>
+                            <input type="text" class="form-control" id="detailCompany" readonly style="background-color: #f8fafc;">
+                        </div>
+                        <div class="form-group">
+                            <label>담당자명</label>
+                            <input type="text" class="form-control" id="detailManager" readonly style="background-color: #f8fafc;">
+                        </div>
+                        <div class="form-group">
+                            <label>연락처</label>
+                            <input type="text" class="form-control" id="detailPhone" readonly style="background-color: #f8fafc;">
+                        </div>
+                        <div class="form-group">
+                            <label>이메일</label>
+                            <input type="text" class="form-control" id="detailEmail" readonly style="background-color: #f8fafc;">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 서비스 정보 -->
+                <div style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; color: #1e293b; font-size: 16px; border-bottom: 2px solid #3b82f6; padding-bottom: 8px;">서비스 정보</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>메시지 유형</label>
+                            <div id="detailMessageTypes" style="padding: 10px; background-color: #f8fafc; border-radius: 6px; min-height: 40px;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>예상 발송량</label>
+                            <input type="text" class="form-control" id="detailVolume" readonly style="background-color: #f8fafc;">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label>상담 내용</label>
+                        <textarea class="form-control" id="detailContent" rows="4" readonly style="background-color: #f8fafc; resize: none;"></textarea>
+                    </div>
+                </div>
+                
+                <!-- 상담 관리 -->
+                <div style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; color: #1e293b; font-size: 16px; border-bottom: 2px solid #10b981; padding-bottom: 8px;">상담 관리</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>담당자 배정</label>
+                            <select class="form-control" id="detailAssignee">
+                                <option value="">선택하세요</option>
+                                <option value="홍길동">홍길동</option>
+                                <option value="김영수">김영수</option>
+                                <option value="이민정">이민정</option>
+                                <option value="박지훈">박지훈</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>다음 연락 예정일</label>
+                            <input type="date" class="form-control" id="detailNextContact">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label>상담 메모</label>
+                        <textarea class="form-control" id="detailMemo" rows="3" placeholder="상담 내용을 기록하세요..."></textarea>
+                    </div>
+                    <button class="btn btn-outline btn-sm" onclick="addMemo()" style="margin-top: 8px;">메모 추가</button>
+                </div>
+                
+                <!-- 상담 이력 -->
+                <div>
+                    <h4 style="margin-bottom: 16px; color: #1e293b; font-size: 16px; border-bottom: 2px solid #64748b; padding-bottom: 8px;">상담 이력</h4>
+                    <div id="consultationHistory" style="max-height: 200px; overflow-y: auto;">
+                        <div style="padding: 12px; background-color: #f8fafc; border-radius: 6px; margin-bottom: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span style="font-weight: 600; color: #1e293b;">홍길동</span>
+                                <span style="color: #64748b; font-size: 12px;">2024-12-15 15:30</span>
+                            </div>
+                            <p style="color: #475569; font-size: 14px; margin: 0;">첫 상담 진행. 알림톡 서비스에 관심이 많으며, 월 10만건 이상 발송 예정. 견적서 요청함.</p>
+                        </div>
+                        <div style="padding: 12px; background-color: #f8fafc; border-radius: 6px; margin-bottom: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span style="font-weight: 600; color: #1e293b;">시스템</span>
+                                <span style="color: #64748b; font-size: 12px;">2024-12-15 14:30</span>
+                            </div>
+                            <p style="color: #475569; font-size: 14px; margin: 0;">신규 상담 신청이 접수되었습니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal('consultationDetailModal')">닫기</button>
+                <button type="button" class="btn btn-primary" onclick="saveConsultation()">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin-common.js"></script>
+    <script>
+        // 샘플 데이터
+        const consultationData = {
+            1: {
+                date: '2024-12-15 14:30',
+                company: 'ABC 주식회사',
+                manager: '김철수',
+                phone: '010-1234-5678',
+                email: 'kim@abc.co.kr',
+                messageTypes: ['알림톡', '일반문자'],
+                volume: '월 10만건 이상',
+                content: '알림톡과 일반문자 서비스 도입을 검토하고 있습니다. 현재 월 15만건 정도의 알림 발송이 필요하며, 대량 발송 시 할인율과 API 연동 방법에 대해 상담 받고 싶습니다.',
+                status: 'NEW',
+                assignee: '',
+                nextContact: ''
+            },
+            2: {
+                date: '2024-12-15 11:20',
+                company: 'XYZ 테크',
+                manager: '이영희',
+                phone: '010-9876-5432',
+                email: 'lee@xyz.tech',
+                messageTypes: ['브랜드메시지'],
+                volume: '월 5만건 ~ 10만건',
+                content: '브랜드 메시지 서비스에 관심이 있습니다. 현재 타사 서비스를 사용 중인데, 가격 비교 및 기능 비교를 원합니다.',
+                status: 'NEW',
+                assignee: '',
+                nextContact: ''
+            },
+            3: {
+                date: '2024-12-14 16:45',
+                company: '스타트업 컴퍼니',
+                manager: '박지민',
+                phone: '010-5555-1234',
+                email: 'park@startup.io',
+                messageTypes: ['알림톡'],
+                volume: '월 1만건 ~ 5만건',
+                content: '이커머스 플랫폼 런칭 예정이며, 주문/배송 알림톡 발송이 필요합니다. 초기 스타트업 대상 특별 요금제가 있는지 궁금합니다.',
+                status: 'PROGRESS',
+                assignee: '홍길동',
+                nextContact: '2024-12-16'
+            },
+            4: {
+                date: '2024-12-14 10:30',
+                company: '글로벌 마케팅',
+                manager: '최민수',
+                phone: '010-7777-8888',
+                email: 'choi@global.com',
+                messageTypes: ['광고문자', '알림톡'],
+                volume: '월 10만건 이상',
+                content: '마케팅 대행사로서 다수의 클라이언트 광고문자 및 알림톡 발송이 필요합니다. 대행사 파트너 프로그램이 있는지 문의드립니다.',
+                status: 'PROGRESS',
+                assignee: '김영수',
+                nextContact: '2024-12-17'
+            },
+            5: {
+                date: '2024-12-13 09:15',
+                company: '이커머스 플랫폼',
+                manager: '정하나',
+                phone: '010-3333-4444',
+                email: 'jung@ecommerce.kr',
+                messageTypes: ['알림톡', '일반문자'],
+                volume: '월 5만건 ~ 10만건',
+                content: '쇼핑몰 운영 중이며, 주문확인/배송안내/프로모션 알림이 필요합니다.',
+                status: 'COMPLETE',
+                assignee: '홍길동',
+                nextContact: ''
+            },
+            6: {
+                date: '2024-12-12 14:00',
+                company: '금융서비스',
+                manager: '강민호',
+                phone: '010-2222-3333',
+                email: 'kang@finance.co.kr',
+                messageTypes: ['알림톡'],
+                volume: '월 10만건 이상',
+                content: '금융 서비스 인증 및 거래 알림 발송용으로 알림톡 서비스 도입을 원합니다. 보안 인증 관련 문의도 있습니다.',
+                status: 'CONTRACT',
+                assignee: '김영수',
+                nextContact: ''
+            }
+        };
+
+        let currentConsultationId = null;
+
+        // 검색
+        function searchConsultations() {
+            const searchInput = document.getElementById('searchInput').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const messageTypeFilter = document.getElementById('messageTypeFilter').value;
+            
+            showToast('검색 조건으로 조회되었습니다.', 'success');
+        }
+
+        // 초기화
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('messageTypeFilter').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            showToast('검색 조건이 초기화되었습니다.', 'info');
+        }
+
+        // 엑셀 다운로드
+        function downloadExcel() {
+            showToast('엑셀 파일 다운로드를 시작합니다.', 'success');
+        }
+
+        // 상세 모달 열기
+        function openDetailModal(id) {
+            currentConsultationId = id;
+            const data = consultationData[id];
+            
+            if (!data) {
+                showToast('데이터를 찾을 수 없습니다.', 'error');
+                return;
+            }
+
+            document.getElementById('detailDate').value = data.date;
+            document.getElementById('detailCompany').value = data.company;
+            document.getElementById('detailManager').value = data.manager;
+            document.getElementById('detailPhone').value = data.phone;
+            document.getElementById('detailEmail').value = data.email;
+            document.getElementById('detailVolume').value = data.volume;
+            document.getElementById('detailContent').value = data.content;
+            document.getElementById('detailStatus').value = data.status;
+            document.getElementById('detailAssignee').value = data.assignee;
+            document.getElementById('detailNextContact').value = data.nextContact;
+
+            // 메시지 유형 표시
+            const messageTypesDiv = document.getElementById('detailMessageTypes');
+            messageTypesDiv.innerHTML = data.messageTypes.map(type => 
+                `<span class="badge badge-info" style="margin-right: 4px;">${type}</span>`
+            ).join('');
+
+            openModal('consultationDetailModal');
+        }
+
+        // 모달 닫기
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // 모달 열기
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        // 상담 저장
+        function saveConsultation() {
+            const status = document.getElementById('detailStatus').value;
+            const assignee = document.getElementById('detailAssignee').value;
+            const nextContact = document.getElementById('detailNextContact').value;
+
+            if (status === 'PROGRESS' && !assignee) {
+                showToast('상담중 상태에서는 담당자를 배정해주세요.', 'error');
+                return;
+            }
+
+            // 데이터 업데이트 (실제로는 API 호출)
+            if (currentConsultationId && consultationData[currentConsultationId]) {
+                consultationData[currentConsultationId].status = status;
+                consultationData[currentConsultationId].assignee = assignee;
+                consultationData[currentConsultationId].nextContact = nextContact;
+            }
+
+            showToast('상담 정보가 저장되었습니다.', 'success');
+            closeModal('consultationDetailModal');
+            
+            // 테이블 업데이트 (간단한 시뮬레이션)
+            updateTableRow(currentConsultationId);
+        }
+
+        // 테이블 행 업데이트
+        function updateTableRow(id) {
+            const data = consultationData[id];
+            if (!data) return;
+
+            const statusBadges = {
+                'NEW': '<span class="badge badge-warning">신규</span>',
+                'PROGRESS': '<span class="badge badge-primary">상담중</span>',
+                'COMPLETE': '<span class="badge badge-success">완료</span>',
+                'CONTRACT': '<span class="badge badge-info">계약완료</span>'
+            };
+
+            // 실제로는 테이블을 다시 렌더링하거나 해당 행만 업데이트
+        }
+
+        // 메모 추가
+        function addMemo() {
+            const memo = document.getElementById('detailMemo').value.trim();
+            
+            if (!memo) {
+                showToast('메모 내용을 입력해주세요.', 'error');
+                return;
+            }
+
+            const historyDiv = document.getElementById('consultationHistory');
+            const now = new Date();
+            const dateStr = now.toLocaleString('ko-KR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).replace(/\. /g, '-').replace('.', '');
+
+            const newMemo = document.createElement('div');
+            newMemo.style.cssText = 'padding: 12px; background-color: #ecfdf5; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid #10b981;';
+            newMemo.innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="font-weight: 600; color: #1e293b;">관리자</span>
+                    <span style="color: #64748b; font-size: 12px;">${dateStr}</span>
+                </div>
+                <p style="color: #475569; font-size: 14px; margin: 0;">${memo}</p>
+            `;
+
+            historyDiv.insertBefore(newMemo, historyDiv.firstChild);
+            document.getElementById('detailMemo').value = '';
+            showToast('메모가 추가되었습니다.', 'success');
+        }
+
+        // Toast 메시지
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 24px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            const colors = {
+                success: '#10b981',
+                error: '#ef4444',
+                info: '#3b82f6',
+                warning: '#f59e0b'
+            };
+            toast.style.backgroundColor = colors[type] || colors.info;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            // 오늘 날짜 설정
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('endDate').value = today;
+            
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+        });
+    </script>
+    
+    <style>
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+    </style>
+</body>
+</html>
+
