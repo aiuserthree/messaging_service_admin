@@ -184,8 +184,8 @@
                                         <th>관리</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
+                                <tbody id="pendingTableBody">
+                                    <tr data-id="1">
                                         <td>2024-11-19 09:15</td>
                                         <td>
                                             <div>홍길동</div>
@@ -194,12 +194,12 @@
                                         <td>@hongchannel</td>
                                         <td>주문 완료 알림톡</td>
                                         <td>ORDER_COMPLETE_001</td>
-                                        <td><span class="badge badge-warning">검수대기</span></td>
+                                        <td class="status-cell"><span class="badge badge-warning">검수대기</span></td>
                                         <td>
-                                            <button class="btn btn-primary btn-sm" onclick="openModal('templateReviewModal')">검토</button>
+                                            <button class="btn btn-primary btn-sm" onclick="openReviewModal(this)">검토</button>
                                         </td>
                                     </tr>
-                                    <tr>
+                                    <tr data-id="2">
                                         <td>2024-11-19 08:30</td>
                                         <td>
                                             <div>김철수</div>
@@ -208,12 +208,12 @@
                                         <td>@kimchannel</td>
                                         <td>배송 시작 알림톡</td>
                                         <td>DELIVERY_START_001</td>
-                                        <td><span class="badge badge-warning">검수대기</span></td>
+                                        <td class="status-cell"><span class="badge badge-warning">검수대기</span></td>
                                         <td>
-                                            <button class="btn btn-primary btn-sm" onclick="openModal('templateReviewModal')">검토</button>
+                                            <button class="btn btn-primary btn-sm" onclick="openReviewModal(this)">검토</button>
                                         </td>
                                     </tr>
-                                    <tr>
+                                    <tr data-id="3">
                                         <td>2024-11-18 16:20</td>
                                         <td>
                                             <div>이영희</div>
@@ -222,9 +222,9 @@
                                         <td>@leechannel</td>
                                         <td>결제 완료 알림톡</td>
                                         <td>PAYMENT_COMPLETE_001</td>
-                                        <td><span class="badge badge-warning">검수대기</span></td>
+                                        <td class="status-cell"><span class="badge badge-warning">검수대기</span></td>
                                         <td>
-                                            <button class="btn btn-primary btn-sm" onclick="openModal('templateReviewModal')">검토</button>
+                                            <button class="btn btn-primary btn-sm" onclick="openReviewModal(this)">검토</button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -254,7 +254,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
+                                    <tr data-id="r1">
                                         <td>2024-11-18 14:00</td>
                                         <td>
                                             <div>박민수</div>
@@ -264,7 +264,33 @@
                                         <td><span class="badge badge-warning">검수중</span></td>
                                         <td><span class="badge badge-info">검수중</span></td>
                                         <td>
-                                            <button class="btn btn-primary btn-sm" onclick="openModal('templateReviewModal')">상세</button>
+                                            <button class="btn btn-primary btn-sm" onclick="openReviewingDetailModal(this)">상세</button>
+                                        </td>
+                                    </tr>
+                                    <tr data-id="r2">
+                                        <td>2024-11-17 11:30</td>
+                                        <td>
+                                            <div>김지훈</div>
+                                            <div style="font-size: 12px; color: #64748b;">kimjh@example.com</div>
+                                        </td>
+                                        <td>예약 확인 알림톡</td>
+                                        <td><span class="badge badge-warning">검수중</span></td>
+                                        <td><span class="badge badge-info">검수중</span></td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm" onclick="openReviewingDetailModal(this)">상세</button>
+                                        </td>
+                                    </tr>
+                                    <tr data-id="r3">
+                                        <td>2024-11-16 09:45</td>
+                                        <td>
+                                            <div>이서연</div>
+                                            <div style="font-size: 12px; color: #64748b;">lsy@example.com</div>
+                                        </td>
+                                        <td>결제 완료 알림톡</td>
+                                        <td><span class="badge badge-warning">검수중</span></td>
+                                        <td><span class="badge badge-info">검수중</span></td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm" onclick="openReviewingDetailModal(this)">상세</button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -514,15 +540,9 @@
                 <!-- 카카오 검수 섹션 -->
                 <div class="card" style="border: none; padding: 0; margin-bottom: 24px;">
                     <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">카카오 검수</h4>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <div class="form-group">
-                            <label class="form-label">카카오 검수 상태</label>
-                            <div><span class="badge badge-warning">검수대기</span></div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">카카오 검수 결과</label>
-                            <div class="form-control" style="background-color: #f1f5f9;">-</div>
-                        </div>
+                    <div class="form-group">
+                        <label class="form-label">카카오 검수 상태</label>
+                        <div><span class="badge badge-warning">검수대기</span></div>
                     </div>
                     <div style="margin-top: 16px;">
                         <button class="btn btn-primary" onclick="confirmAction('카카오 검수를 요청하시겠습니까?', function() { showToast('카카오 검수 요청이 완료되었습니다.', 'success'); })">카카오 검수 요청</button>
@@ -538,7 +558,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-success" onclick="confirmAction('승인 처리하시겠습니까?', function() { showToast('승인 처리되었습니다.', 'success'); closeModal('templateReviewModal'); })">승인</button>
+                <button class="btn btn-success" onclick="handleTemplateApprove()">승인</button>
                 <button class="btn btn-danger" onclick="openModal('templateRejectModal')">반려</button>
                 <button class="btn btn-outline" onclick="closeModal('templateReviewModal')">닫기</button>
             </div>
@@ -559,7 +579,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-danger" onclick="confirmAction('반려 처리하시겠습니까?', function() { showToast('반려 처리되었습니다.', 'success'); closeModal('templateRejectModal'); closeModal('templateReviewModal'); })">반려 처리</button>
+                <button class="btn btn-danger" onclick="handleTemplateReject()">반려 처리</button>
                 <button class="btn btn-outline" onclick="closeModal('templateRejectModal')">취소</button>
             </div>
         </div>
@@ -630,6 +650,111 @@
         </div>
     </div>
     
+    <!-- 검수중 상세 모달 -->
+    <div class="modal" id="reviewingDetailModal">
+        <div class="modal-content" style="max-width: 1200px; max-height: 90vh;">
+            <div class="modal-header">
+                <h3 class="modal-title">템플릿 상세 (검수중)</h3>
+                <button class="modal-close" onclick="closeModal('reviewingDetailModal')">&times;</button>
+            </div>
+            <div style="max-height: 70vh; overflow-y: auto;">
+                <!-- 템플릿 정보 -->
+                <div class="card" style="border: none; padding: 0; margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #3b82f6;">템플릿 정보</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">템플릿명</label>
+                            <div class="form-control" id="reviewingTemplateName" style="background-color: #f1f5f9;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">템플릿 코드</label>
+                            <div class="form-control" id="reviewingTemplateCode" style="background-color: #f1f5f9;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">회원 정보</label>
+                            <div class="form-control" id="reviewingMember" style="background-color: #f1f5f9;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">발신프로필 ID</label>
+                            <div class="form-control" id="reviewingProfileId" style="background-color: #f1f5f9;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">카카오톡 채널명</label>
+                            <div class="form-control" id="reviewingChannelName" style="background-color: #f1f5f9;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">발신프로필 상태</label>
+                            <div><span class="badge badge-success">활성</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 메시지 내용 -->
+                <div class="card" style="border: none; padding: 0; margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #3b82f6;">메시지 내용</h4>
+                    <div style="padding: 20px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <div id="reviewingMessageContent" style="font-size: 16px; line-height: 1.8; white-space: pre-wrap;"></div>
+                    </div>
+                </div>
+                
+                <!-- 버튼 정보 -->
+                <div class="card" style="border: none; padding: 0; margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #3b82f6;">버튼 정보</h4>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="padding: 12px; background-color: #f1f5f9; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div id="reviewingButtonName" style="font-weight: 600;"></div>
+                                    <div id="reviewingButtonUrl" style="font-size: 12px; color: #64748b;"></div>
+                                </div>
+                                <span class="badge badge-info">웹링크</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 카카오 검수 섹션 -->
+                <div class="card" style="border: none; padding: 0; margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #3b82f6;">카카오 검수</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">카카오 검수 상태</label>
+                            <div><span class="badge badge-info" style="font-size: 14px; padding: 8px 16px;">검수중</span></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">검수 요청일시</label>
+                            <div class="form-control" id="reviewingRequestDate" style="background-color: #f1f5f9;"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 16px; padding: 16px; background-color: #eff6ff; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                        <div style="display: flex; align-items: center; gap: 8px; color: #1d4ed8;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                            <span style="font-weight: 600;">카카오 검수가 진행 중입니다.</span>
+                        </div>
+                        <p style="margin-top: 8px; color: #1e40af; font-size: 14px;">
+                            카카오 검수는 영업일 기준 1~3일 정도 소요됩니다. 검수 완료 시 자동으로 상태가 업데이트됩니다.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- 검토 메모 -->
+                <div class="card" style="border: none; padding: 0; margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #3b82f6;">검토 메모</h4>
+                    <div class="form-group">
+                        <textarea class="form-control" rows="4" placeholder="검토 메모를 입력하세요"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('reviewingDetailModal')">닫기</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- 반려 상세 모달 -->
     <div class="modal" id="rejectedDetailModal">
         <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
@@ -694,6 +819,9 @@
     
     <script src="js/admin-common.js"></script>
     <script>
+        // 현재 검토 중인 행 저장
+        let currentReviewRow = null;
+        
         // 탭 전환
         function switchTab(tabName) {
             // 모든 탭 비활성화
@@ -703,6 +831,174 @@
             // 선택한 탭 활성화
             event.target.classList.add('active');
             document.getElementById('tab-' + tabName).style.display = 'block';
+        }
+        
+        // 검토 모달 열기
+        function openReviewModal(button) {
+            currentReviewRow = button.closest('tr');
+            
+            // 행에서 데이터 가져오기
+            const cells = currentReviewRow.querySelectorAll('td');
+            const memberName = cells[1].querySelector('div').textContent;
+            const memberEmail = cells[1].querySelector('div:last-child').textContent;
+            const profileId = cells[2].textContent;
+            const templateName = cells[3].textContent;
+            const templateCode = cells[4].textContent;
+            
+            // 모달에 데이터 표시 (동적 업데이트)
+            const modal = document.getElementById('templateReviewModal');
+            const formControls = modal.querySelectorAll('.form-control');
+            
+            // 템플릿 정보 업데이트
+            formControls[0].textContent = templateName; // 템플릿명
+            formControls[1].textContent = templateCode; // 템플릿 코드
+            formControls[2].textContent = `${memberName} (${memberEmail})`; // 회원 정보
+            formControls[3].textContent = profileId; // 발신프로필 ID
+            
+            openModal('templateReviewModal');
+        }
+        
+        // 승인 처리
+        function handleTemplateApprove() {
+            confirmAction('승인 처리하시겠습니까?', function() {
+                if (currentReviewRow) {
+                    // 상태 업데이트
+                    const statusCell = currentReviewRow.querySelector('.status-cell');
+                    if (statusCell) {
+                        statusCell.innerHTML = '<span class="badge badge-success">승인완료</span>';
+                    }
+                    
+                    // 검토 버튼 변경
+                    const reviewBtn = currentReviewRow.querySelector('button');
+                    if (reviewBtn) {
+                        reviewBtn.textContent = '처리완료';
+                        reviewBtn.classList.remove('btn-primary');
+                        reviewBtn.classList.add('btn-secondary');
+                        reviewBtn.disabled = true;
+                    }
+                    
+                    // 대기 건수 업데이트
+                    updatePendingCount(-1);
+                }
+                
+                showToast('승인 처리되었습니다.', 'success');
+                closeModal('templateReviewModal');
+                currentReviewRow = null;
+            });
+        }
+        
+        // 반려 처리
+        function handleTemplateReject() {
+            const rejectReason = document.querySelector('#templateRejectModal textarea').value;
+            
+            if (!rejectReason.trim()) {
+                showToast('반려 사유를 입력해주세요.', 'error');
+                return;
+            }
+            
+            confirmAction('반려 처리하시겠습니까?', function() {
+                if (currentReviewRow) {
+                    // 상태 업데이트
+                    const statusCell = currentReviewRow.querySelector('.status-cell');
+                    if (statusCell) {
+                        statusCell.innerHTML = '<span class="badge badge-danger">반려</span>';
+                    }
+                    
+                    // 검토 버튼 변경
+                    const reviewBtn = currentReviewRow.querySelector('button');
+                    if (reviewBtn) {
+                        reviewBtn.textContent = '처리완료';
+                        reviewBtn.classList.remove('btn-primary');
+                        reviewBtn.classList.add('btn-secondary');
+                        reviewBtn.disabled = true;
+                    }
+                    
+                    // 대기 건수 업데이트
+                    updatePendingCount(-1);
+                }
+                
+                showToast('반려 처리되었습니다.', 'success');
+                closeModal('templateRejectModal');
+                closeModal('templateReviewModal');
+                currentReviewRow = null;
+                
+                // 반려 사유 입력 필드 초기화
+                document.querySelector('#templateRejectModal textarea').value = '';
+            });
+        }
+        
+        // 대기 건수 업데이트
+        function updatePendingCount(change) {
+            const pendingCount = document.querySelector('#tab-pending .card-description');
+            if (pendingCount) {
+                const match = pendingCount.textContent.match(/\d+/);
+                if (match) {
+                    const currentCount = parseInt(match[0]);
+                    const newCount = Math.max(0, currentCount + change);
+                    pendingCount.textContent = `검수 대기 건수: ${newCount}건`;
+                }
+            }
+        }
+        
+        // 검수중 샘플 데이터
+        const reviewingTemplates = {
+            'r1': {
+                name: '회원가입 환영 알림톡',
+                code: 'WELCOME_001',
+                member: '박민수 (park@example.com)',
+                profileId: '@parkchannel',
+                channelName: '박민수 스토어',
+                content: '안녕하세요, #{고객명}님!\n\n#{서비스명} 회원가입을 환영합니다.\n\n가입일: #{가입일}\n회원등급: #{회원등급}\n\n다양한 혜택을 누려보세요!',
+                buttonName: '마이페이지 가기',
+                buttonUrl: 'https://example.com/mypage',
+                requestDate: '2024-11-18 14:05'
+            },
+            'r2': {
+                name: '예약 확인 알림톡',
+                code: 'RESERVATION_001',
+                member: '김지훈 (kimjh@example.com)',
+                profileId: '@kimjhchannel',
+                channelName: '김지훈 예약센터',
+                content: '안녕하세요, #{고객명}님!\n\n예약이 확인되었습니다.\n\n예약번호: #{예약번호}\n예약일시: #{예약일시}\n예약내용: #{예약내용}\n\n감사합니다.',
+                buttonName: '예약 상세보기',
+                buttonUrl: 'https://example.com/reservation',
+                requestDate: '2024-11-17 11:35'
+            },
+            'r3': {
+                name: '결제 완료 알림톡',
+                code: 'PAYMENT_001',
+                member: '이서연 (lsy@example.com)',
+                profileId: '@lsychannel',
+                channelName: '이서연 쇼핑몰',
+                content: '안녕하세요, #{고객명}님!\n\n결제가 완료되었습니다.\n\n주문번호: #{주문번호}\n결제금액: #{결제금액}원\n결제수단: #{결제수단}\n\n감사합니다.',
+                buttonName: '주문 상세보기',
+                buttonUrl: 'https://example.com/order',
+                requestDate: '2024-11-16 09:50'
+            }
+        };
+        
+        // 검수중 상세 모달 열기
+        function openReviewingDetailModal(button) {
+            const row = button.closest('tr');
+            const id = row.getAttribute('data-id');
+            const data = reviewingTemplates[id];
+            
+            if (!data) {
+                showToast('데이터를 찾을 수 없습니다.', 'error');
+                return;
+            }
+            
+            document.getElementById('reviewingTemplateName').textContent = data.name;
+            document.getElementById('reviewingTemplateCode').textContent = data.code;
+            document.getElementById('reviewingMember').textContent = data.member;
+            document.getElementById('reviewingProfileId').textContent = data.profileId;
+            document.getElementById('reviewingChannelName').textContent = data.channelName;
+            document.getElementById('reviewingMessageContent').textContent = data.content;
+            document.getElementById('reviewingButtonName').textContent = data.buttonName;
+            document.getElementById('reviewingButtonUrl').textContent = '웹링크: ' + data.buttonUrl;
+            document.getElementById('reviewingRequestDate').textContent = data.requestDate;
+            
+            openModal('reviewingDetailModal');
         }
         
         // 승인완료 샘플 데이터
