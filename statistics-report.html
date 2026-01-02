@@ -158,8 +158,8 @@
                             </div>
                             <div style="margin-top: 24px; display: flex; gap: 12px;">
                                 <button type="button" class="btn btn-primary" onclick="generateDailyReport()">리포트 생성</button>
-                                <button type="button" class="btn btn-secondary" id="dailyPdfBtn" onclick="downloadDailyPdf()" disabled>PDF 다운로드</button>
-                                <button type="button" class="btn btn-secondary" id="dailyExcelBtn" onclick="downloadDailyExcel()" disabled>Excel 다운로드</button>
+                                <button type="button" class="btn btn-secondary" id="dailyPdfBtn" onclick="downloadDailyPdf()">PDF 다운로드</button>
+                                <button type="button" class="btn btn-secondary" id="dailyExcelBtn" onclick="downloadDailyExcel()">Excel 다운로드</button>
                             </div>
                         </div>
                     </div>
@@ -220,8 +220,8 @@
                             </div>
                             <div style="margin-top: 24px; display: flex; gap: 12px;">
                                 <button type="button" class="btn btn-primary" onclick="generateMonthlyReport()">리포트 생성</button>
-                                <button type="button" class="btn btn-secondary" id="monthlyPdfBtn" onclick="downloadMonthlyPdf()" disabled>PDF 다운로드</button>
-                                <button type="button" class="btn btn-secondary" id="monthlyExcelBtn" onclick="downloadMonthlyExcel()" disabled>Excel 다운로드</button>
+                                <button type="button" class="btn btn-secondary" id="monthlyPdfBtn" onclick="downloadMonthlyPdf()">PDF 다운로드</button>
+                                <button type="button" class="btn btn-secondary" id="monthlyExcelBtn" onclick="downloadMonthlyExcel()">Excel 다운로드</button>
                             </div>
                         </div>
                     </div>
@@ -293,8 +293,8 @@
                             </div>
                             <div style="margin-top: 24px; display: flex; gap: 12px;">
                                 <button type="button" class="btn btn-primary" onclick="generateCustomReport()">리포트 생성</button>
-                                <button type="button" class="btn btn-secondary" id="customPdfBtn" onclick="downloadCustomPdf()" disabled>PDF 다운로드</button>
-                                <button type="button" class="btn btn-secondary" id="customExcelBtn" onclick="downloadCustomExcel()" disabled>Excel 다운로드</button>
+                                <button type="button" class="btn btn-secondary" id="customPdfBtn" onclick="downloadCustomPdf()">PDF 다운로드</button>
+                                <button type="button" class="btn btn-secondary" id="customExcelBtn" onclick="downloadCustomExcel()">Excel 다운로드</button>
                             </div>
                         </div>
                     </div>
@@ -374,9 +374,6 @@
                 };
                 
                 displayDailyReport();
-                
-                document.getElementById('dailyPdfBtn').disabled = false;
-                document.getElementById('dailyExcelBtn').disabled = false;
                 
                 showToast('일별 리포트가 생성되었습니다.', 'success');
             }, 1000);
@@ -608,9 +605,6 @@
                 };
                 
                 displayMonthlyReport();
-                
-                document.getElementById('monthlyPdfBtn').disabled = false;
-                document.getElementById('monthlyExcelBtn').disabled = false;
                 
                 showToast('월별 리포트가 생성되었습니다.', 'success');
             }, 1200);
@@ -872,9 +866,6 @@
                 };
                 
                 displayCustomReport();
-                
-                document.getElementById('customPdfBtn').disabled = false;
-                document.getElementById('customExcelBtn').disabled = false;
                 
                 showToast('커스텀 리포트가 생성되었습니다.', 'success');
             }, 1500);

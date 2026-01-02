@@ -326,7 +326,7 @@ function getBadge(type) {
         'SMS': '<span class="badge badge-secondary">SMS</span>',
         'LMS': '<span class="badge badge-secondary">LMS</span>',
         'MMS': '<span class="badge badge-secondary">MMS</span>',
-        'BRANDTALK': '<span class="badge badge-warning">브랜드톡</span>'
+        'BRANDTALK': '<span class="badge badge-warning">브랜드 메시지</span>'
     };
     return badges[type] || '<span class="badge badge-secondary">기타</span>';
 }
@@ -742,4 +742,5 @@ graph TD
 | 버전 | 날짜 | 변경 내용 | 작성자 |
 |------|------|----------|--------|
 | 1.0.0 | 2024-12-15 | 초기 문서 작성 | - |
+
 

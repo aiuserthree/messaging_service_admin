@@ -356,3 +356,4 @@ function openApprovedDetail(id) {
 | TC008 | 승인완료 상세 조회 | 승인 정보 포함하여 표시 |
 | TC009 | 반려 상세 조회 | 반려 사유 포함하여 표시 |
 
+

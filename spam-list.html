@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스팸 신고 내역 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('spam-list'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('스팸 신고 내역'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="card">
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <label class="form-label">회원명 검색</label>
+                            <input type="text" class="form-control" placeholder="회원명으로 검색" id="search-member">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">신고 유형</label>
+                            <select class="form-control" id="filter-type">
+                                <option value="">전체</option>
+                                <option value="spam">스팸</option>
+                                <option value="harassment">성희롱</option>
+                                <option value="fraud">사기</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">상태</label>
+                            <select class="form-control" id="filter-status">
+                                <option value="">전체</option>
+                                <option value="pending">처리 대기</option>
+                                <option value="processing">처리 중</option>
+                                <option value="completed">처리 완료</option>
+                            </select>
+                        </div>
+                        <div class="filter-item" style="align-self: flex-end;">
+                            <button class="btn btn-primary" onclick="searchSpam()">조회</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">스팸 신고 목록</h3>
+                        <div class="card-description">접수된 스팸 신고 내역 실시간 확인</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>신고일시</th>
+                                    <th>수신번호</th>
+                                    <th>회원명</th>
+                                    <th>신고 유형</th>
+                                    <th>상태</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2024-11-19 14:30:00</td>
+                                    <td>010-1234-5678</td>
+                                    <td>홍길동</td>
+                                    <td>스팸</td>
+                                    <td><span class="badge badge-warning">처리 대기</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="viewDetail(1)">상세보기</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 스팸 신고 상세 모달 -->
+    <div id="spam-detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h3 class="modal-title">신고 상세/분석</h3>
+                <button class="modal-close" onclick="closeModal('spam-detail-modal')">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">신고 내용</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">신고 유형</label>
+                        <div class="form-control" style="background-color: #f1f5f9;">스팸</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">신고 내용</label>
+                        <div class="form-control" style="background-color: #f1f5f9; min-height: 100px; padding: 16px;">
+                            원하지 않는 광고 메시지를 받았습니다.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">회원 발송 이력 분석</h3>
+                        <div class="card-description">해당 회원의 발송 메시지 내역, 성공/실패율, 신고 이력</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>발송일시</th>
+                                    <th>메시지 내용</th>
+                                    <th>발송 건수</th>
+                                    <th>성공/실패</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2024-11-19 14:30:00</td>
+                                    <td>광고 메시지 내용...</td>
+                                    <td>1,000</td>
+                                    <td>995 / 5</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('spam-detail-modal')">닫기</button>
+                <button class="btn btn-danger" onclick="sanctionMember()">계정 제재 처리</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function searchSpam() {
+            showToast('검색 완료', 'success');
+        }
+        
+        function viewDetail(id) {
+            // 모달에 스팸 신고 정보 로드
+            openModal('spam-detail-modal');
+        }
+        
+        function sanctionMember() {
+            if (confirm('정말 계정 제재를 처리하시겠습니까?')) {
+                closeModal('spam-detail-modal');
+                location.href = 'sanction-manage.html';
+            }
+        }
+</body>
+</html>

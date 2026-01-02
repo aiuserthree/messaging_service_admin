@@ -3,298 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시스템 설정 - 어드민</title>
+    <title>환경 설정 - 관리자 시스템</title>
     <link rel="stylesheet" href="css/admin-common.css">
 </head>
 <body>
     <div class="admin-container">
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <h1>Tokbell Admin</h1>
-                <div class="subtitle">관리자 시스템</div>
-            </div>
-            <nav class="sidebar-menu">
-                <div class="menu-section">
-                    <div class="menu-section-title">메인</div>
-                    <a href="index.html" class="menu-item">
-                        <span>대시보드</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">사용자 관리</div>
-                    <a href="user-list.html" class="menu-item">
-                        <span>회원 관리</span>
-                    </a>
-                    <a href="user-permission.html" class="menu-item">
-                        <span>권한 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">발신번호 관리</div>
-                    <a href="caller-number-pending.html" class="menu-item">
-                        <span>승인 대기</span>
-                    </a>
-                    <a href="caller-number-approved.html" class="menu-item">
-                        <span>승인 완료</span>
-                    </a>
-                    <a href="caller-number-list.html" class="menu-item">
-                        <span>발신번호 목록</span>
-                    </a>
-                    <a href="kakao-profile-list.html" class="menu-item">
-                        <span>발신프로필 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">템플릿 관리</div>
-                    <a href="template-alimtalk-review.html" class="menu-item">
-                        <span>알림톡 템플릿 검수</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">발송 관리</div>
-                    <a href="send-history.html" class="menu-item">
-                        <span>발송 내역 모니터링</span>
-                    </a>
-                    <a href="send-statistics.html" class="menu-item">
-                        <span>발송 통계</span>
-                    </a>
-                    <a href="send-policy.html" class="menu-item">
-                        <span>발송 정책 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">결제 관리</div>
-                    <a href="payment-charge-list.html" class="menu-item">
-                        <span>충전 내역</span>
-                    </a>
-                    <a href="payment-deposit.html" class="menu-item">
-                        <span>입금 확인</span>
-                    </a>
-                    <a href="payment-pricing.html" class="menu-item">
-                        <span>요금 설정</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">기타 관리</div>
-                    <a href="consultation-list.html" class="menu-item">
-                        <span>상담 신청 관리</span>
-                    </a>
-                    <a href="inquiry-list.html" class="menu-item">
-                        <span>문의 관리</span>
-                    </a>
-                    <a href="notice-list.html" class="menu-item">
-                        <span>공지사항 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">시스템</div>
-                    <a href="system-settings.html" class="menu-item active">
-                        <span>시스템 설정</span>
-                    </a>
-                    <a href="statistics-report.html" class="menu-item">
-                        <span>통계 및 리포트</span>
-                    </a>
-                    <a href="security-audit.html" class="menu-item">
-                        <span>보안 및 감사</span>
-                    </a>
-                </div>
-            </nav>
-        </aside>
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('system-settings'));
+        </script>
         
         <main class="admin-main">
-            <header class="admin-header">
-                <div class="header-left">
-                    <h2 class="page-title">시스템 설정</h2>
-                </div>
-                <div class="header-right">
-                    <div class="admin-user-info">
-                        <div class="user-avatar">관</div>
-                        <div>
-                            <div class="user-name">관리자</div>
-                            <div class="user-role">최고 관리자</div>
-                        </div>
-                    </div>
-                    <button class="btn btn-outline btn-sm">로그아웃</button>
-                </div>
-            </header>
+            <script>
+                document.write(getHeaderHTML('환경 설정'));
+            </script>
             
             <div class="admin-content">
                 <div class="tabs">
-                    <button type="button" class="tab active" onclick="switchTab('basic', this)">기본 설정</button>
-                    <button type="button" class="tab" onclick="switchTab('send', this)">발송 설정</button>
-                    <button type="button" class="tab" onclick="switchTab('api', this)">외부 연동</button>
-                    <button type="button" class="tab" onclick="switchTab('data', this)">데이터 관리</button>
+                    <button class="tab active" onclick="switchTab('policy')">서비스 정책 설정</button>
+                    <button class="tab" onclick="switchTab('notification')">알림 설정</button>
                 </div>
                 
-                <div id="tab-basic" class="tab-content">
+                <div id="tab-policy" class="tab-content">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">시스템 정보 설정</h3>
+                            <h3 class="card-title">서비스 정책 설정</h3>
+                            <div class="card-description">발송 제한 정책, 요금 정책, 가입 정책 등 시스템 전반의 운영 정책 관리</div>
                         </div>
-                        <div style="padding: 24px;">
-                            <div class="form-group">
-                                <label class="form-label">사이트명</label>
-                                <input type="text" class="form-control" value="Tokbell 메시징 서비스">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">관리자 이메일</label>
-                                <input type="email" class="form-control" value="admin@isend.com">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">고객센터 전화번호</label>
-                                <input type="text" class="form-control" value="1588-1234">
-                            </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                                <div class="form-group">
-                                    <label class="form-label">운영 시작 시간</label>
-                                    <input type="time" class="form-control" value="09:00">
+                        <div class="form-group">
+                            <label class="form-label">회원 유형별 일일 발송 제한</label>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                                <div>
+                                    <label class="form-label">개인 회원</label>
+                                    <input type="number" class="form-control" value="10000" min="0">
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label">운영 종료 시간</label>
-                                    <input type="time" class="form-control" value="18:00">
+                                <div>
+                                    <label class="form-label">사업자 회원</label>
+                                    <input type="number" class="form-control" value="50000" min="0">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">시스템 점검 안내</label>
-                                <textarea class="form-control" rows="4" placeholder="시스템 점검 안내 메시지"></textarea>
-                            </div>
-                            <button type="button" class="btn btn-primary" onclick="handleSaveBasicSettings(event)">저장</button>
                         </div>
-                    </div>
-                </div>
-                
-                <div id="tab-send" class="tab-content" style="display: none;">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">발송 설정</h3>
+                        <div class="form-group">
+                            <label class="form-label">회원 등급별 일일 발송 제한</label>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                                <div>
+                                    <label class="form-label">일반 등급</label>
+                                    <input type="number" class="form-control" value="10000" min="0">
+                                </div>
+                                <div>
+                                    <label class="form-label">VIP 등급</label>
+                                    <input type="number" class="form-control" value="100000" min="0">
+                                </div>
+                            </div>
                         </div>
-                        <div style="padding: 24px;">
-                            <div class="form-group">
-                                <label class="form-label">발송 큐 크기</label>
-                                <input type="number" class="form-control" value="10000" placeholder="큐 크기">
+                        <div class="form-group">
+                            <label class="form-label">시간 단위 발송 한도</label>
+                            <input type="number" class="form-control" value="1000" min="0">
+                            <div style="font-size: 12px; color: #64748b; margin-top: 4px;">특정 시간대(정시 또는 30분 단위)에 발송 가능한 최대 처리량</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">발송 금지 시간 (야간 발송 금지)</label>
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <input type="time" class="form-control" value="21:00" style="width: 150px;">
+                                <span>~</span>
+                                <input type="time" class="form-control" value="08:00" style="width: 150px;">
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">동시 발송 제한</label>
-                                <input type="number" class="form-control" value="100" placeholder="건수">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">재시도 횟수</label>
-                                <input type="number" class="form-control" value="3" placeholder="횟수">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">재시도 간격 (초)</label>
-                                <input type="number" class="form-control" value="60" placeholder="초">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">타임아웃 (초)</label>
-                                <input type="number" class="form-control" value="30" placeholder="초">
-                            </div>
-                            <button type="button" class="btn btn-primary" onclick="handleSaveSendSettings(event)">저장</button>
+                            <div style="font-size: 12px; color: #64748b; margin-top: 4px;">광고 메시지 발송 금지 시간 (정보성 메시지는 제외)</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">대량 발송 사전 승인 기준</label>
+                            <input type="number" class="form-control" value="50000" min="0">
+                            <div style="font-size: 12px; color: #64748b; margin-top: 4px;">건 이상 발송 시 사전 승인 필요</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">요금 정책</label>
+                            <textarea class="form-control" rows="4" placeholder="요금 정책을 입력하세요"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">가입 정책</label>
+                            <textarea class="form-control" rows="4" placeholder="가입 정책을 입력하세요"></textarea>
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <button class="btn btn-primary" onclick="savePolicy()">저장</button>
                         </div>
                     </div>
                 </div>
                 
-                <div id="tab-api" class="tab-content" style="display: none;">
-                    <div class="card" style="margin-bottom: 24px;">
-                        <div class="card-header">
-                            <h3 class="card-title">통신사 API 연동</h3>
-                        </div>
-                        <div style="padding: 24px;">
-                            <div class="form-group">
-                                <label class="form-label">API 엔드포인트</label>
-                                <input type="text" class="form-control" value="https://api.telecom.com/send">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">API 키</label>
-                                <input type="password" class="form-control" value="********" placeholder="API 키">
-                            </div>
-                            <div style="display: flex; gap: 12px; align-items: center; margin-top: 16px;">
-                                <span class="badge badge-success" id="telecomApiStatus">연동 정상</span>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="handleTestTelecomApi()">연동 테스트</button>
-                            </div>
-                        </div>
-                    </div>
-                    
+                <div id="tab-notification" class="tab-content" style="display: none;">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">카카오 비즈니스 API 연동</h3>
+                            <h3 class="card-title">알림 설정</h3>
+                            <div class="card-description">관리자 알림 수신 조건 및 방법 설정</div>
                         </div>
-                        <div style="padding: 24px;">
-                            <div class="form-group">
-                                <label class="form-label">API 키</label>
-                                <input type="password" id="kakaoApiKey" class="form-control" value="********" placeholder="API 키">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">채널 정보</label>
-                                <input type="text" id="kakaoChannelInfo" class="form-control" placeholder="채널 정보">
-                            </div>
-                            <div style="display: flex; gap: 12px; align-items: center; margin-top: 16px;">
-                                <span class="badge badge-success" id="kakaoApiStatus">연동 정상</span>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="handleTestKakaoApi()">연동 테스트</button>
-                            </div>
+                        <div class="form-group">
+                            <label class="form-label">이메일 알림</label>
+                            <input type="checkbox" checked> 활성화
                         </div>
-                    </div>
-                </div>
-                
-                <div id="tab-data" class="tab-content" style="display: none;">
-                    <div class="card" style="margin-bottom: 24px;">
-                        <div class="card-header">
-                            <h3 class="card-title">데이터 백업</h3>
+                        <div class="form-group">
+                            <label class="form-label">SMS 알림</label>
+                            <input type="checkbox"> 활성화
                         </div>
-                        <div style="padding: 24px;">
-                            <button type="button" class="btn btn-primary" onclick="handleManualBackup()">수동 백업 실행</button>
-                            <div style="margin-top: 24px;">
-                                <h4 style="margin-bottom: 16px;">자동 백업 설정</h4>
-                                <div class="form-group">
-                                    <label class="form-label">백업 주기</label>
-                                    <select id="backupPeriod" class="form-control">
-                                        <option value="daily" selected>매일</option>
-                                        <option value="weekly">매주</option>
-                                        <option value="monthly">매월</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">백업 시간</label>
-                                    <input type="time" id="backupTime" class="form-control" value="02:00">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">백업 보관 기간 (일)</label>
-                                    <input type="number" id="backupRetention" class="form-control" value="30" placeholder="일" min="1">
-                                </div>
-                                <button type="button" class="btn btn-primary" onclick="handleSaveBackupSettings(event)">저장</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">데이터 보관 정책</h3>
-                        </div>
-                        <div style="padding: 24px;">
-                            <div class="form-group">
-                                <label class="form-label">발송 로그 보관 기간 (일)</label>
-                                <input type="number" id="sendLogRetention" class="form-control" value="365" placeholder="일" min="1">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">회원 정보 보관 기간 (일)</label>
-                                <input type="number" id="userRetention" class="form-control" value="365" placeholder="일" min="1">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">결제 내역 보관 기간 (일)</label>
-                                <input type="number" id="paymentRetention" class="form-control" value="1825" placeholder="일" min="1">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">개인정보 보관 기간 (일)</label>
-                                <input type="number" id="privacyRetention" class="form-control" value="365" placeholder="일" min="1">
-                            </div>
-                            <button type="button" class="btn btn-primary" onclick="handleSaveDataRetentionSettings(event)">저장</button>
+                        <div style="margin-top: 16px;">
+                            <button class="btn btn-primary" onclick="saveNotification()">저장</button>
                         </div>
                     </div>
                 </div>
@@ -304,261 +114,30 @@
     
     <script src="js/admin-common.js"></script>
     <script>
-        function switchTab(tabName, element) {
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
-            if (element) {
-                element.classList.add('active');
-            } else {
-                document.querySelector(`.tab[onclick*="${tabName}"]`).classList.add('active');
-            }
-            document.getElementById('tab-' + tabName).style.display = 'block';
-        }
-        
-        // 기본 설정 저장
-        function handleSaveBasicSettings(event) {
-            if (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            
-            const siteName = document.querySelector('#tab-basic input[type="text"]').value.trim();
-            const adminEmail = document.querySelector('#tab-basic input[type="email"]').value.trim();
-            const phone = document.querySelector('#tab-basic input[type="text"]:nth-of-type(2)').value.trim();
-            
-            if (!siteName) {
-                showToast('사이트명을 입력해주세요.', 'error');
-                return false;
-            }
-            
-            if (!adminEmail || !adminEmail.includes('@')) {
-                showToast('올바른 관리자 이메일을 입력해주세요.', 'error');
-                return false;
-            }
-            
-            if (!phone) {
-                showToast('고객센터 전화번호를 입력해주세요.', 'error');
-                return false;
-            }
-            
-            confirmAction('기본 설정을 저장하시겠습니까?', function() {
-                // API 호출
-                
-                showToast('기본 설정이 저장되었습니다.', 'success');
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
             });
             
-            return false;
+            document.getElementById(`tab-${tabName}`).style.display = 'block';
+            event.target.classList.add('active');
         }
         
-        // 발송 설정 저장
-        function handleSaveSendSettings(event) {
-            if (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            
-            const queueSize = document.querySelector('#tab-send input[type="number"]:nth-of-type(1)').value;
-            const concurrency = document.querySelector('#tab-send input[type="number"]:nth-of-type(2)').value;
-            const retryCount = document.querySelector('#tab-send input[type="number"]:nth-of-type(3)').value;
-            const retryInterval = document.querySelector('#tab-send input[type="number"]:nth-of-type(4)').value;
-            const timeout = document.querySelector('#tab-send input[type="number"]:nth-of-type(5)').value;
-            
-            if (!queueSize || queueSize <= 0) {
-                showToast('발송 큐 크기를 입력해주세요.', 'error');
-                return false;
-            }
-            
-            if (!concurrency || concurrency <= 0) {
-                showToast('동시 발송 제한을 입력해주세요.', 'error');
-                return false;
-            }
-            
-            if (!retryCount || retryCount < 0) {
-                showToast('재시도 횟수를 입력해주세요.', 'error');
-                return false;
-            }
-            
-            if (!retryInterval || retryInterval <= 0) {
-                showToast('재시도 간격을 입력해주세요.', 'error');
-                return false;
-            }
-            
-            if (!timeout || timeout <= 0) {
-                showToast('타임아웃을 입력해주세요.', 'error');
-                return false;
-            }
-            
-            confirmAction('발송 설정을 저장하시겠습니까?', function() {
-                // API 호출
-                
-                showToast('발송 설정이 저장되었습니다.', 'success');
-            });
-            
-            return false;
+        function savePolicy() {
+            showToast('저장되었습니다.', 'success');
         }
         
-        // 통신사 API 연동 테스트
-        function handleTestTelecomApi() {
-            const endpoint = document.querySelector('#tab-api input[type="text"]').value.trim();
-            const apiKey = document.querySelector('#tab-api input[type="password"]').value.trim();
-            
-            if (!endpoint) {
-                showToast('API 엔드포인트를 입력해주세요.', 'error');
-                return;
-            }
-            
-            if (!apiKey || apiKey === '********') {
-                showToast('API 키를 입력해주세요.', 'error');
-                return;
-            }
-            
-            const statusBadge = document.getElementById('telecomApiStatus');
-            statusBadge.textContent = '테스트 중...';
-            statusBadge.className = 'badge badge-warning';
-            
-            // API 테스트 시뮬레이션
-            setTimeout(function() {
-                // 실제로는 API 호출
-                const success = Math.random() > 0.3; // 70% 성공률 시뮬레이션
-                
-                if (success) {
-                    statusBadge.textContent = '연동 정상';
-                    statusBadge.className = 'badge badge-success';
-                    showToast('통신사 API 연동 테스트가 성공했습니다.', 'success');
-                } else {
-                    statusBadge.textContent = '연동 실패';
-                    statusBadge.className = 'badge badge-danger';
-                    showToast('통신사 API 연동 테스트가 실패했습니다.', 'error');
-                }
-            }, 1500);
-        }
-        
-        // 카카오 비즈니스 API 연동 테스트
-        function handleTestKakaoApi() {
-            const apiKey = document.getElementById('kakaoApiKey').value.trim();
-            const channelInfo = document.getElementById('kakaoChannelInfo').value.trim();
-            
-            if (!apiKey || apiKey === '********') {
-                showToast('API 키를 입력해주세요.', 'error');
-                return;
-            }
-            
-            if (!channelInfo) {
-                showToast('채널 정보를 입력해주세요.', 'error');
-                return;
-            }
-            
-            const statusBadge = document.getElementById('kakaoApiStatus');
-            statusBadge.textContent = '테스트 중...';
-            statusBadge.className = 'badge badge-warning';
-            
-            // API 테스트 시뮬레이션
-            setTimeout(function() {
-                // 실제로는 API 호출
-                const success = Math.random() > 0.3; // 70% 성공률 시뮬레이션
-                
-                if (success) {
-                    statusBadge.textContent = '연동 정상';
-                    statusBadge.className = 'badge badge-success';
-                    showToast('카카오 비즈니스 API 연동 테스트가 성공했습니다.', 'success');
-                } else {
-                    statusBadge.textContent = '연동 실패';
-                    statusBadge.className = 'badge badge-danger';
-                    showToast('카카오 비즈니스 API 연동 테스트가 실패했습니다.', 'error');
-                }
-            }, 1500);
-        }
-        
-        // 수동 백업 실행
-        function handleManualBackup() {
-            confirmAction('수동 백업을 실행하시겠습니까?', function() {
-                // 백업 진행 중 표시
-                showToast('백업이 시작되었습니다. 잠시만 기다려주세요...', 'info');
-                
-                // 백업 시뮬레이션
-                setTimeout(function() {
-                    showToast('백업이 완료되었습니다.', 'success');
-                }, 2000);
-            });
-        }
-        
-        // 백업 설정 저장
-        function handleSaveBackupSettings(event) {
-            if (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            
-            const period = document.getElementById('backupPeriod').value;
-            const time = document.getElementById('backupTime').value;
-            const retention = document.getElementById('backupRetention').value;
-            
-            if (!time) {
-                showToast('백업 시간을 입력해주세요.', 'error');
-                return false;
-            }
-            
-            if (!retention || retention <= 0) {
-                showToast('백업 보관 기간을 입력해주세요.', 'error');
-                return false;
-            }
-            
-            confirmAction('자동 백업 설정을 저장하시겠습니까?', function() {
-                // API 호출
-                
-                showToast('자동 백업 설정이 저장되었습니다.', 'success');
-            });
-            
-            return false;
-        }
-        
-        // 데이터 보관 정책 저장
-        function handleSaveDataRetentionSettings(event) {
-            if (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            
-            const sendLogRetention = document.getElementById('sendLogRetention').value;
-            const userRetention = document.getElementById('userRetention').value;
-            const paymentRetention = document.getElementById('paymentRetention').value;
-            const privacyRetention = document.getElementById('privacyRetention').value;
-            
-            if (!sendLogRetention || sendLogRetention <= 0) {
-                showToast('발송 로그 보관 기간을 입력해주세요.', 'error');
-                return false;
-            }
-            
-            if (!userRetention || userRetention <= 0) {
-                showToast('회원 정보 보관 기간을 입력해주세요.', 'error');
-                return false;
-            }
-            
-            if (!paymentRetention || paymentRetention <= 0) {
-                showToast('결제 내역 보관 기간을 입력해주세요.', 'error');
-                return false;
-            }
-            
-            if (!privacyRetention || privacyRetention <= 0) {
-                showToast('개인정보 보관 기간을 입력해주세요.', 'error');
-                return false;
-            }
-            
-            confirmAction('데이터 보관 정책을 저장하시겠습니까?', function() {
-                // API 호출
-                console.log('데이터 보관 정책 저장:', {
-                    sendLogRetention: sendLogRetention,
-                    userRetention: userRetention,
-                    paymentRetention: paymentRetention,
-                    privacyRetention: privacyRetention
-                });
-                
-                showToast('데이터 보관 정책이 저장되었습니다.', 'success');
-            });
-            
-            return false;
+        function saveNotification() {
+            showToast('저장되었습니다.', 'success');
         }
     </script>
+    <style>
+        .tab-content {
+            margin-top: 24px;
+        }
+    </style>
 </body>
 </html>
-

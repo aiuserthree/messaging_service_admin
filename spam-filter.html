@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스팸 필터링 단어 관리 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('spam-filter'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('스팸 필터링 단어 관리'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">스팸 필터링 단어 등록</h3>
+                        <div class="card-description">스팸 메시지에 자주 사용되는 단어를 금지어로 설정하여 해당 단어를 포함한 메시지는 발송이 불가하도록 처리</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">금지어 추가</label>
+                        <div style="display: flex; gap: 12px;">
+                            <input type="text" class="form-control" placeholder="금지어 입력" id="filter-word">
+                            <button class="btn btn-primary" onclick="addFilterWord()">추가</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">엑셀 일괄 등록</label>
+                        <div style="display: flex; gap: 12px;">
+                            <input type="file" class="form-control" accept=".xlsx,.xls" id="excel-file">
+                            <button class="btn btn-outline" onclick="uploadExcel()">업로드</button>
+                            <button class="btn btn-outline" onclick="downloadTemplate()">템플릿 다운로드</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">등록된 금지어 목록</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>금지어</th>
+                                    <th>등록일</th>
+                                    <th>등록자</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>무료</td>
+                                    <td>2024-11-19</td>
+                                    <td>관리자</td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteFilterWord(1)">삭제</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>당첨</td>
+                                    <td>2024-11-19</td>
+                                    <td>관리자</td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteFilterWord(2)">삭제</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function addFilterWord() {
+            const word = document.getElementById('filter-word').value;
+            if (!word) {
+                showToast('금지어를 입력해주세요.', 'error');
+                return;
+            }
+            showToast('금지어가 추가되었습니다.', 'success');
+            document.getElementById('filter-word').value = '';
+        }
+        
+        function uploadExcel() {
+            const file = document.getElementById('excel-file').files[0];
+            if (!file) {
+                showToast('파일을 선택해주세요.', 'error');
+                return;
+            }
+            showToast('업로드 중...', 'info');
+        }
+        
+        function downloadTemplate() {
+            showToast('템플릿 다운로드 기능은 준비 중입니다.', 'info');
+        }
+        
+        function deleteFilterWord(id) {
+            if (confirm('정말 삭제하시겠습니까?')) {
+                showToast('삭제되었습니다.', 'success');
+            }
+        }
+    </script>
+</body>
+</html>

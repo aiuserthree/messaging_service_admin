@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 관리 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('api-key'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('API 관리'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('key')">API 키 발급</button>
+                    <button class="tab" onclick="switchTab('usage')">API 사용 내역</button>
+                </div>
+                
+                <div id="tab-key" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">API 키 발급</h3>
+                            <div class="card-description">회원별 API 키 생성 및 관리, API 사용 권한 설정</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">회원 선택</label>
+                            <input type="text" class="form-control" placeholder="회원명 또는 이메일" id="member-select">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">API 사용 권한</label>
+                            <select class="form-control" id="api-permission">
+                                <option value="read">읽기</option>
+                                <option value="write">쓰기</option>
+                                <option value="full">전체</option>
+                            </select>
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <button class="btn btn-primary" onclick="generateApiKey()">API 키 생성</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card" style="margin-top: 24px;">
+                        <div class="card-header">
+                            <h3 class="card-title">발급된 API 키 목록</h3>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>회원명</th>
+                                        <th>API 키</th>
+                                        <th>권한</th>
+                                        <th>발급일</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>홍길동</td>
+                                        <td>ak_****1234</td>
+                                        <td>전체</td>
+                                        <td>2024-11-19</td>
+                                        <td>
+                                            <button class="btn btn-danger btn-sm" onclick="revokeApiKey(1)">취소</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="tab-usage" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">API 사용 내역</h3>
+                            <div class="card-description">회원별 API 호출 내역 및 사용량 통계</div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>회원명</th>
+                                        <th>API 호출 횟수</th>
+                                        <th>성공</th>
+                                        <th>실패</th>
+                                        <th>최근 호출일</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>홍길동</td>
+                                        <td>1,250</td>
+                                        <td>1,200</td>
+                                        <td>50</td>
+                                        <td>2024-11-19 15:30:00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(`tab-${tabName}`).style.display = 'block';
+            event.target.classList.add('active');
+        }
+        
+        function generateApiKey() {
+            showToast('API 키가 생성되었습니다.', 'success');
+        }
+        
+        function revokeApiKey(id) {
+            if (confirm('정말 API 키를 취소하시겠습니까?')) {
+                showToast('API 키가 취소되었습니다.', 'success');
+            }
+        }
+    </script>
+    <style>
+        .tab-content {
+            margin-top: 24px;
+        }
+    </style>
+</body>
+</html>

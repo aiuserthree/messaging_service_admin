@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>발송 상세 정보 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('send-list'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('발송 상세 정보'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">발송 기본 정보</h3>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">발송 ID</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">SEND-20241119-001</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">발송일시</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">2024-11-19 14:30:00</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">회원명</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">홍길동</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">이메일</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">hong@example.com</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">메시지 유형</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">
+                                <span class="badge badge-info">알림톡</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">발송 상태</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">
+                                <span class="badge badge-success">완료</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">총 발송 건수</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">1,000건</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">성공/실패</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">995건 / 5건</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">메시지 내용</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">템플릿명</label>
+                        <div class="form-control" style="background-color: #f1f5f9;">주문 완료 알림</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">메시지 내용</label>
+                        <div class="form-control" style="background-color: #f1f5f9; min-height: 100px; padding: 16px;">
+                            안녕하세요. 주문이 완료되었습니다.<br>
+                            주문번호: #12345<br>
+                            배송 예정일: 2024-11-20
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">수신자별 발송 결과</h3>
+                        <div class="card-description">수신자별 성공/실패 사유 확인</div>
+                    </div>
+                    <div class="search-filter-bar" style="margin-bottom: 16px;">
+                        <div class="filter-item">
+                            <select class="form-control" id="filter-result">
+                                <option value="">전체</option>
+                                <option value="success">성공</option>
+                                <option value="fail">실패</option>
+                            </select>
+                        </div>
+                        <div class="search-box">
+                            <input type="text" class="form-control" placeholder="수신자 번호 검색" id="search-recipient">
+                        </div>
+                        <button class="btn btn-primary" onclick="searchRecipients()">조회</button>
+                        <button class="btn btn-outline" onclick="exportRecipientExcel()">엑셀 다운로드</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>수신자 번호</th>
+                                    <th>발송 시간</th>
+                                    <th>결과</th>
+                                    <th>사유</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recipient-list-tbody">
+                                <tr>
+                                    <td>010-1234-5678</td>
+                                    <td>2024-11-19 14:30:05</td>
+                                    <td><span class="badge badge-success">성공</span></td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>010-2345-6789</td>
+                                    <td>2024-11-19 14:30:06</td>
+                                    <td><span class="badge badge-success">성공</span></td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>010-3456-7890</td>
+                                    <td>2024-11-19 14:30:07</td>
+                                    <td><span class="badge badge-danger">실패</span></td>
+                                    <td>수신거부</td>
+                                </tr>
+                                <tr>
+                                    <td>010-4567-8901</td>
+                                    <td>2024-11-19 14:30:08</td>
+                                    <td><span class="badge badge-danger">실패</span></td>
+                                    <td>번호 오류</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="recipient-pagination"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function searchRecipients() {
+            // 수신자 검색 로직
+            showToast('검색 완료', 'success');
+        }
+        
+        function exportRecipientExcel() {
+            showToast('엑셀 다운로드 기능은 준비 중입니다.', 'info');
+        }
+        
+        // URL에서 ID 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const sendId = urlParams.get('id');
+        
+        if (sendId) {
+            // 발송 상세 정보 로드
+            console.log('Loading send detail for ID:', sendId);
+        }
+    </script>
+</body>
+</html>

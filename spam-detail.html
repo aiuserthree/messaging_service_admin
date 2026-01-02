@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신고 상세/분석 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('spam-detail'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('신고 상세/분석'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">신고 내용</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">신고 유형</label>
+                        <div class="form-control" style="background-color: #f1f5f9;">스팸</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">신고 내용</label>
+                        <div class="form-control" style="background-color: #f1f5f9; min-height: 100px; padding: 16px;">
+                            원하지 않는 광고 메시지를 받았습니다.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">회원 발송 이력 분석</h3>
+                        <div class="card-description">해당 회원의 발송 메시지 내역, 성공/실패율, 신고 이력</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>발송일시</th>
+                                    <th>메시지 내용</th>
+                                    <th>발송 건수</th>
+                                    <th>성공/실패</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2024-11-19 14:30:00</td>
+                                    <td>광고 메시지 내용...</td>
+                                    <td>1,000</td>
+                                    <td>995 / 5</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 24px;">
+                    <button class="btn btn-danger" onclick="sanctionMember()">계정 제재 처리</button>
+                    <button class="btn btn-outline" onclick="history.back()">목록으로</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function sanctionMember() {
+            if (confirm('정말 계정 제재를 처리하시겠습니까?')) {
+                location.href = 'sanction-manage.html';
+            }
+        }
+    </script>
+</body>
+</html>

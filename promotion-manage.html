@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로모션 관리 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('promotion-manage'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('프로모션 관리'));
+            </script>
+            
+            <div class="admin-content">
+                <div style="margin-bottom: 24px;">
+                    <button class="btn btn-primary" onclick="location.href='promotion-edit.html'">프로모션 등록</button>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">프로모션 목록</h3>
+                        <div class="card-description">프로모션 등록 및 운영 관리</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>제목</th>
+                                    <th>진행 기간</th>
+                                    <th>노출 위치</th>
+                                    <th>상태</th>
+                                    <th>등록일</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>신규 가입 이벤트</td>
+                                    <td>2024-11-01 ~ 2024-11-30</td>
+                                    <td>브랜드/프론트 페이지</td>
+                                    <td><span class="badge badge-success">진행중</span></td>
+                                    <td>2024-11-01</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="editPromotion(1)">수정</button>
+                                        <button class="btn btn-danger btn-sm" onclick="deletePromotion(1)">삭제</button>
+                                        <button class="btn btn-outline btn-sm" onclick="endPromotion(1)">종료</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function editPromotion(id) {
+            location.href = `promotion-edit.html?id=${id}`;
+        }
+        
+        function deletePromotion(id) {
+            if (confirm('정말 삭제하시겠습니까?')) {
+                showToast('삭제되었습니다.', 'success');
+            }
+        }
+        
+        function endPromotion(id) {
+            if (confirm('프로모션을 종료하시겠습니까?')) {
+                showToast('프로모션이 종료되었습니다.', 'success');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 정보 관리 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('member-edit'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('회원 정보 관리'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">회원 검색</h3>
+                        <div class="card-description">회원명, 이메일 또는 전화번호로 검색하여 회원 정보를 수정할 수 있습니다.</div>
+                    </div>
+                    <div style="padding: 24px;">
+                        <div class="search-filter-bar">
+                            <div class="search-box" style="flex: 1;">
+                                <label class="form-label">회원 검색</label>
+                                <input type="text" class="form-control" placeholder="회원명, 이메일 또는 전화번호 입력" id="search-member">
+                            </div>
+                            <div class="filter-item" style="align-self: flex-end;">
+                                <button class="btn btn-primary" onclick="searchMember()">검색</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" id="member-info-card" style="margin-top: 24px; display: none;">
+                    <div class="card-header">
+                        <h3 class="card-title">회원 정보</h3>
+                    </div>
+                    <div style="padding: 24px;">
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                            <div class="form-group">
+                                <label class="form-label">회원 ID</label>
+                                <input type="text" class="form-control" id="member-id" readonly style="background-color: #f1f5f9;">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">이름</label>
+                                <input type="text" class="form-control" id="member-name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">연락처</label>
+                                <input type="text" class="form-control" id="member-phone">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">이메일</label>
+                                <input type="email" class="form-control" id="member-email">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">회원 등급</label>
+                                <select class="form-control" id="member-grade">
+                                    <option value="normal">일반</option>
+                                    <option value="vip">VIP</option>
+                                    <option value="premium">프리미엄</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">회원 상태</label>
+                                <select class="form-control" id="member-status">
+                                    <option value="active">활성</option>
+                                    <option value="inactive">비활성</option>
+                                    <option value="dormant">휴면</option>
+                                    <option value="withdrawn">탈퇴</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">가입일</label>
+                                <input type="text" class="form-control" id="member-join-date" readonly style="background-color: #f1f5f9;">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">최종 로그인</label>
+                                <input type="text" class="form-control" id="member-last-login" readonly style="background-color: #f1f5f9;">
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label class="form-label">상태 변경 사유</label>
+                            <textarea class="form-control" id="status-reason" rows="3" placeholder="상태 변경 사유를 입력하세요"></textarea>
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <button class="btn btn-primary" onclick="saveMember()">저장</button>
+                            <button class="btn btn-outline" onclick="resetPassword()">비밀번호 초기화</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" id="no-result-card" style="margin-top: 24px; display: none;">
+                    <div style="padding: 40px; text-align: center; color: var(--admin-text-secondary);">
+                        <p>검색 결과가 없습니다. 회원명 또는 이메일로 검색해주세요.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        // Mock 데이터
+        const mockMembers = [
+            {
+                id: 'M001',
+                name: '홍길동',
+                phone: '010-1234-5678',
+                email: 'hong@example.com',
+                grade: 'normal',
+                status: 'active',
+                joinDate: '2024-01-15',
+                lastLogin: '2024-11-19 14:30:00'
+            },
+            {
+                id: 'M002',
+                name: '김철수',
+                phone: '010-2345-6789',
+                email: 'kim@example.com',
+                grade: 'vip',
+                status: 'active',
+                joinDate: '2024-02-20',
+                lastLogin: '2024-11-19 10:15:00'
+            },
+            {
+                id: 'M003',
+                name: '이영희',
+                phone: '010-3456-7890',
+                email: 'lee@example.com',
+                grade: 'premium',
+                status: 'inactive',
+                joinDate: '2024-03-10',
+                lastLogin: '2024-11-15 09:00:00'
+            }
+        ];
+        
+        function searchMember() {
+            const searchValue = document.getElementById('search-member').value.trim();
+            
+            if (!searchValue) {
+                showToast('검색어를 입력해주세요.', 'warning');
+                return;
+            }
+            
+            // 실제로는 API 호출
+            // Mock 데이터에서 검색
+            const member = mockMembers.find(m => 
+                m.name.includes(searchValue) || 
+                m.email.includes(searchValue) ||
+                m.phone.includes(searchValue)
+            );
+            
+            const memberInfoCard = document.getElementById('member-info-card');
+            const noResultCard = document.getElementById('no-result-card');
+            
+            if (member) {
+                // 회원 정보 표시
+                document.getElementById('member-id').value = member.id;
+                document.getElementById('member-name').value = member.name;
+                document.getElementById('member-phone').value = member.phone;
+                document.getElementById('member-email').value = member.email;
+                document.getElementById('member-grade').value = member.grade;
+                document.getElementById('member-status').value = member.status;
+                document.getElementById('member-join-date').value = member.joinDate;
+                document.getElementById('member-last-login').value = member.lastLogin;
+                document.getElementById('status-reason').value = '';
+                
+                memberInfoCard.style.display = 'block';
+                noResultCard.style.display = 'none';
+                
+                // 스크롤을 회원 정보 카드로 이동
+                memberInfoCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                showToast('회원 정보를 불러왔습니다.', 'success');
+            } else {
+                // 검색 결과 없음
+                memberInfoCard.style.display = 'none';
+                noResultCard.style.display = 'block';
+                
+                showToast('검색 결과가 없습니다.', 'warning');
+            }
+        }
+        
+        function saveMember() {
+            const memberId = document.getElementById('member-id').value;
+            const statusReason = document.getElementById('status-reason').value;
+            const status = document.getElementById('member-status').value;
+            
+            if (!memberId) {
+                showToast('회원을 검색해주세요.', 'warning');
+                return;
+            }
+            
+            // 상태 변경 시 사유 필수
+            if (statusReason.trim() === '') {
+                showToast('상태 변경 사유를 입력해주세요.', 'warning');
+                return;
+            }
+            
+            // 실제로는 API 호출
+            showToast('회원 정보가 수정되었습니다.', 'success');
+        }
+        
+        function resetPassword() {
+            const memberId = document.getElementById('member-id').value;
+            
+            if (!memberId) {
+                showToast('회원을 검색해주세요.', 'warning');
+                return;
+            }
+            
+            if (confirm('비밀번호를 초기화하시겠습니까?')) {
+                // 실제로는 API 호출
+                showToast('비밀번호가 초기화되었습니다.', 'success');
+            }
+        }
+        
+        // Enter 키로 검색
+        document.getElementById('search-member').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchMember();
+            }
+        });
+    </script>
+</body>
+</html>

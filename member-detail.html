@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 상세 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('member-list'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('회원 상세'));
+            </script>
+            
+            <div class="admin-content">
+                <!-- 탭 -->
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('basic')">기본정보</button>
+                    <button class="tab" onclick="switchTab('sender')">발신번호</button>
+                    <button class="tab" onclick="switchTab('payment')">결제내역</button>
+                    <button class="tab" onclick="switchTab('send-history')">발송이력</button>
+                    <button class="tab" onclick="switchTab('document')">제출서류</button>
+                </div>
+                
+                <!-- 기본정보 탭 -->
+                <div id="tab-basic" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">기본 정보</h3>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                            <div class="form-group">
+                                <label class="form-label">회원 ID</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">M001</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">이름</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">홍길동</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">이메일</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">hong@example.com</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">연락처</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">010-1234-5678</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">회원유형</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">개인</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">회원 등급</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">
+                                    <span class="badge badge-info">일반</span>
+                                    <button class="btn btn-sm btn-outline" style="margin-left: 8px;" onclick="changeGrade()">등급 변경</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">가입일</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">2024-01-15</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">최종 로그인</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">2024-11-19 14:30:00</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">상태</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">
+                                    <span class="badge badge-success">활성</span>
+                                    <button class="btn btn-sm btn-outline" style="margin-left: 8px;" onclick="changeStatus()">상태 변경</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">주소록 수</label>
+                                <div class="form-control" style="background-color: #f1f5f9;">5개</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 발신번호 탭 -->
+                <div id="tab-sender" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">발신번호 등록 현황</h3>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>발신번호</th>
+                                        <th>인증 상태</th>
+                                        <th>등록일</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>010-1234-5678</td>
+                                        <td><span class="badge badge-success">승인</span></td>
+                                        <td>2024-01-20</td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm">상세보기</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteSenderNumber('010-1234-5678')">삭제</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 결제내역 탭 -->
+                <div id="tab-payment" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">결제 내역</h3>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>결제일시</th>
+                                        <th>금액</th>
+                                        <th>결제수단</th>
+                                        <th>상태</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2024-11-19 10:30:00</td>
+                                        <td>₩100,000</td>
+                                        <td>신용카드</td>
+                                        <td><span class="badge badge-success">완료</span></td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm">상세보기</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 발송이력 탭 -->
+                <div id="tab-send-history" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">발송 이력</h3>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>발송일시</th>
+                                        <th>메시지 유형</th>
+                                        <th>발송 건수</th>
+                                        <th>성공</th>
+                                        <th>실패</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2024-11-19 14:30:00</td>
+                                        <td><span class="badge badge-info">알림톡</span></td>
+                                        <td>1,000</td>
+                                        <td>995</td>
+                                        <td>5</td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm" onclick="location.href='send-detail.html?id=1'">상세보기</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 제출서류 탭 -->
+                <div id="tab-document" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">제출 서류</h3>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>서류 유형</th>
+                                        <th>제출일</th>
+                                        <th>승인 상태</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>신분증</td>
+                                        <td>2024-01-15</td>
+                                        <td><span class="badge badge-success">승인</span></td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm" onclick="location.href='member-document-list.html'">조회</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function switchTab(tabName) {
+            // 모든 탭 숨기기
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 선택한 탭 보이기
+            document.getElementById(`tab-${tabName}`).style.display = 'block';
+            event.target.classList.add('active');
+        }
+        
+        function changeGrade() {
+            const currentGrade = '일반';
+            const newGrade = prompt('회원 등급을 변경하세요 (일반/VIP):', currentGrade);
+            if (newGrade && (newGrade === '일반' || newGrade === 'VIP')) {
+                if (confirm(`회원 등급을 ${newGrade}로 변경하시겠습니까?`)) {
+                    showToast('회원 등급이 변경되었습니다.', 'success');
+                }
+            }
+        }
+        
+        function changeStatus() {
+            const statuses = ['활성', '비활성', '휴면', '탈퇴'];
+            const currentStatus = '활성';
+            const newStatus = prompt('회원 상태를 변경하세요 (활성/비활성/휴면/탈퇴):', currentStatus);
+            if (newStatus && statuses.includes(newStatus)) {
+                if (confirm(`회원 상태를 ${newStatus}로 변경하시겠습니까?`)) {
+                    showToast('회원 상태가 변경되었습니다.', 'success');
+                }
+            }
+        }
+        
+        function deleteSenderNumber(number) {
+            if (confirm(`발신번호 ${number}를 삭제하시겠습니까?`)) {
+                showToast('발신번호가 삭제되었습니다.', 'success');
+            }
+        }
+        
+        // URL에서 ID 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const memberId = urlParams.get('id');
+        
+        if (memberId) {
+            // 회원 상세 정보 로드
+            console.log('Loading member detail for ID:', memberId);
+        }
+    </script>
+    <style>
+        .tab-content {
+            margin-top: 24px;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 접근 로그 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('access-log-admin'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('관리자 접근 로그'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="card">
+                    <div class="search-filter-bar">
+                        <div class="filter-item">
+                            <label class="form-label">기간</label>
+                            <input type="date" class="form-control" id="date-from">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">~</label>
+                            <input type="date" class="form-control" id="date-to">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">접속 IP</label>
+                            <input type="text" class="form-control" placeholder="IP 주소" id="search-ip">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">결과</label>
+                            <select class="form-control" id="filter-result">
+                                <option value="">전체</option>
+                                <option value="success">성공</option>
+                                <option value="failed">실패</option>
+                            </select>
+                        </div>
+                        <div class="filter-item" style="align-self: flex-end;">
+                            <button class="btn btn-primary" onclick="searchLogs()">조회</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">관리자 접근 이력</h3>
+                        <div class="card-description">관리자 계정의 로그인 이력 및 접속 정보 조회</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>접속일시</th>
+                                    <th>관리자명</th>
+                                    <th>접속 IP</th>
+                                    <th>결과</th>
+                                    <th>사유</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2024-11-19 14:30:00</td>
+                                    <td>관리자</td>
+                                    <td>192.168.1.100</td>
+                                    <td><span class="badge badge-success">성공</span></td>
+                                    <td>-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function searchLogs() {
+            showToast('조회 완료', 'success');
+        }
+    </script>
+</body>
+</html>

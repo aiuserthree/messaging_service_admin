@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>발신번호 인증 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('sender-approval'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('발신번호 인증'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">인증 요청 관리</h3>
+                        <div class="card-description">회원의 발신번호 인증 요청 목록 조회 및 첨부 서류 확인</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>신청일시</th>
+                                    <th>회원명</th>
+                                    <th>발신번호</th>
+                                    <th>서류 상태</th>
+                                    <th>인증 상태</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2024-11-19 10:30:00</td>
+                                    <td>홍길동</td>
+                                    <td>010-1234-5678</td>
+                                    <td><span class="badge badge-success">제출 완료</span></td>
+                                    <td><span class="badge badge-warning">승인 대기</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="reviewApproval(1)">검토</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 승인/반려 모달 -->
+    <div id="approval-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">발신번호 인증 처리</h3>
+                <button class="modal-close" onclick="closeModal('approval-modal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">처리 선택</label>
+                <select class="form-control" id="approval-action">
+                    <option value="approve">승인</option>
+                    <option value="reject">반려</option>
+                    <option value="request-supplement">보완 요청</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">사유</label>
+                <textarea class="form-control" id="approval-reason" rows="4" placeholder="처리 사유를 입력하세요"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('approval-modal')">취소</button>
+                <button class="btn btn-primary" onclick="processApproval()">처리</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function reviewApproval(id) {
+            openModal('approval-modal');
+        }
+        
+        function processApproval() {
+            const action = document.getElementById('approval-action').value;
+            const reason = document.getElementById('approval-reason').value;
+            
+            if (!reason) {
+                showToast('사유를 입력해주세요.', 'error');
+                return;
+            }
+            
+            showToast('처리가 완료되었습니다.', 'success');
+            closeModal('approval-modal');
+        }
+    </script>
+</body>
+</html>

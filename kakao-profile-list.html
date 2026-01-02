@@ -9,109 +9,14 @@
 <body>
     <div class="admin-container">
         <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <h1>Tokbell Admin</h1>
-                <div class="subtitle">관리자 시스템</div>
-            </div>
-            <nav class="sidebar-menu">
-                <div class="menu-section">
-                    <div class="menu-section-title">메인</div>
-                    <a href="index.html" class="menu-item">
-                        <span>대시보드</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">사용자 관리</div>
-                    <a href="user-list.html" class="menu-item">
-                        <span>회원 관리</span>
-                    </a>
-                    <a href="user-permission.html" class="menu-item">
-                        <span>권한 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">발신번호 관리</div>
-                    <a href="caller-number-pending.html" class="menu-item">
-                        <span>승인 대기</span>
-                    </a>
-                    <a href="caller-number-approved.html" class="menu-item">
-                        <span>승인 완료</span>
-                    </a>
-                    <a href="caller-number-list.html" class="menu-item">
-                        <span>발신번호 목록</span>
-                    </a>
-                    <a href="kakao-profile-list.html" class="menu-item active">
-                        <span>발신프로필 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">템플릿 관리</div>
-                    <a href="template-alimtalk-review.html" class="menu-item">
-                        <span>알림톡 템플릿 검수</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">발송 관리</div>
-                    <a href="send-history.html" class="menu-item">
-                        <span>발송 내역 모니터링</span>
-                    </a>
-                    <a href="send-statistics.html" class="menu-item">
-                        <span>발송 통계</span>
-                    </a>
-                    <a href="send-policy.html" class="menu-item">
-                        <span>발송 정책 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">결제 관리</div>
-                    <a href="payment-charge-list.html" class="menu-item">
-                        <span>충전 내역</span>
-                    </a>
-                    <a href="payment-deposit.html" class="menu-item">
-                        <span>입금 확인</span>
-                    </a>
-                    <a href="payment-pricing.html" class="menu-item">
-                        <span>요금 설정</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">기타 관리</div>
-                    <a href="consultation-list.html" class="menu-item">
-                        <span>상담 신청 관리</span>
-                    </a>
-                    <a href="inquiry-list.html" class="menu-item">
-                        <span>문의 관리</span>
-                    </a>
-                    <a href="notice-list.html" class="menu-item">
-                        <span>공지사항 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">시스템</div>
-                    <a href="system-settings.html" class="menu-item">
-                        <span>시스템 설정</span>
-                    </a>
-                    <a href="statistics-report.html" class="menu-item">
-                        <span>통계 및 리포트</span>
-                    </a>
-                    <a href="security-audit.html" class="menu-item">
-                        <span>보안 및 감사</span>
-                    </a>
-                </div>
-            </nav>
+            <script src="js/sidebar.js"></script>
+            <script>document.write(getSidebarHTML('kakao-profile-list'));</script>
         </aside>
         
         <main class="admin-main">
             <header class="admin-header">
                 <div class="header-left">
-                    <h2 class="page-title">발신프로필 관리</h2>
+                    <h2 class="page-title">카카오톡 발신 프로필 목록</h2>
                 </div>
                 <div class="header-right">
                     <div class="admin-user-info">
@@ -128,87 +33,48 @@
             <div class="admin-content">
                 <div class="search-filter-bar">
                     <div class="search-box">
-                        <input type="text" class="form-control" placeholder="발신프로필 ID 또는 회원명 검색">
+                        <input type="text" class="form-control" id="search-input" placeholder="카카오톡 발신 프로필 ID 또는 채널명 검색" onkeydown="if(event.key==='Enter') searchProfiles()">
                     </div>
                     <div class="filter-group">
                         <div class="filter-item">
-                            <select class="form-control">
+                            <select class="form-control" id="status-filter">
                                 <option value="">상태 (전체)</option>
-                                <option value="REGISTERED">등록</option>
-                                <option value="REVIEWING">검수중</option>
-                                <option value="ACTIVE">활성</option>
-                                <option value="SUSPENDED">중단</option>
-                                <option value="BLOCKED">차단</option>
+                                <option value="활성">활성</option>
+                                <option value="검수중">검수중</option>
+                                <option value="중단">중단</option>
+                                <option value="차단">차단</option>
                             </select>
                         </div>
                         <div class="filter-item">
-                            <input type="date" class="form-control">
+                            <input type="date" class="form-control" id="start-date">
                         </div>
                         <div class="filter-item">
-                            <input type="date" class="form-control">
+                            <input type="date" class="form-control" id="end-date">
                         </div>
-                        <button class="btn btn-primary">검색</button>
+                        <button class="btn btn-primary" onclick="searchProfiles()">검색</button>
                     </div>
                 </div>
                 
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">발신프로필 목록</h3>
-                        <div class="card-description">총 234건</div>
+                        <h3 class="card-title">카카오톡 발신 프로필 목록</h3>
+                        <div class="card-description">총 <span id="total-count">3</span>건</div>
                     </div>
                     <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>발신프로필 ID</th>
-                                    <th>회원 정보</th>
+                                    <th>NO</th>
+                                    <th>카카오톡 발신 프로필 ID</th>
                                     <th>카카오톡 채널명</th>
                                     <th>상태</th>
                                     <th>브랜드메시지</th>
-                                    <th>담당자 휴대폰</th>
-                                    <th>카테고리</th>
                                     <th>등록일</th>
-                                    <th>템플릿 개수</th>
                                     <th>관리</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>@hongchannel</td>
-                                    <td>
-                                        <div>홍길동</div>
-                                        <div style="font-size: 12px; color: #64748b;">hong@example.com</div>
-                                    </td>
-                                    <td>홍길동 쇼핑몰</td>
-                                    <td><span class="badge badge-success">활성</span></td>
-                                    <td><span class="badge badge-success">Y</span></td>
-                                    <td>010-****-5678</td>
-                                    <td>쇼핑몰, 패션</td>
-                                    <td>2024-01-15</td>
-                                    <td>15개</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openProfileDetailModal('@hongchannel', '활성')">관리</button>
-                                        <button class="btn btn-secondary btn-sm" style="margin-left: 4px;" onclick="handleSyncProfile('@hongchannel', this)">동기화</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>@kimchannel</td>
-                                    <td>
-                                        <div>김철수</div>
-                                        <div style="font-size: 12px; color: #64748b;">kim@example.com</div>
-                                    </td>
-                                    <td>김철수 카페</td>
-                                    <td><span class="badge badge-warning">검수중</span></td>
-                                    <td><span class="badge badge-secondary">N</span></td>
-                                    <td>010-****-4321</td>
-                                    <td>음식점</td>
-                                    <td>2024-02-20</td>
-                                    <td>3개</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openProfileDetailModal('@kimchannel', '검수중')">관리</button>
-                                        <button class="btn btn-secondary btn-sm" style="margin-left: 4px;" onclick="handleSyncProfile('@kimchannel', this)">동기화</button>
-                                    </td>
-                                </tr>
+                            <tbody id="profile-list-tbody">
+                                <!-- 데이터가 동적으로 추가됨 -->
                             </tbody>
                         </table>
                     </div>
@@ -325,57 +191,133 @@
     
     <script src="js/admin-common.js"></script>
     <script>
+        // Mock 데이터 (운영정책서 참고: 사업자 회원만 가능, 플러스친구 생성 및 비즈니스 인증 필요)
+        const mockProfiles = [
+            {
+                id: 1,
+                profileId: '@조도람',
+                channelName: '조도람',
+                status: '활성',
+                brandMessage: 'Y',
+                registerDate: '2025-11-18'
+            },
+            {
+                id: 2,
+                profileId: '@테스트',
+                channelName: '테스트 채널',
+                status: '검수중',
+                brandMessage: 'N',
+                registerDate: '2025-11-15'
+            },
+            {
+                id: 3,
+                profileId: '@마케팅팀',
+                channelName: '마케팅팀',
+                status: '활성',
+                brandMessage: 'Y',
+                registerDate: '2025-11-10'
+            }
+        ];
+        
         let currentProfileId = null;
         let currentProfileStatus = null;
         
-        // 상세 모달 열기
-        function openProfileDetailModal(profileId, status) {
-            currentProfileId = profileId;
-            currentProfileStatus = status;
+        // 프로필 목록 로드
+        function loadProfiles() {
+            const tbody = document.getElementById('profile-list-tbody');
+            if (!tbody) return;
             
-            // 모달의 발신프로필 ID 업데이트
-            const profileIdElement = document.querySelector('#profileDetailModal .form-control');
-            if (profileIdElement) {
-                profileIdElement.textContent = profileId;
+            tbody.innerHTML = mockProfiles.map((profile, index) => {
+                const statusBadge = profile.status === '활성' 
+                    ? '<span class="badge badge-success">활성</span>'
+                    : '<span class="badge badge-warning">검수중</span>';
+                
+                const brandMessageCell = profile.brandMessage === 'Y'
+                    ? '<span>Y</span>'
+                    : `<span style="margin-right: 8px;">N</span><button class="btn btn-info btn-sm" onclick="handleBrandMessageApply('${profile.profileId}')">신청</button>`;
+                
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${profile.profileId}</td>
+                        <td>${profile.channelName}</td>
+                        <td>${statusBadge}</td>
+                        <td>${brandMessageCell}</td>
+                        <td>${profile.registerDate}</td>
+                        <td>
+                            <button class="btn btn-outline btn-sm" onclick="viewProfileDetail('${profile.profileId}')">상세</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // 브랜드메시지 신청 처리
+        function handleBrandMessageApply(profileId) {
+            confirmAction(`브랜드메시지 신청을 처리하시겠습니까?\n\n프로필 ID: ${profileId}`, function() {
+                // API 호출 시뮬레이션
+                showToast('브랜드메시지 신청이 완료되었습니다.', 'success');
+                
+                // 목록 새로고침
+                loadProfiles();
+            });
+        }
+        
+        // 상세보기
+        function viewProfileDetail(profileId) {
+            const profile = mockProfiles.find(p => p.profileId === profileId);
+            if (!profile) {
+                showToast('프로필을 찾을 수 없습니다.', 'error');
+                return;
             }
             
-            // 상태에 따라 버튼 설정
-            const suspendButton = document.getElementById('profileSuspendBtn');
-            if (suspendButton) {
-                if (status === '중단' || status === '차단') {
-                    suspendButton.textContent = '해제';
-                    suspendButton.className = 'btn btn-success';
-                    suspendButton.onclick = function() {
-                        handleReleaseProfile();
-                    };
-                } else {
-                    suspendButton.textContent = '정지';
-                    suspendButton.className = 'btn btn-warning';
-                    suspendButton.onclick = function() {
-                        handleSuspendProfile();
-                    };
-                }
+            currentProfileId = profileId;
+            currentProfileStatus = profile.status;
+            
+            // 모달 데이터 업데이트
+            const modal = document.getElementById('profileDetailModal');
+            const formControls = modal.querySelectorAll('.form-control');
+            if (formControls.length > 0) {
+                formControls[0].textContent = profile.profileId;
+            }
+            if (formControls.length > 1) {
+                formControls[1].textContent = profile.channelName;
+            }
+            if (formControls.length > 3) {
+                formControls[3].textContent = profile.registerDate;
             }
             
             // 상태 배지 업데이트
-            const statusBadge = document.querySelector('#profileDetailModal .badge-success, #profileDetailModal .badge-warning, #profileDetailModal .badge-danger');
+            const statusBadge = modal.querySelector('.badge-success, .badge-warning, .badge-danger');
             if (statusBadge) {
-                if (status === '활성') {
+                if (profile.status === '활성') {
                     statusBadge.textContent = '활성';
                     statusBadge.className = 'badge badge-success';
-                } else if (status === '검수중') {
+                } else if (profile.status === '검수중') {
                     statusBadge.textContent = '검수중';
                     statusBadge.className = 'badge badge-warning';
-                } else if (status === '중단') {
-                    statusBadge.textContent = '중단';
-                    statusBadge.className = 'badge badge-warning';
-                } else if (status === '차단') {
-                    statusBadge.textContent = '차단';
-                    statusBadge.className = 'badge badge-danger';
+                }
+            }
+            
+            // 브랜드메시지 배지 업데이트
+            const brandBadge = modal.querySelectorAll('.badge-success, .badge-secondary');
+            if (brandBadge.length > 1) {
+                const brandStatusBadge = brandBadge[1];
+                if (profile.brandMessage === 'Y') {
+                    brandStatusBadge.textContent = 'Y';
+                    brandStatusBadge.className = 'badge badge-success';
+                } else {
+                    brandStatusBadge.textContent = 'N';
+                    brandStatusBadge.className = 'badge badge-secondary';
                 }
             }
             
             openModal('profileDetailModal');
+        }
+        
+        // 기존 함수명 유지 (하위 호환성)
+        function openProfileDetailModal(profileId, status) {
+            viewProfileDetail(profileId);
         }
         
         // 테이블에서 동기화 버튼 클릭
@@ -565,7 +507,64 @@
             window.open(`template-alimtalk-review.html?profileId=${currentProfileId}`, '_blank');
         }
         
-        createPagination(1, 10, 'pagination');
+        // 검색 기능
+        function searchProfiles() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const statusFilter = document.getElementById('status-filter').value;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            
+            let filteredProfiles = mockProfiles.filter(profile => {
+                const matchesSearch = !searchTerm || 
+                    profile.profileId.toLowerCase().includes(searchTerm) ||
+                    profile.channelName.toLowerCase().includes(searchTerm);
+                
+                const matchesStatus = !statusFilter || profile.status === statusFilter;
+                
+                const matchesDate = (!startDate || profile.registerDate >= startDate) &&
+                                   (!endDate || profile.registerDate <= endDate);
+                
+                return matchesSearch && matchesStatus && matchesDate;
+            });
+            
+            const tbody = document.getElementById('profile-list-tbody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = filteredProfiles.map((profile, index) => {
+                const statusBadge = profile.status === '활성' 
+                    ? '<span class="badge badge-success">활성</span>'
+                    : '<span class="badge badge-warning">검수중</span>';
+                
+                const brandMessageCell = profile.brandMessage === 'Y'
+                    ? '<span>Y</span>'
+                    : `<span style="margin-right: 8px;">N</span><button class="btn btn-info btn-sm" onclick="handleBrandMessageApply('${profile.profileId}')">신청</button>`;
+                
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${profile.profileId}</td>
+                        <td>${profile.channelName}</td>
+                        <td>${statusBadge}</td>
+                        <td>${brandMessageCell}</td>
+                        <td>${profile.registerDate}</td>
+                        <td>
+                            <button class="btn btn-outline btn-sm" onclick="viewProfileDetail('${profile.profileId}')">상세</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            // 검색 결과가 없을 때
+            if (filteredProfiles.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #64748b;">검색 결과가 없습니다.</td></tr>';
+            }
+        }
+        
+        // 페이지 로드 시 초기 데이터 표시
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProfiles();
+            createPagination(1, 10, 'pagination');
+        });
     </script>
 </body>
 </html>

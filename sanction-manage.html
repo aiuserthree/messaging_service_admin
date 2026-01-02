@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>계정 제재 관리 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('sanction-manage'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('계정 제재 관리'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">제재 처리</h3>
+                        <div class="card-description">계정 정지, 발송 중단, 경고 등 제재 처리</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">회원 선택</label>
+                        <input type="text" class="form-control" placeholder="회원명 또는 이메일" id="member-select">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">제재 유형</label>
+                        <select class="form-control" id="sanction-type">
+                            <option value="warning">경고</option>
+                            <option value="temporary-ban">일시정지</option>
+                            <option value="permanent-ban">영구정지</option>
+                            <option value="send-restriction">발송 제한</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">제재 사유</label>
+                        <textarea class="form-control" id="sanction-reason" rows="4" placeholder="제재 사유를 입력하세요"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">제재 기간 (일시정지인 경우)</label>
+                        <input type="number" class="form-control" id="sanction-period" placeholder="일수" min="1">
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <button class="btn btn-danger" onclick="processSanction()">제재 처리</button>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">제재 이력</h3>
+                        <div class="card-description">제재 처리 이력 조회 및 해제</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>처리일시</th>
+                                    <th>회원명</th>
+                                    <th>제재 유형</th>
+                                    <th>제재 사유</th>
+                                    <th>상태</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2024-11-19 15:00:00</td>
+                                    <td>홍길동</td>
+                                    <td>일시정지</td>
+                                    <td>스팸 신고 누적</td>
+                                    <td><span class="badge badge-warning">제재중</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="releaseSanction(1)">해제</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function processSanction() {
+            const reason = document.getElementById('sanction-reason').value;
+            if (!reason) {
+                showToast('제재 사유를 입력해주세요.', 'error');
+                return;
+            }
+            
+            if (confirm('정말 제재를 처리하시겠습니까?')) {
+                showToast('제재가 처리되었습니다. 회원에게 알림이 발송되었습니다.', 'success');
+            }
+        }
+        
+        function releaseSanction(id) {
+            if (confirm('제재를 해제하시겠습니까?')) {
+                showToast('제재가 해제되었습니다.', 'success');
+            }
+        }
+    </script>
+</body>
+</html>

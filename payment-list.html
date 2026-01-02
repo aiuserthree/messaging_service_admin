@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제 관리 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('payment-list'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('결제 관리'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="card">
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <label class="form-label">회원 검색</label>
+                            <input type="text" class="form-control" placeholder="회원명, 이메일로 검색" id="search-member">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">기간</label>
+                            <input type="date" class="form-control" id="date-from">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">~</label>
+                            <input type="date" class="form-control" id="date-to">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">결제 방법</label>
+                            <select class="form-control" id="filter-method">
+                                <option value="">전체</option>
+                                <option value="card">신용카드</option>
+                                <option value="bank">계좌이체</option>
+                                <option value="virtual">가상계좌</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">결제 상태</label>
+                            <select class="form-control" id="filter-status">
+                                <option value="">전체</option>
+                                <option value="success">성공</option>
+                                <option value="failed">실패</option>
+                                <option value="cancelled">취소</option>
+                            </select>
+                        </div>
+                        <div class="filter-item" style="align-self: flex-end;">
+                            <button class="btn btn-primary" onclick="searchPayments()">조회</button>
+                            <button class="btn btn-outline" onclick="exportExcel()">엑셀 다운로드</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">결제 내역</h3>
+                        <div class="card-description">회원별 결제 내역 전체 조회</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>결제일시</th>
+                                    <th>회원명</th>
+                                    <th>금액</th>
+                                    <th>결제수단</th>
+                                    <th>상태</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2024-11-19 10:30:00</td>
+                                    <td>홍길동</td>
+                                    <td>₩100,000</td>
+                                    <td>신용카드</td>
+                                    <td><span class="badge badge-success">성공</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="viewDetail(1)">상세보기</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 결제 상세 모달 -->
+    <div id="payment-detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">결제 상세 정보</h3>
+                <button class="modal-close" onclick="closeModal('payment-detail-modal')">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">결제 정보</h3>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">결제 ID</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">PAY-20241119-001</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">결제일시</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">2024-11-19 10:30:00</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">회원명</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">홍길동</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">금액</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">₩100,000</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">결제수단</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">신용카드</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">상태</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">
+                                <span class="badge badge-success">성공</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('payment-detail-modal')">닫기</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function searchPayments() {
+            showToast('검색 완료', 'success');
+        }
+        
+        function viewDetail(id) {
+            // 모달에 결제 정보 로드
+            openModal('payment-detail-modal');
+        }
+        
+        function exportExcel() {
+            showToast('엑셀 다운로드 기능은 준비 중입니다.', 'info');
+        }
+    </script>
+</body>
+</html>

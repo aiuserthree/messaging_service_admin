@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>선거문자 관리 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('election-manage'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('선거문자 관리'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('member')">선거회원 관리</button>
+                    <button class="tab" onclick="switchTab('send')">선거문자 발송</button>
+                    <button class="tab" onclick="switchTab('document')">서류 제공</button>
+                </div>
+                
+                <div id="tab-member" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">선거회원 목록</h3>
+                            <div class="card-description">선거회원 가입 및 관리</div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>회원명</th>
+                                        <th>이메일</th>
+                                        <th>후보자명</th>
+                                        <th>선거구</th>
+                                        <th>발신번호</th>
+                                        <th>가입일</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>홍길동</td>
+                                        <td>hong@example.com</td>
+                                        <td>홍길동</td>
+                                        <td>서울시 강남구</td>
+                                        <td>010-1234-5678</td>
+                                        <td>2024-11-19</td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm">상세보기</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="tab-send" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">선거문자 발송 내역</h3>
+                            <div class="card-description">선거회원의 선거문자 발송 내역 조회</div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>발송일시</th>
+                                        <th>회원명</th>
+                                        <th>발송 건수</th>
+                                        <th>성공</th>
+                                        <th>실패</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2024-11-19 10:00:00</td>
+                                        <td>홍길동</td>
+                                        <td>10,000</td>
+                                        <td>9,950</td>
+                                        <td>50</td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm">상세보기</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="tab-document" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">서류 제공 관리</h3>
+                            <div class="card-description">발송 결과 리포트, 세금계산서, 080 수신 거부 관리 내역, 입금 확인증 제공</div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>요청일시</th>
+                                        <th>회원명</th>
+                                        <th>서류 유형</th>
+                                        <th>요청 기간</th>
+                                        <th>상태</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2024-11-19 14:00:00</td>
+                                        <td>홍길동</td>
+                                        <td>발송 결과 리포트</td>
+                                        <td>2024-11-01 ~ 2024-11-19</td>
+                                        <td><span class="badge badge-success">제공 완료</span></td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm">다운로드</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(`tab-${tabName}`).style.display = 'block';
+            event.target.classList.add('active');
+        }
+    </script>
+    <style>
+        .tab-content {
+            margin-top: 24px;
+        }
+    </style>
+</body>
+</html>

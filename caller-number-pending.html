@@ -8,125 +8,15 @@
 </head>
 <body>
     <div class="admin-container">
-        <!-- 사이드바 -->
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <h1>Tokbell Admin</h1>
-                <div class="subtitle">관리자 시스템</div>
-            </div>
-            <nav class="sidebar-menu">
-                <div class="menu-section">
-                    <div class="menu-section-title">메인</div>
-                    <a href="index.html" class="menu-item">
-                        <span>대시보드</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">사용자 관리</div>
-                    <a href="user-list.html" class="menu-item">
-                        <span>회원 관리</span>
-                    </a>
-                    <a href="user-permission.html" class="menu-item">
-                        <span>권한 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">발신번호 관리</div>
-                    <a href="caller-number-pending.html" class="menu-item active">
-                        <span>승인 대기</span>
-                    </a>
-                    <a href="caller-number-approved.html" class="menu-item">
-                        <span>승인 완료</span>
-                    </a>
-                    <a href="caller-number-list.html" class="menu-item">
-                        <span>발신번호 목록</span>
-                    </a>
-                    <a href="kakao-profile-list.html" class="menu-item">
-                        <span>발신프로필 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">템플릿 관리</div>
-                    <a href="template-alimtalk-review.html" class="menu-item">
-                        <span>알림톡 템플릿 검수</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">발송 관리</div>
-                    <a href="send-history.html" class="menu-item">
-                        <span>발송 내역 모니터링</span>
-                    </a>
-                    <a href="send-statistics.html" class="menu-item">
-                        <span>발송 통계</span>
-                    </a>
-                    <a href="send-policy.html" class="menu-item">
-                        <span>발송 정책 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">결제 관리</div>
-                    <a href="payment-charge-list.html" class="menu-item">
-                        <span>충전 내역</span>
-                    </a>
-                    <a href="payment-deposit.html" class="menu-item">
-                        <span>입금 확인</span>
-                    </a>
-                    <a href="payment-pricing.html" class="menu-item">
-                        <span>요금 설정</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">기타 관리</div>
-                    <a href="consultation-list.html" class="menu-item">
-                        <span>상담 신청 관리</span>
-                    </a>
-                    <a href="inquiry-list.html" class="menu-item">
-                        <span>문의 관리</span>
-                    </a>
-                    <a href="notice-list.html" class="menu-item">
-                        <span>공지사항 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">시스템</div>
-                    <a href="system-settings.html" class="menu-item">
-                        <span>시스템 설정</span>
-                    </a>
-                    <a href="statistics-report.html" class="menu-item">
-                        <span>통계 및 리포트</span>
-                    </a>
-                    <a href="security-audit.html" class="menu-item">
-                        <span>보안 및 감사</span>
-                    </a>
-                </div>
-            </nav>
-        </aside>
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('caller-number-pending'));
+        </script>
         
-        <!-- 메인 컨텐츠 -->
         <main class="admin-main">
-            <!-- 헤더 -->
-            <header class="admin-header">
-                <div class="header-left">
-                    <h2 class="page-title">발신번호 승인 대기</h2>
-                </div>
-                <div class="header-right">
-                    <div class="admin-user-info">
-                        <div class="user-avatar">관</div>
-                        <div>
-                            <div class="user-name">관리자</div>
-                            <div class="user-role">심사 관리자</div>
-                        </div>
-                    </div>
-                    <button class="btn btn-outline btn-sm">로그아웃</button>
-                </div>
-            </header>
+            <script>
+                document.write(getHeaderHTML('발신번호 승인 대기'));
+            </script>
             
             <!-- 컨텐츠 -->
             <div class="admin-content">
@@ -271,119 +161,140 @@
     <div class="modal" id="reviewModal">
         <div class="modal-content" style="max-width: 1200px; max-height: 90vh;">
             <div class="modal-header">
-                <h3 class="modal-title">발신번호 상세 검토</h3>
+                <h3 class="modal-title">발신번호 인증 검토</h3>
                 <button class="modal-close" onclick="closeModal('reviewModal')">&times;</button>
             </div>
-            <div style="max-height: 70vh; overflow-y: auto;">
+            <div style="max-height: 70vh; overflow-y: auto; padding: 24px;">
                 <!-- 신청 정보 -->
-                <div class="card" style="border: none; padding: 0; margin-bottom: 24px;">
-                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">신청 정보</h4>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">신청 정보</h3>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
                         <div class="form-group">
                             <label class="form-label">회원명</label>
-                            <div class="form-control" style="background-color: #f1f5f9;">홍길동</div>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-member-name">-</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">회원 유형</label>
-                            <div class="form-control" style="background-color: #f1f5f9;">개인</div>
+                            <div id="modal-member-type">-</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">이메일</label>
-                            <div class="form-control" style="background-color: #f1f5f9;">hong@example.com</div>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-member-email">-</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">전화번호</label>
-                            <div class="form-control" style="background-color: #f1f5f9;">010-****-5678</div>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-member-phone">-</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">발신번호</label>
-                            <div class="form-control" style="background-color: #f1f5f9; font-weight: 600;">010-1234-5678</div>
+                            <div class="form-control" style="background-color: #f1f5f9; font-weight: 600;" id="modal-caller-number">-</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">통신사</label>
-                            <div class="form-control" style="background-color: #f1f5f9;">SKT</div>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-carrier">-</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">명의자</label>
-                            <div class="form-control" style="background-color: #f1f5f9;">홍길동</div>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-owner-name">-</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">명의 구분</label>
-                            <div class="form-control" style="background-color: #f1f5f9;">본인</div>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-owner-type">-</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">발신번호 용도</label>
-                            <div class="form-control" style="background-color: #f1f5f9;">마케팅팀</div>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-caller-purpose">-</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">통합용 사용 여부</label>
-                            <div class="form-control" style="background-color: #f1f5f9;">예</div>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-unified-use">-</div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- 본인인증 정보 -->
-                <div class="card" style="border: none; padding: 0; margin-bottom: 24px;">
-                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">본인인증 정보</h4>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">본인인증 정보</h3>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
                         <div class="form-group">
                             <label class="form-label">인증 완료 여부</label>
                             <div><span class="badge badge-success">완료</span></div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">인증 일시</label>
-                            <div class="form-control" style="background-color: #f1f5f9;">2024-11-19 10:25:00</div>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-auth-date">-</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">인증 수단</label>
-                            <div class="form-control" style="background-color: #f1f5f9;">PASS</div>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-auth-method">-</div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- 서류 정보 -->
-                <div class="card" style="border: none; padding: 0; margin-bottom: 24px;">
-                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">서류 정보</h4>
-                    <div style="display: flex; flex-direction: column; gap: 12px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background-color: #f1f5f9; border-radius: 8px;">
-                            <div>
-                                <div style="font-weight: 600;">통신서비스 이용증명원</div>
-                                <div style="font-size: 12px; color: #64748b;">파일명: certificate.pdf (2.3MB)</div>
-                                <div style="font-size: 12px; color: #64748b;">업로드일: 2024-11-19 10:28:00</div>
+                <!-- 첨부 서류 -->
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">첨부 서류</h3>
                             </div>
-                            <div style="display: flex; gap: 8px;">
-                                <button class="btn btn-outline btn-sm">다운로드</button>
-                                <button class="btn btn-primary btn-sm">미리보기</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 검토 메모 -->
-                <div class="card" style="border: none; padding: 0; margin-bottom: 24px;">
-                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">검토 메모</h4>
-                    <div class="form-group">
-                        <textarea class="form-control" rows="4" placeholder="검토 메모를 입력하세요"></textarea>
-                    </div>
-                    <div style="margin-top: 16px;">
-                        <h5 style="margin-bottom: 12px;">검토 이력</h5>
+                    
+                    <!-- 서류 확인 체크리스트 -->
+                    <div id="document-checklist" style="margin-bottom: 16px; padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <h5 style="margin-bottom: 12px; font-size: 14px; font-weight: 600; color: #1e293b;">서류 확인 체크리스트</h5>
                         <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="padding: 8px; background-color: #f1f5f9; border-radius: 8px; font-size: 13px;">
-                                <div style="display: flex; justify-content: space-between;">
-                                    <span style="font-weight: 600;">관리자A</span>
-                                    <span style="color: #64748b;">2024-11-19 10:30</span>
-                                </div>
-                                <div style="margin-top: 4px;">서류 확인 완료. 승인 가능.</div>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px;">
+                                <input type="checkbox" id="check-document-date" style="cursor: pointer;">
+                                <span>서류 발급일자 확인 (3개월 이내 발급 서류인지 확인)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px;">
+                                <input type="checkbox" id="check-name-match" style="cursor: pointer;">
+                                <span>명의 일치 확인 (회원 정보와 서류상 명의 일치 여부)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px;" id="check-consent-label" style="display: none;">
+                                <input type="checkbox" id="check-consent" style="cursor: pointer;">
+                                <span>위임 관계 확인 (타인/타사 명의의 경우 명의자 동의서 확인)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px;">
+                                <input type="checkbox" id="check-document-validity" style="cursor: pointer;">
+                                <span>서류 유효성 확인 (서류 위변조 여부, 서류 진위 확인)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px;">
+                                <input type="checkbox" id="check-required-docs" style="cursor: pointer;">
+                                <span>필수 서류 제출 확인 (회원 유형별 필수 서류 모두 제출 확인)</span>
+                            </label>
                             </div>
                         </div>
+                    
+                    <div id="document-list-container" style="display: flex; flex-direction: column; gap: 12px;">
+                        <!-- 서류 목록이 여기에 동적으로 추가됨 -->
+                    </div>
+                </div>
+                
+                <!-- 처리 선택 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">처리 선택</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">처리 선택</label>
+                        <select class="form-control" id="approval-action">
+                            <option value="approve">승인</option>
+                            <option value="reject">반려</option>
+                            <option value="request-supplement">보완 요청</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">사유</label>
+                        <textarea class="form-control" id="approval-reason" rows="4" placeholder="처리 사유를 입력하세요"></textarea>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-success" onclick="handleApprove()">승인</button>
-                <button class="btn btn-warning" onclick="openModal('supplementModal')">보완 요청</button>
-                <button class="btn btn-danger" onclick="openModal('rejectModal')">반려</button>
-                <button class="btn btn-outline" onclick="closeModal('reviewModal')">닫기</button>
+                <button class="btn btn-outline" onclick="closeModal('reviewModal')">취소</button>
+                <button class="btn btn-primary" onclick="processApproval()">처리</button>
             </div>
         </div>
     </div>
@@ -463,6 +374,10 @@
                     <select class="form-control" id="rejectReason">
                         <option value="">사유 선택</option>
                         <option value="document_incomplete">서류 미비</option>
+                        <option value="document_expired">서류 발급일자 초과 (3개월 이내 발급 필요)</option>
+                        <option value="document_forged">서류 위변조 의심</option>
+                        <option value="name_mismatch">명의 불일치</option>
+                        <option value="consent_missing">명의자 동의서 미제출 (타인/타사 명의의 경우)</option>
                         <option value="document_invalid">서류 유효성 문제</option>
                         <option value="info_mismatch">정보 불일치</option>
                         <option value="other">기타</option>
@@ -480,6 +395,31 @@
         </div>
     </div>
     
+    <!-- 서류 뷰어 모달 -->
+    <div id="document-viewer-modal" class="modal">
+        <div class="modal-content" style="max-width: 90vw; max-height: 90vh;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="viewer-document-name">서류 미리보기</h3>
+                <button class="modal-close" onclick="closeModal('document-viewer-modal')">&times;</button>
+            </div>
+            <div style="padding: 8px 24px; background-color: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                <div style="color: #64748b; font-size: 13px;" id="viewer-file-info">파일명: -</div>
+            </div>
+            <div style="padding: 24px; text-align: center; max-height: 70vh; overflow-y: auto;">
+                <div id="document-viewer-content" style="display: flex; justify-content: center; align-items: center; min-height: 400px;">
+                    <div style="padding: 40px; background-color: #f8fafc; border-radius: 8px; border: 2px dashed #cbd5e1;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📄</div>
+                        <div style="color: #64748b; font-size: 14px;">서류 미리보기</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="downloadDocumentFromViewer()">다운로드</button>
+                <button class="btn btn-outline" onclick="closeModal('document-viewer-modal')">닫기</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- 일괄 반려 모달 -->
     <div class="modal" id="bulkRejectModal">
         <div class="modal-content" style="max-width: 500px;">
@@ -493,6 +433,10 @@
                     <select class="form-control" id="bulkRejectReason">
                         <option value="">사유 선택</option>
                         <option value="document_incomplete">서류 미비</option>
+                        <option value="document_expired">서류 발급일자 초과 (3개월 이내 발급 필요)</option>
+                        <option value="document_forged">서류 위변조 의심</option>
+                        <option value="name_mismatch">명의 불일치</option>
+                        <option value="consent_missing">명의자 동의서 미제출 (타인/타사 명의의 경우)</option>
                         <option value="document_invalid">서류 유효성 문제</option>
                         <option value="info_mismatch">정보 불일치</option>
                         <option value="other">기타</option>
@@ -515,6 +459,146 @@
         // 현재 검토 중인 행 저장
         let currentReviewRow = null;
         
+        // 회원 유형별 서류 데이터
+        const memberTypeData = {
+            '010-1234-5678': { type: 'individual', name: '홍길동' },
+            '010-9876-5432': { type: 'company', name: '김철수' },
+            '02-1234-5678': { type: 'individual', name: '이영희' },
+            '010-5555-6666': { type: 'company', name: '박민수' }
+        };
+        
+        // 개인회원 서류 목록
+        const individualDocuments = {
+            '010-1234-5678': [
+                {
+                    id: 1,
+                    name: '신분증 사본',
+                    fileName: 'id_card.jpg',
+                    fileSize: '1.2MB',
+                    uploadDate: '2024-11-19 10:28:00',
+                    type: 'image'
+                },
+                {
+                    id: 2,
+                    name: '통신서비스 이용증명원',
+                    fileName: 'certificate.pdf',
+                    fileSize: '2.3MB',
+                    uploadDate: '2024-11-19 10:28:00',
+                    type: 'pdf'
+                }
+            ],
+            '02-1234-5678': [
+                {
+                    id: 1,
+                    name: '신분증 사본',
+                    fileName: 'id_card_lee.jpg',
+                    fileSize: '1.1MB',
+                    uploadDate: '2024-11-19 07:50:00',
+                    type: 'image'
+                },
+                {
+                    id: 2,
+                    name: '통신서비스 이용증명원',
+                    fileName: 'certificate_lee.pdf',
+                    fileSize: '2.5MB',
+                    uploadDate: '2024-11-19 07:50:00',
+                    type: 'pdf'
+                }
+            ]
+        };
+        
+        // 기업회원 서류 목록
+        const companyDocuments = {
+            '010-9876-5432': [
+                {
+                    id: 1,
+                    name: '사업자등록증',
+                    fileName: 'business_license_kim.pdf',
+                    fileSize: '2.1MB',
+                    uploadDate: '2024-11-19 09:10:00',
+                    type: 'pdf'
+                },
+                {
+                    id: 2,
+                    name: '통신서비스 이용증명원',
+                    fileName: 'certificate_kim.pdf',
+                    fileSize: '2.1MB',
+                    uploadDate: '2024-11-19 09:10:00',
+                    type: 'pdf'
+                },
+                {
+                    id: 3,
+                    name: '대표자 신분증 사본',
+                    fileName: 'ceo_id_kim.jpg',
+                    fileSize: '1.3MB',
+                    uploadDate: '2024-11-19 09:10:00',
+                    type: 'image'
+                },
+                {
+                    id: 4,
+                    name: '명의자 동의서',
+                    fileName: 'consent_form_kim.pdf',
+                    fileSize: '0.8MB',
+                    uploadDate: '2024-11-19 09:10:00',
+                    type: 'pdf'
+                }
+            ],
+            '010-5555-6666': [
+                {
+                    id: 1,
+                    name: '사업자등록증',
+                    fileName: 'business_license_park.pdf',
+                    fileSize: '2.0MB',
+                    uploadDate: '2024-11-18 16:30:00',
+                    type: 'pdf'
+                },
+                {
+                    id: 2,
+                    name: '통신서비스 이용증명원',
+                    fileName: 'certificate_park.pdf',
+                    fileSize: '2.0MB',
+                    uploadDate: '2024-11-18 16:30:00',
+                    type: 'pdf'
+                },
+                {
+                    id: 3,
+                    name: '대표자 신분증 사본',
+                    fileName: 'ceo_id_park.jpg',
+                    fileSize: '1.2MB',
+                    uploadDate: '2024-11-18 16:30:00',
+                    type: 'image'
+                },
+                {
+                    id: 4,
+                    name: '법인등기부등본',
+                    fileName: 'corporate_registry_park.pdf',
+                    fileSize: '3.1MB',
+                    uploadDate: '2024-11-18 16:30:00',
+                    type: 'pdf'
+                },
+                {
+                    id: 5,
+                    name: '명의자 동의서',
+                    fileName: 'consent_form_park.pdf',
+                    fileSize: '0.9MB',
+                    uploadDate: '2024-11-18 16:30:00',
+                    type: 'pdf'
+                }
+            ]
+        };
+        
+        // 서류 가져오기 함수
+        function getDocuments(callerNumber) {
+            const memberInfo = memberTypeData[callerNumber];
+            if (!memberInfo) return [];
+            
+            if (memberInfo.type === 'individual') {
+                return individualDocuments[callerNumber] || [];
+            } else {
+                return companyDocuments[callerNumber] || [];
+            }
+        }
+        
         // 검토 모달 열기
         function openReviewModal(button) {
             currentReviewRow = button.closest('tr');
@@ -528,24 +612,240 @@
             const ownerName = cells[5].textContent;
             const ownerType = cells[6].textContent.trim();
             
-            // 모달에 데이터 표시 (동적 업데이트)
-            const modal = document.getElementById('reviewModal');
-            const formControls = modal.querySelectorAll('.form-control');
+            // 현재 발신번호 저장 (서류 조회용)
+            currentCallerNumber = callerNumber;
             
-            // 신청 정보 업데이트
-            formControls[0].textContent = memberName; // 회원명
-            formControls[1].textContent = memberType; // 회원 유형
-            formControls[4].textContent = callerNumber; // 발신번호
-            formControls[5].textContent = carrier; // 통신사
-            formControls[6].textContent = ownerName; // 명의자
-            formControls[7].textContent = ownerType; // 명의 구분
+            // 모달에 데이터 표시
+            document.getElementById('modal-member-name').textContent = memberName;
+            document.getElementById('modal-caller-number').textContent = callerNumber;
+            document.getElementById('modal-carrier').textContent = carrier;
+            document.getElementById('modal-owner-name').textContent = ownerName;
+            document.getElementById('modal-owner-type').textContent = ownerType;
+            
+            // Mock 데이터에서 추가 정보 가져오기
+            const mockMemberData = {
+                '010-1234-5678': { email: 'hong@example.com', phone: '010-1234-5678', purpose: '마케팅팀', unifiedUse: '예', authDate: '2024-11-19 10:25:00', authMethod: 'PASS' },
+                '010-9876-5432': { email: 'kim@example.com', phone: '010-9876-5432', purpose: '고객센터', unifiedUse: '아니오', authDate: '2024-11-19 09:15:00', authMethod: 'PASS' },
+                '02-1234-5678': { email: 'lee@example.com', phone: '02-1234-5678', purpose: '본사', unifiedUse: '예', authDate: '2024-11-19 07:50:00', authMethod: 'PASS' },
+                '010-5555-6666': { email: 'park@example.com', phone: '010-5555-6666', purpose: '영업팀', unifiedUse: '예', authDate: '2024-11-18 16:30:00', authMethod: 'PASS' }
+            };
+            
+            const memberData = mockMemberData[callerNumber] || {};
+            document.getElementById('modal-member-email').textContent = memberData.email || '-';
+            document.getElementById('modal-member-phone').textContent = memberData.phone || '-';
+            document.getElementById('modal-caller-purpose').textContent = memberData.purpose || '-';
+            document.getElementById('modal-unified-use').textContent = memberData.unifiedUse || '-';
+            document.getElementById('modal-auth-date').textContent = memberData.authDate || '-';
+            document.getElementById('modal-auth-method').textContent = memberData.authMethod || '-';
+            
+            // 회원 유형 정보 표시
+            const memberInfo = memberTypeData[callerNumber];
+            if (memberInfo) {
+                const memberTypeBadge = memberInfo.type === 'company' 
+                    ? '<span class="badge badge-info">기업회원</span>' 
+                    : '<span class="badge badge-secondary">개인회원</span>';
+                
+                document.getElementById('modal-member-type').innerHTML = memberTypeBadge;
+            }
+            
+            // 명의 구분에 따라 위임 관계 확인 체크박스 표시/숨김
+            const consentLabel = document.getElementById('check-consent-label');
+            if (ownerType && (ownerType.includes('타인') || ownerType.includes('타사'))) {
+                if (consentLabel) consentLabel.style.display = 'flex';
+            } else {
+                if (consentLabel) consentLabel.style.display = 'none';
+            }
+            
+            // 체크리스트 초기화
+            document.getElementById('check-document-date').checked = false;
+            document.getElementById('check-name-match').checked = false;
+            document.getElementById('check-consent').checked = false;
+            document.getElementById('check-document-validity').checked = false;
+            document.getElementById('check-required-docs').checked = false;
+            
+            // 서류 목록 표시 (회원 유형에 따라)
+            const documents = getDocuments(callerNumber);
+            const documentListContainer = document.getElementById('document-list-container');
+            if (documentListContainer) {
+                if (documents.length === 0) {
+                    documentListContainer.innerHTML = `
+                        <div style="padding: 20px; text-align: center; color: #64748b;">
+                            등록된 서류가 없습니다.
+                        </div>
+                    `;
+                } else {
+                    // 회원 유형에 따른 필수 서류 안내
+                    const requiredDocs = memberInfo && memberInfo.type === 'company' 
+                        ? '<div style="margin-bottom: 12px; padding: 12px; background-color: #fef3c7; border-radius: 6px; font-size: 12px; color: #92400e; border-left: 4px solid #f59e0b;"><strong>📋 기업회원 필수 서류:</strong><br>• 사업자등록증 (3개월 이내 발급)<br>• 통신서비스 이용증명원 (3개월 이내 발급)<br>• 대표자 신분증 사본<br>• 명의자 동의서 (타인/타사 명의의 경우 필수)</div>'
+                        : '<div style="margin-bottom: 12px; padding: 12px; background-color: #fef3c7; border-radius: 6px; font-size: 12px; color: #92400e; border-left: 4px solid #f59e0b;"><strong>📋 개인회원 필수 서류:</strong><br>• 신분증 사본<br>• 통신서비스 이용증명원 (3개월 이내 발급)</div>';
+                    
+                    // 서류 발급일자 확인 (3개월 이내인지 체크)
+                    const today = new Date();
+                    const threeMonthsAgo = new Date(today);
+                    threeMonthsAgo.setMonth(today.getMonth() - 3);
+                    
+                    documentListContainer.innerHTML = requiredDocs + documents.map(doc => {
+                        // 서류 발급일자 확인 (업로드일 기준으로 3개월 이내인지 확인)
+                        const uploadDate = new Date(doc.uploadDate);
+                        const isWithin3Months = uploadDate >= threeMonthsAgo;
+                        const dateStatus = isWithin3Months 
+                            ? '<span style="color: #059669; font-weight: 600;">✓ 3개월 이내</span>' 
+                            : '<span style="color: #dc2626; font-weight: 600;">⚠ 3개월 초과</span>';
+                        
+                        return `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background-color: #f1f5f9; border-radius: 8px; margin-bottom: 8px; border: 1px solid ${isWithin3Months ? '#cbd5e1' : '#fca5a5'};">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; margin-bottom: 4px;">${doc.name}</div>
+                                <div style="font-size: 12px; color: #64748b; margin-bottom: 2px;">파일명: ${doc.fileName} (${doc.fileSize})</div>
+                                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">업로드일: ${doc.uploadDate}</div>
+                                <div style="font-size: 12px;">${dateStatus}</div>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-outline btn-sm" onclick="downloadDocumentById(${doc.id})">다운로드</button>
+                                <button class="btn btn-primary btn-sm" onclick="viewDocument(${doc.id})">미리보기</button>
+                            </div>
+                        </div>
+                    `;
+                    }).join('');
+                }
+            }
             
             openModal('reviewModal');
         }
         
-        // 승인 처리
+        // 처리 함수 (회원가입관리와 동일한 구조)
+        function processApproval() {
+            const action = document.getElementById('approval-action').value;
+            const reason = document.getElementById('approval-reason').value;
+            
+            if (!reason) {
+                showToast('사유를 입력해주세요.', 'error');
+                return;
+            }
+            
+            // 서류 확인 체크리스트 검증
+            const checkDocumentDate = document.getElementById('check-document-date').checked;
+            const checkNameMatch = document.getElementById('check-name-match').checked;
+            const checkConsent = document.getElementById('check-consent');
+            const checkDocumentValidity = document.getElementById('check-document-validity').checked;
+            const checkRequiredDocs = document.getElementById('check-required-docs').checked;
+            
+            // 명의 구분 확인
+            const ownerType = document.getElementById('modal-owner-type').textContent.trim();
+            const needsConsent = ownerType && (ownerType.includes('타인') || ownerType.includes('타사'));
+            
+            // 필수 체크 항목 확인
+            if (!checkDocumentDate) {
+                showToast('서류 발급일자 확인을 완료해주세요.', 'error');
+                return;
+            }
+            if (!checkNameMatch) {
+                showToast('명의 일치 확인을 완료해주세요.', 'error');
+                return;
+            }
+            if (needsConsent && !checkConsent.checked) {
+                showToast('위임 관계 확인(명의자 동의서)을 완료해주세요.', 'error');
+                return;
+            }
+            if (!checkDocumentValidity) {
+                showToast('서류 유효성 확인을 완료해주세요.', 'error');
+                return;
+            }
+            if (!checkRequiredDocs) {
+                showToast('필수 서류 제출 확인을 완료해주세요.', 'error');
+                return;
+            }
+            
+            // 처리 타입에 따른 확인 메시지
+            let confirmMessage = '';
+            if (action === 'approve') {
+                confirmMessage = '모든 서류 확인이 완료되었습니다. 승인 처리하시겠습니까?';
+            } else if (action === 'reject') {
+                confirmMessage = '반려 처리하시겠습니까?';
+            } else if (action === 'request-supplement') {
+                confirmMessage = '보완 요청을 전송하시겠습니까?';
+            }
+            
+            confirmAction(confirmMessage, function() {
+                if (currentReviewRow) {
+                    // 상태 업데이트
+                    const statusCell = currentReviewRow.querySelector('.status-cell');
+                    if (statusCell) {
+                        if (action === 'approve') {
+                            statusCell.innerHTML = '<span class="badge badge-success">승인완료</span>';
+                        } else if (action === 'reject') {
+                            statusCell.innerHTML = '<span class="badge badge-danger">반려</span>';
+                        } else if (action === 'request-supplement') {
+                            statusCell.innerHTML = '<span class="badge badge-info">보완요청</span>';
+                        }
+                    }
+                    
+                    // 검토 버튼 비활성화
+                    const reviewBtn = currentReviewRow.querySelector('button');
+                    if (reviewBtn) {
+                        reviewBtn.disabled = true;
+                        reviewBtn.textContent = '처리완료';
+                        reviewBtn.classList.remove('btn-primary');
+                        reviewBtn.classList.add('btn-secondary');
+                    }
+                    
+                    // 체크박스 비활성화
+                    const checkbox = currentReviewRow.querySelector('.row-checkbox');
+                    if (checkbox) {
+                        checkbox.disabled = true;
+                        checkbox.checked = false;
+                    }
+                    
+                    // 승인 대기 건수 업데이트
+                    if (action === 'approve' || action === 'reject') {
+                        updatePendingCount(-1);
+                    }
+                }
+                
+                showToast('처리가 완료되었습니다.', 'success');
+                closeModal('reviewModal');
+                currentReviewRow = null;
+                currentCallerNumber = null;
+            });
+        }
+        
+        // 승인 처리 (기존 함수 유지 - 다른 곳에서 사용할 수 있음)
         function handleApprove() {
-            confirmAction('승인 처리하시겠습니까?', function() {
+            // 서류 확인 체크리스트 검증
+            const checkDocumentDate = document.getElementById('check-document-date').checked;
+            const checkNameMatch = document.getElementById('check-name-match').checked;
+            const checkConsent = document.getElementById('check-consent');
+            const checkDocumentValidity = document.getElementById('check-document-validity').checked;
+            const checkRequiredDocs = document.getElementById('check-required-docs').checked;
+            
+            // 명의 구분 확인
+            const cells = currentReviewRow ? currentReviewRow.querySelectorAll('td') : [];
+            const ownerType = cells.length > 6 ? cells[6].textContent.trim() : '';
+            const needsConsent = ownerType && (ownerType.includes('타인') || ownerType.includes('타사'));
+            
+            // 필수 체크 항목 확인
+            if (!checkDocumentDate) {
+                showToast('서류 발급일자 확인을 완료해주세요.', 'error');
+                return;
+            }
+            if (!checkNameMatch) {
+                showToast('명의 일치 확인을 완료해주세요.', 'error');
+                return;
+            }
+            if (needsConsent && !checkConsent.checked) {
+                showToast('위임 관계 확인(명의자 동의서)을 완료해주세요.', 'error');
+                return;
+            }
+            if (!checkDocumentValidity) {
+                showToast('서류 유효성 확인을 완료해주세요.', 'error');
+                return;
+            }
+            if (!checkRequiredDocs) {
+                showToast('필수 서류 제출 확인을 완료해주세요.', 'error');
+                return;
+            }
+            
+            confirmAction('모든 서류 확인이 완료되었습니다. 승인 처리하시겠습니까?', function() {
                 if (currentReviewRow) {
                     // 상태 업데이트
                     const statusCell = currentReviewRow.querySelector('.status-cell');
@@ -633,10 +933,10 @@
             
             // 확인 다이얼로그
             const itemNames = {
-                'certificate': '통신서비스 이용증명원',
+                'certificate': '통신서비스 이용증명원 (3개월 이내 발급 필요)',
                 'identity': '신분증 사본',
-                'business': '사업자등록증',
-                'consent': '명의자 동의서',
+                'business': '사업자등록증 (3개월 이내 발급 필요)',
+                'consent': '명의자 동의서 (타인/타사 명의의 경우 필수)',
                 'other': '기타'
             };
             
@@ -913,6 +1213,111 @@
                 
                 showToast(`${selectedItems.length}건이 반려되었습니다.`, 'success');
             });
+        }
+        
+        // 서류 뷰어 관련 변수
+        let currentViewingDocument = null;
+        
+        // 서류 미리보기 (회원가입관리와 동일한 함수명)
+        function viewDocument(docId) {
+            if (!currentCallerNumber) {
+                showToast('발신번호 정보를 찾을 수 없습니다.', 'error');
+                return;
+            }
+            
+            const documents = getDocuments(currentCallerNumber);
+            const doc = documents.find(d => d.id === docId);
+            
+            if (!doc) {
+                showToast('서류를 찾을 수 없습니다.', 'error');
+                return;
+            }
+            
+            currentViewingDocument = doc;
+            
+            // 서류 뷰어 모달 열기
+            openDocumentViewerModal(doc);
+        }
+        
+        // 서류 다운로드 (회원가입관리와 동일한 함수명)
+        function downloadDocumentById(docId) {
+            if (!currentCallerNumber) {
+                showToast('발신번호 정보를 찾을 수 없습니다.', 'error');
+                return;
+            }
+            
+            const documents = getDocuments(currentCallerNumber);
+            const doc = documents.find(d => d.id === docId);
+            
+            if (!doc) {
+                showToast('서류를 찾을 수 없습니다.', 'error');
+                return;
+            }
+            
+            currentViewingDocument = doc;
+            downloadDocument();
+        }
+        
+        function downloadDocument() {
+            if (!currentViewingDocument) return;
+            
+            // 실제로는 API 호출하여 파일 다운로드
+            showToast(`${currentViewingDocument.name} 파일 다운로드를 시작합니다.`, 'info');
+            
+            // Mock 다운로드 시뮬레이션
+            const link = document.createElement('a');
+            link.href = '#'; // 실제로는 파일 URL
+            link.download = currentViewingDocument.fileName;
+            link.click();
+            
+            showToast('다운로드가 완료되었습니다.', 'success');
+        }
+        
+        // 서류 뷰어 모달 열기
+        function openDocumentViewerModal(doc) {
+            currentViewingDocument = doc;
+            
+            document.getElementById('viewer-document-name').textContent = doc.name;
+            document.getElementById('viewer-file-info').textContent = `파일명: ${doc.fileName} (${doc.fileSize})`;
+            
+            const viewerContent = document.getElementById('document-viewer-content');
+            
+            if (doc.type === 'image') {
+                viewerContent.innerHTML = `
+                    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A" 
+                         alt="${doc.name}" 
+                         style="max-width: 100%; max-height: 70vh; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                `;
+            } else {
+                viewerContent.innerHTML = `
+                    <div style="padding: 40px; background-color: #f8fafc; border-radius: 8px; border: 2px dashed #cbd5e1;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📄</div>
+                        <div style="color: #64748b; font-size: 14px; margin-bottom: 8px;">PDF 파일 미리보기</div>
+                        <div style="color: #94a3b8; font-size: 12px;">PDF 파일은 다운로드하여 확인하실 수 있습니다.</div>
+                        <div style="margin-top: 16px;">
+                            <button class="btn btn-primary" onclick="downloadDocumentFromViewer()">다운로드</button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            openModal('document-viewer-modal');
+        }
+        
+        // 뷰어에서 다운로드
+        function downloadDocumentFromViewer() {
+            if (!currentViewingDocument) return;
+            
+            // 실제로는 API 호출하여 파일 다운로드
+            showToast(`${currentViewingDocument.name} 파일 다운로드를 시작합니다.`, 'info');
+            
+            // Mock 다운로드 시뮬레이션
+            const link = document.createElement('a');
+            link.href = '#'; // 실제로는 파일 URL
+            link.download = currentViewingDocument.fileName;
+            link.click();
+            
+            showToast('다운로드가 완료되었습니다.', 'success');
         }
         
         createPagination(1, 5, 'pagination');

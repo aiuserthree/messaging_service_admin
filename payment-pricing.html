@@ -149,7 +149,7 @@
                                 <input type="number" id="alimtalkPrice" class="form-control" value="25" placeholder="단가 입력" min="0">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">브랜드톡 단가 (원)</label>
+                                <label class="form-label">브랜드 메시지 단가 (원)</label>
                                 <input type="number" id="brandtalkPrice" class="form-control" value="30" placeholder="단가 입력" min="0">
                             </div>
                         </div>
@@ -476,7 +476,7 @@
                 { name: 'LMS', value: lmsPrice },
                 { name: 'MMS', value: mmsPrice },
                 { name: '알림톡', value: alimtalkPrice },
-                { name: '브랜드톡', value: brandtalkPrice }
+                { name: '브랜드 메시지', value: brandtalkPrice }
             ];
             
             for (let price of prices) {
@@ -499,7 +499,7 @@
                 console.log('Pricing applied:', pricingData);
                 
                 // 변경 이력 추가
-                addPricingHistory('요금 설정 즉시 적용: SMS ' + smsPrice + '원, LMS ' + lmsPrice + '원, MMS ' + mmsPrice + '원, 알림톡 ' + alimtalkPrice + '원, 브랜드톡 ' + brandtalkPrice + '원');
+                addPricingHistory('요금 설정 즉시 적용: SMS ' + smsPrice + '원, LMS ' + lmsPrice + '원, MMS ' + mmsPrice + '원, 알림톡 ' + alimtalkPrice + '원, 브랜드 메시지 ' + brandtalkPrice + '원');
                 
                 showToast('요금 설정이 즉시 적용되었습니다.', 'success');
             });
@@ -546,7 +546,7 @@
                 { name: 'LMS', value: lmsPrice },
                 { name: 'MMS', value: mmsPrice },
                 { name: '알림톡', value: alimtalkPrice },
-                { name: '브랜드톡', value: brandtalkPrice }
+                { name: '브랜드 메시지', value: brandtalkPrice }
             ];
             
             for (let price of prices) {
@@ -583,7 +583,7 @@
                 console.log('Pricing scheduled:', scheduleData);
                 
                 // 변경 이력 추가
-                addPricingHistory('요금 설정 예약 적용: ' + formattedDate + ' (SMS ' + smsPrice + '원, LMS ' + lmsPrice + '원, MMS ' + mmsPrice + '원, 알림톡 ' + alimtalkPrice + '원, 브랜드톡 ' + brandtalkPrice + '원)');
+                addPricingHistory('요금 설정 예약 적용: ' + formattedDate + ' (SMS ' + smsPrice + '원, LMS ' + lmsPrice + '원, MMS ' + mmsPrice + '원, 알림톡 ' + alimtalkPrice + '원, 브랜드 메시지 ' + brandtalkPrice + '원)');
                 
                 showToast('요금 설정이 예약되었습니다.', 'success');
                 closeModal('scheduleApplyModal');

@@ -8,122 +8,15 @@
 </head>
 <body>
     <div class="admin-container">
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <h1>Tokbell Admin</h1>
-                <div class="subtitle">관리자 시스템</div>
-            </div>
-            <nav class="sidebar-menu">
-                <div class="menu-section">
-                    <div class="menu-section-title">메인</div>
-                    <a href="index.html" class="menu-item">
-                        <span>대시보드</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">사용자 관리</div>
-                    <a href="user-list.html" class="menu-item">
-                        <span>회원 관리</span>
-                    </a>
-                    <a href="user-permission.html" class="menu-item">
-                        <span>권한 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">발신번호 관리</div>
-                    <a href="caller-number-pending.html" class="menu-item">
-                        <span>승인 대기</span>
-                    </a>
-                    <a href="caller-number-approved.html" class="menu-item">
-                        <span>승인 완료</span>
-                    </a>
-                    <a href="caller-number-list.html" class="menu-item">
-                        <span>발신번호 목록</span>
-                    </a>
-                    <a href="kakao-profile-list.html" class="menu-item">
-                        <span>발신프로필 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">템플릿 관리</div>
-                    <a href="template-alimtalk-review.html" class="menu-item">
-                        <span>알림톡 템플릿 검수</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">발송 관리</div>
-                    <a href="send-history.html" class="menu-item">
-                        <span>발송 내역 모니터링</span>
-                    </a>
-                    <a href="send-statistics.html" class="menu-item">
-                        <span>발송 통계</span>
-                    </a>
-                    <a href="send-policy.html" class="menu-item active">
-                        <span>발송 정책 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">결제 관리</div>
-                    <a href="payment-charge-list.html" class="menu-item">
-                        <span>충전 내역</span>
-                    </a>
-                    <a href="payment-deposit.html" class="menu-item">
-                        <span>입금 확인</span>
-                    </a>
-                    <a href="payment-pricing.html" class="menu-item">
-                        <span>요금 설정</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">기타 관리</div>
-                    <a href="consultation-list.html" class="menu-item">
-                        <span>상담 신청 관리</span>
-                    </a>
-                    <a href="inquiry-list.html" class="menu-item">
-                        <span>문의 관리</span>
-                    </a>
-                    <a href="notice-list.html" class="menu-item">
-                        <span>공지사항 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">시스템</div>
-                    <a href="system-settings.html" class="menu-item">
-                        <span>시스템 설정</span>
-                    </a>
-                    <a href="statistics-report.html" class="menu-item">
-                        <span>통계 및 리포트</span>
-                    </a>
-                    <a href="security-audit.html" class="menu-item">
-                        <span>보안 및 감사</span>
-                    </a>
-                </div>
-            </nav>
-        </aside>
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('send-policy'));
+        </script>
         
         <main class="admin-main">
-            <header class="admin-header">
-                <div class="header-left">
-                    <h2 class="page-title">발송 정책 관리</h2>
-                </div>
-                <div class="header-right">
-                    <div class="admin-user-info">
-                        <div class="user-avatar">관</div>
-                        <div>
-                            <div class="user-name">관리자</div>
-                            <div class="user-role">최고 관리자</div>
-                        </div>
-                    </div>
-                    <button class="btn btn-outline btn-sm">로그아웃</button>
-                </div>
-            </header>
+            <script>
+                document.write(getHeaderHTML('발송 정책 관리'));
+            </script>
             
             <div class="admin-content">
                 <div class="tabs">
@@ -138,9 +31,35 @@
                         </div>
                         <div style="padding: 24px;">
                             <div class="form-group">
-                                <label class="form-label">일일 발송 건수 제한 (기본값)</label>
-                                <input type="number" class="form-control" value="10000" placeholder="건수 입력">
-                                <div style="font-size: 12px; color: #64748b; margin-top: 4px;">회원별 기본 일일 발송 제한 건수</div>
+                                <label class="form-label">회원 유형별 일일 발송 제한</label>
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                                    <div>
+                                        <label class="form-label">개인 회원</label>
+                                        <input type="number" class="form-control" value="10000" placeholder="건수 입력">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">사업자 회원</label>
+                                        <input type="number" class="form-control" value="50000" placeholder="건수 입력">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">회원 등급별 일일 발송 제한</label>
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                                    <div>
+                                        <label class="form-label">일반 등급</label>
+                                        <input type="number" class="form-control" value="10000" placeholder="건수 입력">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">VIP 등급</label>
+                                        <input type="number" class="form-control" value="100000" placeholder="건수 입력">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">시간 단위 발송 한도</label>
+                                <input type="number" class="form-control" value="1000" placeholder="건수 입력">
+                                <div style="font-size: 12px; color: #64748b; margin-top: 4px;">특정 시간대(정시 또는 30분 단위)에 발송 가능한 최대 처리량</div>
                             </div>
                             
                             <div class="form-group">

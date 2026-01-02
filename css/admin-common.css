@@ -300,6 +300,16 @@ body {
     color: white;
 }
 
+.btn-info {
+    background-color: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+}
+
+.btn-info:hover:not(:disabled) {
+    background-color: #bfdbfe;
+}
+
 .btn-outline {
     background-color: transparent;
     border: 1px solid var(--admin-border);

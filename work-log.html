@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>작업 로그 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('work-log'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('작업 로그'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('data')">데이터 변경 이력</button>
+                    <button class="tab" onclick="switchTab('permission')">권한 변경 이력</button>
+                </div>
+                
+                <div id="tab-data" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">데이터 변경 이력</h3>
+                            <div class="card-description">중요 데이터 변경 이력 조회 (변경 전/후 데이터, 작업자, 작업 시간 기록)</div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>작업일시</th>
+                                        <th>작업자</th>
+                                        <th>작업 유형</th>
+                                        <th>대상</th>
+                                        <th>변경 전</th>
+                                        <th>변경 후</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2024-11-19 14:30:00</td>
+                                        <td>관리자</td>
+                                        <td>수정</td>
+                                        <td>회원 정보</td>
+                                        <td>상태: 비활성</td>
+                                        <td>상태: 활성</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="tab-permission" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">권한 변경 이력</h3>
+                            <div class="card-description">관리자 및 회원의 권한 변경 이력 조회</div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>변경일시</th>
+                                        <th>대상</th>
+                                        <th>변경 전 권한</th>
+                                        <th>변경 후 권한</th>
+                                        <th>작업자</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2024-11-19 14:30:00</td>
+                                        <td>홍길동</td>
+                                        <td>일반 사용자</td>
+                                        <td>관리자</td>
+                                        <td>최고 관리자</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(`tab-${tabName}`).style.display = 'block';
+            event.target.classList.add('active');
+        }
+    </script>
+    <style>
+        .tab-content {
+            margin-top: 24px;
+        }
+    </style>
+</body>
+</html>

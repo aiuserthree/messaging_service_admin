@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제 상세 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('payment-detail'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('결제 상세'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">결제 정보</h3>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">결제 ID</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">PAY-20241119-001</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">결제일시</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">2024-11-19 10:30:00</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">회원명</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">홍길동</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">금액</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">₩100,000</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">결제수단</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">신용카드</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">상태</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">
+                                <span class="badge badge-success">성공</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">환불/취소 이력</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>처리일시</th>
+                                    <th>유형</th>
+                                    <th>금액</th>
+                                    <th>사유</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="4" style="text-align: center; padding: 40px;">
+                                        환불/취소 이력이 없습니다.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+</body>
+</html>

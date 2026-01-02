@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>전체 발송 내역 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('send-list'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('전체 발송 내역'));
+            </script>
+            
+            <div class="admin-content">
+                <!-- 검색 및 필터 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">검색 조건</h3>
+                    </div>
+                    <div style="padding: 24px;">
+                        <div class="search-filter-bar">
+                            <div class="search-box">
+                                <label class="form-label">회원 검색</label>
+                                <input type="text" class="form-control" placeholder="회원명, 이메일로 검색" id="search-member">
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">기간</label>
+                                <input type="date" class="form-control" id="date-from">
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">~</label>
+                                <input type="date" class="form-control" id="date-to">
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">상태</label>
+                                <select class="form-control" id="filter-status">
+                                    <option value="">전체</option>
+                                    <option value="completed">완료</option>
+                                    <option value="processing">진행중</option>
+                                    <option value="failed">실패</option>
+                                    <option value="cancelled">취소</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">유형</label>
+                                <select class="form-control" id="filter-type">
+                                    <option value="">전체</option>
+                                    <option value="sms">SMS</option>
+                                    <option value="alimtalk">알림톡</option>
+                                    <option value="brandtalk">브랜드 메시지</option>
+                                </select>
+                            </div>
+                            <div class="filter-item" style="align-self: flex-end;">
+                                <button class="btn btn-primary" onclick="searchSendList()">조회</button>
+                                <button class="btn btn-outline" onclick="exportExcel()">엑셀 다운로드</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 발송 내역 목록 -->
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">발송 내역</h3>
+                        <div class="card-description">전체 회원의 메시지 발송 내역</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>발송일시</th>
+                                    <th>회원명</th>
+                                    <th>이메일</th>
+                                    <th>메시지 유형</th>
+                                    <th>발송 건수</th>
+                                    <th>성공</th>
+                                    <th>실패</th>
+                                    <th>상태</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="send-list-tbody">
+                                <tr>
+                                    <td colspan="9" style="text-align: center; padding: 40px;">
+                                        데이터를 불러오는 중...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 발송 상세 모달 -->
+    <div id="send-detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h3 class="modal-title">발송 상세 정보</h3>
+                <button class="modal-close" onclick="closeModal('send-detail-modal')">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">발송 기본 정보</h3>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">발송 ID</label>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-send-id">-</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">발송일시</label>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-send-date">-</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">회원명</label>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-member-name">-</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">이메일</label>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-member-email">-</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">메시지 유형</label>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-send-type">-</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">발송 상태</label>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-send-status">-</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">총 발송 건수</label>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-send-count">-</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">성공/실패</label>
+                            <div class="form-control" style="background-color: #f1f5f9;">
+                                <span id="modal-success-count">-</span> / <span id="modal-fail-count">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">메시지 내용</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">템플릿명</label>
+                        <div class="form-control" style="background-color: #f1f5f9;">주문 완료 알림</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">메시지 내용</label>
+                        <div class="form-control" style="background-color: #f1f5f9; min-height: 100px; padding: 16px;">
+                            안녕하세요. 주문이 완료되었습니다.<br>
+                            주문번호: #12345<br>
+                            배송 예정일: 2024-11-20
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('send-detail-modal')">닫기</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        let currentPage = 1;
+        const pageSize = 20;
+        let mockData = [];
+        
+        function searchSendList(page = 1) {
+            currentPage = page;
+            
+            const searchMember = document.getElementById('search-member').value;
+            const dateFrom = document.getElementById('date-from').value;
+            const dateTo = document.getElementById('date-to').value;
+            const status = document.getElementById('filter-status').value;
+            const type = document.getElementById('filter-type').value;
+            
+            // 실제로는 API 호출
+            mockData = [
+                {
+                    id: 1,
+                    sendDate: '2024-11-19 14:30:00',
+                    memberName: '홍길동',
+                    email: 'hong@example.com',
+                    type: 'alimtalk',
+                    sendCount: 1000,
+                    successCount: 995,
+                    failCount: 5,
+                    status: 'completed'
+                },
+                {
+                    id: 2,
+                    sendDate: '2024-11-19 13:15:00',
+                    memberName: '김철수',
+                    email: 'kim@example.com',
+                    type: 'sms',
+                    sendCount: 500,
+                    successCount: 500,
+                    failCount: 0,
+                    status: 'completed'
+                },
+                {
+                    id: 3,
+                    sendDate: '2024-11-19 12:00:00',
+                    memberName: '이영희',
+                    email: 'lee@example.com',
+                    type: 'brandtalk',
+                    sendCount: 2000,
+                    successCount: 1980,
+                    failCount: 20,
+                    status: 'completed'
+                }
+            ];
+            
+            const tbody = document.getElementById('send-list-tbody');
+            tbody.innerHTML = mockData.map(item => `
+                <tr>
+                    <td>${item.sendDate}</td>
+                    <td>${item.memberName}</td>
+                    <td>${item.email}</td>
+                    <td><span class="badge badge-info">${getTypeLabel(item.type)}</span></td>
+                    <td>${formatNumber(item.sendCount)}</td>
+                    <td>${formatNumber(item.successCount)}</td>
+                    <td>${formatNumber(item.failCount)}</td>
+                    <td><span class="badge badge-success">${getStatusLabel(item.status)}</span></td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="viewDetail(${item.id})">상세보기</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            createPagination(currentPage, 10, 'pagination');
+        }
+        
+        function getTypeLabel(type) {
+            const labels = {
+                'sms': 'SMS',
+                'alimtalk': '알림톡',
+                'brandtalk': '브랜드 메시지'
+            };
+            return labels[type] || type;
+        }
+        
+        function getStatusLabel(status) {
+            const labels = {
+                'completed': '완료',
+                'processing': '진행중',
+                'failed': '실패',
+                'cancelled': '취소'
+            };
+            return labels[status] || status;
+        }
+        
+        function viewDetail(id) {
+            // 모달에 발송 정보 로드
+            const item = mockData.find(m => m.id === id);
+            if (item) {
+                document.getElementById('modal-send-id').textContent = `SEND-${id}`;
+                document.getElementById('modal-send-date').textContent = item.sendDate;
+                document.getElementById('modal-member-name').textContent = item.memberName;
+                document.getElementById('modal-member-email').textContent = item.email;
+                document.getElementById('modal-send-type').innerHTML = `<span class="badge badge-info">${getTypeLabel(item.type)}</span>`;
+                document.getElementById('modal-send-status').innerHTML = `<span class="badge badge-success">${getStatusLabel(item.status)}</span>`;
+                document.getElementById('modal-send-count').textContent = `${formatNumber(item.sendCount)}건`;
+                document.getElementById('modal-success-count').textContent = `${formatNumber(item.successCount)}건`;
+                document.getElementById('modal-fail-count').textContent = `${formatNumber(item.failCount)}건`;
+                
+                openModal('send-detail-modal');
+            }
+        }
+        
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        function exportExcel() {
+            showToast('엑셀 다운로드 기능은 준비 중입니다.', 'info');
+        }
+        
+        // 페이지 로드 시 초기 데이터 로드
+        document.addEventListener('DOMContentLoaded', function() {
+            searchSendList();
+        });
+    </script>
+</body>
+</html>

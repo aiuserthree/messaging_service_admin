@@ -15,83 +15,12 @@ function getSidebarHTML(activeMenu) {
                 </div>
                 
                 <div class="menu-section">
-                    <div class="menu-section-title">사용자 관리</div>
-                    <a href="user-list.html" class="menu-item ${activeMenu === 'user-list' ? 'active' : ''}">
-                        <span>회원 관리</span>
+                    <div class="menu-section-title">발송관리</div>
+                    <a href="send-list.html" class="menu-item ${activeMenu === 'send-list' ? 'active' : ''}">
+                        <span>전체 발송 내역</span>
                     </a>
-                    <a href="user-permission.html" class="menu-item ${activeMenu === 'user-permission' ? 'active' : ''}">
-                        <span>권한 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">발신번호 관리</div>
-                    <a href="caller-number-pending.html" class="menu-item ${activeMenu === 'caller-number-pending' ? 'active' : ''}">
-                        <span>승인 대기</span>
-                    </a>
-                    <a href="caller-number-approved.html" class="menu-item ${activeMenu === 'caller-number-approved' ? 'active' : ''}">
-                        <span>승인 완료</span>
-                    </a>
-                    <a href="caller-number-list.html" class="menu-item ${activeMenu === 'caller-number-list' ? 'active' : ''}">
-                        <span>발신번호 목록</span>
-                    </a>
-                    <a href="kakao-profile-list.html" class="menu-item ${activeMenu === 'kakao-profile-list' ? 'active' : ''}">
-                        <span>발신프로필 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">템플릿 관리</div>
-                    <a href="template-alimtalk-review.html" class="menu-item ${activeMenu === 'template-alimtalk-review' ? 'active' : ''}">
-                        <span>알림톡 템플릿 검수</span>
-                    </a>
-                    <a href="../template-alimtalk.html" class="menu-item ${activeMenu === 'template-alimtalk' ? 'active' : ''}">
-                        <span>알림톡 템플릿</span>
-                    </a>
-                    <a href="../template-brandtalk.html" class="menu-item ${activeMenu === 'template-brandtalk' ? 'active' : ''}">
-                        <span>브랜드톡 템플릿</span>
-                    </a>
-                    <a href="../template-message.html" class="menu-item ${activeMenu === 'template-message' ? 'active' : ''}">
-                        <span>일반문자 템플릿</span>
-                    </a>
-                    <a href="../template-message-ad.html" class="menu-item ${activeMenu === 'template-message-ad' ? 'active' : ''}">
-                        <span>광고문자 템플릿</span>
-                    </a>
-                    <a href="../template-message-election.html" class="menu-item ${activeMenu === 'template-message-election' ? 'active' : ''}">
-                        <span>공직선거문자 템플릿</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">발송 관리</div>
-                    <a href="../message-send-general.html" class="menu-item ${activeMenu === 'message-send-general' ? 'active' : ''}">
-                        <span>일반문자 발송</span>
-                    </a>
-                    <a href="../message-send-ad.html" class="menu-item ${activeMenu === 'message-send-ad' ? 'active' : ''}">
-                        <span>광고문자 발송</span>
-                    </a>
-                    <a href="../message-send-election.html" class="menu-item has-submenu ${activeMenu === 'message-send-election' || activeMenu === 'election-addressbook' ? 'active' : ''}">
-                        <span>선거문자</span>
-                    </a>
-                    <div class="submenu ${activeMenu === 'message-send-election' || activeMenu === 'election-addressbook' ? 'open' : ''}">
-                        <a href="../message-send-election.html" class="submenu-item ${activeMenu === 'message-send-election' ? 'active' : ''}">
-                            <span>선거문자 발송</span>
-                        </a>
-                        <a href="../election-addressbook.html" class="submenu-item ${activeMenu === 'election-addressbook' ? 'active' : ''}">
-                            <span>선거문자 주소록</span>
-                        </a>
-                    </div>
-                    <a href="../kakao-send-alimtalk.html" class="menu-item ${activeMenu === 'kakao-send-alimtalk' ? 'active' : ''}">
-                        <span>알림톡 발송</span>
-                    </a>
-                    <a href="../kakao-send-brandtalk.html" class="menu-item ${activeMenu === 'kakao-send-brandtalk' ? 'active' : ''}">
-                        <span>브랜드톡 발송</span>
-                    </a>
-                    <a href="send-history.html" class="menu-item ${activeMenu === 'send-history' ? 'active' : ''}">
-                        <span>발송 내역 모니터링</span>
-                    </a>
-                    <a href="send-statistics.html" class="menu-item ${activeMenu === 'send-statistics' ? 'active' : ''}">
-                        <span>발송 통계</span>
+                    <a href="send-bulk-approval.html" class="menu-item ${activeMenu === 'send-bulk-approval' ? 'active' : ''}">
+                        <span>대량 발송 승인</span>
                     </a>
                     <a href="send-policy.html" class="menu-item ${activeMenu === 'send-policy' ? 'active' : ''}">
                         <span>발송 정책 관리</span>
@@ -99,48 +28,117 @@ function getSidebarHTML(activeMenu) {
                 </div>
                 
                 <div class="menu-section">
-                    <div class="menu-section-title">주소록 관리</div>
-                    <a href="../addressbook.html" class="menu-item ${activeMenu === 'addressbook' ? 'active' : ''}">
-                        <span>주소록 관리</span>
+                    <div class="menu-section-title">회원 관리</div>
+                    <a href="member-list.html" class="menu-item ${activeMenu === 'member-list' ? 'active' : ''}">
+                        <span>회원 목록</span>
                     </a>
-                    <a href="../addressbook-reject.html" class="menu-item ${activeMenu === 'addressbook-reject' ? 'active' : ''}">
-                        <span>수신거부 관리</span>
+                    <a href="member-approval.html" class="menu-item ${activeMenu === 'member-approval' ? 'active' : ''}">
+                        <span>회원 가입 관리</span>
+                    </a>
+                    <a href="member-conversion.html" class="menu-item ${activeMenu === 'member-conversion' ? 'active' : ''}">
+                        <span>회원 전환 관리</span>
+                    </a>
+                    <a href="member-grade.html" class="menu-item ${activeMenu === 'member-grade' ? 'active' : ''}">
+                        <span>회원 등급 관리</span>
+                    </a>
+                    <a href="member-dormant.html" class="menu-item ${activeMenu === 'member-dormant' ? 'active' : ''}">
+                        <span>휴면 회원 관리</span>
+                    </a>
+                    <a href="member-edit.html" class="menu-item ${activeMenu === 'member-edit' ? 'active' : ''}">
+                        <span>회원 정보 관리</span>
+                    </a>
+                    <a href="member-document-list.html" class="menu-item ${activeMenu === 'member-document-list' ? 'active' : ''}">
+                        <span>서류 목록 조회</span>
                     </a>
                 </div>
                 
                 <div class="menu-section">
-                    <div class="menu-section-title">결제 관리</div>
-                    <a href="payment-charge-list.html" class="menu-item ${activeMenu === 'payment-charge-list' ? 'active' : ''}">
-                        <span>충전 내역</span>
+                    <div class="menu-section-title">발신번호 관리</div>
+                    <a href="caller-number-pending.html" class="menu-item ${activeMenu === 'caller-number-pending' ? 'active' : ''}">
+                        <span>발신번호 인증</span>
                     </a>
-                    <a href="payment-deposit.html" class="menu-item ${activeMenu === 'payment-deposit' ? 'active' : ''}">
-                        <span>입금 확인</span>
-                    </a>
-                    <a href="payment-pricing.html" class="menu-item ${activeMenu === 'payment-pricing' ? 'active' : ''}">
-                        <span>요금 설정</span>
+                    <a href="kakao-profile-list.html" class="menu-item ${activeMenu === 'kakao-profile-list' ? 'active' : ''}">
+                        <span>카카오톡 발신 프로필</span>
                     </a>
                 </div>
                 
                 <div class="menu-section">
-                    <div class="menu-section-title">기타 관리</div>
+                    <div class="menu-section-title">결제 및 정산</div>
+                    <a href="payment-list.html" class="menu-item ${activeMenu === 'payment-list' ? 'active' : ''}">
+                        <span>결제 관리</span>
+                    </a>
+                    <a href="settlement-monthly.html" class="menu-item ${activeMenu === 'settlement-monthly' ? 'active' : ''}">
+                        <span>정산 관리</span>
+                    </a>
+                    <a href="refund-list.html" class="menu-item ${activeMenu === 'refund-list' ? 'active' : ''}">
+                        <span>환불 관리</span>
+                    </a>
+                    <a href="tax-invoice.html" class="menu-item ${activeMenu === 'tax-invoice' ? 'active' : ''}">
+                        <span>세금계산서 발급</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">고객 지원</div>
+                    <a href="consultation-list.html" class="menu-item ${activeMenu === 'consultation-list' ? 'active' : ''}">
+                        <span>견적 문의</span>
+                    </a>
                     <a href="inquiry-list.html" class="menu-item ${activeMenu === 'inquiry-list' ? 'active' : ''}">
                         <span>문의 관리</span>
                     </a>
                     <a href="notice-list.html" class="menu-item ${activeMenu === 'notice-list' ? 'active' : ''}">
-                        <span>공지사항 관리</span>
+                        <span>공지사항</span>
+                    </a>
+                    <a href="faq-list.html" class="menu-item ${activeMenu === 'faq-list' ? 'active' : ''}">
+                        <span>FAQ 관리</span>
                     </a>
                 </div>
                 
                 <div class="menu-section">
-                    <div class="menu-section-title">시스템</div>
+                    <div class="menu-section-title">스팸·제재 관리</div>
+                    <a href="spam-list.html" class="menu-item ${activeMenu === 'spam-list' ? 'active' : ''}">
+                        <span>스팸 신고 내역</span>
+                    </a>
+                    <a href="spam-filter.html" class="menu-item ${activeMenu === 'spam-filter' ? 'active' : ''}">
+                        <span>스팸 필터링 단어</span>
+                    </a>
+                    <a href="sanction-manage.html" class="menu-item ${activeMenu === 'sanction-manage' ? 'active' : ''}">
+                        <span>계정 제재 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">시스템 설정</div>
                     <a href="system-settings.html" class="menu-item ${activeMenu === 'system-settings' ? 'active' : ''}">
-                        <span>시스템 설정</span>
+                        <span>환경 설정</span>
                     </a>
-                    <a href="statistics-report.html" class="menu-item ${activeMenu === 'statistics-report' ? 'active' : ''}">
-                        <span>통계 및 리포트</span>
+                    <a href="promotion-manage.html" class="menu-item ${activeMenu === 'promotion-manage' ? 'active' : ''}">
+                        <span>프로모션 관리</span>
                     </a>
-                    <a href="security-audit.html" class="menu-item ${activeMenu === 'security-audit' ? 'active' : ''}">
-                        <span>보안 및 감사</span>
+                    <a href="election-manage.html" class="menu-item ${activeMenu === 'election-manage' ? 'active' : ''}">
+                        <span>선거문자 관리</span>
+                    </a>
+                    <a href="api-key.html" class="menu-item ${activeMenu === 'api-key' ? 'active' : ''}">
+                        <span>API 관리</span>
+                    </a>
+                    <a href="code-manage.html" class="menu-item ${activeMenu === 'code-manage' ? 'active' : ''}">
+                        <span>코드 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">보안 및 감사</div>
+                    <a href="access-log-admin.html" class="menu-item ${activeMenu === 'access-log-admin' ? 'active' : ''}">
+                        <span>관리자 접근 로그</span>
+                    </a>
+                    <a href="access-log-member.html" class="menu-item ${activeMenu === 'access-log-member' ? 'active' : ''}">
+                        <span>회원 접근 로그</span>
+                    </a>
+                    <a href="work-log.html" class="menu-item ${activeMenu === 'work-log' ? 'active' : ''}">
+                        <span>작업 로그</span>
+                    </a>
+                    <a href="security-policy.html" class="menu-item ${activeMenu === 'security-policy' ? 'active' : ''}">
+                        <span>보안 정책</span>
                     </a>
                 </div>
             </nav>

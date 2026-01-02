@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정산 관리 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('settlement-monthly'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('정산 관리'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="card">
+                    <div class="search-filter-bar">
+                        <div class="filter-item">
+                            <label class="form-label">월 선택</label>
+                            <input type="month" class="form-control" id="month-select" value="2024-11">
+                        </div>
+                        <div class="filter-item" style="align-self: flex-end;">
+                            <button class="btn btn-primary" onclick="loadSettlement()">조회</button>
+                            <button class="btn btn-outline" onclick="exportExcel()">엑셀 다운로드</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">월별 정산 현황</h3>
+                        <div class="card-description">월별 매출, 발송 건수, 정산 금액 통계</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px;">
+                        <div class="stat-card">
+                            <div class="stat-card-title">전체 매출</div>
+                            <div class="stat-card-value">₩12,500,000</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-title">발송 건수</div>
+                            <div class="stat-card-value">125,000건</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-title">정산 금액</div>
+                            <div class="stat-card-value">₩10,000,000</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-title">미수금</div>
+                            <div class="stat-card-value">₩500,000</div>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>회원명</th>
+                                    <th>과금 금액</th>
+                                    <th>발송 건수</th>
+                                    <th>정산 금액</th>
+                                    <th>미수금</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>홍길동</td>
+                                    <td>₩5,000,000</td>
+                                    <td>50,000</td>
+                                    <td>₩4,500,000</td>
+                                    <td>₩500,000</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function loadSettlement() {
+            showToast('조회 완료', 'success');
+        }
+        
+        function exportExcel() {
+            showToast('엑셀 다운로드 기능은 준비 중입니다.', 'info');
+        }
+    </script>
+</body>
+</html>

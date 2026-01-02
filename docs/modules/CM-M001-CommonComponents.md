@@ -1090,3 +1090,4 @@ document.getElementById('openBtn').addEventListener('click', () => {
 |------|------|----------|--------|
 | 1.0.0 | 2024-12-15 | 초기 문서 작성 | - |
 
+

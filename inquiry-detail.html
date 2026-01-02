@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문의 답변 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('inquiry-detail'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('문의 답변'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">문의 내용</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">제목</label>
+                        <div class="form-control" style="background-color: #f1f5f9;">결제 관련 문의</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">문의 내용</label>
+                        <div class="form-control" style="background-color: #f1f5f9; min-height: 100px; padding: 16px;">
+                            결제가 정상적으로 처리되지 않았습니다.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">답변 작성</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">답변 내용</label>
+                        <textarea class="form-control" id="answer-content" rows="6" placeholder="답변 내용을 입력하세요"></textarea>
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <button class="btn btn-primary" onclick="submitAnswer()">답변 등록</button>
+                        <button class="btn btn-outline" onclick="history.back()">취소</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function submitAnswer() {
+            const content = document.getElementById('answer-content').value;
+            if (!content) {
+                showToast('답변 내용을 입력해주세요.', 'error');
+                return;
+            }
+            
+            showToast('답변이 등록되었습니다. 회원에게 알림이 발송되었습니다.', 'success');
+            setTimeout(() => {
+                location.href = 'inquiry-list.html';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

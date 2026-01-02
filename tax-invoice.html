@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>세금계산서 발급 관리 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('tax-invoice'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('세금계산서 발급 관리'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">세금계산서 발급 신청 목록</h3>
+                        <div class="card-description">사업자 회원의 세금계산서 발급 신청 목록 조회 및 발급 처리</div>
+                    </div>
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <label class="form-label">회원명 검색</label>
+                            <input type="text" class="form-control" placeholder="회원명으로 검색" id="search-member">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">발급 기간</label>
+                            <input type="month" class="form-control" id="month-select" value="2024-11">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">상태</label>
+                            <select class="form-control" id="filter-status">
+                                <option value="">전체</option>
+                                <option value="pending">발급 대기</option>
+                                <option value="issued">발급 완료</option>
+                            </select>
+                        </div>
+                        <div class="filter-item" style="align-self: flex-end;">
+                            <button class="btn btn-primary" onclick="searchInvoices()">조회</button>
+                        </div>
+                    </div>
+                    <div class="table-container" style="margin-top: 24px;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>신청일시</th>
+                                    <th>회원명</th>
+                                    <th>사업자등록번호</th>
+                                    <th>발급 기간</th>
+                                    <th>금액</th>
+                                    <th>상태</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2024-11-19 10:00:00</td>
+                                    <td>홍길동</td>
+                                    <td>123-45-67890</td>
+                                    <td>2024-10-01 ~ 2024-10-31</td>
+                                    <td>₩1,000,000</td>
+                                    <td><span class="badge badge-warning">발급 대기</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="issueInvoice(1)">발급</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function searchInvoices() {
+            showToast('조회 완료', 'success');
+        }
+        
+        function issueInvoice(id) {
+            if (confirm('세금계산서를 발급하시겠습니까? 작성일자는 전월 말일로 작성됩니다.')) {
+                showToast('세금계산서가 발급되었습니다. (3일 이내 발급 완료)', 'success');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대량 주소록 관리 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('addressbook-bulk-upload'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('대량 주소록 관리'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">엑셀 업로드</h3>
+                        <div class="card-description">대량 수신자 주소록을 엑셀 파일로 한 번에 등록</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">엑셀 파일 선택</label>
+                        <input type="file" class="form-control" accept=".xlsx,.xls" id="excel-file">
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <button class="btn btn-primary" onclick="uploadExcel()">업로드</button>
+                        <button class="btn btn-outline" onclick="downloadTemplate()">템플릿 다운로드</button>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">일괄 삭제/수정</h3>
+                        <div class="card-description">여러 주소록 또는 다수 수신자 데이터의 일괄 변경 및 삭제</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">작업 선택</label>
+                        <select class="form-control" id="bulk-action">
+                            <option value="delete">일괄 삭제</option>
+                            <option value="move-group">그룹 이동</option>
+                            <option value="update-status">상태 변경</option>
+                        </select>
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <button class="btn btn-danger" onclick="bulkProcess()">일괄 처리</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function uploadExcel() {
+            const file = document.getElementById('excel-file').files[0];
+            if (!file) {
+                showToast('파일을 선택해주세요.', 'error');
+                return;
+            }
+            showToast('업로드 중...', 'info');
+        }
+        
+        function downloadTemplate() {
+            showToast('템플릿 다운로드 기능은 준비 중입니다.', 'info');
+        }
+        
+        function bulkProcess() {
+            if (confirm('정말 일괄 처리하시겠습니까?')) {
+                showToast('처리되었습니다.', 'success');
+            }
+        }
+    </script>
+</body>
+</html>

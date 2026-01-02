@@ -3,630 +3,356 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>문의 관리 - 어드민</title>
+    <title>문의 관리 - 관리자 시스템</title>
     <link rel="stylesheet" href="css/admin-common.css">
 </head>
 <body>
     <div class="admin-container">
-        <!-- 사이드바 -->
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <h1>Tokbell Admin</h1>
-                <div class="subtitle">관리자 시스템</div>
-            </div>
-            <nav class="sidebar-menu">
-                <div class="menu-section">
-                    <div class="menu-section-title">메인</div>
-                    <a href="index.html" class="menu-item">
-                        <span>대시보드</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">사용자 관리</div>
-                    <a href="user-list.html" class="menu-item">
-                        <span>회원 관리</span>
-                    </a>
-                    <a href="user-permission.html" class="menu-item">
-                        <span>권한 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">발신번호 관리</div>
-                    <a href="caller-number-pending.html" class="menu-item">
-                        <span>승인 대기</span>
-                    </a>
-                    <a href="caller-number-approved.html" class="menu-item">
-                        <span>승인 완료</span>
-                    </a>
-                    <a href="caller-number-list.html" class="menu-item">
-                        <span>발신번호 목록</span>
-                    </a>
-                    <a href="kakao-profile-list.html" class="menu-item">
-                        <span>발신프로필 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">템플릿 관리</div>
-                    <a href="template-alimtalk-review.html" class="menu-item">
-                        <span>알림톡 템플릿 검수</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">발송 관리</div>
-                    <a href="send-history.html" class="menu-item">
-                        <span>발송 내역 모니터링</span>
-                    </a>
-                    <a href="send-statistics.html" class="menu-item">
-                        <span>발송 통계</span>
-                    </a>
-                    <a href="send-policy.html" class="menu-item">
-                        <span>발송 정책 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">결제 관리</div>
-                    <a href="payment-charge-list.html" class="menu-item">
-                        <span>충전 내역</span>
-                    </a>
-                    <a href="payment-deposit.html" class="menu-item">
-                        <span>입금 확인</span>
-                    </a>
-                    <a href="payment-pricing.html" class="menu-item">
-                        <span>요금 설정</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">기타 관리</div>
-                    <a href="consultation-list.html" class="menu-item">
-                        <span>상담 신청 관리</span>
-                    </a>
-                    <a href="inquiry-list.html" class="menu-item active">
-                        <span>문의 관리</span>
-                    </a>
-                    <a href="notice-list.html" class="menu-item">
-                        <span>공지사항 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">시스템</div>
-                    <a href="system-settings.html" class="menu-item">
-                        <span>시스템 설정</span>
-                    </a>
-                    <a href="statistics-report.html" class="menu-item">
-                        <span>통계 및 리포트</span>
-                    </a>
-                    <a href="security-audit.html" class="menu-item">
-                        <span>보안 및 감사</span>
-                    </a>
-                </div>
-            </nav>
-        </aside>
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('inquiry-list'));
+        </script>
         
-        <!-- 메인 컨텐츠 -->
         <main class="admin-main">
-            <!-- 헤더 -->
-            <header class="admin-header">
-                <div class="header-left">
-                    <h2 class="page-title">문의 관리</h2>
-                </div>
-                <div class="header-right">
-                    <div class="admin-user-info">
-                        <div class="user-avatar">관</div>
-                        <div>
-                            <div class="user-name">관리자</div>
-                            <div class="user-role">고객 지원</div>
-                        </div>
-                    </div>
-                    <button class="btn btn-outline btn-sm">로그아웃</button>
-                </div>
-            </header>
+            <script>
+                document.write(getHeaderHTML('문의 관리'));
+            </script>
             
-            <!-- 컨텐츠 -->
             <div class="admin-content">
-                <!-- 통계 카드 -->
-                <div class="stats-grid" style="margin-bottom: 24px; grid-template-columns: repeat(3, 1fr);">
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <div class="stat-card-title">처리 대기 문의</div>
-                            <div class="stat-card-icon icon-pending">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="stat-card-value">7건</div>
-                        <div class="stat-card-change">
-                            <span>긴급: 2건</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <div class="stat-card-title">처리 중 문의</div>
-                            <div class="stat-card-icon icon-processing">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="stat-card-value">5건</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <div class="stat-card-title">오늘 처리 완료</div>
-                            <div class="stat-card-icon icon-success">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="stat-card-value">12건</div>
-                    </div>
-                </div>
-                
-                <!-- 검색 및 필터 -->
-                <div class="search-filter-bar">
-                    <div class="search-box">
-                        <input type="text" class="form-control" placeholder="회원명 또는 제목 검색" id="searchInput">
-                    </div>
-                    <div class="filter-group">
-                        <div class="filter-item">
-                            <select class="form-control" id="inquiryTypeFilter">
-                                <option value="">문의 유형 (전체)</option>
-                                <option value="TECHNICAL">기술지원</option>
-                                <option value="PAYMENT">결제</option>
-                                <option value="OTHER">기타</option>
-                            </select>
-                        </div>
-                        <div class="filter-item">
-                            <select class="form-control" id="statusFilter">
-                                <option value="">처리 상태 (전체)</option>
-                                <option value="PENDING">대기</option>
-                                <option value="PROCESSING">처리중</option>
-                                <option value="COMPLETED">완료</option>
-                            </select>
-                        </div>
-                        <div class="filter-item">
-                            <select class="form-control" id="assigneeFilter">
-                                <option value="">담당자 (전체)</option>
-                                <option value="admin1">관리자A</option>
-                                <option value="admin2">관리자B</option>
-                            </select>
-                        </div>
-                        <div class="filter-item">
-                            <input type="date" class="form-control" id="startDate">
-                        </div>
-                        <div class="filter-item">
-                            <input type="date" class="form-control" id="endDate">
-                        </div>
-                        <button type="button" class="btn btn-primary" onclick="handleSearch()">검색</button>
-                        <button type="button" class="btn btn-outline" onclick="handleReset()">초기화</button>
-                    </div>
-                </div>
-                
-                <!-- 문의 목록 -->
                 <div class="card">
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <label class="form-label">회원명 검색</label>
+                            <input type="text" class="form-control" placeholder="회원명으로 검색" id="search-member">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">문의 유형</label>
+                            <select class="form-control" id="filter-type">
+                                <option value="">전체</option>
+                                <option value="technical">기술 문의</option>
+                                <option value="billing">결제 문의</option>
+                                <option value="other">기타</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">처리 상태</label>
+                            <select class="form-control" id="filter-status">
+                                <option value="">전체</option>
+                                <option value="pending">처리 대기</option>
+                                <option value="processing">처리 중</option>
+                                <option value="completed">완료</option>
+                            </select>
+                        </div>
+                        <div class="filter-item" style="align-self: flex-end;">
+                            <button class="btn btn-primary" onclick="searchInquiries()">조회</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 24px;">
                     <div class="card-header">
                         <h3 class="card-title">문의 목록</h3>
-                        <div class="card-description">총 1,234건</div>
+                        <div class="card-description">회원의 1:1 문의 및 고객센터 문의 목록</div>
                     </div>
                     <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>문의일시</th>
-                                    <th>회원 정보</th>
-                                    <th>문의 유형</th>
-                                    <th>문의 제목</th>
+                                    <th>접수일</th>
+                                    <th>회원명</th>
+                                    <th>제목</th>
+                                    <th>유형</th>
                                     <th>처리 상태</th>
-                                    <th>담당자</th>
                                     <th>관리</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="inquiry-list-tbody">
                                 <tr>
-                                    <td>2024-11-19 14:30</td>
-                                    <td>
-                                        <div>홍길동</div>
-                                        <div style="font-size: 12px; color: #64748b;">hong@example.com</div>
-                                    </td>
-                                    <td><span class="badge badge-info">기술지원</span></td>
-                                    <td>
-                                        <div>발송이 안 됩니다</div>
-                                        <div style="font-size: 12px; color: #64748b;">발송 버튼을 눌렀는데 발송이 되지 않습니다...</div>
-                                    </td>
-                                    <td><span class="badge badge-warning">대기</span></td>
-                                    <td>-</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('inquiryDetailModal')">상세</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2024-11-19 13:15</td>
-                                    <td>
-                                        <div>김철수</div>
-                                        <div style="font-size: 12px; color: #64748b;">kim@example.com</div>
-                                    </td>
-                                    <td><span class="badge badge-warning">결제</span></td>
-                                    <td>
-                                        <div>충전이 안 됩니다</div>
-                                        <div style="font-size: 12px; color: #64748b;">무통장입금 했는데 충전이 안 됩니다...</div>
-                                    </td>
-                                    <td><span class="badge badge-info">처리중</span></td>
-                                    <td>관리자A</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('inquiryDetailModal')">상세</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2024-11-19 12:00</td>
-                                    <td>
-                                        <div>이영희</div>
-                                        <div style="font-size: 12px; color: #64748b;">lee@example.com</div>
-                                    </td>
-                                    <td><span class="badge badge-secondary">기타</span></td>
-                                    <td>
-                                        <div>템플릿 승인 문의</div>
-                                        <div style="font-size: 12px; color: #64748b;">템플릿 승인까지 얼마나 걸리나요?</div>
-                                    </td>
-                                    <td><span class="badge badge-success">완료</span></td>
-                                    <td>관리자B</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('inquiryDetailModal')">상세</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2024-11-19 11:45</td>
-                                    <td>
-                                        <div>박민수</div>
-                                        <div style="font-size: 12px; color: #64748b;">park@example.com</div>
-                                    </td>
-                                    <td><span class="badge badge-info">기술지원</span></td>
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 8px;">
-                                            <span>발신번호 등록 오류</span>
-                                            <span class="badge badge-danger" style="font-size: 10px;">긴급</span>
-                                        </div>
-                                        <div style="font-size: 12px; color: #64748b;">발신번호 등록 시 오류가 발생합니다...</div>
-                                    </td>
-                                    <td><span class="badge badge-warning">대기</span></td>
-                                    <td>-</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('inquiryDetailModal')">상세</button>
+                                    <td colspan="6" style="text-align: center; padding: 40px;">
+                                        조회 버튼을 클릭하여 문의 목록을 검색하세요.
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <div class="pagination" id="pagination"></div>
                 </div>
             </div>
         </main>
     </div>
     
-    <!-- 문의 상세 모달 -->
-    <div class="modal" id="inquiryDetailModal">
-        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+    <!-- 문의 답변 모달 -->
+    <div id="inquiry-detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
             <div class="modal-header">
-                <h3 class="modal-title">문의 상세</h3>
-                <button class="modal-close" onclick="closeModal('inquiryDetailModal')">&times;</button>
+                <h3 class="modal-title">문의 답변</h3>
+                <button class="modal-close" onclick="closeModal('inquiry-detail-modal')">&times;</button>
             </div>
-            <div>
-                <!-- 문의 정보 -->
-                <div class="card" style="border: none; padding: 0; margin-bottom: 24px;">
+            <div style="padding: 24px;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">문의 내용</h3>
+                    </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                         <div class="form-group">
-                            <label class="form-label">문의일시</label>
-                            <div class="form-control" style="background-color: #f1f5f9;">2024-11-19 14:30:00</div>
+                            <label class="form-label">접수일</label>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-inquiry-date">-</div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">회원 정보</label>
-                            <div class="form-control" style="background-color: #f1f5f9;">홍길동 (hong@example.com)</div>
+                            <label class="form-label">회원명</label>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-inquiry-member">-</div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">문의 유형</label>
-                            <div><span class="badge badge-info">기술지원</span></div>
+                            <label class="form-label">유형</label>
+                            <div id="modal-inquiry-type">-</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">처리 상태</label>
-                            <div><span class="badge badge-warning">대기</span></div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">담당자</label>
-                            <div class="form-control" style="background-color: #f1f5f9;">-</div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">담당자 배정</label>
-                            <div style="display: flex; gap: 8px;">
-                                <select class="form-control" style="flex: 1;">
-                                    <option value="">담당자 선택</option>
-                                    <option value="admin1">관리자A</option>
-                                    <option value="admin2">관리자B</option>
-                                </select>
-                                <button type="button" class="btn btn-primary btn-sm" onclick="handleAssignInquiry()">배정</button>
-                            </div>
+                            <div id="modal-inquiry-status">-</div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- 문의 내용 -->
-                <div class="card" style="border: none; padding: 0; margin-bottom: 24px;">
-                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">문의 내용</h4>
-                    <div style="padding: 20px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
-                        <div style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">발송이 안 됩니다</div>
-                        <div style="font-size: 14px; line-height: 1.8; white-space: pre-wrap;">
-발송 버튼을 눌렀는데 발송이 되지 않습니다.
-에러 메시지도 나타나지 않고, 발송 내역에도 표시되지 않습니다.
-어떤 문제인지 확인 부탁드립니다.
-                        </div>
-                    </div>
-                    <div style="margin-top: 12px;">
-                        <div style="font-size: 12px; color: #64748b;">첨부 파일: error_screenshot.png</div>
-                        <button type="button" class="btn btn-outline btn-sm" style="margin-top: 8px;" onclick="handleDownloadAttachment('error_screenshot.png')">다운로드</button>
-                    </div>
-                </div>
-                
-                <!-- 답변 -->
-                <div class="card" style="border: none; padding: 0; margin-bottom: 24px;">
-                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">답변</h4>
                     <div class="form-group">
-                        <textarea class="form-control" rows="6" placeholder="답변 내용을 입력하세요"></textarea>
+                        <label class="form-label">제목</label>
+                        <div class="form-control" style="background-color: #f1f5f9;" id="modal-inquiry-title">-</div>
                     </div>
-                    <div style="margin-top: 12px;">
-                        <label class="form-label">첨부 파일</label>
-                        <input type="file" class="form-control">
-                    </div>
-                    <div style="margin-top: 16px; display: flex; gap: 8px;">
-                        <button type="button" class="btn btn-primary" onclick="handleSaveReply()">답변 저장</button>
-                        <button type="button" class="btn btn-success" onclick="handleSaveAndComplete()">답변 및 완료 처리</button>
+                    <div class="form-group">
+                        <label class="form-label">문의 내용</label>
+                        <div class="form-control" style="background-color: #f1f5f9; min-height: 100px; padding: 16px; white-space: pre-wrap;" id="modal-inquiry-content">-</div>
                     </div>
                 </div>
                 
-                <!-- 답변 이력 -->
-                <div class="card" style="border: none; padding: 0;">
-                    <h4 style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">답변 이력</h4>
-                    <div style="display: flex; flex-direction: column; gap: 16px;">
-                        <div style="padding: 16px; background-color: #f1f5f9; border-radius: 8px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                                <div>
-                                    <span style="font-weight: 600;">관리자A</span>
-                                    <span style="font-size: 12px; color: #64748b; margin-left: 8px;">2024-11-19 15:00</span>
-                                </div>
-                                <div>
-                                    <button type="button" class="btn btn-outline btn-sm" onclick="handleEditReply(this)">수정</button>
-                                    <button type="button" class="btn btn-outline btn-sm" style="margin-left: 4px;" onclick="handleDeleteReply(this)">삭제</button>
-                                </div>
-                            </div>
-                            <div style="font-size: 14px; line-height: 1.8;">
-안녕하세요. 문의해주신 내용 확인했습니다.
-발송 기능 점검 중이었습니다. 현재 정상 작동합니다.
-다시 시도해보시고 문제가 계속되면 알려주세요.
-                            </div>
-                        </div>
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">답변 작성</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">답변 내용</label>
+                        <textarea class="form-control" id="answer-content" rows="6" placeholder="답변 내용을 입력하세요"></textarea>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('inquiryDetailModal')">닫기</button>
+                <button class="btn btn-outline" onclick="closeModal('inquiry-detail-modal')">취소</button>
+                <button class="btn btn-primary" onclick="submitAnswer()">답변 등록</button>
             </div>
         </div>
     </div>
     
     <script src="js/admin-common.js"></script>
     <script>
-        createPagination(1, 10, 'pagination');
+        // Mock 데이터
+        const mockInquiries = [
+            {
+                id: 1,
+                date: '2024-11-19',
+                memberName: '홍길동',
+                memberEmail: 'hong@example.com',
+                title: '결제 관련 문의',
+                content: '결제가 정상적으로 처리되지 않았습니다. 카드 결제를 시도했는데 실패했습니다. 환불이 필요한지 확인 부탁드립니다.',
+                type: 'billing',
+                typeLabel: '결제 문의',
+                status: 'pending',
+                statusLabel: '처리 대기'
+            },
+            {
+                id: 2,
+                date: '2024-11-18',
+                memberName: '김철수',
+                memberEmail: 'kim@example.com',
+                title: 'API 연동 문의',
+                content: 'API 연동 시 인증 토큰 발급 방법에 대해 문의드립니다. 문서를 확인했지만 이해가 안 되는 부분이 있어서요.',
+                type: 'technical',
+                typeLabel: '기술 문의',
+                status: 'processing',
+                statusLabel: '처리 중'
+            },
+            {
+                id: 3,
+                date: '2024-11-17',
+                memberName: '이영희',
+                memberEmail: 'lee@example.com',
+                title: '템플릿 승인 기간',
+                content: '템플릿 승인까지 얼마나 걸리나요? 급하게 사용해야 하는 템플릿인데요.',
+                type: 'other',
+                typeLabel: '기타',
+                status: 'completed',
+                statusLabel: '완료'
+            },
+            {
+                id: 4,
+                date: '2024-11-16',
+                memberName: '박지훈',
+                memberEmail: 'park@example.com',
+                title: '발신번호 인증 문의',
+                content: '발신번호 인증이 계속 거부되는데 이유를 알 수 있을까요?',
+                type: 'technical',
+                typeLabel: '기술 문의',
+                status: 'pending',
+                statusLabel: '처리 대기'
+            },
+            {
+                id: 5,
+                date: '2024-11-15',
+                memberName: '최민수',
+                memberEmail: 'choi@example.com',
+                title: '요금제 변경 문의',
+                content: '현재 사용 중인 요금제에서 다른 요금제로 변경하고 싶습니다.',
+                type: 'billing',
+                typeLabel: '결제 문의',
+                status: 'completed',
+                statusLabel: '완료'
+            }
+        ];
         
-        // 검색 처리
-        function handleSearch() {
-            const searchInput = document.getElementById('searchInput').value;
-            const inquiryType = document.getElementById('inquiryTypeFilter').value;
-            const status = document.getElementById('statusFilter').value;
-            const assignee = document.getElementById('assigneeFilter').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
+        let currentInquiryId = null;
+        
+        function searchInquiries() {
+            const searchMember = document.getElementById('search-member').value.trim();
+            const filterType = document.getElementById('filter-type').value;
+            const filterStatus = document.getElementById('filter-status').value;
             
-            // 검색 조건 로깅 (실제로는 API 호출)
-            console.log('검색 조건:', {
-                search: searchInput,
-                inquiryType,
-                status,
-                assignee,
-                startDate,
-                endDate
+            // 필터링
+            let filteredInquiries = mockInquiries.filter(inquiry => {
+                // 회원명 검색
+                if (searchMember && !inquiry.memberName.includes(searchMember)) {
+                    return false;
+                }
+                // 문의 유형 필터
+                if (filterType && inquiry.type !== filterType) {
+                    return false;
+                }
+                // 처리 상태 필터
+                if (filterStatus && inquiry.status !== filterStatus) {
+                    return false;
+                }
+                return true;
             });
             
-            showToast('검색이 완료되었습니다.', 'success');
+            // 테이블 업데이트
+            const tbody = document.getElementById('inquiry-list-tbody');
             
-            // 실제로는 여기서 API 호출 후 테이블 업데이트
+            if (filteredInquiries.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px;">
+                            검색 결과가 없습니다.
+                        </td>
+                    </tr>
+                `;
+                showToast('검색 결과가 없습니다.', 'info');
+            } else {
+                tbody.innerHTML = filteredInquiries.map(inquiry => {
+                    const statusBadge = {
+                        'pending': 'badge-warning',
+                        'processing': 'badge-info',
+                        'completed': 'badge-success'
+                    }[inquiry.status] || 'badge-secondary';
+                    
+                    return `
+                        <tr>
+                            <td>${inquiry.date}</td>
+                            <td>${inquiry.memberName}</td>
+                            <td>${inquiry.title}</td>
+                            <td>${inquiry.typeLabel}</td>
+                            <td><span class="badge ${statusBadge}">${inquiry.statusLabel}</span></td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" onclick="viewDetail(${inquiry.id})">답변</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                showToast(`${filteredInquiries.length}건의 문의가 조회되었습니다.`, 'success');
+            }
         }
         
-        // 초기화 처리
-        function handleReset() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('inquiryTypeFilter').value = '';
-            document.getElementById('statusFilter').value = '';
-            document.getElementById('assigneeFilter').value = '';
-            document.getElementById('startDate').value = '';
-            document.getElementById('endDate').value = '';
+        function viewDetail(id) {
+            currentInquiryId = id;
+            const inquiry = mockInquiries.find(i => i.id === id);
             
-            showToast('검색 조건이 초기화되었습니다.', 'info');
-            
-            // 실제로는 여기서 전체 목록 다시 로드
+            if (inquiry) {
+                document.getElementById('modal-inquiry-date').textContent = inquiry.date;
+                document.getElementById('modal-inquiry-member').textContent = `${inquiry.memberName} (${inquiry.memberEmail})`;
+                document.getElementById('modal-inquiry-title').textContent = inquiry.title;
+                document.getElementById('modal-inquiry-content').textContent = inquiry.content;
+                
+                const typeBadge = {
+                    'technical': 'badge-info',
+                    'billing': 'badge-warning',
+                    'other': 'badge-secondary'
+                }[inquiry.type] || 'badge-secondary';
+                document.getElementById('modal-inquiry-type').innerHTML = `<span class="badge ${typeBadge}">${inquiry.typeLabel}</span>`;
+                
+                const statusBadge = {
+                    'pending': 'badge-warning',
+                    'processing': 'badge-info',
+                    'completed': 'badge-success'
+                }[inquiry.status] || 'badge-secondary';
+                document.getElementById('modal-inquiry-status').innerHTML = `<span class="badge ${statusBadge}">${inquiry.statusLabel}</span>`;
+                
+                // 답변 내용 초기화
+                document.getElementById('answer-content').value = '';
+                
+                // 완료된 문의는 답변 입력 비활성화
+                const answerTextarea = document.getElementById('answer-content');
+                const submitButton = document.querySelector('#inquiry-detail-modal .btn-primary');
+                
+                if (inquiry.status === 'completed') {
+                    answerTextarea.disabled = true;
+                    answerTextarea.placeholder = '이미 답변이 완료된 문의입니다.';
+                    submitButton.disabled = true;
+                    submitButton.textContent = '답변 완료';
+                } else {
+                    answerTextarea.disabled = false;
+                    answerTextarea.placeholder = '답변 내용을 입력하세요';
+                    submitButton.disabled = false;
+                    submitButton.textContent = '답변 등록';
+                }
+                
+                openModal('inquiry-detail-modal');
+            }
         }
         
-        // 담당자 배정 처리
-        function handleAssignInquiry() {
-            const assigneeSelect = document.querySelector('#inquiryDetailModal select');
-            const assignee = assigneeSelect.value;
-            
-            if (!assignee) {
-                showToast('담당자를 선택해주세요.', 'error');
+        function submitAnswer() {
+            if (!currentInquiryId) {
+                showToast('문의 정보를 찾을 수 없습니다.', 'error');
                 return;
             }
             
-            const assigneeName = assigneeSelect.options[assigneeSelect.selectedIndex].text;
-            
-            confirmAction('담당자를 배정하시겠습니까?', function() {
-                // API 호출
-                
-                // 모달 내 담당자 정보 업데이트
-                const assigneeDisplay = document.querySelector('#inquiryDetailModal .form-group:nth-child(5) .form-control');
-                if (assigneeDisplay) {
-                    assigneeDisplay.textContent = assigneeName;
-                }
-                
-                // 처리 상태를 "처리중"으로 변경
-                const statusBadge = document.querySelector('#inquiryDetailModal .badge-warning');
-                if (statusBadge) {
-                    statusBadge.textContent = '처리중';
-                    statusBadge.className = 'badge badge-info';
-                }
-                
-                showToast('담당자가 배정되었습니다.', 'success');
-            });
-        }
-        
-        // 첨부 파일 다운로드
-        function handleDownloadAttachment(filename) {
-            // 실제로는 파일 다운로드 API 호출
-            showToast('파일 다운로드를 시작합니다.', 'info');
-            
-            // 시뮬레이션: 실제로는 파일 다운로드 링크 생성
-            console.log('다운로드 파일:', filename);
-        }
-        
-        // 답변 저장
-        function handleSaveReply() {
-            const replyTextarea = document.querySelector('#inquiryDetailModal textarea');
-            const replyContent = replyTextarea.value.trim();
-            
-            if (!replyContent) {
+            const content = document.getElementById('answer-content').value.trim();
+            if (!content) {
                 showToast('답변 내용을 입력해주세요.', 'error');
                 return;
             }
             
-            const fileInput = document.querySelector('#inquiryDetailModal input[type="file"]');
-            const hasFile = fileInput && fileInput.files.length > 0;
-            
-            confirmAction('답변을 저장하시겠습니까?', function() {
-                // API 호출
-                
-                // 답변 이력에 추가
-                const replyHistory = document.querySelector('#inquiryDetailModal .card:last-child > div:last-child');
-                if (replyHistory) {
-                    const newReply = document.createElement('div');
-                    newReply.style.cssText = 'padding: 16px; background-color: #f1f5f9; border-radius: 8px;';
-                    newReply.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                            <div>
-                                <span style="font-weight: 600;">관리자</span>
-                                <span style="font-size: 12px; color: #64748b; margin-left: 8px;">${new Date().toLocaleString('ko-KR')}</span>
-                            </div>
-                            <div>
-                                <button type="button" class="btn btn-outline btn-sm" onclick="handleEditReply(this)">수정</button>
-                                <button type="button" class="btn btn-outline btn-sm" style="margin-left: 4px;" onclick="handleDeleteReply(this)">삭제</button>
-                            </div>
-                        </div>
-                        <div style="font-size: 14px; line-height: 1.8; white-space: pre-wrap;">${replyContent}</div>
-                    `;
-                    replyHistory.appendChild(newReply);
-                }
-                
-                // 답변 입력란 초기화
-                replyTextarea.value = '';
-                if (fileInput) {
-                    fileInput.value = '';
-                }
-                
-                showToast('답변이 저장되었습니다.', 'success');
-            });
-        }
-        
-        // 답변 및 완료 처리
-        function handleSaveAndComplete() {
-            const replyTextarea = document.querySelector('#inquiryDetailModal textarea');
-            const replyContent = replyTextarea.value.trim();
-            
-            if (!replyContent) {
-                showToast('답변 내용을 입력해주세요.', 'error');
-                return;
+            // Mock 데이터 업데이트
+            const inquiry = mockInquiries.find(i => i.id === currentInquiryId);
+            if (inquiry) {
+                inquiry.status = 'completed';
+                inquiry.statusLabel = '완료';
             }
             
-            confirmAction('답변을 저장하고 완료 처리하시겠습니까?', function() {
-                // 답변 저장 먼저 처리
-                const fileInput = document.querySelector('#inquiryDetailModal input[type="file"]');
-                const replyHistory = document.querySelector('#inquiryDetailModal .card:last-child > div:last-child');
-                if (replyHistory) {
-                    const newReply = document.createElement('div');
-                    newReply.style.cssText = 'padding: 16px; background-color: #f1f5f9; border-radius: 8px;';
-                    newReply.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                            <div>
-                                <span style="font-weight: 600;">관리자</span>
-                                <span style="font-size: 12px; color: #64748b; margin-left: 8px;">${new Date().toLocaleString('ko-KR')}</span>
-                            </div>
-                            <div>
-                                <button type="button" class="btn btn-outline btn-sm" onclick="handleEditReply(this)">수정</button>
-                                <button type="button" class="btn btn-outline btn-sm" style="margin-left: 4px;" onclick="handleDeleteReply(this)">삭제</button>
-                            </div>
-                        </div>
-                        <div style="font-size: 14px; line-height: 1.8; white-space: pre-wrap;">${replyContent}</div>
-                    `;
-                    replyHistory.appendChild(newReply);
-                }
-                
-                // 처리 상태를 "완료"로 변경
-                const statusBadge = document.querySelector('#inquiryDetailModal .badge-warning, #inquiryDetailModal .badge-info');
-                if (statusBadge) {
-                    statusBadge.textContent = '완료';
-                    statusBadge.className = 'badge badge-success';
-                }
-                
-                // 답변 입력란 초기화
-                replyTextarea.value = '';
-                if (fileInput) {
-                    fileInput.value = '';
-                }
-                
-                showToast('답변이 저장되고 완료 처리되었습니다.', 'success');
-            });
+            // 성공 메시지
+            showToast('답변이 등록되었습니다. 회원에게 알림이 발송되었습니다.', 'success');
+            
+            // 모달 닫기
+            closeModal('inquiry-detail-modal');
+            
+            // 목록 새로고침
+            searchInquiries();
         }
         
-        // 답변 수정
-        function handleEditReply(button) {
-            const replyItem = button.closest('div[style*="padding: 16px"]');
-            const replyContent = replyItem.querySelector('div:last-child').textContent.trim();
-            
-            // 답변 입력란에 내용 채우기
-            const replyTextarea = document.querySelector('#inquiryDetailModal textarea');
-            if (replyTextarea) {
-                replyTextarea.value = replyContent;
-                replyTextarea.focus();
+        // Enter 키로 검색
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-member');
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter') {
+                        searchInquiries();
+                    }
+                });
             }
             
-            // 수정 중임을 표시하기 위해 임시 클래스 추가
-            replyItem.style.border = '2px solid #3b82f6';
-            
-            showToast('답변을 수정할 수 있습니다. 수정 후 저장 버튼을 클릭하세요.', 'info');
-        }
-        
-        // 답변 삭제
-        function handleDeleteReply(button) {
-            confirmAction('답변을 삭제하시겠습니까?', function() {
-                const replyItem = button.closest('div[style*="padding: 16px"]');
-                if (replyItem) {
-                    replyItem.remove();
-                    showToast('답변이 삭제되었습니다.', 'success');
-                }
-            });
-        }
-    </script>
+            // 페이지 로드 시 초기 데이터 표시
+            searchInquiries();
+        });
 </body>
 </html>
-

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>코드 관리 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('code-manage'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('코드 관리'));
+            </script>
+            
+            <div class="admin-content">
+                <div style="margin-bottom: 24px;">
+                    <button class="btn btn-primary" onclick="addCode()">코드 등록</button>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">공통 코드 관리</h3>
+                        <div class="card-description">시스템에서 사용하는 공통 코드 등록/수정/삭제</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>코드 그룹</th>
+                                    <th>코드</th>
+                                    <th>코드명</th>
+                                    <th>설명</th>
+                                    <th>사용 여부</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>메시지 유형</td>
+                                    <td>MSG_SMS</td>
+                                    <td>SMS</td>
+                                    <td>일반 문자 메시지</td>
+                                    <td><span class="badge badge-success">사용</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="editCode(1)">수정</button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteCode(1)">삭제</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function addCode() {
+            showToast('코드 등록 기능은 준비 중입니다.', 'info');
+        }
+        
+        function editCode(id) {
+            showToast('코드 수정 기능은 준비 중입니다.', 'info');
+        }
+        
+        function deleteCode(id) {
+            if (confirm('정말 삭제하시겠습니까?')) {
+                showToast('삭제되었습니다.', 'success');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -3,130 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>상담 신청 관리 - 어드민</title>
+    <title>견적 문의 관리 - 관리자 시스템</title>
     <link rel="stylesheet" href="css/admin-common.css">
 </head>
 <body>
     <div class="admin-container">
-        <!-- 사이드바 -->
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <h1>Tokbell Admin</h1>
-                <div class="subtitle">관리자 시스템</div>
-            </div>
-            <nav class="sidebar-menu">
-                <div class="menu-section">
-                    <div class="menu-section-title">메인</div>
-                    <a href="index.html" class="menu-item">
-                        <span>대시보드</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">사용자 관리</div>
-                    <a href="user-list.html" class="menu-item">
-                        <span>회원 관리</span>
-                    </a>
-                    <a href="user-permission.html" class="menu-item">
-                        <span>권한 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">발신번호 관리</div>
-                    <a href="caller-number-pending.html" class="menu-item">
-                        <span>승인 대기</span>
-                    </a>
-                    <a href="caller-number-approved.html" class="menu-item">
-                        <span>승인 완료</span>
-                    </a>
-                    <a href="caller-number-list.html" class="menu-item">
-                        <span>발신번호 목록</span>
-                    </a>
-                    <a href="kakao-profile-list.html" class="menu-item">
-                        <span>발신프로필 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">템플릿 관리</div>
-                    <a href="template-alimtalk-review.html" class="menu-item">
-                        <span>알림톡 템플릿 검수</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">발송 관리</div>
-                    <a href="send-history.html" class="menu-item">
-                        <span>발송 내역 모니터링</span>
-                    </a>
-                    <a href="send-statistics.html" class="menu-item">
-                        <span>발송 통계</span>
-                    </a>
-                    <a href="send-policy.html" class="menu-item">
-                        <span>발송 정책 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">결제 관리</div>
-                    <a href="payment-charge-list.html" class="menu-item">
-                        <span>충전 내역</span>
-                    </a>
-                    <a href="payment-deposit.html" class="menu-item">
-                        <span>입금 확인</span>
-                    </a>
-                    <a href="payment-pricing.html" class="menu-item">
-                        <span>요금 설정</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">기타 관리</div>
-                    <a href="consultation-list.html" class="menu-item active">
-                        <span>상담 신청 관리</span>
-                    </a>
-                    <a href="inquiry-list.html" class="menu-item">
-                        <span>문의 관리</span>
-                    </a>
-                    <a href="notice-list.html" class="menu-item">
-                        <span>공지사항 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">시스템</div>
-                    <a href="system-settings.html" class="menu-item">
-                        <span>시스템 설정</span>
-                    </a>
-                    <a href="statistics-report.html" class="menu-item">
-                        <span>통계 및 리포트</span>
-                    </a>
-                    <a href="security-audit.html" class="menu-item">
-                        <span>보안 및 감사</span>
-                    </a>
-                </div>
-            </nav>
-        </aside>
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('consultation-list'));
+        </script>
         
-        <!-- 메인 컨텐츠 -->
         <main class="admin-main">
-            <!-- 헤더 -->
-            <header class="admin-header">
-                <div class="header-left">
-                    <h2 class="page-title">상담 신청 관리</h2>
-                </div>
-                <div class="header-right">
-                    <div class="admin-user-info">
-                        <div class="user-avatar">관</div>
-                        <div>
-                            <div class="user-name">관리자</div>
-                            <div class="user-role">운영 관리자</div>
-                        </div>
-                    </div>
-                    <button class="btn btn-outline btn-sm">로그아웃</button>
-                </div>
-            </header>
+            <script>
+                document.write(getHeaderHTML('견적 문의 관리'));
+            </script>
             
             <!-- 컨텐츠 -->
             <div class="admin-content">
@@ -230,8 +120,8 @@
                 <!-- 상담 신청 목록 -->
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">상담 신청 목록</h3>
-                        <div class="card-description">총 36건</div>
+                        <h3 class="card-title">견적 문의 목록</h3>
+                        <div class="card-description">회원 또는 비회원의 메시지 유형과 예상 발송량, 상담 내용 확인 후 예상 비용과 마일리지 혜택 안내</div>
                     </div>
                     <div class="table-container">
                         <table>
@@ -345,14 +235,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="pagination">
-                        <button class="pagination-btn" disabled>&lt;</button>
-                        <button class="pagination-btn active">1</button>
-                        <button class="pagination-btn">2</button>
-                        <button class="pagination-btn">3</button>
-                        <button class="pagination-btn">4</button>
-                        <button class="pagination-btn">&gt;</button>
-                    </div>
+                    <div class="pagination" id="pagination"></div>
                 </div>
             </div>
         </main>
@@ -584,6 +467,13 @@
         function downloadExcel() {
             showToast('엑셀 파일 다운로드를 시작합니다.', 'success');
         }
+        
+        // 페이지 이동
+        function goToPage(page) {
+            // 실제로는 API 호출하여 해당 페이지 데이터 로드
+            showToast(`${page}페이지로 이동합니다.`, 'info');
+            createPagination(page, 5, 'pagination');
+        }
 
         // 상세 모달 열기
         function openDetailModal(id) {
@@ -741,6 +631,9 @@
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
             document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+            
+            // 페이지네이션 초기화
+            createPagination(1, 5, 'pagination');
         });
     </script>
     
@@ -756,5 +649,6 @@
     </style>
 </body>
 </html>
+
 
 
