@@ -128,181 +128,78 @@
                     </div>
                 </div>
                 
-                <!-- 최대 매출 회원 조회 -->
-                <div class="card" style="margin-top: 24px;">
-                    <div class="card-header">
-                        <h3 class="card-title">최대 매출 회원 조회</h3>
-                        <div class="card-description">금일/주간/월간 발송량이 가장 많은 회원 계정 정보</div>
+                <!-- 승인 대기 목록 영역 -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 24px;">
+                    <!-- 회원가입 승인 필요 목록 -->
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h3 class="card-title">회원가입 승인 대기</h3>
+                                <div class="card-description">승인이 필요한 회원 가입 요청</div>
+                            </div>
+                            <a href="member-approval.html" class="btn btn-outline btn-sm">전체보기</a>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>신청일</th>
+                                        <th>회원명</th>
+                                        <th>회원유형</th>
+                                        <th>이메일</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="member-approval-list">
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; padding: 40px;">
+                                            데이터를 불러오는 중...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="padding: 16px; text-align: center; background-color: #f8fafc; border-top: 1px solid #e2e8f0;">
+                            <span style="font-size: 14px; color: #64748b;">총 <strong id="member-approval-count" style="color: #3b82f6;">0</strong>건의 승인 대기</span>
+                        </div>
                     </div>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>순위</th>
-                                    <th>회원명</th>
-                                    <th>이메일</th>
-                                    <th>총 충전 금액</th>
-                                    <th>발송 건수</th>
-                                    <th>성공 건수</th>
-                                    <th>채널별 성공 건수</th>
-                                    <th>관리</th>
-                                </tr>
-                            </thead>
-                            <tbody id="top-member-list">
-                                <tr>
-                                    <td colspan="8" style="text-align: center; padding: 40px;">
-                                        데이터를 불러오는 중...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    
+                    <!-- 발신번호 승인 필요 목록 -->
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h3 class="card-title">발신번호 승인 대기</h3>
+                                <div class="card-description">승인이 필요한 발신번호 인증 요청</div>
+                            </div>
+                            <a href="caller-number-pending.html" class="btn btn-outline btn-sm">전체보기</a>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>신청일</th>
+                                        <th>회원명</th>
+                                        <th>발신번호</th>
+                                        <th>통신사</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="caller-approval-list">
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; padding: 40px;">
+                                            데이터를 불러오는 중...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="padding: 16px; text-align: center; background-color: #f8fafc; border-top: 1px solid #e2e8f0;">
+                            <span style="font-size: 14px; color: #64748b;">총 <strong id="caller-approval-count" style="color: #3b82f6;">0</strong>건의 승인 대기</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
-    </div>
-    
-    <!-- 회원 상세 모달 -->
-    <div id="member-detail-modal" class="modal">
-        <div class="modal-content" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
-            <div class="modal-header">
-                <h3 class="modal-title">회원 상세 정보</h3>
-                <button class="modal-close" onclick="closeModal('member-detail-modal')">&times;</button>
-            </div>
-            <div style="padding: 24px;">
-                <div class="tabs">
-                    <button class="tab active" onclick="switchModalTab('basic')">기본정보</button>
-                    <button class="tab" onclick="switchModalTab('sender')">발신번호</button>
-                    <button class="tab" onclick="switchModalTab('payment')">결제내역</button>
-                    <button class="tab" onclick="switchModalTab('send-history')">발송이력</button>
-                </div>
-                
-                <div id="modal-tab-basic" class="tab-content" style="margin-top: 24px;">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">기본 정보</h3>
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
-                            <div class="form-group">
-                                <label class="form-label">회원 ID</label>
-                                <div class="form-control" style="background-color: #f1f5f9;" id="modal-member-id">-</div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">이름</label>
-                                <div class="form-control" style="background-color: #f1f5f9;" id="modal-member-name">-</div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">이메일</label>
-                                <div class="form-control" style="background-color: #f1f5f9;" id="modal-member-email">-</div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">회원유형</label>
-                                <div class="form-control" style="background-color: #f1f5f9;" id="modal-member-type">-</div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">회원 등급</label>
-                                <div class="form-control" style="background-color: #f1f5f9;" id="modal-member-grade">-</div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">가입일</label>
-                                <div class="form-control" style="background-color: #f1f5f9;" id="modal-member-join-date">-</div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">상태</label>
-                                <div class="form-control" style="background-color: #f1f5f9;" id="modal-member-status">-</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="modal-tab-sender" class="tab-content" style="display: none; margin-top: 24px;">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">발신번호 등록 현황</h3>
-                        </div>
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>발신번호</th>
-                                        <th>인증 상태</th>
-                                        <th>등록일</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>010-1234-5678</td>
-                                        <td><span class="badge badge-success">승인</span></td>
-                                        <td>2024-01-20</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="modal-tab-payment" class="tab-content" style="display: none; margin-top: 24px;">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">결제 내역</h3>
-                        </div>
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>결제일시</th>
-                                        <th>금액</th>
-                                        <th>결제수단</th>
-                                        <th>상태</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>2024-11-19 10:30:00</td>
-                                        <td>₩100,000</td>
-                                        <td>신용카드</td>
-                                        <td><span class="badge badge-success">완료</span></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="modal-tab-send-history" class="tab-content" style="display: none; margin-top: 24px;">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">발송 이력</h3>
-                        </div>
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>발송일시</th>
-                                        <th>메시지 유형</th>
-                                        <th>발송 건수</th>
-                                        <th>성공</th>
-                                        <th>실패</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>2024-11-19 14:30:00</td>
-                                        <td><span class="badge badge-info">알림톡</span></td>
-                                        <td>1,000</td>
-                                        <td>995</td>
-                                        <td>5</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('member-detail-modal')">닫기</button>
-            </div>
-        </div>
     </div>
     
     <script src="js/admin-common.js"></script>
@@ -341,127 +238,132 @@
             
             document.getElementById('kpi-channel-detail').innerHTML = 
                 `<span>SMS: ${formatNumber(mockData.channels.sms)}, 알림톡: ${formatNumber(mockData.channels.alimtalk)}, 브랜드 메시지: ${formatNumber(mockData.channels.brandtalk)}</span>`;
-            
-            // 최대 매출 회원 목록
-            loadTopMembers(period);
         }
         
-        // 최대 매출 회원 데이터 저장
-        let topMembersData = [];
-        
-        // 최대 매출 회원 목록 로드
-        function loadTopMembers(period) {
-            topMembersData = [
+        // 회원가입 승인 대기 목록 로드
+        function loadMemberApprovalList() {
+            const mockData = [
                 {
-                    rank: 1,
-                    name: '홍길동',
-                    email: 'hong@example.com',
-                    id: 'M001',
-                    type: 'business',
-                    grade: 'vip',
-                    joinDate: '2024-01-15',
-                    status: 'active',
-                    totalCharge: 5000000,
-                    sendCount: 50000,
-                    successCount: 48500,
-                    channels: { sms: 20000, alimtalk: 25000, brandtalk: 3500 }
+                    id: 1,
+                    applyDate: '2025-01-05',
+                    name: '김신규',
+                    type: 'company',
+                    email: 'newkim@company.com'
                 },
                 {
-                    rank: 2,
-                    name: '김철수',
-                    email: 'kim@example.com',
-                    id: 'M002',
-                    type: 'business',
-                    grade: 'vip',
-                    joinDate: '2024-02-20',
-                    status: 'active',
-                    totalCharge: 3500000,
-                    sendCount: 35000,
-                    successCount: 34000,
-                    channels: { sms: 15000, alimtalk: 18000, brandtalk: 2000 }
-                },
-                {
-                    rank: 3,
-                    name: '이영희',
-                    email: 'lee@example.com',
-                    id: 'M003',
+                    id: 2,
+                    applyDate: '2025-01-04',
+                    name: '이가입',
                     type: 'individual',
-                    grade: 'normal',
-                    joinDate: '2024-03-10',
-                    status: 'active',
-                    totalCharge: 2800000,
-                    sendCount: 28000,
-                    successCount: 27200,
-                    channels: { sms: 12000, alimtalk: 14000, brandtalk: 2000 }
+                    email: 'joinlee@email.com'
+                },
+                {
+                    id: 3,
+                    applyDate: '2025-01-04',
+                    name: '박사업',
+                    type: 'company',
+                    email: 'bizpark@company.com'
+                },
+                {
+                    id: 4,
+                    applyDate: '2025-01-03',
+                    name: '최개인',
+                    type: 'individual',
+                    email: 'personal@email.com'
+                },
+                {
+                    id: 5,
+                    applyDate: '2025-01-03',
+                    name: '정기업',
+                    type: 'company',
+                    email: 'corp@company.com'
                 }
             ];
             
-            const tbody = document.getElementById('top-member-list');
-            tbody.innerHTML = topMembersData.map(member => `
+            const tbody = document.getElementById('member-approval-list');
+            tbody.innerHTML = mockData.slice(0, 5).map(item => `
                 <tr>
-                    <td>${member.rank}</td>
-                    <td>${member.name}</td>
-                    <td>${member.email}</td>
-                    <td>₩${formatNumber(member.totalCharge)}</td>
-                    <td>${formatNumber(member.sendCount)}</td>
-                    <td>${formatNumber(member.successCount)}</td>
+                    <td>${item.applyDate}</td>
+                    <td>${item.name}</td>
+                    <td><span class="badge ${item.type === 'company' ? 'badge-info' : 'badge-secondary'}">${item.type === 'company' ? '기업' : '개인'}</span></td>
+                    <td>${item.email}</td>
                     <td>
-                        SMS: ${formatNumber(member.channels.sms)}, 
-                        알림톡: ${formatNumber(member.channels.alimtalk)}, 
-                        브랜드 메시지: ${formatNumber(member.channels.brandtalk)}
-                    </td>
-                    <td>
-                        <button class="btn btn-primary btn-sm" onclick="viewTopMemberDetail('${member.email}')">상세보기</button>
+                        <button class="btn btn-primary btn-sm" onclick="location.href='member-approval.html'">검토</button>
                     </td>
                 </tr>
             `).join('');
-        }
-        
-        // 최대 매출 회원 상세보기
-        function viewTopMemberDetail(email) {
-            const member = topMembersData.find(m => m.email === email);
-            if (member) {
-                document.getElementById('modal-member-id').textContent = member.id;
-                document.getElementById('modal-member-name').textContent = member.name;
-                document.getElementById('modal-member-email').textContent = member.email;
-                document.getElementById('modal-member-type').textContent = member.type === 'individual' ? '개인' : '기업';
-                document.getElementById('modal-member-grade').innerHTML = `<span class="badge ${member.grade === 'vip' ? 'badge-warning' : 'badge-info'}">${member.grade === 'vip' ? 'VIP' : '일반'}</span>`;
-                document.getElementById('modal-member-join-date').textContent = member.joinDate;
-                
-                const statusLabels = {
-                    'active': '활성',
-                    'inactive': '비활성',
-                    'dormant': '휴면',
-                    'withdrawn': '탈퇴'
-                };
-                const statusBadges = {
-                    'active': 'badge-success',
-                    'inactive': 'badge-warning',
-                    'dormant': 'badge-secondary',
-                    'withdrawn': 'badge-danger'
-                };
-                document.getElementById('modal-member-status').innerHTML = `<span class="badge ${statusBadges[member.status] || 'badge-secondary'}">${statusLabels[member.status] || member.status}</span>`;
-                
-                openModal('member-detail-modal');
-            }
-        }
-        
-        // 모달 탭 전환
-        function switchModalTab(tabName) {
-            document.querySelectorAll('#member-detail-modal .tab-content').forEach(tab => {
-                tab.style.display = 'none';
-            });
-            document.querySelectorAll('#member-detail-modal .tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
             
-            document.getElementById(`modal-tab-${tabName}`).style.display = 'block';
-            event.target.classList.add('active');
+            document.getElementById('member-approval-count').textContent = mockData.length;
+        }
+        
+        // 발신번호 승인 대기 목록 로드
+        function loadCallerApprovalList() {
+            const mockData = [
+                {
+                    id: 1,
+                    applyDate: '2025-01-05',
+                    name: '㈜에이비씨',
+                    callerNumber: '02-1234-5678',
+                    carrier: 'KT'
+                },
+                {
+                    id: 2,
+                    applyDate: '2025-01-05',
+                    name: '홍길동',
+                    callerNumber: '010-9876-5432',
+                    carrier: 'SKT'
+                },
+                {
+                    id: 3,
+                    applyDate: '2025-01-04',
+                    name: '㈜테스트컴퍼니',
+                    callerNumber: '1588-1234',
+                    carrier: 'LGU+'
+                },
+                {
+                    id: 4,
+                    applyDate: '2025-01-04',
+                    name: '김철수',
+                    callerNumber: '010-1111-2222',
+                    carrier: 'SKT'
+                },
+                {
+                    id: 5,
+                    applyDate: '2025-01-03',
+                    name: '㈜마케팅',
+                    callerNumber: '02-5555-6666',
+                    carrier: 'KT'
+                },
+                {
+                    id: 6,
+                    applyDate: '2025-01-03',
+                    name: '이영희',
+                    callerNumber: '010-3333-4444',
+                    carrier: 'LGU+'
+                }
+            ];
+            
+            const tbody = document.getElementById('caller-approval-list');
+            tbody.innerHTML = mockData.slice(0, 5).map(item => `
+                <tr>
+                    <td>${item.applyDate}</td>
+                    <td>${item.name}</td>
+                    <td>${item.callerNumber}</td>
+                    <td>${item.carrier}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="location.href='caller-number-pending.html'">검토</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            document.getElementById('caller-approval-count').textContent = mockData.length;
         }
         
         // 페이지 로드 시 초기 데이터 로드
         document.addEventListener('DOMContentLoaded', function() {
             loadKPI();
+            loadMemberApprovalList();
+            loadCallerApprovalList();
         });
     </script>
 </body>
