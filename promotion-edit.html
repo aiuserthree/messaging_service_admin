@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로모션 등록 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+    <style>
+        .editor-container {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .editor-tabs {
+            display: flex;
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .editor-tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #64748b;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .editor-tab:hover {
+            color: #1e293b;
+            background-color: #f1f5f9;
+        }
+        .editor-tab.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+            background-color: white;
+        }
+        .editor-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 12px;
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .editor-toolbar button {
+            padding: 8px 12px;
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #475569;
+            transition: all 0.2s;
+        }
+        .editor-toolbar button:hover {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+        .editor-toolbar button.active {
+            background-color: #e0e7ff;
+            border-color: #818cf8;
+            color: #4f46e5;
+        }
+        .editor-toolbar .separator {
+            width: 1px;
+            background-color: #e2e8f0;
+            margin: 0 8px;
+        }
+        .editor-content {
+            min-height: 400px;
+            padding: 16px;
+            background-color: white;
+        }
+        .editor-content[contenteditable="true"] {
+            outline: none;
+        }
+        .editor-content[contenteditable="true"]:focus {
+            box-shadow: inset 0 0 0 2px #e0e7ff;
+        }
+        .html-editor {
+            width: 100%;
+            min-height: 400px;
+            padding: 16px;
+            border: none;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            resize: vertical;
+            background-color: #1e293b;
+            color: #e2e8f0;
+        }
+        .html-editor:focus {
+            outline: none;
+        }
+        .preview-content {
+            min-height: 400px;
+            padding: 16px;
+            background-color: white;
+            border: 2px dashed #e2e8f0;
+        }
+        .preview-content img {
+            max-width: 100%;
+        }
+        .form-section {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .form-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .image-preview {
+            margin-top: 12px;
+            padding: 16px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .image-preview img {
+            max-width: 300px;
+            max-height: 200px;
+            border-radius: 4px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('promotion-manage'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('프로모션 등록'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="form-section">
+                    <div class="form-section-title">기본 정보</div>
+                    <div class="form-group">
+                        <label class="form-label">프로모션 제목 <span style="color: #ef4444;">*</span></label>
+                        <input type="text" class="form-control" id="promotion-title" placeholder="프로모션 제목을 입력하세요">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">시작일 <span style="color: #ef4444;">*</span></label>
+                            <input type="datetime-local" class="form-control" id="promotion-start-date">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">종료일 <span style="color: #ef4444;">*</span></label>
+                            <input type="datetime-local" class="form-control" id="promotion-end-date">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">노출 위치 <span style="color: #ef4444;">*</span></label>
+                            <select class="form-control" id="promotion-location">
+                                <option value="">선택하세요</option>
+                                <option value="main">메인 페이지</option>
+                                <option value="brand">브랜드/프론트 페이지</option>
+                                <option value="popup">팝업</option>
+                                <option value="banner">배너</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">상태</label>
+                            <select class="form-control" id="promotion-status">
+                                <option value="active">진행중</option>
+                                <option value="pending">대기</option>
+                                <option value="ended">종료</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="form-section-title">프로모션 내용</div>
+                    <div class="editor-container">
+                        <div class="editor-tabs">
+                            <button class="editor-tab active" onclick="switchEditorMode('visual')">비주얼 편집</button>
+                            <button class="editor-tab" onclick="switchEditorMode('html')">HTML 편집</button>
+                            <button class="editor-tab" onclick="switchEditorMode('preview')">미리보기</button>
+                        </div>
+                        
+                        <!-- 비주얼 편집 모드 -->
+                        <div id="visual-mode">
+                            <div class="editor-toolbar">
+                                <button onclick="execCmd('bold')" title="굵게"><b>B</b></button>
+                                <button onclick="execCmd('italic')" title="기울임"><i>I</i></button>
+                                <button onclick="execCmd('underline')" title="밑줄"><u>U</u></button>
+                                <button onclick="execCmd('strikeThrough')" title="취소선"><s>S</s></button>
+                                <div class="separator"></div>
+                                <button onclick="execCmd('justifyLeft')" title="왼쪽 정렬">◀</button>
+                                <button onclick="execCmd('justifyCenter')" title="가운데 정렬">●</button>
+                                <button onclick="execCmd('justifyRight')" title="오른쪽 정렬">▶</button>
+                                <div class="separator"></div>
+                                <button onclick="execCmd('insertUnorderedList')" title="글머리 기호">• 목록</button>
+                                <button onclick="execCmd('insertOrderedList')" title="번호 매기기">1. 목록</button>
+                                <div class="separator"></div>
+                                <select onchange="execCmdWithArg('fontSize', this.value); this.value='';" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
+                                    <option value="">글자 크기</option>
+                                    <option value="1">아주 작게</option>
+                                    <option value="2">작게</option>
+                                    <option value="3">보통</option>
+                                    <option value="4">크게</option>
+                                    <option value="5">아주 크게</option>
+                                    <option value="6">매우 크게</option>
+                                    <option value="7">최대</option>
+                                </select>
+                                <input type="color" onchange="execCmdWithArg('foreColor', this.value)" title="글자 색상" style="width: 40px; height: 34px; padding: 2px; border: 1px solid #e2e8f0; border-radius: 4px; cursor: pointer;">
+                                <input type="color" onchange="execCmdWithArg('hiliteColor', this.value)" title="배경 색상" value="#ffff00" style="width: 40px; height: 34px; padding: 2px; border: 1px solid #e2e8f0; border-radius: 4px; cursor: pointer;">
+                                <div class="separator"></div>
+                                <button onclick="insertLink()" title="링크 삽입">🔗 링크</button>
+                                <button onclick="insertImage()" title="이미지 삽입">🖼 이미지</button>
+                                <button onclick="insertTable()" title="표 삽입">▦ 표</button>
+                                <div class="separator"></div>
+                                <button onclick="execCmd('removeFormat')" title="서식 제거">서식 제거</button>
+                            </div>
+                            <div class="editor-content" id="visual-editor" contenteditable="true">
+                                <p>프로모션 내용을 입력하세요...</p>
+                            </div>
+                        </div>
+                        
+                        <!-- HTML 편집 모드 -->
+                        <div id="html-mode" style="display: none;">
+                            <textarea class="html-editor" id="html-editor" placeholder="HTML 코드를 직접 입력하세요..."></textarea>
+                        </div>
+                        
+                        <!-- 미리보기 모드 -->
+                        <div id="preview-mode" style="display: none;">
+                            <div class="preview-content" id="preview-content">
+                                미리보기 영역
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="form-section-title">배너 이미지 (선택)</div>
+                    <div class="form-group">
+                        <label class="form-label">이미지 업로드</label>
+                        <input type="file" class="form-control" id="promotion-image" accept="image/*" onchange="previewImage(this)">
+                        <div style="color: #64748b; font-size: 12px; margin-top: 8px;">
+                            권장 사이즈: 1200 x 400px / 최대 파일 크기: 5MB / 지원 형식: JPG, PNG, GIF
+                        </div>
+                    </div>
+                    <div class="image-preview" id="image-preview" style="display: none;">
+                        <img id="preview-img" src="" alt="미리보기">
+                        <div style="margin-top: 12px;">
+                            <button class="btn btn-outline btn-sm" onclick="removeImage()">이미지 삭제</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-outline" onclick="cancelEdit()">취소</button>
+                    <button class="btn btn-secondary" onclick="saveDraft()">임시 저장</button>
+                    <button class="btn btn-primary" onclick="savePromotion()">저장</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        let currentMode = 'visual';
+        let promotionId = null;
+        
+        // URL에서 ID 파라미터 확인
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            promotionId = urlParams.get('id');
+            
+            if (promotionId) {
+                // 수정 모드
+                document.querySelector('.page-title').textContent = '프로모션 수정';
+                loadPromotionData(promotionId);
+            }
+        });
+        
+        // 프로모션 데이터 로드 (수정 시)
+        function loadPromotionData(id) {
+            // Mock 데이터 로드
+            document.getElementById('promotion-title').value = '신규 가입 이벤트';
+            document.getElementById('promotion-start-date').value = '2024-11-01T00:00';
+            document.getElementById('promotion-end-date').value = '2024-11-30T23:59';
+            document.getElementById('promotion-location').value = 'brand';
+            document.getElementById('promotion-status').value = 'active';
+            
+            const content = `<h2 style="color: #3b82f6;">🎉 신규 가입 이벤트</h2>
+<p>신규 가입 시 <strong style="color: #ef4444;">무료 포인트 1,000P</strong>를 지급합니다!</p>
+<hr>
+<h3>이벤트 상세</h3>
+<ul>
+    <li><strong>대상:</strong> 신규 가입 회원</li>
+    <li><strong>기간:</strong> 2024년 11월 1일 ~ 11월 30일</li>
+    <li><strong>혜택:</strong> 1,000P 즉시 지급</li>
+</ul>
+<p style="background-color: #fef3c7; padding: 16px; border-radius: 8px;">
+    ⚠️ 본 이벤트는 조기 종료될 수 있습니다.
+</p>`;
+            
+            document.getElementById('visual-editor').innerHTML = content;
+            document.getElementById('html-editor').value = content;
+        }
+        
+        // 에디터 모드 전환
+        function switchEditorMode(mode) {
+            // 이전 모드 데이터 동기화
+            syncEditorContent(currentMode, mode);
+            
+            currentMode = mode;
+            
+            // 탭 활성화
+            document.querySelectorAll('.editor-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 모드별 표시
+            document.getElementById('visual-mode').style.display = mode === 'visual' ? 'block' : 'none';
+            document.getElementById('html-mode').style.display = mode === 'html' ? 'block' : 'none';
+            document.getElementById('preview-mode').style.display = mode === 'preview' ? 'block' : 'none';
+            
+            // 미리보기 업데이트
+            if (mode === 'preview') {
+                document.getElementById('preview-content').innerHTML = document.getElementById('visual-editor').innerHTML;
+            }
+        }
+        
+        // 에디터 내용 동기화
+        function syncEditorContent(fromMode, toMode) {
+            if (fromMode === 'visual' && toMode === 'html') {
+                document.getElementById('html-editor').value = document.getElementById('visual-editor').innerHTML;
+            } else if (fromMode === 'html' && toMode === 'visual') {
+                document.getElementById('visual-editor').innerHTML = document.getElementById('html-editor').value;
+            } else if (fromMode === 'html' && toMode === 'preview') {
+                document.getElementById('visual-editor').innerHTML = document.getElementById('html-editor').value;
+            }
+        }
+        
+        // 비주얼 편집기 명령 실행
+        function execCmd(command) {
+            document.execCommand(command, false, null);
+            document.getElementById('visual-editor').focus();
+        }
+        
+        function execCmdWithArg(command, arg) {
+            document.execCommand(command, false, arg);
+            document.getElementById('visual-editor').focus();
+        }
+        
+        // 링크 삽입
+        function insertLink() {
+            const url = prompt('URL을 입력하세요:', 'https://');
+            if (url) {
+                document.execCommand('createLink', false, url);
+            }
+        }
+        
+        // 이미지 삽입
+        function insertImage() {
+            const url = prompt('이미지 URL을 입력하세요:', 'https://');
+            if (url) {
+                document.execCommand('insertImage', false, url);
+            }
+        }
+        
+        // 표 삽입
+        function insertTable() {
+            const rows = prompt('행 수를 입력하세요:', '3');
+            const cols = prompt('열 수를 입력하세요:', '3');
+            
+            if (rows && cols) {
+                let table = '<table style="border-collapse: collapse; width: 100%; margin: 16px 0;">';
+                for (let i = 0; i < parseInt(rows); i++) {
+                    table += '<tr>';
+                    for (let j = 0; j < parseInt(cols); j++) {
+                        table += '<td style="border: 1px solid #e2e8f0; padding: 8px;">셀</td>';
+                    }
+                    table += '</tr>';
+                }
+                table += '</table>';
+                document.execCommand('insertHTML', false, table);
+            }
+        }
+        
+        // 이미지 미리보기
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview-img').src = e.target.result;
+                    document.getElementById('image-preview').style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        // 이미지 삭제
+        function removeImage() {
+            document.getElementById('promotion-image').value = '';
+            document.getElementById('image-preview').style.display = 'none';
+            document.getElementById('preview-img').src = '';
+        }
+        
+        // 취소
+        function cancelEdit() {
+            if (confirm('작성 중인 내용이 저장되지 않습니다. 취소하시겠습니까?')) {
+                location.href = 'promotion-manage.html';
+            }
+        }
+        
+        // 임시 저장
+        function saveDraft() {
+            // HTML 모드에서 작성 중이면 동기화
+            if (currentMode === 'html') {
+                document.getElementById('visual-editor').innerHTML = document.getElementById('html-editor').value;
+            }
+            
+            const data = {
+                title: document.getElementById('promotion-title').value,
+                content: document.getElementById('visual-editor').innerHTML,
+                startDate: document.getElementById('promotion-start-date').value,
+                endDate: document.getElementById('promotion-end-date').value,
+                location: document.getElementById('promotion-location').value,
+                status: 'draft'
+            };
+            
+            // localStorage에 임시 저장
+            localStorage.setItem('promotion_draft', JSON.stringify(data));
+            showToast('임시 저장되었습니다.', 'success');
+        }
+        
+        // 저장
+        function savePromotion() {
+            const title = document.getElementById('promotion-title').value.trim();
+            const startDate = document.getElementById('promotion-start-date').value;
+            const endDate = document.getElementById('promotion-end-date').value;
+            const location = document.getElementById('promotion-location').value;
+            
+            // HTML 모드에서 작성 중이면 동기화
+            if (currentMode === 'html') {
+                document.getElementById('visual-editor').innerHTML = document.getElementById('html-editor').value;
+            }
+            
+            const content = document.getElementById('visual-editor').innerHTML.trim();
+            
+            // 유효성 검사
+            if (!title) {
+                showToast('제목을 입력해주세요.', 'error');
+                return;
+            }
+            if (!startDate || !endDate) {
+                showToast('진행 기간을 설정해주세요.', 'error');
+                return;
+            }
+            if (!location) {
+                showToast('노출 위치를 선택해주세요.', 'error');
+                return;
+            }
+            if (!content || content === '<p>프로모션 내용을 입력하세요...</p>') {
+                showToast('내용을 입력해주세요.', 'error');
+                return;
+            }
+            
+            // 저장 처리
+            if (promotionId) {
+                showToast('프로모션이 수정되었습니다.', 'success');
+            } else {
+                showToast('프로모션이 등록되었습니다.', 'success');
+            }
+            
+            // 임시 저장 데이터 삭제
+            localStorage.removeItem('promotion_draft');
+            
+            // 목록으로 이동
+            setTimeout(() => {
+                location.href = 'promotion-manage.html';
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

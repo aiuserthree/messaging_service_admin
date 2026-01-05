@@ -20,7 +20,7 @@
             
             <div class="admin-content">
                 <div style="margin-bottom: 24px;">
-                    <button class="btn btn-primary" onclick="openPromotionModal()">프로모션 등록</button>
+                    <button class="btn btn-primary" onclick="location.href='promotion-edit.html'">프로모션 등록</button>
                 </div>
                 
                 <div class="card">
@@ -53,6 +53,18 @@
                                         <button class="btn btn-outline btn-sm" onclick="endPromotion(1)">종료</button>
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>연말 감사 이벤트</td>
+                                    <td>2024-12-01 ~ 2024-12-31</td>
+                                    <td>메인 페이지</td>
+                                    <td><span class="badge badge-warning">대기</span></td>
+                                    <td>2024-11-15</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="editPromotion(2)">수정</button>
+                                        <button class="btn btn-danger btn-sm" onclick="deletePromotion(2)">삭제</button>
+                                        <button class="btn btn-outline btn-sm" onclick="endPromotion(2)">종료</button>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -61,117 +73,10 @@
         </main>
     </div>
     
-    <!-- 프로모션 등록/수정 모달 -->
-    <div id="promotion-modal" class="modal">
-        <div class="modal-content" style="max-width: 700px;">
-            <div class="modal-header">
-                <h3 class="modal-title" id="promotion-modal-title">프로모션 등록</h3>
-                <button class="modal-close" onclick="closeModal('promotion-modal')">&times;</button>
-            </div>
-            <div style="padding: 24px;">
-                <div class="form-group">
-                    <label class="form-label">프로모션 제목 <span style="color: #ef4444;">*</span></label>
-                    <input type="text" class="form-control" id="promotion-title" placeholder="프로모션 제목을 입력하세요">
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <div class="form-group">
-                        <label class="form-label">시작일 <span style="color: #ef4444;">*</span></label>
-                        <input type="date" class="form-control" id="promotion-start-date">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">종료일 <span style="color: #ef4444;">*</span></label>
-                        <input type="date" class="form-control" id="promotion-end-date">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">노출 위치 <span style="color: #ef4444;">*</span></label>
-                    <select class="form-control" id="promotion-location">
-                        <option value="">선택하세요</option>
-                        <option value="main">메인 페이지</option>
-                        <option value="brand">브랜드/프론트 페이지</option>
-                        <option value="popup">팝업</option>
-                        <option value="banner">배너</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">프로모션 내용 <span style="color: #ef4444;">*</span></label>
-                    <textarea class="form-control" id="promotion-content" rows="6" placeholder="프로모션 내용을 입력하세요"></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">이미지 업로드</label>
-                    <input type="file" class="form-control" id="promotion-image" accept="image/*">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('promotion-modal')">취소</button>
-                <button class="btn btn-primary" id="promotion-submit-btn" onclick="savePromotion()">등록</button>
-            </div>
-        </div>
-    </div>
-    
     <script src="js/admin-common.js"></script>
     <script>
-        let currentPromotionId = null;
-        
-        function openPromotionModal(id = null) {
-            currentPromotionId = id;
-            
-            if (id) {
-                document.getElementById('promotion-modal-title').textContent = '프로모션 수정';
-                document.getElementById('promotion-submit-btn').textContent = '수정';
-                // Mock 데이터 로드
-                document.getElementById('promotion-title').value = '신규 가입 이벤트';
-                document.getElementById('promotion-start-date').value = '2024-11-01';
-                document.getElementById('promotion-end-date').value = '2024-11-30';
-                document.getElementById('promotion-location').value = 'brand';
-                document.getElementById('promotion-content').value = '신규 가입 시 무료 포인트 1,000P를 지급합니다!\n\n- 대상: 신규 가입 회원\n- 기간: 2024년 11월 한 달간\n- 혜택: 1,000P 즉시 지급';
-            } else {
-                document.getElementById('promotion-modal-title').textContent = '프로모션 등록';
-                document.getElementById('promotion-submit-btn').textContent = '등록';
-                document.getElementById('promotion-title').value = '';
-                document.getElementById('promotion-start-date').value = '';
-                document.getElementById('promotion-end-date').value = '';
-                document.getElementById('promotion-location').value = '';
-                document.getElementById('promotion-content').value = '';
-            }
-            
-            openModal('promotion-modal');
-        }
-        
         function editPromotion(id) {
-            openPromotionModal(id);
-        }
-        
-        function savePromotion() {
-            const title = document.getElementById('promotion-title').value.trim();
-            const startDate = document.getElementById('promotion-start-date').value;
-            const endDate = document.getElementById('promotion-end-date').value;
-            const location = document.getElementById('promotion-location').value;
-            const content = document.getElementById('promotion-content').value.trim();
-            
-            if (!title) {
-                showToast('제목을 입력해주세요.', 'error');
-                return;
-            }
-            if (!startDate || !endDate) {
-                showToast('진행 기간을 설정해주세요.', 'error');
-                return;
-            }
-            if (!location) {
-                showToast('노출 위치를 선택해주세요.', 'error');
-                return;
-            }
-            if (!content) {
-                showToast('내용을 입력해주세요.', 'error');
-                return;
-            }
-            
-            if (currentPromotionId) {
-                showToast('프로모션이 수정되었습니다.', 'success');
-            } else {
-                showToast('프로모션이 등록되었습니다.', 'success');
-            }
-            closeModal('promotion-modal');
+            location.href = `promotion-edit.html?id=${id}`;
         }
         
         function deletePromotion(id) {
