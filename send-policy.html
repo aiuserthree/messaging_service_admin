@@ -30,32 +30,41 @@
                             <h3 class="card-title">발송 제한 정책 설정</h3>
                         </div>
                         <div style="padding: 24px;">
-                            <div class="form-group">
-                                <label class="form-label">회원 유형별 일일 발송 제한</label>
-                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-                                    <div>
-                                        <label class="form-label">개인 회원</label>
-                                        <input type="number" class="form-control" value="10000" placeholder="건수 입력">
-                                    </div>
-                                    <div>
-                                        <label class="form-label">사업자 회원</label>
-                                        <input type="number" class="form-control" value="50000" placeholder="건수 입력">
-                                    </div>
+                            <!-- 발송량 제한 안내 -->
+                            <div class="card" style="margin-bottom: 24px; background-color: #f0f9ff; border: 1px solid #bae6fd;">
+                                <div class="card-header" style="background: transparent; border-bottom: 1px solid #bae6fd;">
+                                    <h4 class="card-title" style="color: #0369a1;">📋 회원 유형별 발송량 제한</h4>
+                                </div>
+                                <div class="table-container" style="padding: 0;">
+                                    <table>
+                                        <thead>
+                                            <tr style="background-color: #e0f2fe;">
+                                                <th>회원 유형</th>
+                                                <th>발송 한도</th>
+                                                <th>비고</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><span class="badge badge-secondary">개인 회원</span></td>
+                                                <td><strong>1일 최대 500건</strong></td>
+                                                <td style="font-size: 13px; color: #64748b;">전기통신사업법에 의거</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="badge badge-info">사업자 회원</span></td>
+                                                <td><strong>1회 발송 시 최대 1,000,000건</strong></td>
+                                                <td style="font-size: 13px; color: #64748b;">-</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="badge badge-success">선거회원</span></td>
+                                                <td><strong>제한 없음</strong></td>
+                                                <td style="font-size: 13px; color: #64748b;">선거운동 기간 내</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">회원 등급별 일일 발송 제한</label>
-                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-                                    <div>
-                                        <label class="form-label">일반 등급</label>
-                                        <input type="number" class="form-control" value="10000" placeholder="건수 입력">
-                                    </div>
-                                    <div>
-                                        <label class="form-label">VIP 등급</label>
-                                        <input type="number" class="form-control" value="100000" placeholder="건수 입력">
-                                    </div>
-                                </div>
-                            </div>
+                            
                             <div class="form-group">
                                 <label class="form-label">시간 단위 발송 한도</label>
                                 <input type="number" class="form-control" value="1000" placeholder="건수 입력">
@@ -63,25 +72,13 @@
                             </div>
                             
                             <div class="form-group">
-                                <label class="form-label">시간대별 발송 제한</label>
+                                <label class="form-label">시간대별 발송 제한 (광고문자)</label>
                                 <div style="display: flex; gap: 12px; align-items: center;">
                                     <input type="time" class="form-control" value="08:00" style="width: 150px;">
                                     <span>~</span>
                                     <input type="time" class="form-control" value="21:00" style="width: 150px;">
                                 </div>
                                 <div style="font-size: 12px; color: #64748b; margin-top: 4px;">광고문자 발송 가능 시간 (평일 08:00~21:00)</div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">대량 발송 사전 승인 정책</label>
-                                <div style="display: flex; gap: 12px; align-items: center;">
-                                    <input type="checkbox" id="bulkApproval" checked>
-                                    <label for="bulkApproval" style="margin: 0;">활성화</label>
-                                </div>
-                                <div style="margin-top: 12px;">
-                                    <input type="number" class="form-control" value="50000" placeholder="건수 입력" style="width: 200px;">
-                                    <div style="font-size: 12px; color: #64748b; margin-top: 4px;">건 이상 발송 시 승인 필요</div>
-                                </div>
                             </div>
                             
                             <div class="form-group">
