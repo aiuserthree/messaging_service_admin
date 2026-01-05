@@ -232,17 +232,13 @@
                     ? '<span class="badge badge-success">활성</span>'
                     : '<span class="badge badge-warning">검수중</span>';
                 
-                const brandMessageCell = profile.brandMessage === 'Y'
-                    ? '<span>Y</span>'
-                    : `<span style="margin-right: 8px;">N</span><button class="btn btn-info btn-sm" onclick="handleBrandMessageApply('${profile.profileId}')">신청</button>`;
-                
                 return `
                     <tr>
                         <td>${index + 1}</td>
                         <td>${profile.profileId}</td>
                         <td>${profile.channelName}</td>
                         <td>${statusBadge}</td>
-                        <td>${brandMessageCell}</td>
+                        <td>${profile.brandMessage}</td>
                         <td>${profile.registerDate}</td>
                         <td>
                             <button class="btn btn-outline btn-sm" onclick="viewProfileDetail('${profile.profileId}')">상세</button>
@@ -250,17 +246,6 @@
                     </tr>
                 `;
             }).join('');
-        }
-        
-        // 브랜드메시지 신청 처리
-        function handleBrandMessageApply(profileId) {
-            confirmAction(`브랜드메시지 신청을 처리하시겠습니까?\n\n프로필 ID: ${profileId}`, function() {
-                // API 호출 시뮬레이션
-                showToast('브랜드메시지 신청이 완료되었습니다.', 'success');
-                
-                // 목록 새로고침
-                loadProfiles();
-            });
         }
         
         // 상세보기
@@ -535,17 +520,13 @@
                     ? '<span class="badge badge-success">활성</span>'
                     : '<span class="badge badge-warning">검수중</span>';
                 
-                const brandMessageCell = profile.brandMessage === 'Y'
-                    ? '<span>Y</span>'
-                    : `<span style="margin-right: 8px;">N</span><button class="btn btn-info btn-sm" onclick="handleBrandMessageApply('${profile.profileId}')">신청</button>`;
-                
                 return `
                     <tr>
                         <td>${index + 1}</td>
                         <td>${profile.profileId}</td>
                         <td>${profile.channelName}</td>
                         <td>${statusBadge}</td>
-                        <td>${brandMessageCell}</td>
+                        <td>${profile.brandMessage}</td>
                         <td>${profile.registerDate}</td>
                         <td>
                             <button class="btn btn-outline btn-sm" onclick="viewProfileDetail('${profile.profileId}')">상세</button>
