@@ -251,12 +251,19 @@
                 </div>
                 
                 <div class="form-section">
-                    <div class="form-section-title">배너 이미지 (선택)</div>
+                    <div class="form-section-title">배너 이미지 <span style="color: #ef4444;">*</span></div>
                     <div class="form-group">
-                        <label class="form-label">이미지 업로드</label>
+                        <label class="form-label">이미지 업로드 <span style="color: #ef4444;">*</span></label>
                         <input type="file" class="form-control" id="promotion-image" accept="image/*" onchange="previewImage(this)">
-                        <div style="color: #64748b; font-size: 12px; margin-top: 8px;">
-                            권장 사이즈: 1200 x 400px / 최대 파일 크기: 5MB / 지원 형식: JPG, PNG, GIF
+                        <div style="margin-top: 12px; padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <div style="font-weight: 600; color: #1e293b; margin-bottom: 8px;">📐 이미지 권장 사양</div>
+                            <ul style="margin: 0; padding-left: 20px; color: #64748b; font-size: 13px; line-height: 1.8;">
+                                <li><strong>권장 사이즈:</strong> 1200 x 400px (가로형 배너)</li>
+                                <li><strong>최소 사이즈:</strong> 800 x 267px</li>
+                                <li><strong>비율:</strong> 3:1 권장</li>
+                                <li><strong>최대 파일 크기:</strong> 5MB</li>
+                                <li><strong>지원 형식:</strong> JPG, PNG, GIF, WebP</li>
+                            </ul>
                         </div>
                     </div>
                     <div class="image-preview" id="image-preview" style="display: none;">
@@ -451,6 +458,8 @@
             const startDate = document.getElementById('promotion-start-date').value;
             const endDate = document.getElementById('promotion-end-date').value;
             const location = document.getElementById('promotion-location').value;
+            const imageFile = document.getElementById('promotion-image').files[0];
+            const hasExistingImage = document.getElementById('preview-img').src && document.getElementById('image-preview').style.display !== 'none';
             
             // HTML 모드에서 작성 중이면 동기화
             if (currentMode === 'html') {
@@ -474,6 +483,11 @@
             }
             if (!content || content === '<p>프로모션 내용을 입력하세요...</p>') {
                 showToast('내용을 입력해주세요.', 'error');
+                return;
+            }
+            // 배너 이미지 필수 체크
+            if (!imageFile && !hasExistingImage) {
+                showToast('배너 이미지를 등록해주세요.', 'error');
                 return;
             }
             
