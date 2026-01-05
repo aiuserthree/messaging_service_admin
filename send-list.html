@@ -178,57 +178,64 @@
     <script src="js/admin-common.js"></script>
     <script>
         let currentPage = 1;
-        const pageSize = 20;
+        const pageSize = 10;
         let mockData = [];
+        let filteredData = [];
         
         function searchSendList(page = 1) {
             currentPage = page;
             
-            const searchMember = document.getElementById('search-member').value;
+            const searchMember = document.getElementById('search-member').value.toLowerCase();
             const dateFrom = document.getElementById('date-from').value;
             const dateTo = document.getElementById('date-to').value;
             const status = document.getElementById('filter-status').value;
             const type = document.getElementById('filter-type').value;
             
-            // 실제로는 API 호출
+            // 실제로는 API 호출 - 더 많은 테스트 데이터
             mockData = [
-                {
-                    id: 1,
-                    sendDate: '2024-11-19 14:30:00',
-                    memberName: '홍길동',
-                    email: 'hong@example.com',
-                    type: 'alimtalk',
-                    sendCount: 1000,
-                    successCount: 995,
-                    failCount: 5,
-                    status: 'completed'
-                },
-                {
-                    id: 2,
-                    sendDate: '2024-11-19 13:15:00',
-                    memberName: '김철수',
-                    email: 'kim@example.com',
-                    type: 'sms',
-                    sendCount: 500,
-                    successCount: 500,
-                    failCount: 0,
-                    status: 'completed'
-                },
-                {
-                    id: 3,
-                    sendDate: '2024-11-19 12:00:00',
-                    memberName: '이영희',
-                    email: 'lee@example.com',
-                    type: 'brandtalk',
-                    sendCount: 2000,
-                    successCount: 1980,
-                    failCount: 20,
-                    status: 'completed'
-                }
+                { id: 1, sendDate: '2024-11-19 14:30:00', memberName: '홍길동', email: 'hong@example.com', type: 'alimtalk', sendCount: 1000, successCount: 995, failCount: 5, status: 'completed' },
+                { id: 2, sendDate: '2024-11-19 13:15:00', memberName: '김철수', email: 'kim@example.com', type: 'sms', sendCount: 500, successCount: 500, failCount: 0, status: 'completed' },
+                { id: 3, sendDate: '2024-11-19 12:00:00', memberName: '이영희', email: 'lee@example.com', type: 'brandtalk', sendCount: 2000, successCount: 1980, failCount: 20, status: 'completed' },
+                { id: 4, sendDate: '2024-11-19 11:45:00', memberName: '박민수', email: 'park@example.com', type: 'alimtalk', sendCount: 800, successCount: 798, failCount: 2, status: 'completed' },
+                { id: 5, sendDate: '2024-11-19 10:30:00', memberName: '최지영', email: 'choi@example.com', type: 'sms', sendCount: 150, successCount: 150, failCount: 0, status: 'completed' },
+                { id: 6, sendDate: '2024-11-19 09:20:00', memberName: '정수현', email: 'jung@example.com', type: 'alimtalk', sendCount: 3000, successCount: 2985, failCount: 15, status: 'completed' },
+                { id: 7, sendDate: '2024-11-18 18:00:00', memberName: '강민호', email: 'kang@example.com', type: 'brandtalk', sendCount: 500, successCount: 490, failCount: 10, status: 'completed' },
+                { id: 8, sendDate: '2024-11-18 16:45:00', memberName: '윤서아', email: 'yoon@example.com', type: 'sms', sendCount: 200, successCount: 198, failCount: 2, status: 'completed' },
+                { id: 9, sendDate: '2024-11-18 15:30:00', memberName: '임지훈', email: 'lim@example.com', type: 'alimtalk', sendCount: 1200, successCount: 1195, failCount: 5, status: 'completed' },
+                { id: 10, sendDate: '2024-11-18 14:15:00', memberName: '한예진', email: 'han@example.com', type: 'sms', sendCount: 300, successCount: 300, failCount: 0, status: 'completed' },
+                { id: 11, sendDate: '2024-11-18 13:00:00', memberName: '송민재', email: 'song@example.com', type: 'brandtalk', sendCount: 750, successCount: 745, failCount: 5, status: 'completed' },
+                { id: 12, sendDate: '2024-11-18 11:45:00', memberName: '오서연', email: 'oh@example.com', type: 'alimtalk', sendCount: 600, successCount: 598, failCount: 2, status: 'completed' },
+                { id: 13, sendDate: '2024-11-18 10:30:00', memberName: '배준혁', email: 'bae@example.com', type: 'sms', sendCount: 400, successCount: 400, failCount: 0, status: 'completed' },
+                { id: 14, sendDate: '2024-11-18 09:15:00', memberName: '신유진', email: 'shin@example.com', type: 'alimtalk', sendCount: 900, successCount: 895, failCount: 5, status: 'completed' },
+                { id: 15, sendDate: '2024-11-17 17:00:00', memberName: '권도현', email: 'kwon@example.com', type: 'brandtalk', sendCount: 1500, successCount: 1485, failCount: 15, status: 'completed' },
+                { id: 16, sendDate: '2024-11-17 15:45:00', memberName: '조하늘', email: 'jo@example.com', type: 'sms', sendCount: 250, successCount: 248, failCount: 2, status: 'completed' },
+                { id: 17, sendDate: '2024-11-17 14:30:00', memberName: '황세진', email: 'hwang@example.com', type: 'alimtalk', sendCount: 1800, successCount: 1792, failCount: 8, status: 'completed' },
+                { id: 18, sendDate: '2024-11-17 13:15:00', memberName: '노지은', email: 'no@example.com', type: 'sms', sendCount: 100, successCount: 100, failCount: 0, status: 'completed' },
+                { id: 19, sendDate: '2024-11-17 12:00:00', memberName: '서민우', email: 'seo@example.com', type: 'brandtalk', sendCount: 650, successCount: 640, failCount: 10, status: 'completed' },
+                { id: 20, sendDate: '2024-11-17 10:45:00', memberName: '안수빈', email: 'ahn@example.com', type: 'alimtalk', sendCount: 2200, successCount: 2188, failCount: 12, status: 'completed' },
+                { id: 21, sendDate: '2024-11-17 09:30:00', memberName: '문재현', email: 'moon@example.com', type: 'sms', sendCount: 350, successCount: 348, failCount: 2, status: 'completed' },
+                { id: 22, sendDate: '2024-11-16 18:00:00', memberName: '양지원', email: 'yang@example.com', type: 'alimtalk', sendCount: 1100, successCount: 1098, failCount: 2, status: 'completed' },
+                { id: 23, sendDate: '2024-11-16 16:45:00', memberName: '류태영', email: 'ryu@example.com', type: 'brandtalk', sendCount: 450, successCount: 445, failCount: 5, status: 'completed' },
+                { id: 24, sendDate: '2024-11-16 15:30:00', memberName: '진소희', email: 'jin@example.com', type: 'sms', sendCount: 180, successCount: 180, failCount: 0, status: 'completed' },
+                { id: 25, sendDate: '2024-11-16 14:15:00', memberName: '하준영', email: 'ha@example.com', type: 'alimtalk', sendCount: 700, successCount: 695, failCount: 5, status: 'completed' }
             ];
             
+            // 필터링 적용
+            filteredData = mockData.filter(item => {
+                if (searchMember && !item.memberName.toLowerCase().includes(searchMember) && !item.email.toLowerCase().includes(searchMember)) return false;
+                if (status && item.status !== status) return false;
+                if (type && item.type !== type) return false;
+                return true;
+            });
+            
+            // 페이지네이션 적용
+            const totalPages = Math.ceil(filteredData.length / pageSize);
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageData = filteredData.slice(startIndex, endIndex);
+            
             const tbody = document.getElementById('send-list-tbody');
-            tbody.innerHTML = mockData.map(item => `
+            tbody.innerHTML = pageData.map(item => `
                 <tr>
                     <td>${item.sendDate}</td>
                     <td>${item.memberName}</td>
@@ -244,7 +251,11 @@
                 </tr>
             `).join('');
             
-            createPagination(currentPage, 10, 'pagination');
+            createPagination(currentPage, totalPages, 'pagination');
+        }
+        
+        function goToPage(page) {
+            searchSendList(page);
         }
         
         function getTypeLabel(type) {
