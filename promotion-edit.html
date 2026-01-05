@@ -168,16 +168,10 @@
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                         <div class="form-group">
-                            <label class="form-label">노출 위치 <span style="color: #ef4444;">*</span></label>
-                            <select class="form-control" id="promotion-location">
-                                <option value="">선택하세요</option>
-                                <option value="main">메인 (로그인 후)</option>
-                                <option value="front">프론트 (비로그인)</option>
-                                <option value="event">고객센터 이벤트</option>
-                            </select>
-                            <div style="margin-top: 12px; padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
-                                <div style="font-weight: 600; color: #1e293b; margin-bottom: 8px;">📍 노출 위치 안내</div>
-                                <ul style="margin: 0; padding-left: 20px; color: #64748b; font-size: 13px; line-height: 1.8;">
+                            <label class="form-label">노출 위치</label>
+                            <div style="padding: 16px; background-color: #dbeafe; border-radius: 8px; border: 1px solid #93c5fd;">
+                                <div style="font-weight: 600; color: #1e40af; margin-bottom: 8px;">📍 프로모션은 3곳에 모두 노출됩니다</div>
+                                <ul style="margin: 0; padding-left: 20px; color: #1e40af; font-size: 13px; line-height: 1.8;">
                                     <li><strong>메인 (로그인 후):</strong> 회원 로그인 후 대시보드 상단 슬라이드 배너</li>
                                     <li><strong>프론트 (비로그인):</strong> 서비스 메인 페이지 슬라이드 배너</li>
                                     <li><strong>고객센터 이벤트:</strong> 고객센터 > 이벤트 페이지 카드 형태</li>
@@ -259,24 +253,65 @@
                 
                 <div class="form-section">
                     <div class="form-section-title">배너 이미지 <span style="color: #ef4444;">*</span></div>
-                    <div class="form-group">
-                        <label class="form-label">이미지 업로드 <span style="color: #ef4444;">*</span></label>
-                        <input type="file" class="form-control" id="promotion-image" accept="image/*" onchange="previewImage(this)">
-                        <div style="margin-top: 12px; padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
-                            <div style="font-weight: 600; color: #1e293b; margin-bottom: 8px;">📐 이미지 권장 사양</div>
-                            <ul style="margin: 0; padding-left: 20px; color: #64748b; font-size: 13px; line-height: 1.8;">
-                                <li><strong>권장 사이즈:</strong> 1200 x 400px (가로형 배너)</li>
-                                <li><strong>최소 사이즈:</strong> 800 x 267px</li>
-                                <li><strong>비율:</strong> 3:1 권장</li>
-                                <li><strong>최대 파일 크기:</strong> 5MB</li>
-                                <li><strong>지원 형식:</strong> JPG, PNG, GIF, WebP</li>
-                            </ul>
+                    <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">각 노출 위치에 맞는 이미지를 등록해주세요. 위치별로 권장 사이즈가 다릅니다.</p>
+                    
+                    <!-- 메인 (로그인 후) 이미지 -->
+                    <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 16px;">
+                        <div class="form-group">
+                            <label class="form-label" style="font-size: 15px;">
+                                <span class="badge badge-info" style="margin-right: 8px;">메인</span>
+                                메인 (로그인 후) 이미지 <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="file" class="form-control" id="image-main" accept="image/*" onchange="previewImageByLocation('main', this)">
+                            <div style="color: #64748b; font-size: 12px; margin-top: 8px;">
+                                📐 권장 사이즈: <strong>1200 x 400px</strong> (3:1 비율) | 최대 5MB | JPG, PNG, GIF, WebP
+                            </div>
+                        </div>
+                        <div class="image-preview" id="preview-main" style="display: none;">
+                            <img id="preview-img-main" src="" alt="메인 이미지 미리보기">
+                            <div style="margin-top: 12px;">
+                                <button class="btn btn-outline btn-sm" onclick="removeImageByLocation('main')">이미지 삭제</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="image-preview" id="image-preview" style="display: none;">
-                        <img id="preview-img" src="" alt="미리보기">
-                        <div style="margin-top: 12px;">
-                            <button class="btn btn-outline btn-sm" onclick="removeImage()">이미지 삭제</button>
+                    
+                    <!-- 프론트 (비로그인) 이미지 -->
+                    <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 16px;">
+                        <div class="form-group">
+                            <label class="form-label" style="font-size: 15px;">
+                                <span class="badge badge-primary" style="margin-right: 8px;">프론트</span>
+                                프론트 (비로그인) 이미지 <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="file" class="form-control" id="image-front" accept="image/*" onchange="previewImageByLocation('front', this)">
+                            <div style="color: #64748b; font-size: 12px; margin-top: 8px;">
+                                📐 권장 사이즈: <strong>1200 x 400px</strong> (3:1 비율) | 최대 5MB | JPG, PNG, GIF, WebP
+                            </div>
+                        </div>
+                        <div class="image-preview" id="preview-front" style="display: none;">
+                            <img id="preview-img-front" src="" alt="프론트 이미지 미리보기">
+                            <div style="margin-top: 12px;">
+                                <button class="btn btn-outline btn-sm" onclick="removeImageByLocation('front')">이미지 삭제</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 고객센터 이벤트 이미지 -->
+                    <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
+                        <div class="form-group">
+                            <label class="form-label" style="font-size: 15px;">
+                                <span class="badge badge-secondary" style="margin-right: 8px;">이벤트</span>
+                                고객센터 이벤트 이미지 <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="file" class="form-control" id="image-event" accept="image/*" onchange="previewImageByLocation('event', this)">
+                            <div style="color: #64748b; font-size: 12px; margin-top: 8px;">
+                                📐 권장 사이즈: <strong>400 x 300px</strong> (4:3 비율, 카드형) | 최대 5MB | JPG, PNG, GIF, WebP
+                            </div>
+                        </div>
+                        <div class="image-preview" id="preview-event" style="display: none;">
+                            <img id="preview-img-event" src="" alt="이벤트 이미지 미리보기">
+                            <div style="margin-top: 12px;">
+                                <button class="btn btn-outline btn-sm" onclick="removeImageByLocation('event')">이미지 삭제</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -412,23 +447,32 @@
             }
         }
         
-        // 이미지 미리보기
-        function previewImage(input) {
+        // 위치별 이미지 미리보기
+        function previewImageByLocation(location, input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('preview-img').src = e.target.result;
-                    document.getElementById('image-preview').style.display = 'block';
+                    document.getElementById(`preview-img-${location}`).src = e.target.result;
+                    document.getElementById(`preview-${location}`).style.display = 'block';
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         }
         
-        // 이미지 삭제
+        // 위치별 이미지 삭제
+        function removeImageByLocation(location) {
+            document.getElementById(`image-${location}`).value = '';
+            document.getElementById(`preview-${location}`).style.display = 'none';
+            document.getElementById(`preview-img-${location}`).src = '';
+        }
+        
+        // 기존 함수 유지 (호환성)
+        function previewImage(input) {
+            previewImageByLocation('main', input);
+        }
+        
         function removeImage() {
-            document.getElementById('promotion-image').value = '';
-            document.getElementById('image-preview').style.display = 'none';
-            document.getElementById('preview-img').src = '';
+            removeImageByLocation('main');
         }
         
         // 취소
@@ -464,9 +508,14 @@
             const title = document.getElementById('promotion-title').value.trim();
             const startDate = document.getElementById('promotion-start-date').value;
             const endDate = document.getElementById('promotion-end-date').value;
-            const location = document.getElementById('promotion-location').value;
-            const imageFile = document.getElementById('promotion-image').files[0];
-            const hasExistingImage = document.getElementById('preview-img').src && document.getElementById('image-preview').style.display !== 'none';
+            
+            // 각 위치별 이미지 체크
+            const imageMain = document.getElementById('image-main').files[0];
+            const imageFront = document.getElementById('image-front').files[0];
+            const imageEvent = document.getElementById('image-event').files[0];
+            const hasMainImage = imageMain || (document.getElementById('preview-main').style.display !== 'none');
+            const hasFrontImage = imageFront || (document.getElementById('preview-front').style.display !== 'none');
+            const hasEventImage = imageEvent || (document.getElementById('preview-event').style.display !== 'none');
             
             // HTML 모드에서 작성 중이면 동기화
             if (currentMode === 'html') {
@@ -484,17 +533,21 @@
                 showToast('진행 기간을 설정해주세요.', 'error');
                 return;
             }
-            if (!location) {
-                showToast('노출 위치를 선택해주세요.', 'error');
-                return;
-            }
             if (!content || content === '<p>프로모션 내용을 입력하세요...</p>') {
                 showToast('내용을 입력해주세요.', 'error');
                 return;
             }
-            // 배너 이미지 필수 체크
-            if (!imageFile && !hasExistingImage) {
-                showToast('배너 이미지를 등록해주세요.', 'error');
+            // 배너 이미지 필수 체크 (3곳 모두)
+            if (!hasMainImage) {
+                showToast('메인 (로그인 후) 이미지를 등록해주세요.', 'error');
+                return;
+            }
+            if (!hasFrontImage) {
+                showToast('프론트 (비로그인) 이미지를 등록해주세요.', 'error');
+                return;
+            }
+            if (!hasEventImage) {
+                showToast('고객센터 이벤트 이미지를 등록해주세요.', 'error');
                 return;
             }
             
