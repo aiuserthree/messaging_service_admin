@@ -26,15 +26,15 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">금지어 추가</label>
-                        <div style="display: flex; gap: 12px;">
-                            <input type="text" class="form-control" placeholder="금지어 입력" id="filter-word">
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <input type="text" class="form-control" placeholder="금지어 입력" id="filter-word" style="max-width: 250px;">
                             <button class="btn btn-primary" onclick="addFilterWord()">추가</button>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">엑셀 일괄 등록</label>
-                        <div style="display: flex; gap: 12px;">
-                            <input type="file" class="form-control" accept=".xlsx,.xls" id="excel-file">
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <input type="file" class="form-control" accept=".xlsx,.xls" id="excel-file" style="max-width: 250px;">
                             <button class="btn btn-outline" onclick="uploadExcel()">업로드</button>
                             <button class="btn btn-outline" onclick="downloadTemplate()">템플릿 다운로드</button>
                         </div>

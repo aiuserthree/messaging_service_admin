@@ -20,7 +20,7 @@
             
             <div class="admin-content">
                 <div style="margin-bottom: 24px;">
-                    <button class="btn btn-primary" onclick="location.href='notice-edit.html'">공지사항 등록</button>
+                    <button class="btn btn-primary" onclick="openNoticeModal()">공지사항 등록</button>
                 </div>
                 
                 <div class="card">
@@ -60,10 +60,106 @@
         </main>
     </div>
     
+    <!-- 공지사항 등록/수정 모달 -->
+    <div id="notice-modal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="notice-modal-title">공지사항 등록</h3>
+                <button class="modal-close" onclick="closeModal('notice-modal')">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <div class="form-group">
+                    <label class="form-label">제목 <span style="color: #ef4444;">*</span></label>
+                    <input type="text" class="form-control" id="notice-title" placeholder="공지사항 제목을 입력하세요">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">중요도 <span style="color: #ef4444;">*</span></label>
+                    <select class="form-control" id="notice-priority">
+                        <option value="normal">일반</option>
+                        <option value="important">중요</option>
+                        <option value="urgent">긴급</option>
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">게시 시작일 <span style="color: #ef4444;">*</span></label>
+                        <input type="date" class="form-control" id="notice-start-date">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">게시 종료일 <span style="color: #ef4444;">*</span></label>
+                        <input type="date" class="form-control" id="notice-end-date">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">내용 <span style="color: #ef4444;">*</span></label>
+                    <textarea class="form-control" id="notice-content" rows="8" placeholder="공지사항 내용을 입력하세요"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('notice-modal')">취소</button>
+                <button class="btn btn-primary" id="notice-submit-btn" onclick="saveNotice()">등록</button>
+            </div>
+        </div>
+    </div>
+    
     <script src="js/admin-common.js"></script>
     <script>
+        let currentNoticeId = null;
+        
+        function openNoticeModal(id = null) {
+            currentNoticeId = id;
+            
+            if (id) {
+                document.getElementById('notice-modal-title').textContent = '공지사항 수정';
+                document.getElementById('notice-submit-btn').textContent = '수정';
+                // Mock 데이터 로드
+                document.getElementById('notice-title').value = '시스템 점검 안내';
+                document.getElementById('notice-priority').value = 'urgent';
+                document.getElementById('notice-start-date').value = '2024-11-19';
+                document.getElementById('notice-end-date').value = '2024-11-20';
+                document.getElementById('notice-content').value = '시스템 점검이 예정되어 있습니다. 점검 시간 동안 서비스 이용이 제한될 수 있습니다.';
+            } else {
+                document.getElementById('notice-modal-title').textContent = '공지사항 등록';
+                document.getElementById('notice-submit-btn').textContent = '등록';
+                document.getElementById('notice-title').value = '';
+                document.getElementById('notice-priority').value = 'normal';
+                document.getElementById('notice-start-date').value = '';
+                document.getElementById('notice-end-date').value = '';
+                document.getElementById('notice-content').value = '';
+            }
+            
+            openModal('notice-modal');
+        }
+        
         function editNotice(id) {
-            location.href = `notice-edit.html?id=${id}`;
+            openNoticeModal(id);
+        }
+        
+        function saveNotice() {
+            const title = document.getElementById('notice-title').value.trim();
+            const content = document.getElementById('notice-content').value.trim();
+            const startDate = document.getElementById('notice-start-date').value;
+            const endDate = document.getElementById('notice-end-date').value;
+            
+            if (!title) {
+                showToast('제목을 입력해주세요.', 'error');
+                return;
+            }
+            if (!startDate || !endDate) {
+                showToast('게시 기간을 설정해주세요.', 'error');
+                return;
+            }
+            if (!content) {
+                showToast('내용을 입력해주세요.', 'error');
+                return;
+            }
+            
+            if (currentNoticeId) {
+                showToast('공지사항이 수정되었습니다.', 'success');
+            } else {
+                showToast('공지사항이 등록되었습니다.', 'success');
+            }
+            closeModal('notice-modal');
         }
         
         function deleteNotice(id) {

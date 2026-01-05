@@ -53,7 +53,7 @@
                                         <td>010-1234-5678</td>
                                         <td>2024-11-19</td>
                                         <td>
-                                            <button class="btn btn-primary btn-sm">상세보기</button>
+                                            <button class="btn btn-primary btn-sm" onclick="viewMemberDetail(1)">상세보기</button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -88,7 +88,7 @@
                                         <td>9,950</td>
                                         <td>50</td>
                                         <td>
-                                            <button class="btn btn-primary btn-sm">상세보기</button>
+                                            <button class="btn btn-primary btn-sm" onclick="viewSendDetail(1)">상세보기</button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -123,7 +123,7 @@
                                         <td>2024-11-01 ~ 2024-11-19</td>
                                         <td><span class="badge badge-success">제공 완료</span></td>
                                         <td>
-                                            <button class="btn btn-primary btn-sm">다운로드</button>
+                                            <button class="btn btn-primary btn-sm" onclick="downloadDocument(1)">다운로드</button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -133,6 +133,92 @@
                 </div>
             </div>
         </main>
+    </div>
+    
+    <!-- 선거회원 상세 모달 -->
+    <div id="member-detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title">선거회원 상세정보</h3>
+                <button class="modal-close" onclick="closeModal('member-detail-modal')">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">회원명</label>
+                        <div class="form-control" style="background-color: #f1f5f9;">홍길동</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">이메일</label>
+                        <div class="form-control" style="background-color: #f1f5f9;">hong@example.com</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">후보자명</label>
+                        <div class="form-control" style="background-color: #f1f5f9;">홍길동</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">선거구</label>
+                        <div class="form-control" style="background-color: #f1f5f9;">서울시 강남구</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">발신번호</label>
+                        <div class="form-control" style="background-color: #f1f5f9;">010-1234-5678</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">가입일</label>
+                        <div class="form-control" style="background-color: #f1f5f9;">2024-11-19</div>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label class="form-label">선거 유형</label>
+                    <div class="form-control" style="background-color: #f1f5f9;">지방선거</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('member-detail-modal')">닫기</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 발송 상세 모달 -->
+    <div id="send-detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">선거문자 발송 상세</h3>
+                <button class="modal-close" onclick="closeModal('send-detail-modal')">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">발송일시</label>
+                        <div class="form-control" style="background-color: #f1f5f9;">2024-11-19 10:00:00</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">회원명</label>
+                        <div class="form-control" style="background-color: #f1f5f9;">홍길동</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">발송 건수</label>
+                        <div class="form-control" style="background-color: #f1f5f9;">10,000건</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">성공/실패</label>
+                        <div class="form-control" style="background-color: #f1f5f9;">9,950 / 50</div>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label class="form-label">메시지 내용</label>
+                    <div class="form-control" style="background-color: #f1f5f9; min-height: 100px; padding: 16px; white-space: pre-wrap;">[선거문자] 홍길동 후보가 인사드립니다.
+
+여러분의 소중한 한 표 부탁드립니다.
+
+- 기호 1번 홍길동 -</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('send-detail-modal')">닫기</button>
+            </div>
+        </div>
     </div>
     
     <script src="js/admin-common.js"></script>
@@ -147,6 +233,19 @@
             
             document.getElementById(`tab-${tabName}`).style.display = 'block';
             event.target.classList.add('active');
+        }
+        
+        function viewMemberDetail(id) {
+            openModal('member-detail-modal');
+        }
+        
+        function viewSendDetail(id) {
+            openModal('send-detail-modal');
+        }
+        
+        function downloadDocument(id) {
+            showToast('발송 결과 리포트 다운로드를 시작합니다.', 'success');
+            // 실제로는 파일 다운로드 처리
         }
     </script>
     <style>

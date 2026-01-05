@@ -20,7 +20,7 @@
             
             <div class="admin-content">
                 <div style="margin-bottom: 24px;">
-                    <button class="btn btn-primary" onclick="location.href='faq-edit.html'">FAQ 등록</button>
+                    <button class="btn btn-primary" onclick="openFAQModal()">FAQ 등록</button>
                 </div>
                 
                 <div class="card">
@@ -79,14 +79,102 @@
         </main>
     </div>
     
+    <!-- FAQ 등록/수정 모달 -->
+    <div id="faq-modal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="faq-modal-title">FAQ 등록</h3>
+                <button class="modal-close" onclick="closeModal('faq-modal')">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <div class="form-group">
+                    <label class="form-label">카테고리 <span style="color: #ef4444;">*</span></label>
+                    <select class="form-control" id="faq-category">
+                        <option value="">선택하세요</option>
+                        <option value="usage">사용법</option>
+                        <option value="billing">결제</option>
+                        <option value="technical">기술</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">순서</label>
+                    <input type="number" class="form-control" id="faq-order" value="1" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">질문 <span style="color: #ef4444;">*</span></label>
+                    <input type="text" class="form-control" id="faq-question" placeholder="자주 묻는 질문을 입력하세요">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">답변 <span style="color: #ef4444;">*</span></label>
+                    <textarea class="form-control" id="faq-answer" rows="8" placeholder="답변 내용을 입력하세요"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('faq-modal')">취소</button>
+                <button class="btn btn-primary" id="faq-submit-btn" onclick="saveFAQ()">등록</button>
+            </div>
+        </div>
+    </div>
+    
     <script src="js/admin-common.js"></script>
     <script>
+        let currentFAQId = null;
+        
         function searchFAQ() {
             showToast('검색 완료', 'success');
         }
         
+        function openFAQModal(id = null) {
+            currentFAQId = id;
+            
+            if (id) {
+                document.getElementById('faq-modal-title').textContent = 'FAQ 수정';
+                document.getElementById('faq-submit-btn').textContent = '수정';
+                // Mock 데이터 로드
+                document.getElementById('faq-category').value = 'usage';
+                document.getElementById('faq-order').value = '1';
+                document.getElementById('faq-question').value = '메시지 발송 방법은?';
+                document.getElementById('faq-answer').value = '메시지 발송은 다음과 같은 방법으로 진행됩니다.\n\n1. 메시지 작성 메뉴에서 새 메시지 작성\n2. 수신자 목록 업로드 또는 직접 입력\n3. 발송 예약 또는 즉시 발송 선택\n4. 발송 확인 후 전송';
+            } else {
+                document.getElementById('faq-modal-title').textContent = 'FAQ 등록';
+                document.getElementById('faq-submit-btn').textContent = '등록';
+                document.getElementById('faq-category').value = '';
+                document.getElementById('faq-order').value = '1';
+                document.getElementById('faq-question').value = '';
+                document.getElementById('faq-answer').value = '';
+            }
+            
+            openModal('faq-modal');
+        }
+        
         function editFAQ(id) {
-            location.href = `faq-edit.html?id=${id}`;
+            openFAQModal(id);
+        }
+        
+        function saveFAQ() {
+            const category = document.getElementById('faq-category').value;
+            const question = document.getElementById('faq-question').value.trim();
+            const answer = document.getElementById('faq-answer').value.trim();
+            
+            if (!category) {
+                showToast('카테고리를 선택해주세요.', 'error');
+                return;
+            }
+            if (!question) {
+                showToast('질문을 입력해주세요.', 'error');
+                return;
+            }
+            if (!answer) {
+                showToast('답변을 입력해주세요.', 'error');
+                return;
+            }
+            
+            if (currentFAQId) {
+                showToast('FAQ가 수정되었습니다.', 'success');
+            } else {
+                showToast('FAQ가 등록되었습니다.', 'success');
+            }
+            closeModal('faq-modal');
         }
         
         function deleteFAQ(id) {
