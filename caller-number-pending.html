@@ -294,7 +294,120 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="closeModal('reviewModal')">취소</button>
+                <button class="btn btn-warning" onclick="openEditModal()">수정</button>
                 <button class="btn btn-primary" onclick="processApproval()">처리</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 수정 모달 -->
+    <div class="modal" id="editModal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
+            <div class="modal-header">
+                <h3 class="modal-title">발신번호 신청 정보 수정</h3>
+                <button class="modal-close" onclick="closeModal('editModal')">&times;</button>
+            </div>
+            <div style="max-height: 70vh; overflow-y: auto; padding: 24px;">
+                <!-- 발신번호 정보 수정 -->
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">발신번호 정보</h3>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">발신번호 <span style="color: #ef4444;">*</span></label>
+                            <input type="text" class="form-control" id="edit-caller-number" placeholder="발신번호 입력">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">통신사 <span style="color: #ef4444;">*</span></label>
+                            <select class="form-control" id="edit-carrier">
+                                <option value="">통신사 선택</option>
+                                <option value="SKT">SKT</option>
+                                <option value="KT">KT</option>
+                                <option value="LG U+">LG U+</option>
+                                <option value="알뜰폰">알뜰폰</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">명의자 <span style="color: #ef4444;">*</span></label>
+                            <input type="text" class="form-control" id="edit-owner-name" placeholder="명의자 이름">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">명의 구분 <span style="color: #ef4444;">*</span></label>
+                            <select class="form-control" id="edit-owner-type">
+                                <option value="">명의 구분 선택</option>
+                                <option value="SELF">본인</option>
+                                <option value="OTHER">타인</option>
+                                <option value="COMPANY_OTHER">타사</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">발신번호 용도</label>
+                            <input type="text" class="form-control" id="edit-caller-purpose" placeholder="예: 마케팅팀, 고객센터">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">통합용 사용 여부</label>
+                            <select class="form-control" id="edit-unified-use">
+                                <option value="Y">예</option>
+                                <option value="N">아니오</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 서류 수정 -->
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 class="card-title">첨부 서류</h3>
+                    </div>
+                    <div id="edit-document-list" style="margin-bottom: 16px;">
+                        <!-- 기존 서류 목록 -->
+                    </div>
+                    <div style="padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 2px dashed #cbd5e1;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">새 서류 업로드</div>
+                            <div style="font-size: 12px; color: #64748b; margin-bottom: 12px;">
+                                기존 서류를 대체하거나 새로운 서류를 추가할 수 있습니다.<br>
+                                지원 형식: PDF, JPG, PNG (최대 10MB)
+                            </div>
+                            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                                <div class="form-group" style="margin: 0;">
+                                    <label class="form-label" style="font-size: 12px;">서류 종류</label>
+                                    <select class="form-control" id="new-doc-type" style="font-size: 13px;">
+                                        <option value="">서류 선택</option>
+                                        <option value="certificate">통신서비스 이용증명원</option>
+                                        <option value="identity">신분증 사본</option>
+                                        <option value="business">사업자등록증</option>
+                                        <option value="consent">명의자 동의서</option>
+                                        <option value="corporate">법인등기부등본</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin: 0;">
+                                    <label class="form-label" style="font-size: 12px;">파일 선택</label>
+                                    <input type="file" id="new-doc-file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" style="font-size: 13px;">
+                                </div>
+                                <div class="form-group" style="margin: 0; display: flex; align-items: flex-end;">
+                                    <button class="btn btn-primary btn-sm" onclick="addNewDocument()">추가</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 수정 사유 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">수정 사유</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">수정 사유 <span style="color: #ef4444;">*</span></label>
+                        <textarea class="form-control" id="edit-reason" rows="3" placeholder="수정 사유를 입력하세요 (예: 서류 재제출, 정보 오류 정정 등)"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('editModal')">취소</button>
+                <button class="btn btn-primary" onclick="saveEdit()">저장</button>
             </div>
         </div>
     </div>
@@ -1321,6 +1434,236 @@
         }
         
         createPagination(1, 5, 'pagination');
+        
+        // 수정 모달 열기
+        function openEditModal() {
+            if (!currentReviewRow) {
+                showToast('수정할 항목을 선택해주세요.', 'error');
+                return;
+            }
+            
+            // 현재 검토 모달에서 데이터 가져오기
+            const callerNumber = document.getElementById('modal-caller-number').textContent;
+            const carrier = document.getElementById('modal-carrier').textContent;
+            const ownerName = document.getElementById('modal-owner-name').textContent;
+            const ownerType = document.getElementById('modal-owner-type').textContent;
+            const callerPurpose = document.getElementById('modal-caller-purpose').textContent;
+            const unifiedUse = document.getElementById('modal-unified-use').textContent;
+            
+            // 수정 모달에 데이터 설정
+            document.getElementById('edit-caller-number').value = callerNumber !== '-' ? callerNumber : '';
+            document.getElementById('edit-owner-name').value = ownerName !== '-' ? ownerName : '';
+            document.getElementById('edit-caller-purpose').value = callerPurpose !== '-' ? callerPurpose : '';
+            
+            // 통신사 선택
+            const carrierSelect = document.getElementById('edit-carrier');
+            for (let i = 0; i < carrierSelect.options.length; i++) {
+                if (carrierSelect.options[i].value === carrier || carrierSelect.options[i].text === carrier) {
+                    carrierSelect.selectedIndex = i;
+                    break;
+                }
+            }
+            
+            // 명의 구분 선택
+            const ownerTypeSelect = document.getElementById('edit-owner-type');
+            const ownerTypeMap = { '본인': 'SELF', '타인': 'OTHER', '타사': 'COMPANY_OTHER' };
+            const ownerTypeValue = ownerTypeMap[ownerType.trim()] || '';
+            for (let i = 0; i < ownerTypeSelect.options.length; i++) {
+                if (ownerTypeSelect.options[i].value === ownerTypeValue) {
+                    ownerTypeSelect.selectedIndex = i;
+                    break;
+                }
+            }
+            
+            // 통합용 사용 여부
+            document.getElementById('edit-unified-use').value = unifiedUse === '예' ? 'Y' : 'N';
+            
+            // 기존 서류 목록 표시
+            const documents = getDocuments(callerNumber);
+            const editDocList = document.getElementById('edit-document-list');
+            
+            if (documents.length > 0) {
+                editDocList.innerHTML = documents.map(doc => `
+                    <div class="edit-doc-item" data-doc-id="${doc.id}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background-color: #f1f5f9; border-radius: 8px; margin-bottom: 8px;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; margin-bottom: 4px;">${doc.name}</div>
+                            <div style="font-size: 12px; color: #64748b;">파일명: ${doc.fileName} (${doc.fileSize})</div>
+                            <div style="font-size: 12px; color: #64748b;">업로드일: ${doc.uploadDate}</div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <label class="btn btn-outline btn-sm" style="cursor: pointer;">
+                                교체
+                                <input type="file" style="display: none;" onchange="replaceDocument(${doc.id}, this)" accept=".pdf,.jpg,.jpeg,.png">
+                            </label>
+                            <button class="btn btn-danger btn-sm" onclick="removeDocument(${doc.id})">삭제</button>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                editDocList.innerHTML = '<div style="text-align: center; padding: 20px; color: #64748b;">등록된 서류가 없습니다.</div>';
+            }
+            
+            // 수정 사유 초기화
+            document.getElementById('edit-reason').value = '';
+            
+            openModal('editModal');
+        }
+        
+        // 새 서류 추가
+        function addNewDocument() {
+            const docType = document.getElementById('new-doc-type').value;
+            const docFile = document.getElementById('new-doc-file').files[0];
+            
+            if (!docType) {
+                showToast('서류 종류를 선택해주세요.', 'error');
+                return;
+            }
+            
+            if (!docFile) {
+                showToast('파일을 선택해주세요.', 'error');
+                return;
+            }
+            
+            // 파일 크기 체크 (10MB)
+            if (docFile.size > 10 * 1024 * 1024) {
+                showToast('파일 크기는 10MB 이하여야 합니다.', 'error');
+                return;
+            }
+            
+            const docTypeNames = {
+                'certificate': '통신서비스 이용증명원',
+                'identity': '신분증 사본',
+                'business': '사업자등록증',
+                'consent': '명의자 동의서',
+                'corporate': '법인등기부등본'
+            };
+            
+            const editDocList = document.getElementById('edit-document-list');
+            const newDocId = Date.now();
+            
+            const newDocHtml = `
+                <div class="edit-doc-item new-doc" data-doc-id="${newDocId}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background-color: #dcfce7; border-radius: 8px; margin-bottom: 8px; border: 1px solid #86efac;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; margin-bottom: 4px;">
+                            <span class="badge badge-success" style="font-size: 10px; margin-right: 4px;">NEW</span>
+                            ${docTypeNames[docType]}
+                        </div>
+                        <div style="font-size: 12px; color: #64748b;">파일명: ${docFile.name} (${(docFile.size / 1024 / 1024).toFixed(2)}MB)</div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-danger btn-sm" onclick="this.closest('.edit-doc-item').remove()">삭제</button>
+                    </div>
+                </div>
+            `;
+            
+            // 기존 "등록된 서류가 없습니다" 메시지 제거
+            const emptyMsg = editDocList.querySelector('div[style*="text-align: center"]');
+            if (emptyMsg) {
+                emptyMsg.remove();
+            }
+            
+            editDocList.insertAdjacentHTML('beforeend', newDocHtml);
+            
+            // 입력 필드 초기화
+            document.getElementById('new-doc-type').value = '';
+            document.getElementById('new-doc-file').value = '';
+            
+            showToast('서류가 추가되었습니다.', 'success');
+        }
+        
+        // 서류 교체
+        function replaceDocument(docId, input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            // 파일 크기 체크 (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('파일 크기는 10MB 이하여야 합니다.', 'error');
+                input.value = '';
+                return;
+            }
+            
+            const docItem = document.querySelector(`.edit-doc-item[data-doc-id="${docId}"]`);
+            if (docItem) {
+                const fileInfo = docItem.querySelector('div[style*="font-size: 12px"]');
+                if (fileInfo) {
+                    fileInfo.innerHTML = `파일명: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB) <span class="badge badge-warning" style="font-size: 10px;">변경됨</span>`;
+                }
+                docItem.style.backgroundColor = '#fef9c3';
+                docItem.style.borderColor = '#fde047';
+            }
+            
+            showToast('서류가 교체되었습니다.', 'success');
+        }
+        
+        // 서류 삭제
+        function removeDocument(docId) {
+            confirmAction('이 서류를 삭제하시겠습니까?', function() {
+                const docItem = document.querySelector(`.edit-doc-item[data-doc-id="${docId}"]`);
+                if (docItem) {
+                    docItem.remove();
+                }
+                showToast('서류가 삭제되었습니다.', 'success');
+            });
+        }
+        
+        // 수정 저장
+        function saveEdit() {
+            const callerNumber = document.getElementById('edit-caller-number').value.trim();
+            const carrier = document.getElementById('edit-carrier').value;
+            const ownerName = document.getElementById('edit-owner-name').value.trim();
+            const ownerType = document.getElementById('edit-owner-type').value;
+            const editReason = document.getElementById('edit-reason').value.trim();
+            
+            // 필수 입력 체크
+            if (!callerNumber) {
+                showToast('발신번호를 입력해주세요.', 'error');
+                return;
+            }
+            if (!carrier) {
+                showToast('통신사를 선택해주세요.', 'error');
+                return;
+            }
+            if (!ownerName) {
+                showToast('명의자를 입력해주세요.', 'error');
+                return;
+            }
+            if (!ownerType) {
+                showToast('명의 구분을 선택해주세요.', 'error');
+                return;
+            }
+            if (!editReason) {
+                showToast('수정 사유를 입력해주세요.', 'error');
+                return;
+            }
+            
+            confirmAction('입력한 내용으로 수정하시겠습니까?\n\n수정 후에는 재심사가 진행됩니다.', function() {
+                // 테이블 행 데이터 업데이트
+                if (currentReviewRow) {
+                    const cells = currentReviewRow.querySelectorAll('td');
+                    cells[3].textContent = callerNumber; // 발신번호
+                    cells[4].textContent = carrier; // 통신사
+                    cells[5].textContent = ownerName; // 명의자
+                    
+                    const ownerTypeMap = { 'SELF': '본인', 'OTHER': '타인', 'COMPANY_OTHER': '타사' };
+                    const ownerTypeBadgeClass = { 'SELF': 'badge-info', 'OTHER': 'badge-warning', 'COMPANY_OTHER': 'badge-danger' };
+                    cells[6].innerHTML = `<span class="badge ${ownerTypeBadgeClass[ownerType]}">${ownerTypeMap[ownerType]}</span>`;
+                }
+                
+                // 검토 모달 데이터도 업데이트
+                document.getElementById('modal-caller-number').textContent = callerNumber;
+                document.getElementById('modal-carrier').textContent = carrier;
+                document.getElementById('modal-owner-name').textContent = ownerName;
+                
+                const ownerTypeDisplayMap = { 'SELF': '본인', 'OTHER': '타인', 'COMPANY_OTHER': '타사' };
+                document.getElementById('modal-owner-type').textContent = ownerTypeDisplayMap[ownerType];
+                document.getElementById('modal-caller-purpose').textContent = document.getElementById('edit-caller-purpose').value || '-';
+                document.getElementById('modal-unified-use').textContent = document.getElementById('edit-unified-use').value === 'Y' ? '예' : '아니오';
+                
+                showToast('수정이 완료되었습니다. 재심사가 진행됩니다.', 'success');
+                closeModal('editModal');
+            });
+        }
     </script>
 </body>
 </html>

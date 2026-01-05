@@ -19,9 +19,6 @@ function getSidebarHTML(activeMenu) {
                     <a href="send-list.html" class="menu-item ${activeMenu === 'send-list' ? 'active' : ''}">
                         <span>전체 발송 내역</span>
                     </a>
-                    <a href="send-bulk-approval.html" class="menu-item ${activeMenu === 'send-bulk-approval' ? 'active' : ''}">
-                        <span>대량 발송 승인</span>
-                    </a>
                     <a href="send-policy.html" class="menu-item ${activeMenu === 'send-policy' ? 'active' : ''}">
                         <span>발송 정책 관리</span>
                     </a>
