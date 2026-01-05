@@ -19,8 +19,34 @@
             </script>
             
             <div class="admin-content">
-                <div style="margin-bottom: 24px;">
-                    <button class="btn btn-primary" onclick="addCode()">코드 등록</button>
+                <div class="card">
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <label class="form-label">코드 그룹</label>
+                            <select class="form-control" id="filter-group">
+                                <option value="">전체</option>
+                                <option value="MSG_TYPE">메시지 유형</option>
+                                <option value="MEMBER_TYPE">회원 유형</option>
+                                <option value="STATUS">상태 코드</option>
+                                <option value="PAYMENT">결제 관련</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">사용 여부</label>
+                            <select class="form-control" id="filter-status">
+                                <option value="">전체</option>
+                                <option value="Y">사용</option>
+                                <option value="N">미사용</option>
+                            </select>
+                        </div>
+                        <div class="filter-item" style="align-self: flex-end;">
+                            <button class="btn btn-primary" onclick="searchCodes()">조회</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin: 24px 0;">
+                    <button class="btn btn-primary" onclick="openCodeModal()">코드 등록</button>
                 </div>
                 
                 <div class="card">
@@ -36,22 +62,13 @@
                                     <th>코드</th>
                                     <th>코드명</th>
                                     <th>설명</th>
+                                    <th>정렬순서</th>
                                     <th>사용 여부</th>
                                     <th>관리</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>메시지 유형</td>
-                                    <td>MSG_SMS</td>
-                                    <td>SMS</td>
-                                    <td>일반 문자 메시지</td>
-                                    <td><span class="badge badge-success">사용</span></td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" onclick="editCode(1)">수정</button>
-                                        <button class="btn btn-danger btn-sm" onclick="deleteCode(1)">삭제</button>
-                                    </td>
-                                </tr>
+                            <tbody id="code-list-tbody">
+                                <!-- 동적으로 생성됨 -->
                             </tbody>
                         </table>
                     </div>
@@ -60,19 +77,252 @@
         </main>
     </div>
     
+    <!-- 코드 등록/수정 모달 -->
+    <div id="code-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="code-modal-title">코드 등록</h3>
+                <button class="modal-close" onclick="closeModal('code-modal')">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <div class="form-group">
+                    <label class="form-label">코드 그룹 <span style="color: #ef4444;">*</span></label>
+                    <select class="form-control" id="code-group">
+                        <option value="">선택하세요</option>
+                        <option value="MSG_TYPE">메시지 유형</option>
+                        <option value="MEMBER_TYPE">회원 유형</option>
+                        <option value="STATUS">상태 코드</option>
+                        <option value="PAYMENT">결제 관련</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">코드 <span style="color: #ef4444;">*</span></label>
+                    <input type="text" class="form-control" id="code-value" placeholder="예: MSG_SMS">
+                    <div style="color: #64748b; font-size: 12px; margin-top: 4px;">영문 대문자와 언더스코어(_)만 사용 가능</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">코드명 <span style="color: #ef4444;">*</span></label>
+                    <input type="text" class="form-control" id="code-name" placeholder="예: SMS">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">설명</label>
+                    <textarea class="form-control" id="code-description" rows="3" placeholder="코드에 대한 설명을 입력하세요"></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">정렬 순서</label>
+                        <input type="number" class="form-control" id="code-order" value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">사용 여부</label>
+                        <select class="form-control" id="code-use-yn">
+                            <option value="Y">사용</option>
+                            <option value="N">미사용</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('code-modal')">취소</button>
+                <button class="btn btn-primary" id="code-submit-btn" onclick="saveCode()">등록</button>
+            </div>
+        </div>
+    </div>
+    
     <script src="js/admin-common.js"></script>
     <script>
-        function addCode() {
-            showToast('코드 등록 기능은 준비 중입니다.', 'info');
+        // Mock 데이터
+        const mockCodes = [
+            { id: 1, group: 'MSG_TYPE', groupName: '메시지 유형', code: 'MSG_SMS', name: 'SMS', description: '일반 문자 메시지', order: 1, useYn: 'Y' },
+            { id: 2, group: 'MSG_TYPE', groupName: '메시지 유형', code: 'MSG_LMS', name: 'LMS', description: '장문 문자 메시지', order: 2, useYn: 'Y' },
+            { id: 3, group: 'MSG_TYPE', groupName: '메시지 유형', code: 'MSG_MMS', name: 'MMS', description: '멀티미디어 메시지', order: 3, useYn: 'Y' },
+            { id: 4, group: 'MSG_TYPE', groupName: '메시지 유형', code: 'MSG_RCS', name: 'RCS', description: 'RCS 메시지', order: 4, useYn: 'Y' },
+            { id: 5, group: 'MSG_TYPE', groupName: '메시지 유형', code: 'MSG_ALIMTALK', name: '알림톡', description: '카카오 알림톡', order: 5, useYn: 'Y' },
+            { id: 6, group: 'MSG_TYPE', groupName: '메시지 유형', code: 'MSG_BRANDMSG', name: '브랜드 메시지', description: '카카오 브랜드 메시지', order: 6, useYn: 'Y' },
+            { id: 7, group: 'MEMBER_TYPE', groupName: '회원 유형', code: 'MEM_PERSONAL', name: '개인', description: '개인 회원', order: 1, useYn: 'Y' },
+            { id: 8, group: 'MEMBER_TYPE', groupName: '회원 유형', code: 'MEM_BUSINESS', name: '기업', description: '기업 회원', order: 2, useYn: 'Y' },
+            { id: 9, group: 'STATUS', groupName: '상태 코드', code: 'STS_PENDING', name: '대기', description: '처리 대기 상태', order: 1, useYn: 'Y' },
+            { id: 10, group: 'STATUS', groupName: '상태 코드', code: 'STS_APPROVED', name: '승인', description: '승인 완료 상태', order: 2, useYn: 'Y' },
+            { id: 11, group: 'STATUS', groupName: '상태 코드', code: 'STS_REJECTED', name: '반려', description: '반려 상태', order: 3, useYn: 'Y' },
+            { id: 12, group: 'PAYMENT', groupName: '결제 관련', code: 'PAY_CARD', name: '카드결제', description: '신용/체크카드 결제', order: 1, useYn: 'Y' },
+            { id: 13, group: 'PAYMENT', groupName: '결제 관련', code: 'PAY_TRANSFER', name: '계좌이체', description: '실시간 계좌이체', order: 2, useYn: 'Y' },
+            { id: 14, group: 'PAYMENT', groupName: '결제 관련', code: 'PAY_DEPOSIT', name: '무통장입금', description: '무통장입금', order: 3, useYn: 'N' }
+        ];
+        
+        let currentCodeId = null;
+        
+        // 페이지 로드 시 데이터 표시
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCodes();
+        });
+        
+        // 코드 목록 로드
+        function loadCodes(filteredData = null) {
+            const data = filteredData || mockCodes;
+            const tbody = document.getElementById('code-list-tbody');
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #64748b;">등록된 코드가 없습니다.</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = data.map(code => {
+                const useBadge = code.useYn === 'Y' 
+                    ? '<span class="badge badge-success">사용</span>' 
+                    : '<span class="badge badge-secondary">미사용</span>';
+                
+                return `
+                    <tr>
+                        <td>${code.groupName}</td>
+                        <td><code style="background-color: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 12px;">${code.code}</code></td>
+                        <td>${code.name}</td>
+                        <td>${code.description}</td>
+                        <td>${code.order}</td>
+                        <td>${useBadge}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="editCode(${code.id})">수정</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteCode(${code.id})">삭제</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
         
+        // 검색
+        function searchCodes() {
+            const group = document.getElementById('filter-group').value;
+            const status = document.getElementById('filter-status').value;
+            
+            let filtered = mockCodes.filter(code => {
+                if (group && code.group !== group) return false;
+                if (status && code.useYn !== status) return false;
+                return true;
+            });
+            
+            loadCodes(filtered);
+            showToast(`${filtered.length}건이 조회되었습니다.`, 'success');
+        }
+        
+        // 코드 등록 모달 열기
+        function openCodeModal(id = null) {
+            currentCodeId = id;
+            
+            if (id) {
+                const code = mockCodes.find(c => c.id === id);
+                if (code) {
+                    document.getElementById('code-modal-title').textContent = '코드 수정';
+                    document.getElementById('code-submit-btn').textContent = '수정';
+                    document.getElementById('code-group').value = code.group;
+                    document.getElementById('code-value').value = code.code;
+                    document.getElementById('code-name').value = code.name;
+                    document.getElementById('code-description').value = code.description;
+                    document.getElementById('code-order').value = code.order;
+                    document.getElementById('code-use-yn').value = code.useYn;
+                    
+                    // 수정 시 코드 값은 수정 불가
+                    document.getElementById('code-value').disabled = true;
+                }
+            } else {
+                document.getElementById('code-modal-title').textContent = '코드 등록';
+                document.getElementById('code-submit-btn').textContent = '등록';
+                document.getElementById('code-group').value = '';
+                document.getElementById('code-value').value = '';
+                document.getElementById('code-value').disabled = false;
+                document.getElementById('code-name').value = '';
+                document.getElementById('code-description').value = '';
+                document.getElementById('code-order').value = '1';
+                document.getElementById('code-use-yn').value = 'Y';
+            }
+            
+            openModal('code-modal');
+        }
+        
+        // 코드 수정
         function editCode(id) {
-            showToast('코드 수정 기능은 준비 중입니다.', 'info');
+            openCodeModal(id);
         }
         
+        // 코드 저장
+        function saveCode() {
+            const group = document.getElementById('code-group').value;
+            const codeValue = document.getElementById('code-value').value.trim();
+            const codeName = document.getElementById('code-name').value.trim();
+            const description = document.getElementById('code-description').value.trim();
+            const order = document.getElementById('code-order').value;
+            const useYn = document.getElementById('code-use-yn').value;
+            
+            // 유효성 검사
+            if (!group) {
+                showToast('코드 그룹을 선택해주세요.', 'error');
+                return;
+            }
+            if (!codeValue) {
+                showToast('코드를 입력해주세요.', 'error');
+                return;
+            }
+            // 코드 형식 검사 (영문 대문자와 언더스코어만)
+            if (!/^[A-Z_]+$/.test(codeValue)) {
+                showToast('코드는 영문 대문자와 언더스코어(_)만 사용 가능합니다.', 'error');
+                return;
+            }
+            if (!codeName) {
+                showToast('코드명을 입력해주세요.', 'error');
+                return;
+            }
+            
+            // 중복 검사 (신규 등록 시)
+            if (!currentCodeId) {
+                const exists = mockCodes.find(c => c.code === codeValue);
+                if (exists) {
+                    showToast('이미 존재하는 코드입니다.', 'error');
+                    return;
+                }
+            }
+            
+            if (currentCodeId) {
+                // 수정
+                const index = mockCodes.findIndex(c => c.id === currentCodeId);
+                if (index !== -1) {
+                    mockCodes[index].group = group;
+                    mockCodes[index].groupName = document.querySelector(`#code-group option[value="${group}"]`).textContent;
+                    mockCodes[index].name = codeName;
+                    mockCodes[index].description = description;
+                    mockCodes[index].order = parseInt(order);
+                    mockCodes[index].useYn = useYn;
+                }
+                showToast('코드가 수정되었습니다.', 'success');
+            } else {
+                // 등록
+                const newCode = {
+                    id: mockCodes.length + 1,
+                    group: group,
+                    groupName: document.querySelector(`#code-group option[value="${group}"]`).textContent,
+                    code: codeValue,
+                    name: codeName,
+                    description: description,
+                    order: parseInt(order),
+                    useYn: useYn
+                };
+                mockCodes.push(newCode);
+                showToast('코드가 등록되었습니다.', 'success');
+            }
+            
+            closeModal('code-modal');
+            loadCodes();
+        }
+        
+        // 코드 삭제
         function deleteCode(id) {
-            if (confirm('정말 삭제하시겠습니까?')) {
+            const code = mockCodes.find(c => c.id === id);
+            if (!code) return;
+            
+            if (confirm(`"${code.name}" 코드를 삭제하시겠습니까?\n\n이 코드를 사용 중인 데이터가 있을 경우 문제가 발생할 수 있습니다.`)) {
+                const index = mockCodes.findIndex(c => c.id === id);
+                if (index !== -1) {
+                    mockCodes.splice(index, 1);
+                }
                 showToast('삭제되었습니다.', 'success');
+                loadCodes();
             }
         }
     </script>
