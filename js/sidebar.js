@@ -115,9 +115,6 @@ function getSidebarHTML(activeMenu) {
                     <a href="system-settings.html" class="menu-item ${activeMenu === 'system-settings' ? 'active' : ''}">
                         <span>환경 설정</span>
                     </a>
-                    <a href="api-key.html" class="menu-item ${activeMenu === 'api-key' ? 'active' : ''}">
-                        <span>API 관리</span>
-                    </a>
                     <a href="code-manage.html" class="menu-item ${activeMenu === 'code-manage' ? 'active' : ''}">
                         <span>코드 관리</span>
                     </a>
