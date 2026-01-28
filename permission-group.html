@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>권한 그룹 관리 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('permission-group'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('권한 그룹 관리'));
+            </script>
+            
+            <div class="admin-content">
+                <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0;">권한 그룹 목록</h3>
+                    <button class="btn btn-primary" onclick="openAddPermissionGroupModal()">신규 권한 그룹 등록</button>
+                </div>
+                
+                <!-- 권한 그룹 목록 -->
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>권한 그룹명</th>
+                                    <th>설명</th>
+                                    <th>사용자 수</th>
+                                    <th>생성일</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="permission-group-list">
+                                <tr>
+                                    <td><span class="badge badge-danger">최고 관리자</span></td>
+                                    <td>모든 권한을 가진 최고 관리자 그룹</td>
+                                    <td>1명</td>
+                                    <td>2024-01-01</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="editPermissionGroup('super')">수정</button>
+                                        <button class="btn btn-outline btn-sm" onclick="viewPermissionDetail('super')">권한 상세</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge badge-warning">운영 관리자</span></td>
+                                    <td>일반 운영 업무를 담당하는 관리자 그룹</td>
+                                    <td>3명</td>
+                                    <td>2024-01-15</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="editPermissionGroup('operator')">수정</button>
+                                        <button class="btn btn-outline btn-sm" onclick="viewPermissionDetail('operator')">권한 상세</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge badge-info">심사 관리자</span></td>
+                                    <td>발신번호 및 템플릿 심사를 담당하는 관리자 그룹</td>
+                                    <td>2명</td>
+                                    <td>2024-02-01</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="editPermissionGroup('reviewer')">수정</button>
+                                        <button class="btn btn-outline btn-sm" onclick="viewPermissionDetail('reviewer')">권한 상세</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge badge-secondary">고객 지원</span></td>
+                                    <td>고객 문의 및 지원을 담당하는 관리자 그룹</td>
+                                    <td>5명</td>
+                                    <td>2024-02-10</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="editPermissionGroup('support')">수정</button>
+                                        <button class="btn btn-outline btn-sm" onclick="viewPermissionDetail('support')">권한 상세</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 권한 그룹 등록/수정 모달 -->
+    <div id="permission-group-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="permission-group-modal-title">신규 권한 그룹 등록</h3>
+                <button class="modal-close" onclick="closeModal('permission-group-modal')">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <div class="form-group">
+                    <label class="form-label">권한 그룹명</label>
+                    <input type="text" class="form-control" id="group-name" placeholder="권한 그룹명을 입력하세요">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">설명</label>
+                    <textarea class="form-control" id="group-description" rows="3" placeholder="권한 그룹에 대한 설명을 입력하세요"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('permission-group-modal')">취소</button>
+                <button class="btn btn-primary" onclick="savePermissionGroup()">저장</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 권한 상세 설정 모달 -->
+    <div id="permission-detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 1000px; max-height: 90vh;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="permission-detail-title">권한 상세 설정</h3>
+                <button class="modal-close" onclick="closeModal('permission-detail-modal')">&times;</button>
+            </div>
+            <div style="max-height: 80vh; overflow-y: auto; padding: 24px;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title" id="permission-detail-group-name">최고 관리자</h3>
+                        <div class="card-description" id="permission-detail-group-desc">권한 그룹별 메뉴 접근 권한을 설정합니다.</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 200px;">전체</th>
+                                    <th style="width: 80px; text-align: center;">
+                                        읽기
+                                        <br>
+                                        <input type="checkbox" 
+                                               id="check-all-read" 
+                                               onchange="toggleAllPermissions('read', this.checked)"
+                                               style="cursor: pointer; margin-top: 4px;"
+                                               title="모든 메뉴 읽기 권한 일괄 설정">
+                                    </th>
+                                    <th style="width: 80px; text-align: center;">
+                                        쓰기
+                                        <br>
+                                        <input type="checkbox" 
+                                               id="check-all-write" 
+                                               onchange="toggleAllPermissions('write', this.checked)"
+                                               style="cursor: pointer; margin-top: 4px;"
+                                               title="모든 메뉴 쓰기 권한 일괄 설정">
+                                    </th>
+                                    <th style="width: 80px; text-align: center;">
+                                        삭제
+                                        <br>
+                                        <input type="checkbox" 
+                                               id="check-all-delete" 
+                                               onchange="toggleAllPermissions('delete', this.checked)"
+                                               style="cursor: pointer; margin-top: 4px;"
+                                               title="모든 메뉴 삭제 권한 일괄 설정">
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="permission-menu-list">
+                                <!-- 동적으로 생성됨 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('permission-detail-modal')">취소</button>
+                <button class="btn btn-primary" onclick="savePermissionDetail()">저장</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        let currentGroupId = null;
+        
+        // 사이드바 메뉴 구조 (1depth와 2depth 모두 포함)
+        const menuStructure = [
+            {
+                section: '메인',
+                items: [
+                    { key: 'index', name: '대시보드', href: 'index.html' },
+                    { key: 'banner-manage', name: '배너 관리', href: 'banner-manage.html' }
+                ]
+            },
+            {
+                section: '발송관리',
+                items: [
+                    { key: 'send-list', name: '전체 발송 내역', href: 'send-list.html' },
+                    { key: 'send-policy', name: '발송 정책 관리', href: 'send-policy.html' }
+                ]
+            },
+            {
+                section: '회원 관리',
+                items: [
+                    { key: 'member-list', name: '회원 목록', href: 'member-list.html' },
+                    { key: 'member-approval', name: '회원 가입 관리', href: 'member-approval.html' },
+                    { key: 'member-conversion', name: '회원 전환 관리', href: 'member-conversion.html' },
+                    { key: 'member-grade', name: '회원 등급 관리', href: 'member-grade.html' },
+                    { key: 'member-dormant', name: '휴면 회원 관리', href: 'member-dormant.html' },
+                    { key: 'member-edit', name: '회원 정보 관리', href: 'member-edit.html' },
+                    { key: 'member-document-list', name: '서류 목록 조회', href: 'member-document-list.html' }
+                ]
+            },
+            {
+                section: '발신번호 관리',
+                items: [
+                    { key: 'caller-number-pending', name: '발신번호 인증', href: 'caller-number-pending.html' },
+                    { key: 'kakao-profile-list', name: '카카오톡 발신 프로필', href: 'kakao-profile-list.html' }
+                ]
+            },
+            {
+                section: '결제 및 정산',
+                items: [
+                    { key: 'payment-list', name: '결제 관리', href: 'payment-list.html' },
+                    { key: 'settlement-monthly', name: '정산 관리', href: 'settlement-monthly.html' },
+                    { key: 'refund-list', name: '환불 관리', href: 'refund-list.html' },
+                    { key: 'tax-invoice', name: '세금계산서 발급', href: 'tax-invoice.html' }
+                ]
+            },
+            {
+                section: '고객 지원',
+                items: [
+                    { key: 'consultation-list', name: '견적 문의', href: 'consultation-list.html' },
+                    { key: 'inquiry-list', name: '문의 관리', href: 'inquiry-list.html' },
+                    { key: 'notice-list', name: '공지사항', href: 'notice-list.html' },
+                    { key: 'faq-list', name: 'FAQ 관리', href: 'faq-list.html' },
+                    { key: 'promotion-manage', name: '프로모션 관리', href: 'promotion-manage.html' }
+                ]
+            },
+            {
+                section: '스팸·제재 관리',
+                items: [
+                    { key: 'spam-list', name: '스팸 신고 내역', href: 'spam-list.html' },
+                    { key: 'spam-filter', name: '스팸 필터링 단어', href: 'spam-filter.html' },
+                    { key: 'sanction-manage', name: '계정 제재 관리', href: 'sanction-manage.html' }
+                ]
+            },
+            {
+                section: '시스템 설정',
+                items: [
+                    { key: 'system-settings', name: '환경 설정', href: 'system-settings.html' },
+                    { key: 'api-key', name: 'API 관리', href: 'api-key.html' },
+                    { key: 'code-manage', name: '코드 관리', href: 'code-manage.html' }
+                ]
+            },
+            {
+                section: '관리자 계정',
+                items: [
+                    { key: 'user-list', name: '관리자 계정 관리', href: 'user-list.html' },
+                    { key: 'permission-group', name: '권한 그룹 관리', href: 'permission-group.html' }
+                ]
+            },
+            {
+                section: '보안 및 감사',
+                items: [
+                    { key: 'access-log-admin', name: '관리자 접근 로그', href: 'access-log-admin.html' },
+                    { key: 'access-log-member', name: '회원 접근 로그', href: 'access-log-member.html' },
+                    { key: 'work-log', name: '작업 로그', href: 'work-log.html' },
+                    { key: 'security-policy', name: '보안 정책', href: 'security-policy.html' }
+                ]
+            }
+        ];
+        
+        // 권한 그룹 데이터 (기본값 - 모든 메뉴에 대한 권한)
+        const permissionGroups = {
+            'super': {
+                name: '최고 관리자',
+                description: '모든 권한을 가진 최고 관리자 그룹',
+                permissions: {}
+            },
+            'operator': {
+                name: '운영 관리자',
+                description: '일반 운영 업무를 담당하는 관리자 그룹',
+                permissions: {}
+            },
+            'reviewer': {
+                name: '심사 관리자',
+                description: '발신번호 및 템플릿 심사를 담당하는 관리자 그룹',
+                permissions: {}
+            },
+            'support': {
+                name: '고객 지원',
+                description: '고객 문의 및 지원을 담당하는 관리자 그룹',
+                permissions: {}
+            }
+        };
+        
+        // 모든 메뉴 키를 가져와서 기본 권한 설정
+        menuStructure.forEach(section => {
+            section.items.forEach(item => {
+                // 최고 관리자는 모든 권한
+                if (!permissionGroups['super'].permissions[item.key]) {
+                    permissionGroups['super'].permissions[item.key] = { read: true, write: true, delete: true };
+                }
+                // 다른 그룹은 기본적으로 false
+                if (!permissionGroups['operator'].permissions[item.key]) {
+                    permissionGroups['operator'].permissions[item.key] = { read: false, write: false, delete: false };
+                }
+                if (!permissionGroups['reviewer'].permissions[item.key]) {
+                    permissionGroups['reviewer'].permissions[item.key] = { read: false, write: false, delete: false };
+                }
+                if (!permissionGroups['support'].permissions[item.key]) {
+                    permissionGroups['support'].permissions[item.key] = { read: false, write: false, delete: false };
+                }
+            });
+        });
+        
+        // 운영 관리자 기본 권한 설정
+        ['index', 'send-list', 'send-policy', 'member-list', 'member-approval', 'member-conversion', 
+         'member-grade', 'member-dormant', 'member-edit', 'member-document-list', 
+         'caller-number-pending', 'kakao-profile-list', 
+         'payment-list', 'settlement-monthly', 'refund-list', 'tax-invoice',
+         'consultation-list', 'inquiry-list', 'notice-list', 'faq-list', 'promotion-manage',
+         'spam-list', 'spam-filter', 'sanction-manage'].forEach(key => {
+            permissionGroups['operator'].permissions[key] = { read: true, write: true, delete: false };
+        });
+        
+        // 심사 관리자 기본 권한 설정
+        ['index', 'caller-number-pending', 'kakao-profile-list'].forEach(key => {
+            permissionGroups['reviewer'].permissions[key] = { read: true, write: true, delete: false };
+        });
+        
+        // 고객 지원 기본 권한 설정
+        ['index', 'member-list', 'consultation-list', 'inquiry-list', 'notice-list', 'faq-list', 'promotion-manage'].forEach(key => {
+            permissionGroups['support'].permissions[key] = { read: true, write: true, delete: false };
+        });
+        
+        function openAddPermissionGroupModal() {
+            currentGroupId = null;
+            document.getElementById('permission-group-modal-title').textContent = '신규 권한 그룹 등록';
+            document.getElementById('group-name').value = '';
+            document.getElementById('group-description').value = '';
+            openModal('permission-group-modal');
+        }
+        
+        function editPermissionGroup(groupId) {
+            currentGroupId = groupId;
+            const group = permissionGroups[groupId];
+            if (group) {
+                document.getElementById('permission-group-modal-title').textContent = '권한 그룹 수정';
+                document.getElementById('group-name').value = group.name;
+                document.getElementById('group-description').value = group.description;
+                openModal('permission-group-modal');
+            }
+        }
+        
+        function savePermissionGroup() {
+            const name = document.getElementById('group-name').value.trim();
+            const description = document.getElementById('group-description').value.trim();
+            
+            if (!name) {
+                showToast('권한 그룹명을 입력해주세요.', 'error');
+                return;
+            }
+            
+            // 실제로는 API 호출
+            showToast(currentGroupId ? '권한 그룹이 수정되었습니다.' : '권한 그룹이 등록되었습니다.', 'success');
+            closeModal('permission-group-modal');
+        }
+        
+        function viewPermissionDetail(groupId) {
+            currentGroupId = groupId;
+            const group = permissionGroups[groupId];
+            if (group) {
+                document.getElementById('permission-detail-title').textContent = group.name + ' 권한 설정';
+                document.getElementById('permission-detail-group-name').textContent = group.name;
+                document.getElementById('permission-detail-group-desc').textContent = group.description;
+                
+                // 권한 목록 생성 (1depth와 2depth 모두 표시)
+                const tbody = document.getElementById('permission-menu-list');
+                let html = '';
+                
+                menuStructure.forEach((section, sectionIndex) => {
+                    // 섹션의 모든 항목 권한 확인
+                    let allRead = true, allWrite = true, allDelete = true;
+                    let hasAnyRead = false, hasAnyWrite = false, hasAnyDelete = false;
+                    
+                    section.items.forEach(item => {
+                        const perm = group.permissions[item.key] || { read: false, write: false, delete: false };
+                        if (perm.read) hasAnyRead = true;
+                        if (perm.write) hasAnyWrite = true;
+                        if (perm.delete) hasAnyDelete = true;
+                        if (!perm.read) allRead = false;
+                        if (!perm.write) allWrite = false;
+                        if (!perm.delete) allDelete = false;
+                    });
+                    
+                    // 1depth 섹션 헤더 (전체 체크 포함)
+                    const sectionKey = `section-${sectionIndex}`;
+                    html += `
+                        <tr style="background-color: #f8fafc; font-weight: 600;">
+                            <td style="padding: 12px 16px; border-bottom: 2px solid #e2e8f0;">
+                                ${section.section}
+                            </td>
+                            <td style="text-align: center; padding: 12px 16px; border-bottom: 2px solid #e2e8f0;">
+                                <input type="checkbox" 
+                                       ${allRead ? 'checked' : ''} 
+                                       data-section="${sectionKey}" 
+                                       data-type="read"
+                                       onchange="toggleSectionPermission('${sectionKey}', 'read', this.checked)"
+                                       style="cursor: pointer;">
+                            </td>
+                            <td style="text-align: center; padding: 12px 16px; border-bottom: 2px solid #e2e8f0;">
+                                <input type="checkbox" 
+                                       ${allWrite ? 'checked' : ''} 
+                                       data-section="${sectionKey}" 
+                                       data-type="write"
+                                       onchange="toggleSectionPermission('${sectionKey}', 'write', this.checked)"
+                                       style="cursor: pointer;">
+                            </td>
+                            <td style="text-align: center; padding: 12px 16px; border-bottom: 2px solid #e2e8f0;">
+                                <input type="checkbox" 
+                                       ${allDelete ? 'checked' : ''} 
+                                       data-section="${sectionKey}" 
+                                       data-type="delete"
+                                       onchange="toggleSectionPermission('${sectionKey}', 'delete', this.checked)"
+                                       style="cursor: pointer;">
+                            </td>
+                        </tr>
+                    `;
+                    
+                    // 2depth 메뉴 항목들
+                    section.items.forEach(item => {
+                        const perm = group.permissions[item.key] || { read: false, write: false, delete: false };
+                        html += `
+                            <tr data-section="${sectionKey}">
+                                <td style="padding-left: 32px;">
+                                    <span style="color: #64748b;">└</span> ${item.name}
+                                </td>
+                                <td style="text-align: center;">
+                                    <input type="checkbox" 
+                                           ${perm.read ? 'checked' : ''} 
+                                           data-menu="${item.key}" 
+                                           data-type="read"
+                                           data-section="${sectionKey}"
+                                           onchange="updateSectionCheckbox('${sectionKey}', 'read')"
+                                           style="cursor: pointer;">
+                                </td>
+                                <td style="text-align: center;">
+                                    <input type="checkbox" 
+                                           ${perm.write ? 'checked' : ''} 
+                                           data-menu="${item.key}" 
+                                           data-type="write"
+                                           data-section="${sectionKey}"
+                                           onchange="updateSectionCheckbox('${sectionKey}', 'write')"
+                                           style="cursor: pointer;">
+                                </td>
+                                <td style="text-align: center;">
+                                    <input type="checkbox" 
+                                           ${perm.delete ? 'checked' : ''} 
+                                           data-menu="${item.key}" 
+                                           data-type="delete"
+                                           data-section="${sectionKey}"
+                                           onchange="updateSectionCheckbox('${sectionKey}', 'delete')"
+                                           style="cursor: pointer;">
+                                </td>
+                            </tr>
+                        `;
+                    });
+                });
+                
+                tbody.innerHTML = html;
+                
+                // 전체 체크박스 상태 업데이트
+                updateAllCheckboxes();
+                
+                openModal('permission-detail-modal');
+            }
+        }
+        
+        // 모든 메뉴 권한 일괄 체크/해제
+        function toggleAllPermissions(type, checked) {
+            // 모든 개별 메뉴 항목 체크박스
+            const allCheckboxes = document.querySelectorAll(`#permission-menu-list tr[data-section] input[data-type="${type}"]`);
+            allCheckboxes.forEach(checkbox => {
+                checkbox.checked = checked;
+            });
+            
+            // 모든 섹션 헤더 체크박스도 업데이트
+            const sectionCheckboxes = document.querySelectorAll(`#permission-menu-list tr[style*="background-color: #f8fafc"] input[data-type="${type}"]`);
+            sectionCheckboxes.forEach(checkbox => {
+                checkbox.checked = checked;
+            });
+        }
+        
+        // 전체 체크박스 상태 업데이트
+        function updateAllCheckboxes() {
+            ['read', 'write', 'delete'].forEach(type => {
+                const allCheckboxes = document.querySelectorAll(`#permission-menu-list tr[data-section] input[data-type="${type}"]`);
+                const allChecked = allCheckboxes.length > 0 && Array.from(allCheckboxes).every(cb => cb.checked);
+                const allCheckbox = document.getElementById(`check-all-${type}`);
+                if (allCheckbox) {
+                    allCheckbox.checked = allChecked;
+                }
+            });
+        }
+        
+        // 섹션 전체 체크/해제
+        function toggleSectionPermission(sectionKey, type, checked) {
+            const rows = document.querySelectorAll(`tr[data-section="${sectionKey}"]`);
+            rows.forEach(row => {
+                const checkbox = row.querySelector(`input[data-type="${type}"]`);
+                if (checkbox) {
+                    checkbox.checked = checked;
+                }
+            });
+            
+            // 전체 체크박스 상태도 업데이트
+            updateAllCheckboxes();
+        }
+        
+        // 개별 체크박스 변경 시 섹션 전체 체크박스 상태 업데이트
+        function updateSectionCheckbox(sectionKey, type) {
+            const rows = document.querySelectorAll(`tr[data-section="${sectionKey}"]`);
+            const sectionCheckbox = document.querySelector(`input[data-section="${sectionKey}"][data-type="${type}"]`);
+            
+            if (!sectionCheckbox) return;
+            
+            let allChecked = true;
+            let hasAnyChecked = false;
+            
+            rows.forEach(row => {
+                const checkbox = row.querySelector(`input[data-type="${type}"]`);
+                if (checkbox) {
+                    if (checkbox.checked) {
+                        hasAnyChecked = true;
+                    } else {
+                        allChecked = false;
+                    }
+                }
+            });
+            
+            sectionCheckbox.checked = allChecked;
+            
+            // 전체 체크박스 상태도 업데이트
+            updateAllCheckboxes();
+        }
+        
+        function savePermissionDetail() {
+            // 체크박스 상태 읽기 (섹션 헤더 체크박스 제외)
+            const checkboxes = document.querySelectorAll('#permission-menu-list tr[data-section] input[type="checkbox"]');
+            const permissions = {};
+            
+            checkboxes.forEach(checkbox => {
+                const menu = checkbox.getAttribute('data-menu');
+                const type = checkbox.getAttribute('data-type');
+                
+                if (menu) { // 메뉴 항목만 처리
+                    if (!permissions[menu]) {
+                        permissions[menu] = {};
+                    }
+                    permissions[menu][type] = checkbox.checked;
+                }
+            });
+            
+            // 실제로는 API 호출
+            showToast('권한이 저장되었습니다.', 'success');
+            closeModal('permission-detail-modal');
+        }
+    </script>
+</body>
+</html>

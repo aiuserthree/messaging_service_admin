@@ -32,6 +32,7 @@
                                 <option value="">전체</option>
                                 <option value="individual">개인</option>
                                 <option value="business">기업</option>
+                                <option value="election">선거회원</option>
                             </select>
                         </div>
                         <div class="filter-item">
@@ -107,6 +108,7 @@
                     <button class="tab" onclick="switchModalTab('sender')">발신번호</button>
                     <button class="tab" onclick="switchModalTab('payment')">결제내역</button>
                     <button class="tab" onclick="switchModalTab('send-history')">발송이력</button>
+                    <button class="tab" id="conversion-tab" onclick="switchModalTab('conversion')" style="display: none;">회원 전환</button>
                 </div>
                 
                 <div id="modal-tab-basic" class="tab-content" style="margin-top: 24px;">
@@ -142,6 +144,21 @@
                             <div class="form-group">
                                 <label class="form-label">상태</label>
                                 <div class="form-control" style="background-color: #f1f5f9;" id="modal-member-status">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="modal-tab-conversion" class="tab-content" style="display: none; margin-top: 24px;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">회원 전환 관리</h3>
+                        </div>
+                        <div style="padding: 24px;">
+                            <div style="margin-bottom: 24px;">
+                                <h4 style="margin-bottom: 12px;">선거회원 → 개인회원 원복</h4>
+                                <p style="color: #64748b; margin-bottom: 16px;">선거회원을 개인회원으로 원복할 수 있습니다. 원복 후에는 선거 관련 메시지 발송이 불가능합니다.</p>
+                                <button id="revert-to-individual-btn" class="btn btn-warning" onclick="revertToIndividual()">개인회원으로 원복</button>
                             </div>
                         </div>
                     </div>
@@ -279,16 +296,36 @@
                     grade: 'normal',
                     joinDate: '2024-03-10',
                     status: 'inactive'
+                },
+                {
+                    id: 'M004',
+                    name: '박선거',
+                    email: 'election@example.com',
+                    type: 'election',
+                    grade: 'normal',
+                    joinDate: '2024-04-01',
+                    status: 'active'
                 }
             ];
             
             const tbody = document.getElementById('member-list-tbody');
-            tbody.innerHTML = mockData.map(member => `
+            tbody.innerHTML = mockData.map(member => {
+                let typeLabel = '개인';
+                let typeBadge = 'badge-info';
+                if (member.type === 'business') {
+                    typeLabel = '기업';
+                    typeBadge = 'badge-warning';
+                } else if (member.type === 'election') {
+                    typeLabel = '선거회원';
+                    typeBadge = 'badge-success';
+                }
+                
+                return `
                 <tr>
                     <td>${member.id}</td>
                     <td>${member.name}</td>
                     <td>${member.email}</td>
-                    <td>${member.type === 'individual' ? '개인' : '기업'}</td>
+                    <td><span class="badge ${typeBadge}">${typeLabel}</span></td>
                     <td><span class="badge ${member.grade === 'vip' ? 'badge-warning' : 'badge-info'}">${member.grade === 'vip' ? 'VIP' : '일반'}</span></td>
                     <td>${member.joinDate}</td>
                     <td><span class="badge ${getStatusBadge(member.status)}">${getStatusLabel(member.status)}</span></td>
@@ -296,7 +333,8 @@
                         <button class="btn btn-primary btn-sm" onclick="viewDetail('${member.id}')">상세보기</button>
                     </td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
             
             createPagination(currentPage, 10, 'pagination');
         }
@@ -325,20 +363,52 @@
             // 모달에 회원 정보 로드
             const member = mockData.find(m => m.id === id);
             if (member) {
+                let typeLabel = '개인';
+                if (member.type === 'business') {
+                    typeLabel = '기업';
+                } else if (member.type === 'election') {
+                    typeLabel = '선거회원';
+                }
+                
                 document.getElementById('modal-member-id').textContent = member.id;
                 document.getElementById('modal-member-name').textContent = member.name;
                 document.getElementById('modal-member-email').textContent = member.email;
-                document.getElementById('modal-member-type').textContent = member.type === 'individual' ? '개인' : '기업';
+                document.getElementById('modal-member-type').innerHTML = `<span class="badge ${member.type === 'business' ? 'badge-warning' : member.type === 'election' ? 'badge-success' : 'badge-info'}">${typeLabel}</span>`;
                 document.getElementById('modal-member-grade').innerHTML = `<span class="badge ${member.grade === 'vip' ? 'badge-warning' : 'badge-info'}">${member.grade === 'vip' ? 'VIP' : '일반'}</span>`;
                 document.getElementById('modal-member-join-date').textContent = member.joinDate;
                 document.getElementById('modal-member-status').innerHTML = `<span class="badge ${getStatusBadge(member.status)}">${getStatusLabel(member.status)}</span>`;
+                
+                // 선거회원일 경우 회원 전환 탭 표시
+                const conversionTab = document.getElementById('conversion-tab');
+                if (member.type === 'election') {
+                    conversionTab.style.display = 'block';
+                } else {
+                    conversionTab.style.display = 'none';
+                    // 회원 전환 탭이 숨겨져 있고 현재 그 탭이 활성화되어 있다면 기본정보 탭으로 전환
+                    const activeTab = document.querySelector('#member-detail-modal .tab.active');
+                    if (activeTab && activeTab.id === 'conversion-tab') {
+                        switchModalTab('basic');
+                    }
+                }
                 
                 openModal('member-detail-modal');
             }
         }
         
-        function exportExcel() {
-            showToast('엑셀 다운로드 기능은 준비 중입니다.', 'info');
+        function revertToIndividual() {
+            const member = mockData.find(m => m.id === document.getElementById('modal-member-id').textContent);
+            if (!member || member.type !== 'election') {
+                showToast('선거회원만 원복할 수 있습니다.', 'error');
+                return;
+            }
+            
+            confirmAction('선거회원을 개인회원으로 원복하시겠습니까?\n원복 후에는 선거 관련 메시지 발송이 불가능합니다.', function() {
+                // 실제로는 API 호출
+                showToast('개인회원으로 원복되었습니다.', 'success');
+                closeModal('member-detail-modal');
+                // 목록 새로고침
+                searchMembers(currentPage);
+            });
         }
         
         function switchModalTab(tabName) {
@@ -351,6 +421,10 @@
             
             document.getElementById(`modal-tab-${tabName}`).style.display = 'block';
             event.target.classList.add('active');
+        }
+        
+        function exportExcel() {
+            showToast('엑셀 다운로드 기능은 준비 중입니다.', 'info');
         }
         
         // 페이지 로드 시 초기 데이터 로드

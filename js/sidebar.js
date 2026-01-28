@@ -12,6 +12,9 @@ function getSidebarHTML(activeMenu) {
                     <a href="index.html" class="menu-item ${activeMenu === 'index' ? 'active' : ''}">
                         <span>대시보드</span>
                     </a>
+                    <a href="banner-manage.html" class="menu-item ${activeMenu === 'banner-manage' ? 'active' : ''}">
+                        <span>배너 관리</span>
+                    </a>
                 </div>
                 
                 <div class="menu-section">
@@ -89,6 +92,9 @@ function getSidebarHTML(activeMenu) {
                     <a href="faq-list.html" class="menu-item ${activeMenu === 'faq-list' ? 'active' : ''}">
                         <span>FAQ 관리</span>
                     </a>
+                    <a href="promotion-manage.html" class="menu-item ${activeMenu === 'promotion-manage' ? 'active' : ''}">
+                        <span>프로모션 관리</span>
+                    </a>
                 </div>
                 
                 <div class="menu-section">
@@ -109,17 +115,21 @@ function getSidebarHTML(activeMenu) {
                     <a href="system-settings.html" class="menu-item ${activeMenu === 'system-settings' ? 'active' : ''}">
                         <span>환경 설정</span>
                     </a>
-                    <a href="promotion-manage.html" class="menu-item ${activeMenu === 'promotion-manage' ? 'active' : ''}">
-                        <span>프로모션 관리</span>
-                    </a>
-                    <a href="election-manage.html" class="menu-item ${activeMenu === 'election-manage' ? 'active' : ''}">
-                        <span>선거문자 관리</span>
-                    </a>
                     <a href="api-key.html" class="menu-item ${activeMenu === 'api-key' ? 'active' : ''}">
                         <span>API 관리</span>
                     </a>
                     <a href="code-manage.html" class="menu-item ${activeMenu === 'code-manage' ? 'active' : ''}">
                         <span>코드 관리</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-section-title">관리자 계정</div>
+                    <a href="user-list.html" class="menu-item ${activeMenu === 'user-list' ? 'active' : ''}">
+                        <span>관리자 계정 관리</span>
+                    </a>
+                    <a href="permission-group.html" class="menu-item ${activeMenu === 'permission-group' ? 'active' : ''}">
+                        <span>권한 그룹 관리</span>
                     </a>
                 </div>
                 

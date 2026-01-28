@@ -3,264 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>회원 관리 - 어드민</title>
+    <title>관리자 계정 관리 - 관리자 시스템</title>
     <link rel="stylesheet" href="css/admin-common.css">
 </head>
 <body>
     <div class="admin-container">
-        <!-- 사이드바 -->
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <h1>Tokbell Admin</h1>
-                <div class="subtitle">관리자 시스템</div>
-            </div>
-            <nav class="sidebar-menu">
-                <div class="menu-section">
-                    <div class="menu-section-title">메인</div>
-                    <a href="index.html" class="menu-item">
-                        <span>대시보드</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">사용자 관리</div>
-                    <a href="user-list.html" class="menu-item active">
-                        <span>회원 관리</span>
-                    </a>
-                    <a href="user-permission.html" class="menu-item">
-                        <span>권한 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">발신번호 관리</div>
-                    <a href="caller-number-pending.html" class="menu-item">
-                        <span>승인 대기</span>
-                    </a>
-                    <a href="caller-number-approved.html" class="menu-item">
-                        <span>승인 완료</span>
-                    </a>
-                    <a href="caller-number-list.html" class="menu-item">
-                        <span>발신번호 목록</span>
-                    </a>
-                    <a href="kakao-profile-list.html" class="menu-item">
-                        <span>발신프로필 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">템플릿 관리</div>
-                    <a href="template-alimtalk-review.html" class="menu-item">
-                        <span>알림톡 템플릿 검수</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">발송 관리</div>
-                    <a href="send-history.html" class="menu-item">
-                        <span>발송 내역 모니터링</span>
-                    </a>
-                    <a href="send-statistics.html" class="menu-item">
-                        <span>발송 통계</span>
-                    </a>
-                    <a href="send-policy.html" class="menu-item">
-                        <span>발송 정책 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">결제 관리</div>
-                    <a href="payment-charge-list.html" class="menu-item">
-                        <span>충전 내역</span>
-                    </a>
-                    <a href="payment-deposit.html" class="menu-item">
-                        <span>입금 확인</span>
-                    </a>
-                    <a href="payment-pricing.html" class="menu-item">
-                        <span>요금 설정</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">기타 관리</div>
-                    <a href="consultation-list.html" class="menu-item">
-                        <span>상담 신청 관리</span>
-                    </a>
-                    <a href="inquiry-list.html" class="menu-item">
-                        <span>문의 관리</span>
-                    </a>
-                    <a href="notice-list.html" class="menu-item">
-                        <span>공지사항 관리</span>
-                    </a>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">시스템</div>
-                    <a href="system-settings.html" class="menu-item">
-                        <span>시스템 설정</span>
-                    </a>
-                    <a href="statistics-report.html" class="menu-item">
-                        <span>통계 및 리포트</span>
-                    </a>
-                    <a href="security-audit.html" class="menu-item">
-                        <span>보안 및 감사</span>
-                    </a>
-                </div>
-            </nav>
-        </aside>
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('user-list'));
+        </script>
         
-        <!-- 메인 컨텐츠 -->
         <main class="admin-main">
-            <!-- 헤더 -->
-            <header class="admin-header">
-                <div class="header-left">
-                    <h2 class="page-title">회원 관리</h2>
-                </div>
-                <div class="header-right">
-                    <div class="admin-user-info">
-                        <div class="user-avatar">관</div>
-                        <div>
-                            <div class="user-name">관리자</div>
-                            <div class="user-role">최고 관리자</div>
-                        </div>
-                    </div>
-                    <button class="btn btn-outline btn-sm">로그아웃</button>
-                </div>
-            </header>
+            <script>
+                document.write(getHeaderHTML('관리자 계정 관리'));
+            </script>
             
-            <!-- 컨텐츠 -->
             <div class="admin-content">
-                <!-- 검색 및 필터 -->
-                <div class="search-filter-bar">
-                    <div class="search-box">
-                        <input type="text" class="form-control" placeholder="회원명 또는 이메일 검색" id="searchInput">
-                    </div>
-                    <div class="filter-group">
-                        <div class="filter-item">
-                            <select class="form-control" id="memberTypeFilter">
-                                <option value="">회원 유형 (전체)</option>
-                                <option value="PERSONAL">개인</option>
-                                <option value="COMPANY">기업</option>
-                            </select>
-                        </div>
-                        <div class="filter-item">
-                            <select class="form-control" id="statusFilter">
-                                <option value="">계정 상태 (전체)</option>
-                                <option value="ACTIVE">정상</option>
-                                <option value="SUSPENDED">정지</option>
-                                <option value="WITHDRAWN">탈퇴</option>
-                            </select>
-                        </div>
-                        <div class="filter-item">
-                            <input type="date" class="form-control" id="startDate">
-                        </div>
-                        <div class="filter-item">
-                            <input type="date" class="form-control" id="endDate">
-                        </div>
-                        <button class="btn btn-primary">검색</button>
-                        <button class="btn btn-outline">초기화</button>
-                    </div>
-                </div>
-                
-                <!-- 회원 목록 -->
+                <!-- 관리자 목록 -->
                 <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">회원 목록</h3>
-                        <div class="card-description">전체 회원 수: 1,234명</div>
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 class="card-title">관리자 목록</h3>
+                            <div class="card-description">전체 관리자 수: 5명</div>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('addAdminModal')">신규 관리자 등록</button>
                     </div>
                     <div class="table-container">
                         <table id="memberTable">
                             <thead>
                                 <tr>
-                                    <th>
-                                        <input type="checkbox" id="selectAll">
-                                    </th>
-                                    <th>회원 ID</th>
-                                    <th>회원명</th>
-                                    <th>회원 유형</th>
-                                    <th>가입일</th>
+                                    <th>관리자 ID</th>
+                                    <th>이름</th>
+                                    <th>권한 그룹</th>
+                                    <th>생성일</th>
                                     <th>최종 로그인</th>
                                     <th>계정 상태</th>
-                                    <th>잔액</th>
-                                    <th>발신번호</th>
-                                    <th>발송 건수</th>
                                     <th>관리</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><input type="checkbox"></td>
-                                    <td>hong@example.com</td>
-                                    <td>홍길동</td>
-                                    <td><span class="badge badge-info">개인</span></td>
-                                    <td>2024-01-15</td>
+                                    <td>admin@example.com</td>
+                                    <td>최고 관리자</td>
+                                    <td><span class="badge badge-danger">최고 관리자</span></td>
+                                    <td>2024-01-01</td>
                                     <td>2024-11-19 14:30</td>
                                     <td><span class="badge badge-success">정상</span></td>
-                                    <td>₩1,234,567</td>
-                                    <td>2개</td>
-                                    <td>12,345건</td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('userDetailModal')">상세</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openModal('editAdminModal')">수정</button>
+                                        <button class="btn btn-outline btn-sm" onclick="openModal('resetPasswordModal')">비밀번호 초기화</button>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><input type="checkbox"></td>
-                                    <td>kim@example.com</td>
-                                    <td>김철수</td>
-                                    <td><span class="badge badge-warning">기업</span></td>
-                                    <td>2024-02-20</td>
-                                    <td>2024-11-19 13:15</td>
+                                    <td>operator@example.com</td>
+                                    <td>운영 관리자</td>
+                                    <td><span class="badge badge-warning">운영 관리자</span></td>
+                                    <td>2024-01-15</td>
+                                    <td>2024-11-19 13:20</td>
                                     <td><span class="badge badge-success">정상</span></td>
-                                    <td>₩5,678,900</td>
-                                    <td>5개</td>
-                                    <td>45,678건</td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('userDetailModal')">상세</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openModal('editAdminModal')">수정</button>
+                                        <button class="btn btn-outline btn-sm" onclick="openModal('resetPasswordModal')">비밀번호 초기화</button>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><input type="checkbox"></td>
-                                    <td>lee@example.com</td>
-                                    <td>이영희</td>
-                                    <td><span class="badge badge-info">개인</span></td>
-                                    <td>2024-03-10</td>
-                                    <td>2024-11-19 12:00</td>
-                                    <td><span class="badge badge-danger">정지</span></td>
-                                    <td>₩234,567</td>
-                                    <td>1개</td>
-                                    <td>3,456건</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('userDetailModal')">상세</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox"></td>
-                                    <td>park@example.com</td>
-                                    <td>박민수</td>
-                                    <td><span class="badge badge-warning">기업</span></td>
-                                    <td>2024-04-05</td>
-                                    <td>2024-11-18 18:30</td>
+                                    <td>reviewer@example.com</td>
+                                    <td>심사 관리자</td>
+                                    <td><span class="badge badge-info">심사 관리자</span></td>
+                                    <td>2024-02-01</td>
+                                    <td>2024-11-19 12:10</td>
                                     <td><span class="badge badge-success">정상</span></td>
-                                    <td>₩9,876,543</td>
-                                    <td>8개</td>
-                                    <td>98,765건</td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('userDetailModal')">상세</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox"></td>
-                                    <td>choi@example.com</td>
-                                    <td>최지영</td>
-                                    <td><span class="badge badge-info">개인</span></td>
-                                    <td>2024-05-12</td>
-                                    <td>2024-11-17 10:20</td>
-                                    <td><span class="badge badge-secondary">탈퇴</span></td>
-                                    <td>₩0</td>
-                                    <td>0개</td>
-                                    <td>1,234건</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('userDetailModal')">상세</button>
+                                        <button class="btn btn-primary btn-sm" onclick="openModal('editAdminModal')">수정</button>
+                                        <button class="btn btn-outline btn-sm" onclick="openModal('resetPasswordModal')">비밀번호 초기화</button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -270,6 +85,113 @@
                 </div>
             </div>
         </main>
+    </div>
+    
+    <!-- 관리자 등록 모달 -->
+    <div class="modal" id="addAdminModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">신규 관리자 등록</h3>
+                <button class="modal-close" onclick="closeModal('addAdminModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label class="form-label">관리자 ID (이메일)</label>
+                    <input type="email" class="form-control" placeholder="admin@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">이름</label>
+                    <input type="text" class="form-control" placeholder="관리자 이름">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">비밀번호</label>
+                    <input type="password" class="form-control" placeholder="비밀번호">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">권한 그룹</label>
+                    <select class="form-control">
+                        <option value="">선택</option>
+                        <option value="SUPER">최고 관리자</option>
+                        <option value="OPERATOR">운영 관리자</option>
+                        <option value="REVIEWER">심사 관리자</option>
+                        <option value="SUPPORT">고객 지원</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="showToast('관리자가 등록되었습니다.', 'success'); closeModal('addAdminModal');">등록</button>
+                <button class="btn btn-outline" onclick="closeModal('addAdminModal')">취소</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 관리자 수정 모달 -->
+    <div class="modal" id="editAdminModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">관리자 정보 수정</h3>
+                <button class="modal-close" onclick="closeModal('editAdminModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label class="form-label">관리자 ID (이메일)</label>
+                    <div class="form-control" style="background-color: #f1f5f9;">admin@example.com</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">이름</label>
+                    <input type="text" class="form-control" value="최고 관리자" placeholder="관리자 이름">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">권한 그룹</label>
+                    <select class="form-control">
+                        <option value="SUPER" selected>최고 관리자</option>
+                        <option value="OPERATOR">운영 관리자</option>
+                        <option value="REVIEWER">심사 관리자</option>
+                        <option value="SUPPORT">고객 지원</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">계정 상태</label>
+                    <select class="form-control">
+                        <option value="ACTIVE" selected>정상</option>
+                        <option value="SUSPENDED">정지</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="showToast('관리자 정보가 수정되었습니다.', 'success'); closeModal('editAdminModal');">저장</button>
+                <button class="btn btn-outline" onclick="closeModal('editAdminModal')">취소</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 비밀번호 초기화 모달 -->
+    <div class="modal" id="resetPasswordModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">비밀번호 초기화</h3>
+                <button class="modal-close" onclick="closeModal('resetPasswordModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label class="form-label">관리자 ID</label>
+                    <div class="form-control" style="background-color: #f1f5f9;">admin@example.com</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">초기화된 비밀번호</label>
+                    <div class="form-control" style="background-color: #f1f5f9; font-weight: 600;">TempPass123!</div>
+                </div>
+                <div style="padding: 12px; background-color: #fef3c7; border-radius: 8px; margin-top: 16px;">
+                    <div style="font-size: 12px; color: #92400e;">
+                        초기화된 비밀번호는 관리자에게 전달해주세요. 로그인 후 비밀번호를 변경하도록 안내하세요.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="showToast('비밀번호가 초기화되었습니다.', 'success'); closeModal('resetPasswordModal');">확인</button>
+                <button class="btn btn-outline" onclick="closeModal('resetPasswordModal')">취소</button>
+            </div>
+        </div>
     </div>
     
     <!-- 회원 상세 모달 -->
@@ -477,166 +399,6 @@
     
     <script src="js/admin-common.js"></script>
     <script>
-        // 탭 전환
-        function switchTab(tabName) {
-            // 모든 탭 비활성화
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
-            
-            // 선택한 탭 활성화
-            event.target.classList.add('active');
-            document.getElementById('tab-' + tabName).style.display = 'block';
-        }
-        
-        // 계정 정지
-        function handleSuspendAccount() {
-            confirmAction('이 회원의 계정을 정지하시겠습니까?', function() {
-                // API 호출 또는 상태 업데이트
-                showToast('계정이 정지되었습니다.', 'success');
-                // 상태 업데이트
-                const statusBadge = document.querySelector('#tab-basic .badge-success');
-                if (statusBadge) {
-                    statusBadge.textContent = '정지';
-                    statusBadge.className = 'badge badge-danger';
-                }
-            });
-        }
-        
-        // 비밀번호 초기화
-        function handleResetPassword() {
-            confirmAction('이 회원의 비밀번호를 초기화하시겠습니까?\n초기화된 비밀번호는 이메일로 전송됩니다.', function() {
-                // API 호출
-                showToast('비밀번호가 초기화되었습니다. 이메일로 전송되었습니다.', 'success');
-            });
-        }
-        
-        // 계정 삭제
-        function handleDeleteAccount() {
-            confirmAction('이 회원의 계정을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.', function() {
-                confirmAction('정말로 삭제하시겠습니까?', function() {
-                    // API 호출
-                    showToast('계정이 삭제되었습니다.', 'success');
-                    setTimeout(() => {
-                        closeModal('userDetailModal');
-                        // 목록 새로고침 또는 해당 행 제거
-                    }, 1500);
-                });
-            });
-        }
-        
-        // 잔액 조정 모달 열기
-        function openBalanceAdjustModal(type) {
-            const modal = document.getElementById('balanceAdjustModal');
-            const title = document.getElementById('balanceAdjustTitle');
-            const adjustType = document.getElementById('adjustType');
-            
-            if (type === 'charge') {
-                title.textContent = '잔액 충전/차감';
-                adjustType.innerHTML = '<option value="charge">충전</option><option value="deduct">차감</option>';
-            } else if (type === 'bonus') {
-                title.textContent = '보너스 지급/차감';
-                adjustType.innerHTML = '<option value="charge">지급</option><option value="deduct">차감</option>';
-            }
-            
-            // 입력 필드 초기화
-            document.getElementById('adjustAmount').value = '';
-            document.getElementById('adjustReason').value = '';
-            
-            openModal('balanceAdjustModal');
-        }
-        
-        // 잔액 조정 확인
-        function confirmBalanceAdjust() {
-            const amount = document.getElementById('adjustAmount').value;
-            const reason = document.getElementById('adjustReason').value;
-            const type = document.getElementById('adjustType').value;
-            
-            if (!amount || amount <= 0) {
-                showToast('금액을 입력해주세요.', 'error');
-                return;
-            }
-            
-            if (!reason.trim()) {
-                showToast('사유를 입력해주세요.', 'error');
-                return;
-            }
-            
-            const action = type === 'charge' ? '충전' : '차감';
-            confirmAction(`정말로 ${action}하시겠습니까?\n금액: ₩${parseInt(amount).toLocaleString()}\n사유: ${reason}`, function() {
-                // API 호출
-                showToast(`잔액이 ${action}되었습니다.`, 'success');
-                closeModal('balanceAdjustModal');
-                // 잔액 정보 새로고침
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
-            });
-        }
-        
-        // 발송 내역 조회
-        function viewSendHistory() {
-            const userId = 'hong@example.com'; // 실제로는 현재 회원 ID를 가져와야 함
-            window.open(`send-history.html?userId=${userId}`, '_blank');
-        }
-        
-        // 발신번호 관리
-        function viewCallerNumbers() {
-            const userId = 'hong@example.com'; // 실제로는 현재 회원 ID를 가져와야 함
-            window.open(`caller-number-list.html?userId=${userId}`, '_blank');
-        }
-        
-        // 충전/사용 내역
-        function viewPaymentHistory() {
-            const userId = 'hong@example.com'; // 실제로는 현재 회원 ID를 가져와야 함
-            window.open(`payment-charge-list.html?userId=${userId}`, '_blank');
-        }
-        
-        // 문의 내역
-        function viewInquiries() {
-            const userId = 'hong@example.com'; // 실제로는 현재 회원 ID를 가져와야 함
-            window.open(`inquiry-list.html?userId=${userId}`, '_blank');
-        }
-        
-        // 메모 저장
-        function saveMemo() {
-            const memoText = document.getElementById('memoText').value;
-            
-            if (!memoText.trim()) {
-                showToast('메모를 입력해주세요.', 'error');
-                return;
-            }
-            
-            // API 호출
-            showToast('메모가 저장되었습니다.', 'success');
-            
-            // 메모 이력에 추가
-            const memoHistory = document.querySelector('#tab-memo .form-group:last-of-type + div > div');
-            const now = new Date();
-            const dateStr = now.toLocaleString('ko-KR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-            
-            const newMemo = document.createElement('div');
-            newMemo.style.cssText = 'padding: 12px; background-color: #f1f5f9; border-radius: 8px;';
-            newMemo.innerHTML = `
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                    <span style="font-weight: 600;">관리자</span>
-                    <span style="color: #64748b; font-size: 12px;">${dateStr}</span>
-                </div>
-                <div>${memoText}</div>
-            `;
-            
-            const memoContainer = document.querySelector('#tab-memo > div > div:last-of-type > div');
-            memoContainer.insertBefore(newMemo, memoContainer.firstChild);
-            
-            // 입력 필드 초기화
-            document.getElementById('memoText').value = '';
-        }
-        
         // 페이지네이션 생성
         createPagination(1, 10, 'pagination');
     </script>

@@ -19,7 +19,8 @@
             </script>
             
             <div class="admin-content">
-                <div class="card">
+                <!-- 개인→사업자 회원 전환 신청 -->
+                <div class="card" style="margin-bottom: 24px;">
                     <div class="card-header">
                         <h3 class="card-title">개인→사업자 회원 전환 신청</h3>
                         <div class="card-description">개인 회원의 사업자 회원 전환 신청 목록 조회 및 승인 처리</div>
@@ -46,7 +47,43 @@
                                     <td><span class="badge badge-success">제출 완료</span></td>
                                     <td><span class="badge badge-warning">검토 대기</span></td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="reviewConversion(1)">검토</button>
+                                        <button class="btn btn-primary btn-sm" onclick="reviewConversion(1, 'business')">검토</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 개인→선거회원 전환 신청 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">개인→선거회원 전환 신청</h3>
+                        <div class="card-description">개인 회원의 선거회원 전환 신청 목록 조회 및 승인 처리</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>신청일시</th>
+                                    <th>회원명</th>
+                                    <th>이메일</th>
+                                    <th>선거명</th>
+                                    <th>서류 상태</th>
+                                    <th>상태</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2024-11-20 14:30:00</td>
+                                    <td>김선거</td>
+                                    <td>election@example.com</td>
+                                    <td>2025년 제21대 국회의원 선거</td>
+                                    <td><span class="badge badge-success">제출 완료</span></td>
+                                    <td><span class="badge badge-warning">검토 대기</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="reviewConversion(2, 'election')">검토</button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -59,27 +96,112 @@
     
     <!-- 전환 승인/반려 모달 -->
     <div id="conversion-modal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 1200px; max-height: 90vh;">
             <div class="modal-header">
                 <h3 class="modal-title">회원 전환 처리</h3>
                 <button class="modal-close" onclick="closeModal('conversion-modal')">&times;</button>
             </div>
-            <div class="form-group">
-                <label class="form-label">처리 선택</label>
-                <select class="form-control" id="conversion-action">
-                    <option value="approve">승인</option>
-                    <option value="reject">반려</option>
-                    <option value="request-supplement">보완 요청</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">사유</label>
-                <textarea class="form-control" id="conversion-reason" rows="4" placeholder="처리 사유를 입력하세요"></textarea>
-            </div>
-            <div class="form-group">
-                <label class="form-label">주의사항</label>
-                <div style="padding: 12px; background-color: #fef3c7; border-radius: 8px; font-size: 14px;">
-                    사업자 회원으로 전환 시 기존 개인 회원의 발신번호는 발송이 불가하며, 기업 명의의 발신번호를 등록한 후 발송이 가능합니다.
+            <div style="max-height: 80vh; overflow-y: auto; padding: 24px;">
+                <!-- 신청 정보 -->
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">신청 정보</h3>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">회원명</label>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-member-name">-</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">이메일</label>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-member-email">-</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">신청일시</label>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-apply-date">-</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">전환 유형</label>
+                            <div class="form-control" style="background-color: #f1f5f9;" id="modal-conversion-type">-</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 제출 서류 확인 -->
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">제출 서류 확인</h3>
+                    </div>
+                    
+                    <!-- 서류 확인 체크리스트 -->
+                    <div id="document-checklist" style="margin-bottom: 16px; padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <h5 style="margin-bottom: 12px; font-size: 14px; font-weight: 600; color: #1e293b;">서류 확인 체크리스트</h5>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px;">
+                                <input type="checkbox" id="check-document-date" style="cursor: pointer;">
+                                <span>서류 발급일자 확인 (3개월 이내 발급 서류인지 확인)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px;">
+                                <input type="checkbox" id="check-name-match" style="cursor: pointer;">
+                                <span>명의 일치 확인 (회원 정보와 서류상 명의 일치 여부)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px;">
+                                <input type="checkbox" id="check-document-validity" style="cursor: pointer;">
+                                <span>서류 유효성 확인 (서류 위변조 여부, 서류 진위 확인)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px;">
+                                <input type="checkbox" id="check-required-docs" style="cursor: pointer;">
+                                <span>필수 서류 제출 확인 (회원 유형별 필수 서류 모두 제출 확인)</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- 서류 목록 -->
+                    <div id="document-list-container" style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div>
+                                    <div style="font-weight: 600; margin-bottom: 4px;">사업자등록증</div>
+                                    <div style="font-size: 12px; color: #64748b;">제출일: 2024-11-19</div>
+                                </div>
+                                <button class="btn btn-primary btn-sm" onclick="viewDocument('business-license', 1)">서류 보기</button>
+                            </div>
+                        </div>
+                        <div style="padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div>
+                                    <div style="font-weight: 600; margin-bottom: 4px;">신분증</div>
+                                    <div style="font-size: 12px; color: #64748b;">제출일: 2024-11-19</div>
+                                </div>
+                                <button class="btn btn-primary btn-sm" onclick="viewDocument('id-card', 1)">서류 보기</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 처리 선택 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">처리 선택</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">처리 선택</label>
+                        <select class="form-control" id="conversion-action">
+                            <option value="approve">승인</option>
+                            <option value="reject">반려</option>
+                            <option value="request-supplement">보완 요청</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">사유</label>
+                        <textarea class="form-control" id="conversion-reason" rows="4" placeholder="처리 사유를 입력하세요"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">주의사항</label>
+                        <div style="padding: 12px; background-color: #fef3c7; border-radius: 8px; font-size: 14px;" id="conversion-warning">
+                            사업자 회원으로 전환 시 기존 개인 회원의 발신번호는 발송이 불가하며, 기업 명의의 발신번호를 등록한 후 발송이 가능합니다.
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -89,13 +211,136 @@
         </div>
     </div>
     
+    <!-- 서류 보기 모달 -->
+    <div id="document-view-modal" class="modal">
+        <div class="modal-content" style="max-width: 1000px; max-height: 90vh;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="document-view-title">서류 보기</h3>
+                <button class="modal-close" onclick="closeModal('document-view-modal')">&times;</button>
+            </div>
+            <div style="padding: 24px; text-align: center;">
+                <img id="document-view-image" src="" alt="서류 이미지" style="max-width: 100%; max-height: 70vh; border-radius: 8px;">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('document-view-modal')">닫기</button>
+            </div>
+        </div>
+    </div>
+    
     <script src="js/admin-common.js"></script>
     <script>
-        function reviewConversion(id) {
+        let currentConversionId = null;
+        let currentConversionType = null;
+        
+        function reviewConversion(id, type) {
+            currentConversionId = id;
+            currentConversionType = type;
+            
+            // 실제로는 API에서 데이터를 가져와야 함
+            const mockData = {
+                1: {
+                    name: '홍길동',
+                    email: 'hong@example.com',
+                    applyDate: '2024-11-19 10:30:00',
+                    type: '사업자',
+                    documents: [
+                        { type: '사업자등록증', date: '2024-11-19', url: 'https://via.placeholder.com/800x1000' },
+                        { type: '신분증', date: '2024-11-19', url: 'https://via.placeholder.com/800x1000' }
+                    ]
+                },
+                2: {
+                    name: '김선거',
+                    email: 'election@example.com',
+                    applyDate: '2024-11-20 14:30:00',
+                    type: '선거회원',
+                    documents: [
+                        { type: '선거관리위원회 확인서', date: '2024-11-20', url: 'https://via.placeholder.com/800x1000' },
+                        { type: '신분증', date: '2024-11-20', url: 'https://via.placeholder.com/800x1000' }
+                    ]
+                }
+            };
+            
+            const data = mockData[id];
+            if (data) {
+                document.getElementById('modal-member-name').textContent = data.name;
+                document.getElementById('modal-member-email').textContent = data.email;
+                document.getElementById('modal-apply-date').textContent = data.applyDate;
+                document.getElementById('modal-conversion-type').textContent = data.type;
+                
+                // 서류 목록 업데이트
+                const container = document.getElementById('document-list-container');
+                container.innerHTML = data.documents.map((doc, index) => `
+                    <div style="padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <div>
+                                <div style="font-weight: 600; margin-bottom: 4px;">${doc.type}</div>
+                                <div style="font-size: 12px; color: #64748b;">제출일: ${doc.date}</div>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="viewDocument('${doc.type}', ${id}, ${index})">서류 보기</button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // 주의사항 업데이트
+                const warning = document.getElementById('conversion-warning');
+                if (type === 'election') {
+                    warning.textContent = '선거회원으로 전환 시 선거 관련 메시지만 발송 가능하며, 선거 종료 후 개인회원으로 자동 전환됩니다.';
+                } else {
+                    warning.textContent = '사업자 회원으로 전환 시 기존 개인 회원의 발신번호는 발송이 불가하며, 기업 명의의 발신번호를 등록한 후 발송이 가능합니다.';
+                }
+            }
+            
+            // 체크리스트 초기화
+            document.getElementById('check-document-date').checked = false;
+            document.getElementById('check-name-match').checked = false;
+            document.getElementById('check-document-validity').checked = false;
+            document.getElementById('check-required-docs').checked = false;
+            
             openModal('conversion-modal');
         }
         
+        function viewDocument(docType, id, index) {
+            // 실제로는 API에서 서류 이미지를 가져와야 함
+            const mockDocuments = {
+                1: [
+                    'https://via.placeholder.com/800x1000?text=사업자등록증',
+                    'https://via.placeholder.com/800x1000?text=신분증'
+                ],
+                2: [
+                    'https://via.placeholder.com/800x1000?text=선거관리위원회+확인서',
+                    'https://via.placeholder.com/800x1000?text=신분증'
+                ]
+            };
+            
+            document.getElementById('document-view-title').textContent = docType + ' 보기';
+            document.getElementById('document-view-image').src = mockDocuments[id][index];
+            openModal('document-view-modal');
+        }
+        
         function processConversion() {
+            // 서류 확인 체크리스트 검증
+            const checkDocumentDate = document.getElementById('check-document-date').checked;
+            const checkNameMatch = document.getElementById('check-name-match').checked;
+            const checkDocumentValidity = document.getElementById('check-document-validity').checked;
+            const checkRequiredDocs = document.getElementById('check-required-docs').checked;
+            
+            if (!checkDocumentDate) {
+                showToast('서류 발급일자 확인을 완료해주세요.', 'error');
+                return;
+            }
+            if (!checkNameMatch) {
+                showToast('명의 일치 확인을 완료해주세요.', 'error');
+                return;
+            }
+            if (!checkDocumentValidity) {
+                showToast('서류 유효성 확인을 완료해주세요.', 'error');
+                return;
+            }
+            if (!checkRequiredDocs) {
+                showToast('필수 서류 제출 확인을 완료해주세요.', 'error');
+                return;
+            }
+            
             const action = document.getElementById('conversion-action').value;
             const reason = document.getElementById('conversion-reason').value;
             
@@ -104,8 +349,11 @@
                 return;
             }
             
-            showToast('처리가 완료되었습니다.', 'success');
-            closeModal('conversion-modal');
+            confirmAction('모든 서류 확인이 완료되었습니다. 처리하시겠습니까?', function() {
+                // 실제로는 API 호출
+                showToast('처리가 완료되었습니다.', 'success');
+                closeModal('conversion-modal');
+            });
         }
     </script>
 </body>

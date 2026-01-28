@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>배너 관리 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('banner-manage'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('배너 관리'));
+            </script>
+            
+            <div class="admin-content">
+                <!-- 탭 -->
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('login-before')">로그인 전 메인</button>
+                    <button class="tab" onclick="switchTab('login-after')">로그인 후 메인(대시보드)</button>
+                </div>
+                
+                <!-- 로그인 전 메인 탭 -->
+                <div id="tab-login-before" class="tab-content">
+                    <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin: 0;">로그인 전 메인 배너</h3>
+                        <button class="btn btn-primary" onclick="openAddBannerModal('login-before')">배너 등록</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>순서</th>
+                                        <th>배너 이미지</th>
+                                        <th>제목</th>
+                                        <th>링크 URL</th>
+                                        <th>노출 기간</th>
+                                        <th>상태</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="banner-login-before-list">
+                                    <tr>
+                                        <td>1</td>
+                                        <td>
+                                            <img src="https://via.placeholder.com/200x100" alt="배너" style="width: 200px; height: 100px; object-fit: cover; border-radius: 4px;">
+                                        </td>
+                                        <td>신규 회원 가입 이벤트</td>
+                                        <td>https://example.com/event</td>
+                                        <td>2025-01-01 ~ 2025-01-31</td>
+                                        <td><span class="badge badge-success">노출중</span></td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm" onclick="editBanner(1, 'login-before')">수정</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteBanner(1)">삭제</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 로그인 후 메인(대시보드) 탭 -->
+                <div id="tab-login-after" class="tab-content" style="display: none;">
+                    <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin: 0;">로그인 후 메인(대시보드) 배너</h3>
+                        <button class="btn btn-primary" onclick="openAddBannerModal('login-after')">배너 등록</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>순서</th>
+                                        <th>배너 이미지</th>
+                                        <th>제목</th>
+                                        <th>링크 URL</th>
+                                        <th>노출 기간</th>
+                                        <th>상태</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="banner-login-after-list">
+                                    <tr>
+                                        <td>1</td>
+                                        <td>
+                                            <img src="https://via.placeholder.com/200x100" alt="배너" style="width: 200px; height: 100px; object-fit: cover; border-radius: 4px;">
+                                        </td>
+                                        <td>프로모션 안내</td>
+                                        <td>https://example.com/promotion</td>
+                                        <td>2025-01-01 ~ 2025-01-31</td>
+                                        <td><span class="badge badge-success">노출중</span></td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm" onclick="editBanner(1, 'login-after')">수정</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteBanner(1)">삭제</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 배너 등록/수정 모달 -->
+    <div id="banner-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="banner-modal-title">배너 등록</h3>
+                <button class="modal-close" onclick="closeModal('banner-modal')">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <div class="form-group">
+                    <label class="form-label">배너 이미지</label>
+                    <input type="file" class="form-control" id="banner-image" accept="image/*" onchange="previewBannerImage(this)">
+                    <div id="banner-image-preview" style="margin-top: 12px;">
+                        <img id="banner-preview-img" src="" alt="미리보기" style="max-width: 100%; max-height: 300px; display: none; border-radius: 4px;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">제목</label>
+                    <input type="text" class="form-control" id="banner-title" placeholder="배너 제목을 입력하세요">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">링크 URL</label>
+                    <input type="url" class="form-control" id="banner-url" placeholder="https://example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">노출 시작일</label>
+                    <input type="datetime-local" class="form-control" id="banner-start-date">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">노출 종료일</label>
+                    <input type="datetime-local" class="form-control" id="banner-end-date">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">순서</label>
+                    <input type="number" class="form-control" id="banner-order" min="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">상태</label>
+                    <select class="form-control" id="banner-status">
+                        <option value="active">노출중</option>
+                        <option value="inactive">비노출</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('banner-modal')">취소</button>
+                <button class="btn btn-primary" onclick="saveBanner()">저장</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        let currentBannerType = 'login-before';
+        let currentBannerId = null;
+        
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+            
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tabName}`).style.display = 'block';
+        }
+        
+        function openAddBannerModal(type) {
+            currentBannerType = type;
+            currentBannerId = null;
+            document.getElementById('banner-modal-title').textContent = '배너 등록';
+            document.getElementById('banner-title').value = '';
+            document.getElementById('banner-url').value = '';
+            document.getElementById('banner-start-date').value = '';
+            document.getElementById('banner-end-date').value = '';
+            document.getElementById('banner-order').value = '1';
+            document.getElementById('banner-status').value = 'active';
+            document.getElementById('banner-image').value = '';
+            document.getElementById('banner-preview-img').style.display = 'none';
+            openModal('banner-modal');
+        }
+        
+        function editBanner(id, type) {
+            currentBannerType = type;
+            currentBannerId = id;
+            document.getElementById('banner-modal-title').textContent = '배너 수정';
+            // 실제로는 API에서 데이터를 가져와서 채워야 함
+            document.getElementById('banner-title').value = '신규 회원 가입 이벤트';
+            document.getElementById('banner-url').value = 'https://example.com/event';
+            document.getElementById('banner-start-date').value = '2025-01-01T00:00';
+            document.getElementById('banner-end-date').value = '2025-01-31T23:59';
+            document.getElementById('banner-order').value = '1';
+            document.getElementById('banner-status').value = 'active';
+            openModal('banner-modal');
+        }
+        
+        function previewBannerImage(input) {
+            const preview = document.getElementById('banner-preview-img');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        function saveBanner() {
+            const title = document.getElementById('banner-title').value;
+            const url = document.getElementById('banner-url').value;
+            const startDate = document.getElementById('banner-start-date').value;
+            const endDate = document.getElementById('banner-end-date').value;
+            const order = document.getElementById('banner-order').value;
+            const status = document.getElementById('banner-status').value;
+            
+            if (!title || !url) {
+                showToast('제목과 링크 URL을 입력해주세요.', 'error');
+                return;
+            }
+            
+            // 실제로는 API 호출
+            showToast(currentBannerId ? '배너가 수정되었습니다.' : '배너가 등록되었습니다.', 'success');
+            closeModal('banner-modal');
+        }
+        
+        function deleteBanner(id) {
+            confirmAction('이 배너를 삭제하시겠습니까?', function() {
+                // 실제로는 API 호출
+                showToast('배너가 삭제되었습니다.', 'success');
+            });
+        }
+    </script>
+</body>
+</html>
