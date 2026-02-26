@@ -46,6 +46,15 @@
                                 <option value="election">선거</option>
                             </select>
                         </div>
+                        <div class="filter-item">
+                            <label class="form-label">명의</label>
+                            <select class="form-control" id="filter-nominal">
+                                <option value="">전체</option>
+                                <option value="self">본인</option>
+                                <option value="other">타인</option>
+                                <option value="company">타사</option>
+                            </select>
+                        </div>
                         <div class="filter-item" style="align-self: flex-end;">
                             <button class="btn btn-primary" onclick="searchList()">조회</button>
                             <button class="btn btn-outline" onclick="resetFilter()">초기화</button>
@@ -65,6 +74,7 @@
                                     <th>발신번호</th>
                                     <th>회원 정보</th>
                                     <th>회원유형</th>
+                                    <th>명의</th>
                                     <th>등록일</th>
                                     <th>제재 상태</th>
                                     <th>제재 사유</th>
@@ -77,6 +87,7 @@
                                     <td>010-1234-5678</td>
                                     <td>홍길동<br><small class="text-muted">hong@example.com</small></td>
                                     <td>개인</td>
+                                    <td>본인</td>
                                     <td>2024-10-01</td>
                                     <td><span class="badge badge-warning">제재중</span></td>
                                     <td>스팸 발송 의심</td>
@@ -89,6 +100,7 @@
                                     <td>010-2345-6789</td>
                                     <td>김회원<br><small class="text-muted">kim@company.co.kr</small></td>
                                     <td>기업</td>
+                                    <td>타인</td>
                                     <td>2024-09-15</td>
                                     <td><span class="badge badge-success">정상</span></td>
                                     <td>-</td>
@@ -101,6 +113,7 @@
                                     <td>010-3456-7890</td>
                                     <td>이사업자<br><small class="text-muted">lee@biz.com</small></td>
                                     <td>선거</td>
+                                    <td>타사</td>
                                     <td>2024-11-01</td>
                                     <td><span class="badge badge-warning">제재중</span></td>
                                     <td>불법 광고 신고 접수</td>
@@ -197,6 +210,7 @@
             const search = document.getElementById('search-input').value;
             const sanction = document.getElementById('filter-sanction').value;
             const type = document.getElementById('filter-type').value;
+            const nominal = document.getElementById('filter-nominal').value;
             // 실제 연동 시 API 호출
             showToast('조회되었습니다.', 'success');
         }
@@ -205,6 +219,7 @@
             document.getElementById('search-input').value = '';
             document.getElementById('filter-sanction').value = '';
             document.getElementById('filter-type').value = '';
+            document.getElementById('filter-nominal').value = '';
         }
         
         function openSanctionModal(callerNumber, memberName) {
