@@ -32,9 +32,6 @@ function getSidebarHTML(activeMenu) {
                     <a href="member-list.html" class="menu-item ${activeMenu === 'member-list' ? 'active' : ''}">
                         <span>회원 목록</span>
                     </a>
-                    <a href="member-approval.html" class="menu-item ${activeMenu === 'member-approval' ? 'active' : ''}">
-                        <span>회원 가입 관리</span>
-                    </a>
                     <a href="member-conversion.html" class="menu-item ${activeMenu === 'member-conversion' ? 'active' : ''}">
                         <span>회원 전환 관리</span>
                     </a>
@@ -49,6 +46,9 @@ function getSidebarHTML(activeMenu) {
                     </a>
                     <a href="member-document-list.html" class="menu-item ${activeMenu === 'member-document-list' ? 'active' : ''}">
                         <span>서류 목록 조회</span>
+                    </a>
+                    <a href="member-caller-number.html" class="menu-item ${activeMenu === 'member-caller-number' ? 'active' : ''}">
+                        <span>회원 발신번호 관리</span>
                     </a>
                 </div>
                 
@@ -99,9 +99,6 @@ function getSidebarHTML(activeMenu) {
                 
                 <div class="menu-section">
                     <div class="menu-section-title">스팸·제재 관리</div>
-                    <a href="spam-list.html" class="menu-item ${activeMenu === 'spam-list' ? 'active' : ''}">
-                        <span>스팸 신고 내역</span>
-                    </a>
                     <a href="spam-filter.html" class="menu-item ${activeMenu === 'spam-filter' ? 'active' : ''}">
                         <span>스팸 필터링 단어</span>
                     </a>
