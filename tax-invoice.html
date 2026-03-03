@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>세금계산서 발급 관리 - 관리자 시스템</title>
+    <title>세금계산서 자동발행 신청 내역 - 관리자 시스템</title>
     <link rel="stylesheet" href="css/admin-common.css">
     <style>
         .invoice-info-section {
@@ -169,6 +169,29 @@
             color: #b45309;
             font-size: 13px;
         }
+        /* 상세 모달: 스크롤 하나만, 하단 닫기 고정 */
+        #invoice-detail-modal .modal-content {
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+            overflow: hidden;
+        }
+        #invoice-detail-modal .modal-body {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+        }
+        #invoice-detail-modal .modal-footer {
+            flex-shrink: 0;
+        }
+        /* 목록 표 가운데 정렬 */
+        .invoice-list-table th,
+        .invoice-list-table td {
+            text-align: center;
+        }
+        .invoice-list-table td.text-right {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -180,25 +203,14 @@
         
         <main class="admin-main">
             <script>
-                document.write(getHeaderHTML('세금계산서 발급 관리'));
+                document.write(getHeaderHTML('세금계산서 자동발행 신청 내역'));
             </script>
             
             <div class="admin-content">
-                <!-- 발급 규정 안내 -->
-                <div class="policy-notice" style="margin-bottom: 24px;">
-                    <div class="policy-notice-title">📋 세금계산서 발급 규정</div>
-                    <ul class="policy-notice-list">
-                        <li><strong>신청 기한:</strong> 전월 1일~말일 거래분에 대해 당월 7일까지 신청</li>
-                        <li><strong>발급 기한:</strong> 신청일로부터 3일 이내 발급 완료 (최대 10일)</li>
-                        <li><strong>작성일자:</strong> 전월 말일로 작성</li>
-                        <li><strong>대상:</strong> 사업자 회원만 신청 가능 (개인 회원은 사업자 전환 필요)</li>
-                    </ul>
-                </div>
-                
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">세금계산서 발급 신청 목록</h3>
-                        <div class="card-description">사업자 회원의 세금계산서 발급 신청 목록 조회 및 발급 처리</div>
+                        <h3 class="card-title">세금계산서 자동발행 신청 목록</h3>
+                        <div class="card-description">사업자 회원의 세금계산서 자동발행 신청 목록 조회</div>
                     </div>
                     <div class="search-filter-bar">
                         <div class="search-box">
@@ -206,35 +218,24 @@
                             <input type="text" class="form-control" placeholder="회원명, 상호명, 사업자번호" id="search-keyword">
                         </div>
                         <div class="filter-item">
-                            <label class="form-label">발급 대상 월</label>
-                            <input type="month" class="form-control" id="month-select" value="2024-10">
-                        </div>
-                        <div class="filter-item">
-                            <label class="form-label">상태</label>
-                            <select class="form-control" id="filter-status">
-                                <option value="">전체</option>
-                                <option value="pending">발급 대기</option>
-                                <option value="processing">발급 중</option>
-                                <option value="issued">발급 완료</option>
-                                <option value="rejected">반려</option>
-                            </select>
+                            <label class="form-label">발행일시</label>
+                            <input type="month" class="form-control" id="search-issue-month" title="연도/월 선택">
                         </div>
                         <div class="filter-item" style="align-self: flex-end;">
                             <button class="btn btn-primary" onclick="searchInvoices()">조회</button>
                         </div>
                     </div>
-                    <div class="table-container" style="margin-top: 24px;">
+                    <div class="table-container invoice-list-table" style="margin-top: 24px;">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>신청일시</th>
-                                    <th>회원정보</th>
+                                    <th>발행일시</th>
+                                    <th>회원명</th>
                                     <th>사업자등록번호</th>
-                                    <th>발급 대상 기간</th>
                                     <th>공급가액</th>
                                     <th>세액</th>
                                     <th>합계</th>
-                                    <th>상태</th>
+                                    <th>신청일시</th>
                                     <th>관리</th>
                                 </tr>
                             </thead>
@@ -255,7 +256,7 @@
                 <h3 class="modal-title">세금계산서 발급 상세</h3>
                 <button class="modal-close" onclick="closeModal('invoice-detail-modal')">&times;</button>
             </div>
-            <div class="modal-body" style="padding: 24px; max-height: 75vh; overflow-y: auto;">
+            <div class="modal-body" style="padding: 24px;">
                 <!-- 공급받는자 정보 (회원 사업자 정보) -->
                 <div class="invoice-info-section">
                     <div class="invoice-info-title">
@@ -347,81 +348,15 @@
                         </tfoot>
                     </table>
                 </div>
-                
-                <!-- 세금계산서 작성 정보 -->
-                <div class="issue-date-info">
-                    <div class="issue-date-info-title">📅 세금계산서 작성 정보</div>
-                    <div class="issue-date-info-desc">
-                        <strong>작성일자:</strong> <span id="modal-issue-date">-</span> (전월 말일 기준)<br>
-                        <strong>발급 예정일:</strong> <span id="modal-expected-date">-</span> (신청일로부터 3일 이내)
-                    </div>
-                </div>
-                
-                <!-- 발급 전 확인 체크리스트 (발급 대기 상태일 때만 표시) -->
-                <div class="verification-checklist" id="verification-section">
-                    <div class="invoice-info-title" style="margin-bottom: 12px;">
-                        <span>✅</span>
-                        <span>발급 전 확인사항</span>
-                    </div>
-                    <div class="check-item">
-                        <input type="checkbox" id="check-business-info">
-                        <label for="check-business-info">사업자 정보 (상호, 사업자등록번호, 대표자명)가 정확합니다.</label>
-                    </div>
-                    <div class="check-item">
-                        <input type="checkbox" id="check-address">
-                        <label for="check-address">사업장 주소가 정확합니다.</label>
-                    </div>
-                    <div class="check-item">
-                        <input type="checkbox" id="check-business-type">
-                        <label for="check-business-type">업태 및 종목이 정확합니다.</label>
-                    </div>
-                    <div class="check-item">
-                        <input type="checkbox" id="check-amount">
-                        <label for="check-amount">거래 내역 및 금액이 정확합니다.</label>
-                    </div>
-                    <div class="check-item">
-                        <input type="checkbox" id="check-email">
-                        <label for="check-email">세금계산서 수신 이메일이 정확합니다.</label>
-                    </div>
-                </div>
-                
-                <!-- 처리 선택 (발급 대기 상태일 때만 표시) -->
-                <div class="form-section" id="process-section" style="margin-top: 20px;">
-                    <div class="form-section-title">처리 선택</div>
-                    <div class="form-group">
-                        <label class="form-label">처리 방법</label>
-                        <div style="display: flex; gap: 12px;">
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="radio" name="process-type" value="issue" checked>
-                                <span>발급 처리</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="radio" name="process-type" value="reject">
-                                <span>반려</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-group" id="reject-reason-group" style="display: none;">
-                        <label class="form-label">반려 사유 <span style="color: #ef4444;">*</span></label>
-                        <select class="form-control" id="reject-reason-select" style="margin-bottom: 12px;">
-                            <option value="">선택하세요</option>
-                            <option value="invalid_business">사업자 정보 불일치</option>
-                            <option value="invalid_amount">거래 금액 오류</option>
-                            <option value="missing_info">필수 정보 누락</option>
-                            <option value="duplicate">중복 신청</option>
-                            <option value="other">기타</option>
-                        </select>
-                        <textarea class="form-control" id="reject-reason-text" rows="3" placeholder="상세 반려 사유를 입력하세요"></textarea>
-                    </div>
-                </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('invoice-detail-modal')">취소</button>
-                <button class="btn btn-primary" id="process-btn" onclick="processInvoice()">처리</button>
+                <button class="btn btn-outline" onclick="closeModal('invoice-detail-modal')">닫기</button>
             </div>
         </div>
     </div>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="js/tax-invoice-excel.js"></script>
     <script src="js/admin-common.js"></script>
     <script>
         // Mock 데이터
@@ -543,18 +478,6 @@
         // 페이지 로드 시 목록 표시
         document.addEventListener('DOMContentLoaded', function() {
             loadInvoices();
-            
-            // 처리 방법 라디오 버튼 이벤트
-            document.querySelectorAll('input[name="process-type"]').forEach(radio => {
-                radio.addEventListener('change', function() {
-                    const rejectGroup = document.getElementById('reject-reason-group');
-                    if (this.value === 'reject') {
-                        rejectGroup.style.display = 'block';
-                    } else {
-                        rejectGroup.style.display = 'none';
-                    }
-                });
-            });
         });
         
         // 세금계산서 목록 로드
@@ -563,61 +486,62 @@
             const tbody = document.getElementById('invoice-list-tbody');
             
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: #64748b;">세금계산서 발급 신청 내역이 없습니다.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px; color: #64748b;">세금계산서 자동발행 신청 내역이 없습니다.</td></tr>';
                 return;
             }
             
             tbody.innerHTML = data.map(invoice => {
-                const statusBadge = {
-                    'pending': '<span class="badge badge-warning">발급 대기</span>',
-                    'processing': '<span class="badge badge-info">발급 중</span>',
-                    'issued': '<span class="badge badge-success">발급 완료</span>',
-                    'rejected': '<span class="badge badge-danger">반려</span>'
-                }[invoice.status];
-                
+                var periodY = (invoice.period || '').split('-')[0];
+                var periodM = (invoice.period || '').split('-')[1];
+                var issueLabel = (periodY && periodM) ? periodY + '년/' + parseInt(periodM, 10) + '월' : '-';
                 return `
-                    <tr>
-                        <td>${invoice.requestDate}</td>
-                        <td>
-                            <div style="font-weight: 500;">${invoice.companyName}</div>
-                            <div style="font-size: 12px; color: #64748b;">${invoice.memberName} (${invoice.memberId})</div>
-                        </td>
-                        <td>${invoice.businessNo}</td>
-                        <td>${invoice.periodStart} ~ ${invoice.periodEnd}</td>
-                        <td class="text-right">₩${invoice.supplyAmount.toLocaleString()}</td>
-                        <td class="text-right">₩${invoice.taxAmount.toLocaleString()}</td>
-                        <td class="text-right" style="font-weight: 600;">₩${invoice.totalAmount.toLocaleString()}</td>
-                        <td>${statusBadge}</td>
-                        <td>
-                            <button class="btn btn-primary btn-sm" onclick="openInvoiceDetail(${invoice.id})">
-                                ${invoice.status === 'pending' ? '발급처리' : '상세보기'}
-                            </button>
-                        </td>
-                    </tr>
-                `;
+                <tr>
+                    <td>${issueLabel}</td>
+                    <td>${invoice.companyName || '-'}</td>
+                    <td>${invoice.businessNo}</td>
+                    <td class="text-right">₩${invoice.supplyAmount.toLocaleString()}</td>
+                    <td class="text-right">₩${invoice.taxAmount.toLocaleString()}</td>
+                    <td class="text-right" style="font-weight: 600;">₩${invoice.totalAmount.toLocaleString()}</td>
+                    <td>${invoice.requestDate || '-'}</td>
+                    <td>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="openInvoiceDetail(${invoice.id})">상세보기</button>
+                        <button type="button" class="btn btn-primary btn-sm btn-excel-invoice" onclick="downloadInvoiceExcel(${invoice.id})">엑셀 다운로드</button>
+                    </td>
+                </tr>
+            `;
             }).join('');
         }
         
         // 검색
         function searchInvoices() {
             const keyword = document.getElementById('search-keyword').value.trim().toLowerCase();
-            const month = document.getElementById('month-select').value;
-            const status = document.getElementById('filter-status').value;
-            
-            let filtered = mockInvoices.filter(invoice => {
-                if (keyword) {
-                    const matchKeyword = invoice.companyName.toLowerCase().includes(keyword) ||
-                                         invoice.memberName.toLowerCase().includes(keyword) ||
-                                         invoice.businessNo.includes(keyword);
-                    if (!matchKeyword) return false;
-                }
-                if (month && invoice.period !== month) return false;
-                if (status && invoice.status !== status) return false;
-                return true;
-            });
-            
+            const issueMonth = document.getElementById('search-issue-month').value;
+            let filtered = mockInvoices;
+            if (keyword) {
+                filtered = filtered.filter(invoice =>
+                    invoice.companyName.toLowerCase().includes(keyword) ||
+                    invoice.memberName.toLowerCase().includes(keyword) ||
+                    (invoice.businessNo && invoice.businessNo.replace(/-/g, '').includes(keyword.replace(/-/g, '')))
+                );
+            }
+            if (issueMonth) {
+                filtered = filtered.filter(invoice => invoice.period === issueMonth);
+            }
             loadInvoices(filtered);
-            showToast(`${filtered.length}건이 조회되었습니다.`, 'success');
+            showToast(filtered.length + '건이 조회되었습니다.', 'success');
+        }
+        
+        // 해당 업체 데이터로 세금계산서 양식 엑셀 다운로드
+        function downloadInvoiceExcel(id) {
+            const invoice = mockInvoices.find(function(i) { return i.id === id; });
+            if (!invoice) return;
+            var safeName = (invoice.companyName || '세금계산서').replace(/[/\\?*:"]/g, '_');
+            var fname = '세금계산서_' + safeName + '_' + (invoice.periodEnd || '').replace(/-/g, '') + '.xlsx';
+            if (typeof downloadTaxInvoiceXlsxFromInvoice === 'function') {
+                downloadTaxInvoiceXlsxFromInvoice(invoice, fname);
+            } else {
+                showToast('엑셀 라이브러리를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.', 'error');
+            }
         }
         
         // 세금계산서 상세 모달 열기
@@ -663,89 +587,7 @@
             document.getElementById('modal-total-tax').textContent = `₩${invoice.taxAmount.toLocaleString()}`;
             document.getElementById('modal-total-amount').textContent = `₩${invoice.totalAmount.toLocaleString()}`;
             
-            // 작성일자 및 발급 예정일
-            const issueDate = new Date(invoice.periodEnd);
-            const expectedDate = new Date(invoice.requestDate);
-            expectedDate.setDate(expectedDate.getDate() + 3);
-            
-            document.getElementById('modal-issue-date').textContent = invoice.periodEnd;
-            document.getElementById('modal-expected-date').textContent = expectedDate.toISOString().split('T')[0];
-            
-            // 상태에 따른 섹션 표시
-            const verificationSection = document.getElementById('verification-section');
-            const processSection = document.getElementById('process-section');
-            const processBtn = document.getElementById('process-btn');
-            
-            if (invoice.status === 'pending') {
-                verificationSection.style.display = 'block';
-                processSection.style.display = 'block';
-                processBtn.style.display = 'block';
-                processBtn.textContent = '처리';
-                
-                // 체크박스 초기화
-                document.querySelectorAll('.verification-checklist input[type="checkbox"]').forEach(cb => {
-                    cb.checked = false;
-                });
-                
-                // 라디오 버튼 초기화
-                document.querySelector('input[name="process-type"][value="issue"]').checked = true;
-                document.getElementById('reject-reason-group').style.display = 'none';
-            } else {
-                verificationSection.style.display = 'none';
-                processSection.style.display = 'none';
-                processBtn.style.display = 'none';
-            }
-            
             openModal('invoice-detail-modal');
-        }
-        
-        // 세금계산서 처리
-        function processInvoice() {
-            if (!currentInvoiceData) return;
-            
-            const processType = document.querySelector('input[name="process-type"]:checked').value;
-            
-            if (processType === 'issue') {
-                // 체크리스트 확인
-                const checkboxes = document.querySelectorAll('.verification-checklist input[type="checkbox"]');
-                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-                
-                if (!allChecked) {
-                    showToast('발급 전 모든 확인사항을 체크해주세요.', 'error');
-                    return;
-                }
-                
-                if (confirm(`${currentInvoiceData.companyName}에 세금계산서를 발급하시겠습니까?\n\n작성일자: ${currentInvoiceData.periodEnd}\n공급가액: ₩${currentInvoiceData.supplyAmount.toLocaleString()}\n세액: ₩${currentInvoiceData.taxAmount.toLocaleString()}\n합계: ₩${currentInvoiceData.totalAmount.toLocaleString()}`)) {
-                    const index = mockInvoices.findIndex(i => i.id === currentInvoiceId);
-                    if (index !== -1) {
-                        mockInvoices[index].status = 'issued';
-                    }
-                    
-                    closeModal('invoice-detail-modal');
-                    loadInvoices();
-                    showToast('세금계산서가 발급되었습니다. 담당자 이메일로 발송됩니다.', 'success');
-                }
-            } else {
-                // 반려
-                const reasonSelect = document.getElementById('reject-reason-select').value;
-                const reasonText = document.getElementById('reject-reason-text').value.trim();
-                
-                if (!reasonSelect) {
-                    showToast('반려 사유를 선택해주세요.', 'error');
-                    return;
-                }
-                
-                if (confirm('세금계산서 발급 요청을 반려하시겠습니까?')) {
-                    const index = mockInvoices.findIndex(i => i.id === currentInvoiceId);
-                    if (index !== -1) {
-                        mockInvoices[index].status = 'rejected';
-                    }
-                    
-                    closeModal('invoice-detail-modal');
-                    loadInvoices();
-                    showToast('세금계산서 발급 요청이 반려되었습니다. 회원에게 안내 이메일이 발송됩니다.', 'info');
-                }
-            }
         }
     </script>
 </body>

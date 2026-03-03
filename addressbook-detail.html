@@ -40,6 +40,15 @@
                         <h3 class="card-title">수신자 목록</h3>
                         <div class="card-description">수신자 등록, 수정, 삭제 및 그룹 이동</div>
                     </div>
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;">
+                        <input type="text" class="form-control" placeholder="이름/전화번호 입력" id="search-recipient" style="min-width: 180px;">
+                        <select class="form-control" id="filter-status" style="min-width: 120px;">
+                            <option value="">상태 (전체)</option>
+                            <option value="active">활성</option>
+                            <option value="inactive">비활성</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="searchRecipients()">검색</button>
+                    </div>
                     <div style="margin-bottom: 16px;">
                         <button class="btn btn-primary" onclick="addRecipient()">수신자 추가</button>
                         <button class="btn btn-outline" onclick="bulkEdit()">일괄 편집</button>
@@ -78,6 +87,12 @@
     
     <script src="js/admin-common.js"></script>
     <script>
+        function searchRecipients() {
+            const keyword = document.getElementById('search-recipient').value.trim();
+            const status = document.getElementById('filter-status').value;
+            showToast('검색 기능은 준비 중입니다.', 'info');
+        }
+        
         function addRecipient() {
             showToast('수신자 추가 기능은 준비 중입니다.', 'info');
         }
@@ -95,6 +110,10 @@
         function bulkEdit() {
             showToast('일괄 편집 기능은 준비 중입니다.', 'info');
         }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('current-group-count').textContent = '1';
+        });
     </script>
 </body>
 </html>

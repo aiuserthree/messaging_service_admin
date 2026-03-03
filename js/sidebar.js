@@ -71,10 +71,10 @@ function getSidebarHTML(activeMenu) {
                         <span>정산 관리</span>
                     </a>
                     <a href="refund-list.html" class="menu-item ${activeMenu === 'refund-list' ? 'active' : ''}">
-                        <span>환불 관리</span>
+                        <span>환불 신청 내역</span>
                     </a>
                     <a href="tax-invoice.html" class="menu-item ${activeMenu === 'tax-invoice' ? 'active' : ''}">
-                        <span>세금계산서 발급</span>
+                        <span>세금계산서 자동발행 신청 내역</span>
                     </a>
                 </div>
                 

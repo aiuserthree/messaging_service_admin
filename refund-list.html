@@ -3,195 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>환불 관리 - 관리자 시스템</title>
+    <title>환불 신청 내역 - 관리자 시스템</title>
     <link rel="stylesheet" href="css/admin-common.css">
     <style>
-        .eligibility-check {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .eligibility-check-title {
-            font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 16px;
-            color: #1e293b;
-        }
-        .check-item {
+        .refund-toolbar {
             display: flex;
             align-items: center;
-            padding: 12px 16px;
-            background-color: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            margin-bottom: 8px;
+            gap: 12px;
+            margin-bottom: 16px;
         }
-        .check-item:last-child {
+        .refund-toolbar .form-label {
             margin-bottom: 0;
+            white-space: nowrap;
         }
-        .check-icon {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 12px;
-            font-size: 14px;
+        .refund-toolbar .form-control {
+            min-width: 160px;
+            max-width: 200px;
         }
-        .check-icon.pass {
-            background-color: #dcfce7;
-            color: #16a34a;
+        .refund-toolbar .btn-primary {
+            min-width: 100px;
         }
-        .check-icon.fail {
-            background-color: #fee2e2;
-            color: #dc2626;
-        }
-        .check-icon.warning {
-            background-color: #fef3c7;
-            color: #d97706;
-        }
-        .check-label {
-            flex: 1;
-            font-size: 14px;
-            color: #334155;
-        }
-        .check-value {
-            font-size: 14px;
-            font-weight: 500;
-        }
-        .check-value.pass {
-            color: #16a34a;
-        }
-        .check-value.fail {
-            color: #dc2626;
-        }
-        .check-value.warning {
-            color: #d97706;
-        }
-        .eligibility-result {
-            padding: 16px;
-            border-radius: 8px;
-            margin-top: 16px;
-        }
-        .eligibility-result.eligible {
-            background-color: #dcfce7;
-            border: 1px solid #86efac;
-        }
-        .eligibility-result.ineligible {
-            background-color: #fee2e2;
-            border: 1px solid #fca5a5;
-        }
-        .eligibility-result.partial {
-            background-color: #fef3c7;
-            border: 1px solid #fcd34d;
-        }
-        .eligibility-result-title {
-            font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 8px;
-        }
-        .eligibility-result.eligible .eligibility-result-title {
-            color: #166534;
-        }
-        .eligibility-result.ineligible .eligibility-result-title {
-            color: #991b1b;
-        }
-        .eligibility-result.partial .eligibility-result-title {
-            color: #92400e;
-        }
-        .eligibility-result-desc {
-            font-size: 13px;
-        }
-        .eligibility-result.eligible .eligibility-result-desc {
-            color: #15803d;
-        }
-        .eligibility-result.ineligible .eligibility-result-desc {
-            color: #b91c1c;
-        }
-        .eligibility-result.partial .eligibility-result-desc {
-            color: #b45309;
-        }
-        .refund-calculation {
-            background-color: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        .calc-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #f1f5f9;
-        }
-        .calc-row:last-child {
-            border-bottom: none;
-        }
-        .calc-row.total {
-            font-weight: 600;
-            font-size: 16px;
-            padding-top: 16px;
-            margin-top: 8px;
-            border-top: 2px solid #e2e8f0;
-        }
-        .calc-label {
-            color: #64748b;
-        }
-        .calc-value {
-            color: #1e293b;
-        }
-        .calc-row.total .calc-value {
-            color: #2563eb;
-        }
-        .refund-type-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        .refund-type-badge.full {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-        .refund-type-badge.partial {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-        .account-info-section {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        .account-info-title {
-            font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 16px;
-            color: #1e293b;
-        }
-        .member-info-grid {
+        .detail-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
+            grid-template-columns: 120px 1fr;
+            gap: 12px 16px;
+            align-items: baseline;
         }
-        .info-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+        .detail-label { color: #64748b; font-size: 13px; }
+        .detail-value { font-size: 14px; color: #1e293b; }
+        .detail-link {
+            color: #2563eb;
+            text-decoration: none;
         }
-        .info-label {
-            font-size: 12px;
+        .detail-link:hover { text-decoration: underline; }
+        .refund-table-wrap th,
+        .refund-table-wrap td { padding: 8px 10px; font-size: 13px; text-align: center; }
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
             color: #64748b;
-        }
-        .info-value {
             font-size: 14px;
-            color: #1e293b;
-            font-weight: 500;
         }
     </style>
 </head>
@@ -201,770 +52,253 @@
         <script>
             document.write(getSidebarHTML('refund-list'));
         </script>
-        
+
         <main class="admin-main">
             <script>
-                document.write(getHeaderHTML('환불 관리'));
+                document.write(getHeaderHTML('환불 신청 내역'));
             </script>
-            
+
             <div class="admin-content">
-                <!-- 검색 필터 -->
-                <div class="card">
-                    <div class="search-filter-bar">
-                        <div class="search-box">
-                            <label class="form-label">검색</label>
-                            <input type="text" class="form-control" id="search-keyword" placeholder="회원명, 아이디로 검색">
-                        </div>
-                        <div class="filter-item">
-                            <label class="form-label">처리 상태</label>
-                            <select class="form-control" id="filter-status">
-                                <option value="">전체</option>
-                                <option value="pending">처리 대기</option>
-                                <option value="processing">처리 중</option>
-                                <option value="completed">완료</option>
-                                <option value="rejected">반려</option>
-                            </select>
-                        </div>
-                        <div class="filter-item">
-                            <label class="form-label">요청일</label>
-                            <input type="date" class="form-control" id="filter-start-date">
-                        </div>
-                        <div class="filter-item">
-                            <label class="form-label">~</label>
-                            <input type="date" class="form-control" id="filter-end-date">
-                        </div>
-                        <div class="filter-item" style="align-self: flex-end;">
-                            <button class="btn btn-primary" onclick="searchRefunds()">조회</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 환불 요청 목록 -->
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">환불 요청 목록</h3>
-                        <div class="card-description">회원의 환불 요청 목록 조회 및 환불 처리</div>
+                        <h3 class="card-title">환불 신청 내역</h3>
+                        <div class="card-description">환불 신청 시 수집된 데이터를 회원명(업체명) 검색으로 조회할 수 있습니다.</div>
                     </div>
-                    <div class="table-container">
+
+                    <div class="refund-toolbar">
+                        <label class="form-label">검색</label>
+                        <input type="text" class="form-control" id="search-company" placeholder="회원명 또는 업체명으로 검색">
+                        <button type="button" class="btn btn-primary" onclick="searchRefunds()">조회</button>
+                    </div>
+
+                    <div class="table-container refund-table-wrap">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>요청일시</th>
-                                    <th>회원정보</th>
-                                    <th>회원유형</th>
-                                    <th>결제수단</th>
-                                    <th>잔여 포인트</th>
-                                    <th>환불 요청액</th>
-                                    <th>환불 유형</th>
-                                    <th>처리 상태</th>
+                                    <th>신청일시</th>
+                                    <th>회원명(업체명)</th>
+                                    <th>환불대상(P)</th>
+                                    <th>환불수수료(P)</th>
+                                    <th>실제환불금액(P)</th>
+                                    <th>환불 사유</th>
                                     <th>관리</th>
                                 </tr>
                             </thead>
                             <tbody id="refund-list-tbody">
-                                <!-- 동적으로 생성됨 -->
                             </tbody>
                         </table>
+                    </div>
+                    <div id="empty-state" class="empty-state" style="display: none;">
+                        환불 신청 내역이 없습니다.
                     </div>
                 </div>
             </div>
         </main>
     </div>
-    
-    <!-- 환불 처리 모달 -->
-    <div id="refund-modal" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
+
+    <!-- 상세보기 모달 -->
+    <div id="refund-detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 480px;">
             <div class="modal-header">
-                <h3 class="modal-title">환불 처리</h3>
-                <button class="modal-close" onclick="closeModal('refund-modal')">&times;</button>
+                <h3 class="modal-title">환불 신청 상세</h3>
+                <button class="modal-close" onclick="closeRefundDetailModal()">&times;</button>
             </div>
-            <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
-                <!-- 회원 정보 -->
-                <div class="card" style="margin-bottom: 20px;">
-                    <div class="card-header">
-                        <h3 class="card-title">회원 정보</h3>
-                    </div>
-                    <div style="padding: 16px;">
-                        <div class="member-info-grid">
-                            <div class="info-item">
-                                <span class="info-label">회원명</span>
-                                <span class="info-value" id="modal-member-name">-</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">아이디</span>
-                                <span class="info-value" id="modal-member-id">-</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">회원유형</span>
-                                <span class="info-value" id="modal-member-type">-</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">연락처</span>
-                                <span class="info-value" id="modal-member-phone">-</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">최종 충전일</span>
-                                <span class="info-value" id="modal-last-charge-date">-</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">결제수단</span>
-                                <span class="info-value" id="modal-payment-method">-</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 환불 가능 조건 체크 -->
-                <div class="eligibility-check">
-                    <div class="eligibility-check-title">📋 환불 가능 조건 검증</div>
-                    
-                    <div class="check-item" id="check-balance">
-                        <div class="check-icon" id="check-balance-icon">-</div>
-                        <div class="check-label">잔여 포인트 1만원 이상</div>
-                        <div class="check-value" id="check-balance-value">확인 중...</div>
-                    </div>
-                    
-                    <div class="check-item" id="check-sending">
-                        <div class="check-icon" id="check-sending-icon">-</div>
-                        <div class="check-label">발송 중인 메시지 없음</div>
-                        <div class="check-value" id="check-sending-value">확인 중...</div>
-                    </div>
-                    
-                    <div class="check-item" id="check-scheduled">
-                        <div class="check-icon" id="check-scheduled-icon">-</div>
-                        <div class="check-label">예약 발송 대기 중인 메시지 없음</div>
-                        <div class="check-value" id="check-scheduled-value">확인 중...</div>
-                    </div>
-                    
-                    <div class="check-item" id="check-charge-period">
-                        <div class="check-icon" id="check-charge-period-icon">-</div>
-                        <div class="check-label">충전 후 7일 이내 (전액 환불 조건)</div>
-                        <div class="check-value" id="check-charge-period-value">확인 중...</div>
-                    </div>
-                    
-                    <div class="check-item" id="check-usage">
-                        <div class="check-icon" id="check-usage-icon">-</div>
-                        <div class="check-label">포인트 미사용 (전액 환불 조건)</div>
-                        <div class="check-value" id="check-usage-value">확인 중...</div>
-                    </div>
-                    
-                    <!-- 환불 가능 여부 결과 -->
-                    <div class="eligibility-result" id="eligibility-result">
-                        <div class="eligibility-result-title" id="eligibility-result-title">검증 중...</div>
-                        <div class="eligibility-result-desc" id="eligibility-result-desc">환불 가능 조건을 확인하고 있습니다.</div>
-                    </div>
-                </div>
-                
-                <!-- 환불 금액 계산 (환불 가능 시에만 표시) -->
-                <div class="refund-calculation" id="refund-calculation" style="display: none;">
-                    <div class="eligibility-check-title">💰 환불 금액 계산</div>
-                    
-                    <div id="refund-type-info" style="margin-bottom: 16px;">
-                        <span class="refund-type-badge" id="refund-type-badge">-</span>
-                        <span style="margin-left: 8px; color: #64748b; font-size: 13px;" id="refund-type-desc">-</span>
-                    </div>
-                    
-                    <div class="calc-row">
-                        <span class="calc-label">환불 요청 금액</span>
-                        <span class="calc-value" id="calc-request-amount">-</span>
-                    </div>
-                    <div class="calc-row" id="calc-fee-row">
-                        <span class="calc-label">환불 수수료 (10%)</span>
-                        <span class="calc-value" id="calc-fee-amount">-</span>
-                    </div>
-                    <div class="calc-row total">
-                        <span class="calc-label">최종 환불 금액</span>
-                        <span class="calc-value" id="calc-final-amount">-</span>
-                    </div>
-                </div>
-                
-                <!-- 환불 계좌 정보 (계좌이체, 전용계좌, 가상계좌 결제 시) -->
-                <div class="account-info-section" id="account-info-section" style="display: none;">
-                    <div class="account-info-title">🏦 환불 계좌 정보</div>
-                    <div class="form-group">
-                        <label class="form-label">은행명 <span style="color: #ef4444;">*</span></label>
-                        <select class="form-control" id="refund-bank">
-                            <option value="">선택하세요</option>
-                            <option value="KB">KB국민은행</option>
-                            <option value="SHINHAN">신한은행</option>
-                            <option value="WOORI">우리은행</option>
-                            <option value="HANA">하나은행</option>
-                            <option value="NH">NH농협은행</option>
-                            <option value="IBK">IBK기업은행</option>
-                            <option value="SC">SC제일은행</option>
-                            <option value="CITI">한국씨티은행</option>
-                            <option value="KAKAO">카카오뱅크</option>
-                            <option value="TOSS">토스뱅크</option>
-                            <option value="KBANK">케이뱅크</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">계좌번호 <span style="color: #ef4444;">*</span></label>
-                        <input type="text" class="form-control" id="refund-account" placeholder="'-' 없이 숫자만 입력">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">예금주 <span style="color: #ef4444;">*</span></label>
-                        <input type="text" class="form-control" id="refund-account-holder" placeholder="예금주명 입력">
-                    </div>
-                    <div style="padding: 12px; background-color: #fef3c7; border-radius: 6px; margin-top: 12px;">
-                        <div style="color: #92400e; font-size: 13px;">
-                            ⚠️ 회원 본인 명의 계좌로만 환불이 가능합니다.
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 처리 선택 (환불 가능 시에만 표시) -->
-                <div class="form-section" id="process-section" style="display: none; margin-top: 20px;">
-                    <div class="form-section-title">처리 선택</div>
-                    <div class="form-group">
-                        <label class="form-label">처리 방법</label>
-                        <div style="display: flex; gap: 12px;">
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="radio" name="process-type" value="approve" checked>
-                                <span>환불 승인</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="radio" name="process-type" value="reject">
-                                <span>환불 반려</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-group" id="reject-reason-group" style="display: none;">
-                        <label class="form-label">반려 사유 <span style="color: #ef4444;">*</span></label>
-                        <textarea class="form-control" id="reject-reason" rows="3" placeholder="반려 사유를 입력하세요"></textarea>
-                    </div>
-                </div>
-                
-                <!-- 환불 불가 사유 (환불 불가 시에만 표시) -->
-                <div class="form-section" id="ineligible-section" style="display: none; margin-top: 20px;">
-                    <div class="form-section-title">환불 불가 처리</div>
-                    <div class="form-group">
-                        <label class="form-label">반려 사유</label>
-                        <textarea class="form-control" id="ineligible-reason" rows="3" readonly></textarea>
-                    </div>
+            <div class="modal-body" style="padding: 24px;">
+                <div class="detail-grid" id="detail-content">
+                    <!-- 동적 생성 -->
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('refund-modal')">취소</button>
-                <button class="btn btn-primary" id="process-btn" onclick="processRefund()">처리</button>
+                <button type="button" class="btn btn-outline" onclick="closeRefundDetailModal()">닫기</button>
             </div>
         </div>
     </div>
-    
+
     <script src="js/admin-common.js"></script>
     <script>
-        // Mock 데이터
-        const mockRefunds = [
+        // 환불 신청 시 수집된 데이터 (업체별)
+        const refundApplications = [
             {
                 id: 1,
                 requestDate: '2024-11-19 10:30:00',
-                memberId: 'user001',
-                memberName: '홍길동',
-                memberType: 'personal',
-                phone: '010-1234-5678',
-                paymentMethod: 'card',
-                lastChargeDate: '2024-11-15',
-                lastChargeAmount: 100000,
-                balance: 85000,
-                usedAmount: 15000,
-                requestAmount: 85000,
-                sendingCount: 0,
-                scheduledCount: 0,
-                status: 'pending',
+                companyName: '홍길동',
+                refundTarget: 1000000,
+                refundFee: 100000,
+                actualAmount: 900000,
+                bankName: 'KB국민은행',
+                accountNumber: '12345678901234',
+                accountHolder: '홍길동',
+                bankbookFile: '통장사본_홍길동.pdf',
                 reason: '서비스 미사용'
             },
             {
                 id: 2,
                 requestDate: '2024-11-18 14:20:00',
-                memberId: 'company01',
-                memberName: '(주)테스트기업',
-                memberType: 'business',
-                phone: '02-1234-5678',
-                paymentMethod: 'transfer',
-                lastChargeDate: '2024-11-01',
-                lastChargeAmount: 500000,
-                balance: 320000,
-                usedAmount: 180000,
-                requestAmount: 320000,
-                sendingCount: 0,
-                scheduledCount: 5,
-                status: 'pending',
+                companyName: '(주)테스트기업',
+                refundTarget: 320000,
+                refundFee: 32000,
+                actualAmount: 288000,
+                bankName: '신한은행',
+                accountNumber: '110123456789',
+                accountHolder: '(주)테스트기업',
+                bankbookFile: '통장사본_테스트기업.jpg',
                 reason: '사업 종료'
             },
             {
                 id: 3,
                 requestDate: '2024-11-17 09:15:00',
-                memberId: 'user002',
-                memberName: '김철수',
-                memberType: 'personal',
-                phone: '010-9876-5432',
-                paymentMethod: 'card',
-                lastChargeDate: '2024-11-16',
-                lastChargeAmount: 50000,
-                balance: 50000,
-                usedAmount: 0,
-                requestAmount: 50000,
-                sendingCount: 0,
-                scheduledCount: 0,
-                status: 'pending',
+                companyName: '김철수',
+                refundTarget: 50000,
+                refundFee: 0,
+                actualAmount: 50000,
+                bankName: '카카오뱅크',
+                accountNumber: '3333123456789',
+                accountHolder: '김철수',
+                bankbookFile: '통장사본_김철수.pdf',
                 reason: '단순 변심'
             },
             {
                 id: 4,
                 requestDate: '2024-11-16 16:45:00',
-                memberId: 'user003',
-                memberName: '박영희',
-                memberType: 'personal',
-                phone: '010-5555-6666',
-                paymentMethod: 'virtual',
-                lastChargeDate: '2024-10-01',
-                lastChargeAmount: 30000,
-                balance: 8000,
-                usedAmount: 22000,
-                requestAmount: 8000,
-                sendingCount: 0,
-                scheduledCount: 0,
-                status: 'pending',
+                companyName: '박영희',
+                refundTarget: 8000,
+                refundFee: 800,
+                actualAmount: 7200,
+                bankName: '토스뱅크',
+                accountNumber: '100012345678',
+                accountHolder: '박영희',
+                bankbookFile: '통장사본_박영희.png',
                 reason: '서비스 불만족'
             },
             {
                 id: 5,
                 requestDate: '2024-11-15 11:00:00',
-                memberId: 'company02',
-                memberName: '테크솔루션',
-                memberType: 'business',
-                phone: '02-9999-8888',
-                paymentMethod: 'dedicated',
-                lastChargeDate: '2024-11-10',
-                lastChargeAmount: 200000,
-                balance: 150000,
-                usedAmount: 50000,
-                requestAmount: 150000,
-                sendingCount: 100,
-                scheduledCount: 0,
-                status: 'pending',
+                companyName: '테크솔루션',
+                refundTarget: 150000,
+                refundFee: 15000,
+                actualAmount: 135000,
+                bankName: 'IBK기업은행',
+                accountNumber: '456789012345',
+                accountHolder: '테크솔루션',
+                bankbookFile: '통장사본_테크솔루션.pdf',
                 reason: '타 서비스 전환'
             },
             {
                 id: 6,
                 requestDate: '2024-11-14 13:30:00',
-                memberId: 'user004',
-                memberName: '이민수',
-                memberType: 'personal',
-                phone: '010-7777-8888',
-                paymentMethod: 'card',
-                lastChargeDate: '2024-11-05',
-                lastChargeAmount: 100000,
-                balance: 75000,
-                usedAmount: 25000,
-                requestAmount: 75000,
-                sendingCount: 0,
-                scheduledCount: 0,
-                status: 'completed',
+                companyName: '이민수',
+                refundTarget: 75000,
+                refundFee: 7500,
+                actualAmount: 67500,
+                bankName: 'NH농협은행',
+                accountNumber: '78901234567890',
+                accountHolder: '이민수',
+                bankbookFile: '통장사본_이민수.jpg',
                 reason: '개인 사정'
             }
         ];
-        
-        let currentRefundId = null;
-        let currentRefundData = null;
-        
-        // 페이지 로드 시 목록 표시
-        document.addEventListener('DOMContentLoaded', function() {
-            loadRefunds();
-            
-            // 처리 방법 라디오 버튼 이벤트
-            document.querySelectorAll('input[name="process-type"]').forEach(radio => {
-                radio.addEventListener('change', function() {
-                    const rejectGroup = document.getElementById('reject-reason-group');
-                    if (this.value === 'reject') {
-                        rejectGroup.style.display = 'block';
-                    } else {
-                        rejectGroup.style.display = 'none';
-                    }
+
+        let filteredList = [];
+
+        function formatPoint(n) {
+            return (n || 0).toLocaleString() + ' P';
+        }
+
+        function searchRefunds() {
+            const keyword = (document.getElementById('search-company').value || '').trim().toLowerCase();
+            if (!keyword) {
+                filteredList = refundApplications.slice();
+            } else {
+                filteredList = refundApplications.filter(function(r) {
+                    return (r.companyName || '').toLowerCase().indexOf(keyword) !== -1;
                 });
+            }
+            renderTable();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('refund-list-tbody');
+            const emptyEl = document.getElementById('empty-state');
+
+            if (filteredList.length === 0) {
+                tbody.innerHTML = '';
+                emptyEl.style.display = 'block';
+                return;
+            }
+            emptyEl.style.display = 'none';
+
+            tbody.innerHTML = filteredList.map(r => `
+                <tr>
+                    <td>${escapeHtml(r.requestDate)}</td>
+                    <td>${escapeHtml(r.companyName)}</td>
+                    <td>${formatPoint(r.refundTarget)}</td>
+                    <td>${r.refundFee ? '-' + formatPoint(r.refundFee) : '0 P'}</td>
+                    <td>${formatPoint(r.actualAmount)}</td>
+                    <td>${escapeHtml(r.reason || '-')}</td>
+                    <td>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="openRefundDetail(${r.id})">상세보기</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openRefundDetail(id) {
+            const r = refundApplications.find(x => x.id === id);
+            if (!r) return;
+            const grid = document.getElementById('detail-content');
+            const bankbookHtml = r.bankbookFile
+                ? `<a href="#" class="detail-link" data-id="${r.id}" onclick="downloadBankbook(event)">${escapeHtml(r.bankbookFile)}</a> <span style="color:#64748b;font-size:12px;">(다운로드)</span>`
+                : '-';
+            grid.innerHTML = `
+                <span class="detail-label">신청일시</span><span class="detail-value">${escapeHtml(r.requestDate)}</span>
+                <span class="detail-label">회원명(업체명)</span><span class="detail-value">${escapeHtml(r.companyName)}</span>
+                <span class="detail-label">환불대상(P)</span><span class="detail-value">${formatPoint(r.refundTarget)}</span>
+                <span class="detail-label">환불수수료(P)</span><span class="detail-value">${r.refundFee ? '-' + formatPoint(r.refundFee) : '0 P'}</span>
+                <span class="detail-label">실제환불금액(P)</span><span class="detail-value">${formatPoint(r.actualAmount)}</span>
+                <span class="detail-label">은행</span><span class="detail-value">${escapeHtml(r.bankName || '-')}</span>
+                <span class="detail-label">계좌번호</span><span class="detail-value">${escapeHtml(r.accountNumber || '-')}</span>
+                <span class="detail-label">예금주</span><span class="detail-value">${escapeHtml(r.accountHolder || '-')}</span>
+                <span class="detail-label">통장사본</span><span class="detail-value">${bankbookHtml}</span>
+                <span class="detail-label">환불 사유</span><span class="detail-value">${escapeHtml(r.reason || '-')}</span>
+            `;
+            openModal('refund-detail-modal');
+        }
+
+        function closeRefundDetailModal() {
+            closeModal('refund-detail-modal');
+        }
+
+        function downloadBankbook(event, filename) {
+            event.preventDefault();
+            var id = event.target.getAttribute('data-id');
+            if (id) {
+                var r = refundApplications.find(function(x) { return x.id === Number(id); });
+                filename = r && r.bankbookFile ? r.bankbookFile : null;
+            }
+            if (!filename) return;
+            var blob = new Blob(['통장사본 파일 (실제 연동 시 서버 URL에서 다운로드)'], { type: 'application/octet-stream' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+            if (typeof showToast === 'function') showToast('통장사본을 다운로드했습니다.', 'success');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            filteredList = refundApplications.slice();
+            renderTable();
+            document.getElementById('search-company').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') searchRefunds();
             });
         });
-        
-        // 환불 목록 로드
-        function loadRefunds(filteredData = null) {
-            const data = filteredData || mockRefunds;
-            const tbody = document.getElementById('refund-list-tbody');
-            
-            if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: #64748b;">환불 요청 내역이 없습니다.</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = data.map(refund => {
-                const memberTypeBadge = refund.memberType === 'business' 
-                    ? '<span class="badge badge-info">사업자</span>' 
-                    : '<span class="badge badge-secondary">개인</span>';
-                
-                const paymentMethodText = {
-                    'card': '신용카드',
-                    'transfer': '계좌이체',
-                    'virtual': '가상계좌',
-                    'dedicated': '전용계좌'
-                }[refund.paymentMethod];
-                
-                const statusBadge = {
-                    'pending': '<span class="badge badge-warning">처리 대기</span>',
-                    'processing': '<span class="badge badge-info">처리 중</span>',
-                    'completed': '<span class="badge badge-success">완료</span>',
-                    'rejected': '<span class="badge badge-danger">반려</span>'
-                }[refund.status];
-                
-                // 환불 유형 판단
-                const refundType = getRefundType(refund);
-                const refundTypeBadge = refundType.type === 'full' 
-                    ? '<span class="refund-type-badge full">전액환불</span>'
-                    : '<span class="refund-type-badge partial">수수료차감</span>';
-                
-                return `
-                    <tr>
-                        <td>${refund.requestDate}</td>
-                        <td>
-                            <div style="font-weight: 500;">${refund.memberName}</div>
-                            <div style="font-size: 12px; color: #64748b;">${refund.memberId}</div>
-                        </td>
-                        <td>${memberTypeBadge}</td>
-                        <td>${paymentMethodText}</td>
-                        <td>₩${refund.balance.toLocaleString()}</td>
-                        <td>₩${refund.requestAmount.toLocaleString()}</td>
-                        <td>${refundTypeBadge}</td>
-                        <td>${statusBadge}</td>
-                        <td>
-                            ${refund.status === 'pending' 
-                                ? `<button class="btn btn-primary btn-sm" onclick="openRefundModal(${refund.id})">처리</button>`
-                                : `<button class="btn btn-outline btn-sm" onclick="viewRefundDetail(${refund.id})">상세</button>`
-                            }
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-        
-        // 환불 유형 판단
-        function getRefundType(refund) {
-            const chargeDate = new Date(refund.lastChargeDate);
-            const today = new Date();
-            const diffDays = Math.floor((today - chargeDate) / (1000 * 60 * 60 * 24));
-            
-            // 카드결제이고, 7일 이내이고, 미사용인 경우 전액 환불
-            if (refund.paymentMethod === 'card' && diffDays <= 7 && refund.usedAmount === 0) {
-                return { type: 'full', reason: '충전 후 7일 이내, 포인트 미사용' };
-            }
-            
-            // 그 외는 수수료 차감
-            return { type: 'partial', reason: '충전 후 7일 경과 또는 포인트 사용' };
-        }
-        
-        // 검색
-        function searchRefunds() {
-            const keyword = document.getElementById('search-keyword').value.trim().toLowerCase();
-            const status = document.getElementById('filter-status').value;
-            const startDate = document.getElementById('filter-start-date').value;
-            const endDate = document.getElementById('filter-end-date').value;
-            
-            let filtered = mockRefunds.filter(refund => {
-                if (keyword && !refund.memberName.toLowerCase().includes(keyword) && !refund.memberId.toLowerCase().includes(keyword)) {
-                    return false;
-                }
-                if (status && refund.status !== status) return false;
-                
-                if (startDate) {
-                    const refundDate = refund.requestDate.split(' ')[0];
-                    if (refundDate < startDate) return false;
-                }
-                if (endDate) {
-                    const refundDate = refund.requestDate.split(' ')[0];
-                    if (refundDate > endDate) return false;
-                }
-                
-                return true;
-            });
-            
-            loadRefunds(filtered);
-            showToast(`${filtered.length}건이 조회되었습니다.`, 'success');
-        }
-        
-        // 환불 처리 모달 열기
-        function openRefundModal(id) {
-            const refund = mockRefunds.find(r => r.id === id);
-            if (!refund) return;
-            
-            currentRefundId = id;
-            currentRefundData = refund;
-            
-            // 회원 정보 표시
-            document.getElementById('modal-member-name').textContent = refund.memberName;
-            document.getElementById('modal-member-id').textContent = refund.memberId;
-            document.getElementById('modal-member-type').textContent = refund.memberType === 'business' ? '사업자 회원' : '개인 회원';
-            document.getElementById('modal-member-phone').textContent = refund.phone;
-            document.getElementById('modal-last-charge-date').textContent = refund.lastChargeDate;
-            document.getElementById('modal-payment-method').textContent = {
-                'card': '신용카드',
-                'transfer': '실시간 계좌이체',
-                'virtual': '가상계좌',
-                'dedicated': '전용계좌'
-            }[refund.paymentMethod];
-            
-            // 환불 가능 조건 검증
-            validateRefundEligibility(refund);
-            
-            openModal('refund-modal');
-        }
-        
-        // 환불 가능 조건 검증
-        function validateRefundEligibility(refund) {
-            const chargeDate = new Date(refund.lastChargeDate);
-            const today = new Date();
-            const diffDays = Math.floor((today - chargeDate) / (1000 * 60 * 60 * 24));
-            
-            let isEligible = true;
-            let eligibilityIssues = [];
-            let isFullRefund = true;
-            
-            // 1. 잔여 포인트 1만원 이상 체크
-            const balanceCheck = refund.balance >= 10000;
-            updateCheckItem('balance', balanceCheck, 
-                balanceCheck ? `₩${refund.balance.toLocaleString()}` : `₩${refund.balance.toLocaleString()} (1만원 미만)`);
-            if (!balanceCheck) {
-                isEligible = false;
-                eligibilityIssues.push('잔여 포인트가 1만원 미만입니다.');
-            }
-            
-            // 2. 발송 중인 메시지 없음 체크
-            const sendingCheck = refund.sendingCount === 0;
-            updateCheckItem('sending', sendingCheck, 
-                sendingCheck ? '없음' : `${refund.sendingCount}건 발송 중`);
-            if (!sendingCheck) {
-                isEligible = false;
-                eligibilityIssues.push('발송 중인 메시지가 있습니다. 발송 완료 후 환불 처리가 가능합니다.');
-            }
-            
-            // 3. 예약 발송 대기 중인 메시지 없음 체크
-            const scheduledCheck = refund.scheduledCount === 0;
-            updateCheckItem('scheduled', scheduledCheck, 
-                scheduledCheck ? '없음' : `${refund.scheduledCount}건 예약 대기`);
-            if (!scheduledCheck) {
-                isEligible = false;
-                eligibilityIssues.push('예약 발송 대기 중인 메시지가 있습니다. 예약 취소 후 환불 처리가 가능합니다.');
-            }
-            
-            // 4. 충전 후 7일 이내 체크 (전액 환불 조건)
-            const periodCheck = diffDays <= 7;
-            updateCheckItem('charge-period', periodCheck, 
-                periodCheck ? `${diffDays}일 경과` : `${diffDays}일 경과 (7일 초과)`, 
-                periodCheck ? 'pass' : 'warning');
-            if (!periodCheck) {
-                isFullRefund = false;
-            }
-            
-            // 5. 포인트 미사용 체크 (전액 환불 조건)
-            const usageCheck = refund.usedAmount === 0;
-            updateCheckItem('usage', usageCheck, 
-                usageCheck ? '미사용' : `₩${refund.usedAmount.toLocaleString()} 사용`, 
-                usageCheck ? 'pass' : 'warning');
-            if (!usageCheck) {
-                isFullRefund = false;
-            }
-            
-            // 결과 표시
-            const resultDiv = document.getElementById('eligibility-result');
-            const resultTitle = document.getElementById('eligibility-result-title');
-            const resultDesc = document.getElementById('eligibility-result-desc');
-            
-            // 환불 계산 섹션
-            const calcSection = document.getElementById('refund-calculation');
-            const processSection = document.getElementById('process-section');
-            const ineligibleSection = document.getElementById('ineligible-section');
-            const accountSection = document.getElementById('account-info-section');
-            const processBtn = document.getElementById('process-btn');
-            
-            if (isEligible) {
-                if (isFullRefund && refund.paymentMethod === 'card') {
-                    // 전액 환불 가능
-                    resultDiv.className = 'eligibility-result eligible';
-                    resultTitle.textContent = '✅ 전액 환불 가능';
-                    resultDesc.textContent = '충전 후 7일 이내이며 포인트를 사용하지 않아 수수료 없이 전액 환불이 가능합니다.';
-                    
-                    showRefundCalculation(refund, 'full');
-                } else {
-                    // 수수료 차감 환불
-                    resultDiv.className = 'eligibility-result partial';
-                    resultTitle.textContent = '⚠️ 수수료 차감 환불';
-                    resultDesc.textContent = '충전 후 7일이 경과했거나 포인트를 사용하여 10% 수수료가 차감됩니다.';
-                    
-                    showRefundCalculation(refund, 'partial');
-                }
-                
-                calcSection.style.display = 'block';
-                processSection.style.display = 'block';
-                ineligibleSection.style.display = 'none';
-                processBtn.disabled = false;
-                processBtn.textContent = '처리';
-                
-                // 계좌이체, 전용계좌, 가상계좌인 경우 계좌 정보 입력 필요
-                if (['transfer', 'virtual', 'dedicated'].includes(refund.paymentMethod)) {
-                    accountSection.style.display = 'block';
-                } else {
-                    accountSection.style.display = 'none';
-                }
-            } else {
-                // 환불 불가
-                resultDiv.className = 'eligibility-result ineligible';
-                resultTitle.textContent = '❌ 환불 불가';
-                resultDesc.textContent = eligibilityIssues.join(' ');
-                
-                calcSection.style.display = 'none';
-                processSection.style.display = 'none';
-                ineligibleSection.style.display = 'block';
-                accountSection.style.display = 'none';
-                
-                document.getElementById('ineligible-reason').value = eligibilityIssues.join('\n');
-                
-                processBtn.disabled = false;
-                processBtn.textContent = '반려 처리';
-            }
-        }
-        
-        // 체크 아이템 업데이트
-        function updateCheckItem(type, isPassed, value, forceStatus = null) {
-            const icon = document.getElementById(`check-${type}-icon`);
-            const valueEl = document.getElementById(`check-${type}-value`);
-            
-            const status = forceStatus || (isPassed ? 'pass' : 'fail');
-            
-            icon.className = `check-icon ${status}`;
-            icon.textContent = status === 'pass' ? '✓' : (status === 'warning' ? '!' : '✗');
-            
-            valueEl.className = `check-value ${status}`;
-            valueEl.textContent = value;
-        }
-        
-        // 환불 금액 계산 표시
-        function showRefundCalculation(refund, type) {
-            const typeBadge = document.getElementById('refund-type-badge');
-            const typeDesc = document.getElementById('refund-type-desc');
-            const requestAmount = document.getElementById('calc-request-amount');
-            const feeRow = document.getElementById('calc-fee-row');
-            const feeAmount = document.getElementById('calc-fee-amount');
-            const finalAmount = document.getElementById('calc-final-amount');
-            
-            if (type === 'full') {
-                typeBadge.className = 'refund-type-badge full';
-                typeBadge.textContent = '전액환불';
-                typeDesc.textContent = '충전 후 7일 이내, 포인트 미사용으로 수수료가 면제됩니다.';
-                
-                requestAmount.textContent = `₩${refund.requestAmount.toLocaleString()}`;
-                feeRow.style.display = 'none';
-                finalAmount.textContent = `₩${refund.requestAmount.toLocaleString()}`;
-            } else {
-                typeBadge.className = 'refund-type-badge partial';
-                typeBadge.textContent = '수수료차감';
-                typeDesc.textContent = '환불 정책에 따라 요청 금액의 10% 수수료가 차감됩니다.';
-                
-                const fee = Math.floor(refund.requestAmount * 0.1);
-                const finalRefund = refund.requestAmount - fee;
-                
-                requestAmount.textContent = `₩${refund.requestAmount.toLocaleString()}`;
-                feeRow.style.display = 'flex';
-                feeAmount.textContent = `-₩${fee.toLocaleString()}`;
-                finalAmount.textContent = `₩${finalRefund.toLocaleString()}`;
-            }
-        }
-        
-        // 환불 처리
-        function processRefund() {
-            if (!currentRefundData) return;
-            
-            const refund = currentRefundData;
-            const chargeDate = new Date(refund.lastChargeDate);
-            const today = new Date();
-            const diffDays = Math.floor((today - chargeDate) / (1000 * 60 * 60 * 24));
-            
-            // 환불 가능 여부 재확인
-            const isEligible = refund.balance >= 10000 && refund.sendingCount === 0 && refund.scheduledCount === 0;
-            
-            if (!isEligible) {
-                // 반려 처리
-                const reason = document.getElementById('ineligible-reason').value;
-                
-                if (confirm('환불 요청을 반려 처리하시겠습니까?')) {
-                    const index = mockRefunds.findIndex(r => r.id === currentRefundId);
-                    if (index !== -1) {
-                        mockRefunds[index].status = 'rejected';
-                    }
-                    
-                    closeModal('refund-modal');
-                    loadRefunds();
-                    showToast('환불 요청이 반려되었습니다.', 'info');
-                }
-                return;
-            }
-            
-            // 환불 가능한 경우
-            const processType = document.querySelector('input[name="process-type"]:checked').value;
-            
-            if (processType === 'reject') {
-                const reason = document.getElementById('reject-reason').value.trim();
-                if (!reason) {
-                    showToast('반려 사유를 입력해주세요.', 'error');
-                    return;
-                }
-                
-                if (confirm('환불 요청을 반려 처리하시겠습니까?')) {
-                    const index = mockRefunds.findIndex(r => r.id === currentRefundId);
-                    if (index !== -1) {
-                        mockRefunds[index].status = 'rejected';
-                    }
-                    
-                    closeModal('refund-modal');
-                    loadRefunds();
-                    showToast('환불 요청이 반려되었습니다.', 'info');
-                }
-            } else {
-                // 계좌 정보 검증 (계좌이체, 전용계좌, 가상계좌인 경우)
-                if (['transfer', 'virtual', 'dedicated'].includes(refund.paymentMethod)) {
-                    const bank = document.getElementById('refund-bank').value;
-                    const account = document.getElementById('refund-account').value.trim();
-                    const holder = document.getElementById('refund-account-holder').value.trim();
-                    
-                    if (!bank || !account || !holder) {
-                        showToast('환불 계좌 정보를 모두 입력해주세요.', 'error');
-                        return;
-                    }
-                }
-                
-                // 환불 금액 계산
-                const isFullRefund = refund.paymentMethod === 'card' && diffDays <= 7 && refund.usedAmount === 0;
-                const fee = isFullRefund ? 0 : Math.floor(refund.requestAmount * 0.1);
-                const finalAmount = refund.requestAmount - fee;
-                
-                const confirmMsg = isFullRefund 
-                    ? `₩${finalAmount.toLocaleString()}을 전액 환불 처리하시겠습니까?`
-                    : `₩${refund.requestAmount.toLocaleString()} - 수수료 ₩${fee.toLocaleString()} = ₩${finalAmount.toLocaleString()}을 환불 처리하시겠습니까?`;
-                
-                if (confirm(confirmMsg)) {
-                    const index = mockRefunds.findIndex(r => r.id === currentRefundId);
-                    if (index !== -1) {
-                        mockRefunds[index].status = 'completed';
-                    }
-                    
-                    closeModal('refund-modal');
-                    loadRefunds();
-                    showToast(`₩${finalAmount.toLocaleString()} 환불이 승인되었습니다. 영업일 기준 7일 이내 지급됩니다.`, 'success');
-                }
-            }
-        }
-        
-        // 환불 상세 보기
-        function viewRefundDetail(id) {
-            const refund = mockRefunds.find(r => r.id === id);
-            if (!refund) return;
-            
-            alert(`환불 상세 정보\n\n회원: ${refund.memberName}\n요청금액: ₩${refund.requestAmount.toLocaleString()}\n상태: ${refund.status === 'completed' ? '완료' : '반려'}`);
-        }
     </script>
 </body>
 </html>

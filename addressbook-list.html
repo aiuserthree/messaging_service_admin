@@ -20,27 +20,15 @@
             
             <div class="admin-content">
                 <div class="card">
-                    <div class="search-filter-bar">
-                        <div class="search-box">
-                            <label class="form-label">회원명 검색</label>
-                            <input type="text" class="form-control" placeholder="회원명으로 검색" id="search-member">
-                        </div>
-                        <div class="filter-item">
-                            <label class="form-label">그룹명</label>
-                            <input type="text" class="form-control" placeholder="그룹명" id="search-group">
-                        </div>
-                        <div class="filter-item">
-                            <label class="form-label">등록 기간</label>
-                            <input type="date" class="form-control" id="date-from">
-                        </div>
-                        <div class="filter-item">
-                            <label class="form-label">~</label>
-                            <input type="date" class="form-control" id="date-to">
-                        </div>
-                        <div class="filter-item" style="align-self: flex-end;">
-                            <button class="btn btn-primary" onclick="searchAddressbook()">조회</button>
-                            <button class="btn btn-outline" onclick="exportExcel()">엑셀 다운로드</button>
-                        </div>
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <input type="text" class="form-control" placeholder="이름/전화번호 입력" id="search-member" style="min-width: 180px;">
+                        <select class="form-control" id="filter-status" style="min-width: 120px;">
+                            <option value="">상태 (전체)</option>
+                            <option value="active">활성</option>
+                            <option value="inactive">비활성</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="searchAddressbook()">검색</button>
+                        <button class="btn btn-outline" onclick="exportExcel()">엑셀 다운로드</button>
                     </div>
                 </div>
                 
