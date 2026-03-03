@@ -68,7 +68,7 @@ function getSidebarHTML(activeMenu) {
                         <span>결제 관리</span>
                     </a>
                     <a href="settlement-monthly.html" class="menu-item ${activeMenu === 'settlement-monthly' ? 'active' : ''}">
-                        <span>정산 관리</span>
+                        <span>정산 관리(예시)</span>
                     </a>
                     <a href="refund-list.html" class="menu-item ${activeMenu === 'refund-list' ? 'active' : ''}">
                         <span>환불 신청 내역</span>
