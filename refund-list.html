@@ -38,6 +38,14 @@
         .detail-link:hover { text-decoration: underline; }
         .refund-table-wrap th,
         .refund-table-wrap td { padding: 8px 10px; font-size: 13px; text-align: center; }
+        .refund-status-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; }
+        .refund-status-badge.processing { background: #fef3c7; color: #92400e; }
+        .refund-status-badge.completed { background: #dcfce7; color: #166534; }
+        .refund-status-badge.rejected { background: #fee2e2; color: #991b1b; }
+        .modal-footer .btn + .btn { margin-left: 8px; }
+        .reject-reason-wrap { margin-top: 12px; padding-top: 12px; border-top: 1px solid #e2e8f0; }
+        .reject-reason-wrap label { display: block; margin-bottom: 6px; font-size: 13px; color: #475569; }
+        .reject-reason-wrap textarea { width: 100%; min-height: 80px; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 13px; resize: vertical; }
         .empty-state {
             text-align: center;
             padding: 48px 24px;
@@ -80,6 +88,9 @@
                                     <th>환불대상(P)</th>
                                     <th>환불수수료(P)</th>
                                     <th>실제환불금액(P)</th>
+                                    <th>상태</th>
+                                    <th>처리일</th>
+                                    <th>비고</th>
                                     <th>환불 사유</th>
                                     <th>관리</th>
                                 </tr>
@@ -107,8 +118,17 @@
                 <div class="detail-grid" id="detail-content">
                     <!-- 동적 생성 -->
                 </div>
+                <div id="reject-reason-wrap" class="reject-reason-wrap" style="display: none;">
+                    <label for="reject-reason-input">반려 사유 <span style="color: #ef4444;">*</span></label>
+                    <textarea id="reject-reason-input" placeholder="반려 사유를 입력하세요"></textarea>
+                    <div style="margin-top: 10px; display: flex; gap: 8px;">
+                        <button type="button" class="btn btn-primary" onclick="confirmReject()">확인</button>
+                        <button type="button" class="btn btn-outline" onclick="document.getElementById('reject-reason-wrap').style.display='none'; document.getElementById('reject-reason-input').value=''">취소</button>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
+                <span id="detail-action-buttons"></span>
                 <button type="button" class="btn btn-outline" onclick="closeRefundDetailModal()">닫기</button>
             </div>
         </div>
@@ -116,7 +136,7 @@
 
     <script src="js/admin-common.js"></script>
     <script>
-        // 환불 신청 시 수집된 데이터 (업체별)
+        // 상태: processing(처리중), completed(환불완료), rejected(반려)
         const refundApplications = [
             {
                 id: 1,
@@ -129,7 +149,10 @@
                 accountNumber: '12345678901234',
                 accountHolder: '홍길동',
                 bankbookFile: '통장사본_홍길동.pdf',
-                reason: '서비스 미사용'
+                reason: '서비스 미사용',
+                status: 'processing',
+                processedDate: null,
+                remark: null
             },
             {
                 id: 2,
@@ -142,7 +165,10 @@
                 accountNumber: '110123456789',
                 accountHolder: '(주)테스트기업',
                 bankbookFile: '통장사본_테스트기업.jpg',
-                reason: '사업 종료'
+                reason: '사업 종료',
+                status: 'completed',
+                processedDate: '2024-11-22',
+                remark: null
             },
             {
                 id: 3,
@@ -155,7 +181,10 @@
                 accountNumber: '3333123456789',
                 accountHolder: '김철수',
                 bankbookFile: '통장사본_김철수.pdf',
-                reason: '단순 변심'
+                reason: '단순 변심',
+                status: 'processing',
+                processedDate: null,
+                remark: '영업일 기준 7일 이내'
             },
             {
                 id: 4,
@@ -168,7 +197,10 @@
                 accountNumber: '100012345678',
                 accountHolder: '박영희',
                 bankbookFile: '통장사본_박영희.png',
-                reason: '서비스 불만족'
+                reason: '서비스 불만족',
+                status: 'rejected',
+                processedDate: '2024-11-02',
+                remark: '계좌정보 불일치'
             },
             {
                 id: 5,
@@ -181,7 +213,10 @@
                 accountNumber: '456789012345',
                 accountHolder: '테크솔루션',
                 bankbookFile: '통장사본_테크솔루션.pdf',
-                reason: '타 서비스 전환'
+                reason: '타 서비스 전환',
+                status: 'processing',
+                processedDate: null,
+                remark: null
             },
             {
                 id: 6,
@@ -194,7 +229,10 @@
                 accountNumber: '78901234567890',
                 accountHolder: '이민수',
                 bankbookFile: '통장사본_이민수.jpg',
-                reason: '개인 사정'
+                reason: '개인 사정',
+                status: 'processing',
+                processedDate: null,
+                remark: null
             }
         ];
 
@@ -233,44 +271,112 @@
             }
             emptyEl.style.display = 'none';
 
-            tbody.innerHTML = filteredList.map(r => `
-                <tr>
-                    <td>${escapeHtml(r.requestDate)}</td>
-                    <td>${escapeHtml(r.companyName)}</td>
-                    <td>${formatPoint(r.refundTarget)}</td>
-                    <td>${r.refundFee ? '-' + formatPoint(r.refundFee) : '0 P'}</td>
-                    <td>${formatPoint(r.actualAmount)}</td>
-                    <td>${escapeHtml(r.reason || '-')}</td>
-                    <td>
-                        <button type="button" class="btn btn-outline btn-sm" onclick="openRefundDetail(${r.id})">상세보기</button>
-                    </td>
-                </tr>
-            `).join('');
+            var statusLabel = { processing: '처리중', completed: '환불완료', rejected: '반려' };
+            var statusClass = { processing: 'processing', completed: 'completed', rejected: 'rejected' };
+            tbody.innerHTML = filteredList.map(r => {
+                var st = r.status || 'processing';
+                var badge = '<span class="refund-status-badge ' + statusClass[st] + '">' + statusLabel[st] + '</span>';
+                return '<tr>' +
+                    '<td>' + escapeHtml(r.requestDate) + '</td>' +
+                    '<td>' + escapeHtml(r.companyName) + '</td>' +
+                    '<td>' + formatPoint(r.refundTarget) + '</td>' +
+                    '<td>' + (r.refundFee ? '-' + formatPoint(r.refundFee) : '0 P') + '</td>' +
+                    '<td>' + formatPoint(r.actualAmount) + '</td>' +
+                    '<td>' + badge + '</td>' +
+                    '<td>' + escapeHtml(r.processedDate || '-') + '</td>' +
+                    '<td>' + escapeHtml(r.remark || '-') + '</td>' +
+                    '<td>' + escapeHtml(r.reason || '-') + '</td>' +
+                    '<td><button type="button" class="btn btn-outline btn-sm" onclick="openRefundDetail(' + r.id + ')">상세보기</button></td>' +
+                '</tr>';
+            }).join('');
         }
 
+        function getStatusLabel(status) {
+            return { processing: '처리중', completed: '환불완료', rejected: '반려' }[status] || '처리중';
+        }
+
+        var currentRefundDetailId = null;
+
         function openRefundDetail(id) {
-            const r = refundApplications.find(x => x.id === id);
+            var r = refundApplications.find(function(x) { return x.id === id; });
             if (!r) return;
-            const grid = document.getElementById('detail-content');
-            const bankbookHtml = r.bankbookFile
-                ? `<a href="#" class="detail-link" data-id="${r.id}" onclick="downloadBankbook(event)">${escapeHtml(r.bankbookFile)}</a> <span style="color:#64748b;font-size:12px;">(다운로드)</span>`
+            currentRefundDetailId = id;
+            var grid = document.getElementById('detail-content');
+            var bankbookHtml = r.bankbookFile
+                ? '<a href="#" class="detail-link" data-id="' + r.id + '" onclick="downloadBankbook(event)">' + escapeHtml(r.bankbookFile) + '</a> <span style="color:#64748b;font-size:12px;">(다운로드)</span>'
                 : '-';
-            grid.innerHTML = `
-                <span class="detail-label">신청일시</span><span class="detail-value">${escapeHtml(r.requestDate)}</span>
-                <span class="detail-label">회원명(업체명)</span><span class="detail-value">${escapeHtml(r.companyName)}</span>
-                <span class="detail-label">환불대상(P)</span><span class="detail-value">${formatPoint(r.refundTarget)}</span>
-                <span class="detail-label">환불수수료(P)</span><span class="detail-value">${r.refundFee ? '-' + formatPoint(r.refundFee) : '0 P'}</span>
-                <span class="detail-label">실제환불금액(P)</span><span class="detail-value">${formatPoint(r.actualAmount)}</span>
-                <span class="detail-label">은행</span><span class="detail-value">${escapeHtml(r.bankName || '-')}</span>
-                <span class="detail-label">계좌번호</span><span class="detail-value">${escapeHtml(r.accountNumber || '-')}</span>
-                <span class="detail-label">예금주</span><span class="detail-value">${escapeHtml(r.accountHolder || '-')}</span>
-                <span class="detail-label">통장사본</span><span class="detail-value">${bankbookHtml}</span>
-                <span class="detail-label">환불 사유</span><span class="detail-value">${escapeHtml(r.reason || '-')}</span>
-            `;
+            var st = r.status || 'processing';
+            var statusLabel = getStatusLabel(st);
+            var statusClass = { processing: 'processing', completed: 'completed', rejected: 'rejected' }[st];
+            grid.innerHTML =
+                '<span class="detail-label">신청일시</span><span class="detail-value">' + escapeHtml(r.requestDate) + '</span>' +
+                '<span class="detail-label">회원명(업체명)</span><span class="detail-value">' + escapeHtml(r.companyName) + '</span>' +
+                '<span class="detail-label">상태</span><span class="detail-value"><span class="refund-status-badge ' + statusClass + '">' + statusLabel + '</span></span>' +
+                '<span class="detail-label">처리일</span><span class="detail-value">' + escapeHtml(r.processedDate || '-') + '</span>' +
+                '<span class="detail-label">비고</span><span class="detail-value">' + escapeHtml(r.remark || '-') + '</span>' +
+                '<span class="detail-label">환불대상(P)</span><span class="detail-value">' + formatPoint(r.refundTarget) + '</span>' +
+                '<span class="detail-label">환불수수료(P)</span><span class="detail-value">' + (r.refundFee ? '-' + formatPoint(r.refundFee) : '0 P') + '</span>' +
+                '<span class="detail-label">실제환불금액(P)</span><span class="detail-value">' + formatPoint(r.actualAmount) + '</span>' +
+                '<span class="detail-label">은행</span><span class="detail-value">' + escapeHtml(r.bankName || '-') + '</span>' +
+                '<span class="detail-label">계좌번호</span><span class="detail-value">' + escapeHtml(r.accountNumber || '-') + '</span>' +
+                '<span class="detail-label">예금주</span><span class="detail-value">' + escapeHtml(r.accountHolder || '-') + '</span>' +
+                '<span class="detail-label">통장사본</span><span class="detail-value">' + bankbookHtml + '</span>' +
+                '<span class="detail-label">환불 사유</span><span class="detail-value">' + escapeHtml(r.reason || '-') + '</span>';
+
+            var reasonWrap = document.getElementById('reject-reason-wrap');
+            var reasonInput = document.getElementById('reject-reason-input');
+            reasonWrap.style.display = 'none';
+            if (reasonInput) reasonInput.value = '';
+
+            var actionEl = document.getElementById('detail-action-buttons');
+            if (st === 'processing') {
+                actionEl.innerHTML = '<button type="button" class="btn btn-primary" onclick="confirmRefundComplete()">환불완료</button>' +
+                    '<button type="button" class="btn btn-outline" style="border-color: #ef4444; color: #ef4444;" onclick="showRejectReason()">반려</button>';
+            } else {
+                actionEl.innerHTML = '';
+            }
             openModal('refund-detail-modal');
         }
 
+        function showRejectReason() {
+            document.getElementById('reject-reason-wrap').style.display = 'block';
+            document.getElementById('reject-reason-input').focus();
+        }
+
+        function confirmRefundComplete() {
+            var r = refundApplications.find(function(x) { return x.id === currentRefundDetailId; });
+            if (!r) return;
+            if (!confirm('이 건을 환불완료 처리하시겠습니까?')) return;
+            r.status = 'completed';
+            r.processedDate = new Date().toISOString().slice(0, 10).replace(/-/g, '-');
+            r.remark = r.remark || null;
+            closeRefundDetailModal();
+            renderTable();
+            if (typeof showToast === 'function') showToast('환불완료 처리되었습니다.', 'success');
+        }
+
+        function confirmReject() {
+            var reason = (document.getElementById('reject-reason-input').value || '').trim();
+            if (!reason) {
+                if (typeof showToast === 'function') showToast('반려 사유를 입력해주세요.', 'error');
+                return;
+            }
+            var r = refundApplications.find(function(x) { return x.id === currentRefundDetailId; });
+            if (!r) return;
+            r.status = 'rejected';
+            r.processedDate = new Date().toISOString().slice(0, 10).replace(/-/g, '-');
+            r.remark = reason;
+            document.getElementById('reject-reason-wrap').style.display = 'none';
+            document.getElementById('reject-reason-input').value = '';
+            closeRefundDetailModal();
+            renderTable();
+            if (typeof showToast === 'function') showToast('반려 처리되었습니다.', 'success');
+        }
+
         function closeRefundDetailModal() {
+            currentRefundDetailId = null;
+            document.getElementById('reject-reason-wrap').style.display = 'none';
+            document.getElementById('reject-reason-input').value = '';
             closeModal('refund-detail-modal');
         }
 

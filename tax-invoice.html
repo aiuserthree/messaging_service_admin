@@ -221,8 +221,9 @@
                             <label class="form-label">발행일시</label>
                             <input type="month" class="form-control" id="search-issue-month" title="연도/월 선택">
                         </div>
-                        <div class="filter-item" style="align-self: flex-end;">
+                        <div class="filter-item" style="align-self: flex-end; display: flex; gap: 8px;">
                             <button class="btn btn-primary" onclick="searchInvoices()">조회</button>
+                            <button class="btn btn-outline" onclick="downloadAllInvoicesExcel()">엑셀 전체 다운로드</button>
                         </div>
                     </div>
                     <div class="table-container invoice-list-table" style="margin-top: 24px;">
@@ -356,6 +357,7 @@
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="js/tax-invoice-template.js"></script>
     <script src="js/tax-invoice-excel.js"></script>
     <script src="js/admin-common.js"></script>
     <script>
@@ -474,15 +476,17 @@
         
         let currentInvoiceId = null;
         let currentInvoiceData = null;
-        
+        let currentInvoiceList = [];
+
         // 페이지 로드 시 목록 표시
         document.addEventListener('DOMContentLoaded', function() {
             loadInvoices();
         });
-        
+
         // 세금계산서 목록 로드
         function loadInvoices(filteredData = null) {
             const data = filteredData || mockInvoices;
+            currentInvoiceList = data;
             const tbody = document.getElementById('invoice-list-tbody');
             
             if (data.length === 0) {
@@ -531,6 +535,41 @@
             showToast(filtered.length + '건이 조회되었습니다.', 'success');
         }
         
+        // 엑셀 전체 다운로드 (현재 조회 목록을 한 파일로)
+        function downloadAllInvoicesExcel() {
+            if (typeof XLSX === 'undefined') {
+                showToast('엑셀 라이브러리를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.', 'error');
+                return;
+            }
+            var list = currentInvoiceList && currentInvoiceList.length ? currentInvoiceList : mockInvoices;
+            if (list.length === 0) {
+                showToast('다운로드할 내역이 없습니다.', 'info');
+                return;
+            }
+            var headers = ['발행일시', '회원명', '사업자등록번호', '공급가액', '세액', '합계', '신청일시'];
+            var rows = list.map(function(inv) {
+                var periodY = (inv.period || '').split('-')[0];
+                var periodM = (inv.period || '').split('-')[1];
+                var issueLabel = (periodY && periodM) ? periodY + '년/' + parseInt(periodM, 10) + '월' : '-';
+                return [
+                    issueLabel,
+                    inv.companyName || '',
+                    inv.businessNo || '',
+                    inv.supplyAmount || 0,
+                    inv.taxAmount || 0,
+                    inv.totalAmount || 0,
+                    inv.requestDate || ''
+                ];
+            });
+            var wsData = [headers].concat(rows);
+            var ws = XLSX.utils.aoa_to_sheet(wsData);
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, '세금계산서목록');
+            var filename = '세금계산서_자동발행신청_전체_' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '.xlsx';
+            XLSX.writeFile(wb, filename);
+            showToast('엑셀 전체 다운로드가 완료되었습니다.', 'success');
+        }
+
         // 해당 업체 데이터로 세금계산서 양식 엑셀 다운로드
         function downloadInvoiceExcel(id) {
             const invoice = mockInvoices.find(function(i) { return i.id === id; });

@@ -1,0 +1,10 @@
+const fs = require('fs');
+const path = require('path');
+const templatePath = path.join(__dirname, 'assets', '세금계산서.xlsx');
+const outPath = path.join(__dirname, 'js', 'tax-invoice-template.js');
+const buf = fs.readFileSync(templatePath);
+const base64 = buf.toString('base64');
+const safe = base64.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '');
+const content = '/** Embedded template - works with file:// and avoids CORS */\nvar TAX_INVOICE_TEMPLATE_BASE64 = "' + safe + '";\n';
+fs.writeFileSync(outPath, content);
+console.log('Written', outPath, 'length', content.length);
