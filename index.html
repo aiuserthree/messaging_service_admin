@@ -33,6 +33,7 @@
                         </div>
                         <button class="btn btn-primary" onclick="loadKPI()">조회</button>
                     </div>
+                    <div id="period-range-display" class="dashboard-period-range" aria-live="polite"></div>
                 </div>
 
                 <!-- KPI 카드 -->
@@ -204,8 +205,65 @@
     
     <script src="js/admin-common.js"></script>
     <script>
+        var WEEKDAYS_KO = ['일', '월', '화', '수', '목', '금', '토'];
+
+        function formatKoreanDate(d) {
+            return d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일';
+        }
+
+        function formatKoreanDateWithWeekday(d) {
+            return formatKoreanDate(d) + '(' + WEEKDAYS_KO[d.getDay()] + ')';
+        }
+
+        /** 조회일(ref)이 속한 주의 월요일 ~ 일요일 */
+        function getWeekRangeMonSun(ref) {
+            var d = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate());
+            var day = d.getDay();
+            var diffFromMonday = day === 0 ? 6 : day - 1;
+            var monday = new Date(d);
+            monday.setDate(d.getDate() - diffFromMonday);
+            var sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            return { start: monday, end: sunday };
+        }
+
+        function getMonthRange(ref) {
+            var y = ref.getFullYear();
+            var m = ref.getMonth();
+            return {
+                start: new Date(y, m, 1),
+                end: new Date(y, m + 1, 0)
+            };
+        }
+
+        /** 기간 선택에 따른 날짜 범위 표시 (조회일 기준) */
+        function updatePeriodRangeDisplay() {
+            var el = document.getElementById('period-range-display');
+            if (!el) return;
+            var period = document.getElementById('period-select').value;
+            var ref = new Date();
+
+            if (period === 'today') {
+                el.innerHTML = '<span class="dashboard-period-label">금일</span> ' +
+                    '<span class="dashboard-period-value">' + formatKoreanDate(ref) + '</span>';
+            } else if (period === 'week') {
+                var w = getWeekRangeMonSun(ref);
+                el.innerHTML = '<span class="dashboard-period-label">주간</span> ' +
+                    '<span class="dashboard-period-value">' +
+                    formatKoreanDateWithWeekday(w.start) + ' ~ ' + formatKoreanDateWithWeekday(w.end) +
+                    '</span>';
+            } else if (period === 'month') {
+                var mo = getMonthRange(ref);
+                el.innerHTML = '<span class="dashboard-period-label">월간</span> ' +
+                    '<span class="dashboard-period-value">' +
+                    formatKoreanDate(mo.start) + ' ~ ' + formatKoreanDate(mo.end) +
+                    '</span>';
+            }
+        }
+
         // KPI 데이터 로드
         function loadKPI() {
+            updatePeriodRangeDisplay();
             const period = document.getElementById('period-select').value;
             
             // 실제로는 API 호출
@@ -361,10 +419,32 @@
         
         // 페이지 로드 시 초기 데이터 로드
         document.addEventListener('DOMContentLoaded', function() {
+            var periodSelect = document.getElementById('period-select');
+            if (periodSelect) {
+                periodSelect.addEventListener('change', updatePeriodRangeDisplay);
+            }
             loadKPI();
             loadMemberApprovalList();
             loadCallerApprovalList();
         });
     </script>
+    <style>
+        .dashboard-period-range {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #334155;
+        }
+        .dashboard-period-label {
+            font-weight: 600;
+            color: #0f172a;
+            margin-right: 6px;
+        }
+        .dashboard-period-value {
+            color: #1e293b;
+        }
+    </style>
 </body>
 </html>
