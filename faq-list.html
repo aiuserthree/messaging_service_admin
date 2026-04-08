@@ -38,6 +38,14 @@
                                 <option value="technical">기술</option>
                             </select>
                         </div>
+                        <div class="filter-item">
+                            <label class="form-label">사용여부</label>
+                            <select class="form-control" id="filter-use">
+                                <option value="">전체</option>
+                                <option value="Y">사용</option>
+                                <option value="N">미사용</option>
+                            </select>
+                        </div>
                         <div class="filter-item" style="align-self: flex-end;">
                             <button class="btn btn-primary" onclick="searchFAQ()">조회</button>
                         </div>
@@ -56,19 +64,43 @@
                                     <th>순서</th>
                                     <th>카테고리</th>
                                     <th>제목</th>
+                                    <th>인기</th>
                                     <th>등록일</th>
                                     <th>관리</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
+                            <tbody id="faq-list-body">
+                                <tr data-id="1" data-category="usage" data-use="Y" data-popular="1" data-question="메시지 발송 방법은?" data-search="메시지 발송 작성 수신자 예약 즉시">
                                     <td>1</td>
                                     <td>사용법</td>
                                     <td>메시지 발송 방법은?</td>
+                                    <td><span class="badge badge-info">인기</span></td>
                                     <td>2024-11-19</td>
                                     <td>
                                         <button class="btn btn-primary btn-sm" onclick="editFAQ(1)">수정</button>
                                         <button class="btn btn-danger btn-sm" onclick="deleteFAQ(1)">삭제</button>
+                                    </td>
+                                </tr>
+                                <tr data-id="2" data-category="billing" data-use="Y" data-popular="0" data-question="결제 수단은 어떻게 되나요?" data-search="신용카드 계좌이체 결제">
+                                    <td>2</td>
+                                    <td>결제</td>
+                                    <td>결제 수단은 어떻게 되나요?</td>
+                                    <td><span class="text-muted" style="color: #94a3b8;">-</span></td>
+                                    <td>2024-11-18</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="editFAQ(2)">수정</button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteFAQ(2)">삭제</button>
+                                    </td>
+                                </tr>
+                                <tr data-id="3" data-category="technical" data-use="N" data-popular="0" data-question="API 연동 문서는 어디서 보나요?" data-search="API 개발자 센터 문서 연동">
+                                    <td>3</td>
+                                    <td>기술</td>
+                                    <td>API 연동 문서는 어디서 보나요?</td>
+                                    <td><span class="text-muted" style="color: #94a3b8;">-</span></td>
+                                    <td>2024-11-10</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="editFAQ(3)">수정</button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteFAQ(3)">삭제</button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -101,6 +133,13 @@
                     <input type="number" class="form-control" id="faq-order" value="1" min="1">
                 </div>
                 <div class="form-group">
+                    <label class="form-label">사용여부 <span style="color: #ef4444;">*</span></label>
+                    <select class="form-control" id="faq-use">
+                        <option value="Y">사용</option>
+                        <option value="N">미사용</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label class="form-label">질문 <span style="color: #ef4444;">*</span></label>
                     <input type="text" class="form-control" id="faq-question" placeholder="자주 묻는 질문을 입력하세요">
                 </div>
@@ -110,7 +149,7 @@
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="checkbox" id="faq-popular" value="1">
+                        <input type="checkbox" id="faq-popular" value="1" onchange="onPopularFAQCheckboxChange()">
                         <span>인기 질문</span>
                     </label>
                 </div>
@@ -125,9 +164,32 @@
     <script src="js/admin-common.js"></script>
     <script>
         let currentFAQId = null;
+        var faqAnswerCache = {};
         
         function searchFAQ() {
-            showToast('검색 완료', 'success');
+            var keyword = (document.getElementById('search-faq').value || '').trim().toLowerCase();
+            var category = document.getElementById('filter-category').value;
+            var useFilter = document.getElementById('filter-use').value;
+            var rows = document.querySelectorAll('#faq-list-body tr[data-id]');
+            var visible = 0;
+
+            rows.forEach(function (row) {
+                var cat = row.getAttribute('data-category') || '';
+                var use = row.getAttribute('data-use') || '';
+                var title = (row.querySelector('td:nth-child(3)') && row.querySelector('td:nth-child(3)').textContent) || '';
+                title = title.trim().toLowerCase();
+                var searchBlob = (row.getAttribute('data-search') || '').toLowerCase();
+
+                var matchCat = !category || cat === category;
+                var matchUse = !useFilter || use === useFilter;
+                var matchKw = !keyword || title.indexOf(keyword) !== -1 || searchBlob.indexOf(keyword) !== -1;
+
+                var show = matchCat && matchUse && matchKw;
+                row.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+
+            showToast('조회 완료 (' + visible + '건)', 'success');
         }
         
         function openFAQModal(id = null) {
@@ -136,23 +198,78 @@
             if (id) {
                 document.getElementById('faq-modal-title').textContent = 'FAQ 수정';
                 document.getElementById('faq-submit-btn').textContent = '수정';
-                // Mock 데이터 로드
-                document.getElementById('faq-category').value = 'usage';
-                document.getElementById('faq-order').value = '1';
-                document.getElementById('faq-question').value = '메시지 발송 방법은?';
-                document.getElementById('faq-answer').value = '메시지 발송은 다음과 같은 방법으로 진행됩니다.\n\n1. 메시지 작성 메뉴에서 새 메시지 작성\n2. 수신자 목록 업로드 또는 직접 입력\n3. 발송 예약 또는 즉시 발송 선택\n4. 발송 확인 후 전송';
-                document.getElementById('faq-popular').checked = true;
+                var row = document.querySelector('#faq-list-body tr[data-id="' + id + '"]');
+                if (row) {
+                    document.getElementById('faq-category').value = row.getAttribute('data-category') || '';
+                    document.getElementById('faq-order').value = row.querySelector('td:nth-child(1)').textContent.trim();
+                    document.getElementById('faq-use').value = row.getAttribute('data-use') || 'Y';
+                    document.getElementById('faq-question').value = row.getAttribute('data-question') || row.querySelector('td:nth-child(3)').textContent.trim();
+                    document.getElementById('faq-popular').checked = row.getAttribute('data-popular') === '1';
+                    document.getElementById('faq-answer').value = faqAnswerCache[id] !== undefined ? faqAnswerCache[id] : defaultFAQAnswerMock(id);
+                } else {
+                    document.getElementById('faq-category').value = 'usage';
+                    document.getElementById('faq-order').value = '1';
+                    document.getElementById('faq-use').value = 'Y';
+                    document.getElementById('faq-question').value = '메시지 발송 방법은?';
+                    document.getElementById('faq-answer').value = faqAnswerCache[id] !== undefined ? faqAnswerCache[id] : defaultFAQAnswerMock(id);
+                    document.getElementById('faq-popular').checked = true;
+                }
             } else {
                 document.getElementById('faq-modal-title').textContent = 'FAQ 등록';
                 document.getElementById('faq-submit-btn').textContent = '등록';
                 document.getElementById('faq-category').value = '';
                 document.getElementById('faq-order').value = '1';
+                document.getElementById('faq-use').value = 'Y';
                 document.getElementById('faq-question').value = '';
                 document.getElementById('faq-answer').value = '';
                 document.getElementById('faq-popular').checked = false;
             }
             
             openModal('faq-modal');
+        }
+
+        var faqCategoryLabels = { usage: '사용법', billing: '결제', technical: '기술' };
+
+        function countPopularFAQsInList() {
+            return document.querySelectorAll('#faq-list-body tr[data-popular="1"]').length;
+        }
+
+        /** 인기 질문이 이미 4개면 추가 체크 불가 */
+        function isPopularFAQLimitReached(forEditId) {
+            var count = countPopularFAQsInList();
+            if (!forEditId) {
+                return count >= 4;
+            }
+            var row = document.querySelector('#faq-list-body tr[data-id="' + forEditId + '"]');
+            var wasPopular = row && row.getAttribute('data-popular') === '1';
+            if (wasPopular) {
+                return false;
+            }
+            return count >= 4;
+        }
+
+        function onPopularFAQCheckboxChange() {
+            var cb = document.getElementById('faq-popular');
+            if (!cb || !cb.checked) {
+                return;
+            }
+            if (isPopularFAQLimitReached(currentFAQId)) {
+                alert('인기 질문은 최대 4개까지 등록할 수 있습니다.\n이미 4개가 등록되어 있어 추가할 수 없습니다.\n기존 항목의 인기 질문을 해제한 뒤 다시 시도해 주세요.');
+                cb.checked = false;
+            }
+        }
+
+        function defaultFAQAnswerMock(id) {
+            if (id === 1) {
+                return '메시지 발송은 다음과 같은 방법으로 진행됩니다.\n\n1. 메시지 작성 메뉴에서 새 메시지 작성\n2. 수신자 목록 업로드 또는 직접 입력\n3. 발송 예약 또는 즉시 발송 선택\n4. 발송 확인 후 전송';
+            }
+            if (id === 2) {
+                return '신용카드, 계좌이체 등으로 결제할 수 있습니다.';
+            }
+            if (id === 3) {
+                return '개발자 센터에서 API 문서를 확인할 수 있습니다.';
+            }
+            return '';
         }
         
         function editFAQ(id) {
@@ -161,6 +278,7 @@
         
         function saveFAQ() {
             const category = document.getElementById('faq-category').value;
+            const useVal = document.getElementById('faq-use').value;
             const question = document.getElementById('faq-question').value.trim();
             const answer = document.getElementById('faq-answer').value.trim();
             const isPopular = document.getElementById('faq-popular').checked;
@@ -177,8 +295,28 @@
                 showToast('답변을 입력해주세요.', 'error');
                 return;
             }
+            if (isPopular && isPopularFAQLimitReached(currentFAQId)) {
+                alert('인기 질문은 최대 4개까지 등록할 수 있습니다.\n이미 4개가 등록되어 있어 추가할 수 없습니다.\n기존 항목의 인기 질문을 해제한 뒤 다시 시도해 주세요.');
+                return;
+            }
             
             if (currentFAQId) {
+                var row = document.querySelector('#faq-list-body tr[data-id="' + currentFAQId + '"]');
+                if (row) {
+                    faqAnswerCache[currentFAQId] = answer;
+                    row.setAttribute('data-category', category);
+                    row.setAttribute('data-use', useVal);
+                    row.setAttribute('data-popular', isPopular ? '1' : '0');
+                    row.setAttribute('data-question', question);
+                    row.setAttribute('data-search', answer.replace(/\s+/g, ' ').trim().slice(0, 200));
+                    var catLabel = faqCategoryLabels[category] || category;
+                    row.querySelector('td:nth-child(2)').textContent = catLabel;
+                    row.querySelector('td:nth-child(3)').textContent = question;
+                    var popularCell = row.querySelector('td:nth-child(4)');
+                    popularCell.innerHTML = isPopular
+                        ? '<span class="badge badge-info">인기</span>'
+                        : '<span class="text-muted" style="color: #94a3b8;">-</span>';
+                }
                 showToast('FAQ가 수정되었습니다.', 'success');
             } else {
                 showToast('FAQ가 등록되었습니다.', 'success');
@@ -191,6 +329,12 @@
                 showToast('삭제되었습니다.', 'success');
             }
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            [1, 2, 3].forEach(function (id) {
+                faqAnswerCache[id] = defaultFAQAnswerMock(id);
+            });
+        });
     </script>
 </body>
 </html>
