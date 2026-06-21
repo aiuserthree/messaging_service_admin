@@ -189,30 +189,30 @@
                 </div>
                 
                 <div class="form-section">
-                    <div class="form-section-title">프로모션 내용</div>
-                    <div class="editor-container">
+                    <div class="form-section-title">프로모션 내용(PC)</div>
+                    <div class="editor-container" data-editor="pc">
                         <div class="editor-tabs">
-                            <button class="editor-tab active" onclick="switchEditorMode('visual')">비주얼 편집</button>
-                            <button class="editor-tab" onclick="switchEditorMode('html')">HTML 편집</button>
-                            <button class="editor-tab" onclick="switchEditorMode('preview')">미리보기</button>
+                            <button class="editor-tab active" onclick="switchEditorMode('visual', 'pc')">비주얼 편집</button>
+                            <button class="editor-tab" onclick="switchEditorMode('html', 'pc')">HTML 편집</button>
+                            <button class="editor-tab" onclick="switchEditorMode('preview', 'pc')">미리보기</button>
                         </div>
                         
                         <!-- 비주얼 편집 모드 -->
-                        <div id="visual-mode">
+                        <div id="visual-mode-pc">
                             <div class="editor-toolbar">
-                                <button onclick="execCmd('bold')" title="굵게"><b>B</b></button>
-                                <button onclick="execCmd('italic')" title="기울임"><i>I</i></button>
-                                <button onclick="execCmd('underline')" title="밑줄"><u>U</u></button>
-                                <button onclick="execCmd('strikeThrough')" title="취소선"><s>S</s></button>
+                                <button onclick="execCmd('bold', 'pc')" title="굵게"><b>B</b></button>
+                                <button onclick="execCmd('italic', 'pc')" title="기울임"><i>I</i></button>
+                                <button onclick="execCmd('underline', 'pc')" title="밑줄"><u>U</u></button>
+                                <button onclick="execCmd('strikeThrough', 'pc')" title="취소선"><s>S</s></button>
                                 <div class="separator"></div>
-                                <button onclick="execCmd('justifyLeft')" title="왼쪽 정렬">◀</button>
-                                <button onclick="execCmd('justifyCenter')" title="가운데 정렬">●</button>
-                                <button onclick="execCmd('justifyRight')" title="오른쪽 정렬">▶</button>
+                                <button onclick="execCmd('justifyLeft', 'pc')" title="왼쪽 정렬">◀</button>
+                                <button onclick="execCmd('justifyCenter', 'pc')" title="가운데 정렬">●</button>
+                                <button onclick="execCmd('justifyRight', 'pc')" title="오른쪽 정렬">▶</button>
                                 <div class="separator"></div>
-                                <button onclick="execCmd('insertUnorderedList')" title="글머리 기호">• 목록</button>
-                                <button onclick="execCmd('insertOrderedList')" title="번호 매기기">1. 목록</button>
+                                <button onclick="execCmd('insertUnorderedList', 'pc')" title="글머리 기호">• 목록</button>
+                                <button onclick="execCmd('insertOrderedList', 'pc')" title="번호 매기기">1. 목록</button>
                                 <div class="separator"></div>
-                                <select onchange="execCmdWithArg('fontSize', this.value); this.value='';" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
+                                <select onchange="execCmdWithArg('fontSize', this.value, 'pc'); this.value='';" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
                                     <option value="">글자 크기</option>
                                     <option value="1">아주 작게</option>
                                     <option value="2">작게</option>
@@ -222,28 +222,28 @@
                                     <option value="6">매우 크게</option>
                                     <option value="7">최대</option>
                                 </select>
-                                <input type="color" onchange="execCmdWithArg('foreColor', this.value)" title="글자 색상" style="width: 40px; height: 34px; padding: 2px; border: 1px solid #e2e8f0; border-radius: 4px; cursor: pointer;">
-                                <input type="color" onchange="execCmdWithArg('hiliteColor', this.value)" title="배경 색상" value="#ffff00" style="width: 40px; height: 34px; padding: 2px; border: 1px solid #e2e8f0; border-radius: 4px; cursor: pointer;">
+                                <input type="color" onchange="execCmdWithArg('foreColor', this.value, 'pc')" title="글자 색상" style="width: 40px; height: 34px; padding: 2px; border: 1px solid #e2e8f0; border-radius: 4px; cursor: pointer;">
+                                <input type="color" onchange="execCmdWithArg('hiliteColor', this.value, 'pc')" title="배경 색상" value="#ffff00" style="width: 40px; height: 34px; padding: 2px; border: 1px solid #e2e8f0; border-radius: 4px; cursor: pointer;">
                                 <div class="separator"></div>
-                                <button onclick="insertLink()" title="링크 삽입">🔗 링크</button>
-                                <button onclick="insertImage()" title="이미지 삽입">🖼 이미지</button>
-                                <button onclick="insertTable()" title="표 삽입">▦ 표</button>
+                                <button onclick="insertLink('pc')" title="링크 삽입">🔗 링크</button>
+                                <button onclick="insertImage('pc')" title="이미지 삽입">🖼 이미지</button>
+                                <button onclick="insertTable('pc')" title="표 삽입">▦ 표</button>
                                 <div class="separator"></div>
-                                <button onclick="execCmd('removeFormat')" title="서식 제거">서식 제거</button>
+                                <button onclick="execCmd('removeFormat', 'pc')" title="서식 제거">서식 제거</button>
                             </div>
-                            <div class="editor-content" id="visual-editor" contenteditable="true">
+                            <div class="editor-content" id="visual-editor-pc" contenteditable="true">
                                 <p>프로모션 내용을 입력하세요...</p>
                             </div>
                         </div>
                         
                         <!-- HTML 편집 모드 -->
-                        <div id="html-mode" style="display: none;">
-                            <textarea class="html-editor" id="html-editor" placeholder="HTML 코드를 직접 입력하세요..."></textarea>
+                        <div id="html-mode-pc" style="display: none;">
+                            <textarea class="html-editor" id="html-editor-pc" placeholder="HTML 코드를 직접 입력하세요..."></textarea>
                         </div>
                         
                         <!-- 미리보기 모드 -->
-                        <div id="preview-mode" style="display: none;">
-                            <div class="preview-content" id="preview-content">
+                        <div id="preview-mode-pc" style="display: none;">
+                            <div class="preview-content" id="preview-content-pc">
                                 미리보기 영역
                             </div>
                         </div>
@@ -251,7 +251,69 @@
                 </div>
                 
                 <div class="form-section">
-                    <div class="form-section-title">배너 이미지 <span style="color: #ef4444;">*</span></div>
+                    <div class="form-section-title">프로모션 내용(MO)</div>
+                    <div class="editor-container" data-editor="mo">
+                        <div class="editor-tabs">
+                            <button class="editor-tab active" onclick="switchEditorMode('visual', 'mo')">비주얼 편집</button>
+                            <button class="editor-tab" onclick="switchEditorMode('html', 'mo')">HTML 편집</button>
+                            <button class="editor-tab" onclick="switchEditorMode('preview', 'mo')">미리보기</button>
+                        </div>
+                        
+                        <!-- 비주얼 편집 모드 -->
+                        <div id="visual-mode-mo">
+                            <div class="editor-toolbar">
+                                <button onclick="execCmd('bold', 'mo')" title="굵게"><b>B</b></button>
+                                <button onclick="execCmd('italic', 'mo')" title="기울임"><i>I</i></button>
+                                <button onclick="execCmd('underline', 'mo')" title="밑줄"><u>U</u></button>
+                                <button onclick="execCmd('strikeThrough', 'mo')" title="취소선"><s>S</s></button>
+                                <div class="separator"></div>
+                                <button onclick="execCmd('justifyLeft', 'mo')" title="왼쪽 정렬">◀</button>
+                                <button onclick="execCmd('justifyCenter', 'mo')" title="가운데 정렬">●</button>
+                                <button onclick="execCmd('justifyRight', 'mo')" title="오른쪽 정렬">▶</button>
+                                <div class="separator"></div>
+                                <button onclick="execCmd('insertUnorderedList', 'mo')" title="글머리 기호">• 목록</button>
+                                <button onclick="execCmd('insertOrderedList', 'mo')" title="번호 매기기">1. 목록</button>
+                                <div class="separator"></div>
+                                <select onchange="execCmdWithArg('fontSize', this.value, 'mo'); this.value='';" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
+                                    <option value="">글자 크기</option>
+                                    <option value="1">아주 작게</option>
+                                    <option value="2">작게</option>
+                                    <option value="3">보통</option>
+                                    <option value="4">크게</option>
+                                    <option value="5">아주 크게</option>
+                                    <option value="6">매우 크게</option>
+                                    <option value="7">최대</option>
+                                </select>
+                                <input type="color" onchange="execCmdWithArg('foreColor', this.value, 'mo')" title="글자 색상" style="width: 40px; height: 34px; padding: 2px; border: 1px solid #e2e8f0; border-radius: 4px; cursor: pointer;">
+                                <input type="color" onchange="execCmdWithArg('hiliteColor', this.value, 'mo')" title="배경 색상" value="#ffff00" style="width: 40px; height: 34px; padding: 2px; border: 1px solid #e2e8f0; border-radius: 4px; cursor: pointer;">
+                                <div class="separator"></div>
+                                <button onclick="insertLink('mo')" title="링크 삽입">🔗 링크</button>
+                                <button onclick="insertImage('mo')" title="이미지 삽입">🖼 이미지</button>
+                                <button onclick="insertTable('mo')" title="표 삽입">▦ 표</button>
+                                <div class="separator"></div>
+                                <button onclick="execCmd('removeFormat', 'mo')" title="서식 제거">서식 제거</button>
+                            </div>
+                            <div class="editor-content" id="visual-editor-mo" contenteditable="true">
+                                <p>프로모션 내용을 입력하세요...</p>
+                            </div>
+                        </div>
+                        
+                        <!-- HTML 편집 모드 -->
+                        <div id="html-mode-mo" style="display: none;">
+                            <textarea class="html-editor" id="html-editor-mo" placeholder="HTML 코드를 직접 입력하세요..."></textarea>
+                        </div>
+                        
+                        <!-- 미리보기 모드 -->
+                        <div id="preview-mode-mo" style="display: none;">
+                            <div class="preview-content" id="preview-content-mo">
+                                미리보기 영역
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="form-section-title">배너 이미지(PC) <span style="color: #ef4444;">*</span></div>
                     <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">각 노출 위치에 맞는 이미지를 등록해주세요. 위치별로 권장 사이즈가 다릅니다.</p>
                     
                     <!-- 메인 (로그인 후) 이미지 -->
@@ -261,15 +323,15 @@
                                 <span class="badge badge-info" style="margin-right: 8px;">메인</span>
                                 메인 (로그인 후) 이미지 <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="file" class="form-control" id="image-main" accept="image/*" onchange="previewImageByLocation('main', this)">
+                            <input type="file" class="form-control" id="image-main-pc" accept="image/*" onchange="previewImageByLocation('main-pc', this)">
                             <div style="color: #64748b; font-size: 12px; margin-top: 8px;">
                                 📐 권장 사이즈: <strong>1200 x 400px</strong> (3:1 비율) | 최대 5MB | JPG, PNG, GIF, WebP
                             </div>
                         </div>
-                        <div class="image-preview" id="preview-main" style="display: none;">
-                            <img id="preview-img-main" src="" alt="메인 이미지 미리보기">
+                        <div class="image-preview" id="preview-main-pc" style="display: none;">
+                            <img id="preview-img-main-pc" src="" alt="메인 이미지 미리보기">
                             <div style="margin-top: 12px;">
-                                <button class="btn btn-outline btn-sm" onclick="removeImageByLocation('main')">이미지 삭제</button>
+                                <button class="btn btn-outline btn-sm" onclick="removeImageByLocation('main-pc')">이미지 삭제</button>
                             </div>
                         </div>
                     </div>
@@ -281,15 +343,15 @@
                                 <span class="badge badge-primary" style="margin-right: 8px;">프론트</span>
                                 프론트 (비로그인) 이미지 <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="file" class="form-control" id="image-front" accept="image/*" onchange="previewImageByLocation('front', this)">
+                            <input type="file" class="form-control" id="image-front-pc" accept="image/*" onchange="previewImageByLocation('front-pc', this)">
                             <div style="color: #64748b; font-size: 12px; margin-top: 8px;">
                                 📐 권장 사이즈: <strong>1200 x 400px</strong> (3:1 비율) | 최대 5MB | JPG, PNG, GIF, WebP
                             </div>
                         </div>
-                        <div class="image-preview" id="preview-front" style="display: none;">
-                            <img id="preview-img-front" src="" alt="프론트 이미지 미리보기">
+                        <div class="image-preview" id="preview-front-pc" style="display: none;">
+                            <img id="preview-img-front-pc" src="" alt="프론트 이미지 미리보기">
                             <div style="margin-top: 12px;">
-                                <button class="btn btn-outline btn-sm" onclick="removeImageByLocation('front')">이미지 삭제</button>
+                                <button class="btn btn-outline btn-sm" onclick="removeImageByLocation('front-pc')">이미지 삭제</button>
                             </div>
                         </div>
                     </div>
@@ -301,15 +363,80 @@
                                 <span class="badge badge-secondary" style="margin-right: 8px;">이벤트</span>
                                 고객센터 이벤트 이미지 <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="file" class="form-control" id="image-event" accept="image/*" onchange="previewImageByLocation('event', this)">
+                            <input type="file" class="form-control" id="image-event-pc" accept="image/*" onchange="previewImageByLocation('event-pc', this)">
                             <div style="color: #64748b; font-size: 12px; margin-top: 8px;">
                                 📐 권장 사이즈: <strong>400 x 300px</strong> (4:3 비율, 카드형) | 최대 5MB | JPG, PNG, GIF, WebP
                             </div>
                         </div>
-                        <div class="image-preview" id="preview-event" style="display: none;">
-                            <img id="preview-img-event" src="" alt="이벤트 이미지 미리보기">
+                        <div class="image-preview" id="preview-event-pc" style="display: none;">
+                            <img id="preview-img-event-pc" src="" alt="이벤트 이미지 미리보기">
                             <div style="margin-top: 12px;">
-                                <button class="btn btn-outline btn-sm" onclick="removeImageByLocation('event')">이미지 삭제</button>
+                                <button class="btn btn-outline btn-sm" onclick="removeImageByLocation('event-pc')">이미지 삭제</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="form-section-title">배너 이미지(MO) <span style="color: #ef4444;">*</span></div>
+                    <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">각 노출 위치에 맞는 이미지를 등록해주세요. 위치별로 권장 사이즈가 다릅니다.</p>
+                    
+                    <!-- 메인 (로그인 후) 이미지 -->
+                    <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 16px;">
+                        <div class="form-group">
+                            <label class="form-label" style="font-size: 15px;">
+                                <span class="badge badge-info" style="margin-right: 8px;">메인</span>
+                                메인 (로그인 후) 이미지 <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="file" class="form-control" id="image-main-mo" accept="image/*" onchange="previewImageByLocation('main-mo', this)">
+                            <div style="color: #64748b; font-size: 12px; margin-top: 8px;">
+                                📐 권장 사이즈: <strong>1200 x 400px</strong> (3:1 비율) | 최대 5MB | JPG, PNG, GIF, WebP
+                            </div>
+                        </div>
+                        <div class="image-preview" id="preview-main-mo" style="display: none;">
+                            <img id="preview-img-main-mo" src="" alt="메인 이미지 미리보기">
+                            <div style="margin-top: 12px;">
+                                <button class="btn btn-outline btn-sm" onclick="removeImageByLocation('main-mo')">이미지 삭제</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 프론트 (비로그인) 이미지 -->
+                    <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 16px;">
+                        <div class="form-group">
+                            <label class="form-label" style="font-size: 15px;">
+                                <span class="badge badge-primary" style="margin-right: 8px;">프론트</span>
+                                프론트 (비로그인) 이미지 <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="file" class="form-control" id="image-front-mo" accept="image/*" onchange="previewImageByLocation('front-mo', this)">
+                            <div style="color: #64748b; font-size: 12px; margin-top: 8px;">
+                                📐 권장 사이즈: <strong>1200 x 400px</strong> (3:1 비율) | 최대 5MB | JPG, PNG, GIF, WebP
+                            </div>
+                        </div>
+                        <div class="image-preview" id="preview-front-mo" style="display: none;">
+                            <img id="preview-img-front-mo" src="" alt="프론트 이미지 미리보기">
+                            <div style="margin-top: 12px;">
+                                <button class="btn btn-outline btn-sm" onclick="removeImageByLocation('front-mo')">이미지 삭제</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 고객센터 이벤트 이미지 -->
+                    <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
+                        <div class="form-group">
+                            <label class="form-label" style="font-size: 15px;">
+                                <span class="badge badge-secondary" style="margin-right: 8px;">이벤트</span>
+                                고객센터 이벤트 이미지 <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="file" class="form-control" id="image-event-mo" accept="image/*" onchange="previewImageByLocation('event-mo', this)">
+                            <div style="color: #64748b; font-size: 12px; margin-top: 8px;">
+                                📐 권장 사이즈: <strong>400 x 300px</strong> (4:3 비율, 카드형) | 최대 5MB | JPG, PNG, GIF, WebP
+                            </div>
+                        </div>
+                        <div class="image-preview" id="preview-event-mo" style="display: none;">
+                            <img id="preview-img-event-mo" src="" alt="이벤트 이미지 미리보기">
+                            <div style="margin-top: 12px;">
+                                <button class="btn btn-outline btn-sm" onclick="removeImageByLocation('event-mo')">이미지 삭제</button>
                             </div>
                         </div>
                     </div>
@@ -326,8 +453,28 @@
     
     <script src="js/admin-common.js"></script>
     <script>
-        let currentMode = 'visual';
+        let currentModes = { pc: 'visual', mo: 'visual' };
         let promotionId = null;
+        
+        function getEditorElements(type) {
+            return {
+                visual: document.getElementById(`visual-editor-${type}`),
+                html: document.getElementById(`html-editor-${type}`),
+                preview: document.getElementById(`preview-content-${type}`)
+            };
+        }
+        
+        function syncEditorBeforeSave(type) {
+            if (currentModes[type] === 'html') {
+                const editors = getEditorElements(type);
+                editors.visual.innerHTML = editors.html.value;
+            }
+        }
+        
+        function getEditorContent(type) {
+            syncEditorBeforeSave(type);
+            return getEditorElements(type).visual.innerHTML.trim();
+        }
         
         // URL에서 ID 파라미터 확인
         document.addEventListener('DOMContentLoaded', function() {
@@ -363,72 +510,82 @@
     ⚠️ 본 이벤트는 조기 종료될 수 있습니다.
 </p>`;
             
-            document.getElementById('visual-editor').innerHTML = content;
-            document.getElementById('html-editor').value = content;
+            document.getElementById('visual-editor-pc').innerHTML = content;
+            document.getElementById('html-editor-pc').value = content;
+            document.getElementById('visual-editor-mo').innerHTML = content;
+            document.getElementById('html-editor-mo').value = content;
         }
         
         // 에디터 모드 전환
-        function switchEditorMode(mode) {
+        function switchEditorMode(mode, type) {
+            const currentMode = currentModes[type];
+            
             // 이전 모드 데이터 동기화
-            syncEditorContent(currentMode, mode);
+            syncEditorContent(currentMode, mode, type);
             
-            currentMode = mode;
+            currentModes[type] = mode;
             
-            // 탭 활성화
-            document.querySelectorAll('.editor-tab').forEach(tab => tab.classList.remove('active'));
+            // 해당 에디터 탭만 활성화
+            const container = document.querySelector(`.editor-container[data-editor="${type}"]`);
+            container.querySelectorAll('.editor-tab').forEach(tab => tab.classList.remove('active'));
             event.target.classList.add('active');
             
             // 모드별 표시
-            document.getElementById('visual-mode').style.display = mode === 'visual' ? 'block' : 'none';
-            document.getElementById('html-mode').style.display = mode === 'html' ? 'block' : 'none';
-            document.getElementById('preview-mode').style.display = mode === 'preview' ? 'block' : 'none';
+            document.getElementById(`visual-mode-${type}`).style.display = mode === 'visual' ? 'block' : 'none';
+            document.getElementById(`html-mode-${type}`).style.display = mode === 'html' ? 'block' : 'none';
+            document.getElementById(`preview-mode-${type}`).style.display = mode === 'preview' ? 'block' : 'none';
             
             // 미리보기 업데이트
             if (mode === 'preview') {
-                document.getElementById('preview-content').innerHTML = document.getElementById('visual-editor').innerHTML;
+                const editors = getEditorElements(type);
+                editors.preview.innerHTML = editors.visual.innerHTML;
             }
         }
         
         // 에디터 내용 동기화
-        function syncEditorContent(fromMode, toMode) {
+        function syncEditorContent(fromMode, toMode, type) {
+            const editors = getEditorElements(type);
+            
             if (fromMode === 'visual' && toMode === 'html') {
-                document.getElementById('html-editor').value = document.getElementById('visual-editor').innerHTML;
+                editors.html.value = editors.visual.innerHTML;
             } else if (fromMode === 'html' && toMode === 'visual') {
-                document.getElementById('visual-editor').innerHTML = document.getElementById('html-editor').value;
+                editors.visual.innerHTML = editors.html.value;
             } else if (fromMode === 'html' && toMode === 'preview') {
-                document.getElementById('visual-editor').innerHTML = document.getElementById('html-editor').value;
+                editors.visual.innerHTML = editors.html.value;
             }
         }
         
         // 비주얼 편집기 명령 실행
-        function execCmd(command) {
+        function execCmd(command, type) {
             document.execCommand(command, false, null);
-            document.getElementById('visual-editor').focus();
+            document.getElementById(`visual-editor-${type}`).focus();
         }
         
-        function execCmdWithArg(command, arg) {
+        function execCmdWithArg(command, arg, type) {
             document.execCommand(command, false, arg);
-            document.getElementById('visual-editor').focus();
+            document.getElementById(`visual-editor-${type}`).focus();
         }
         
         // 링크 삽입
-        function insertLink() {
+        function insertLink(type) {
             const url = prompt('URL을 입력하세요:', 'https://');
             if (url) {
+                document.getElementById(`visual-editor-${type}`).focus();
                 document.execCommand('createLink', false, url);
             }
         }
         
         // 이미지 삽입
-        function insertImage() {
+        function insertImage(type) {
             const url = prompt('이미지 URL을 입력하세요:', 'https://');
             if (url) {
+                document.getElementById(`visual-editor-${type}`).focus();
                 document.execCommand('insertImage', false, url);
             }
         }
         
         // 표 삽입
-        function insertTable() {
+        function insertTable(type) {
             const rows = prompt('행 수를 입력하세요:', '3');
             const cols = prompt('열 수를 입력하세요:', '3');
             
@@ -442,6 +599,7 @@
                     table += '</tr>';
                 }
                 table += '</table>';
+                document.getElementById(`visual-editor-${type}`).focus();
                 document.execCommand('insertHTML', false, table);
             }
         }
@@ -467,12 +625,26 @@
         
         // 기존 함수 유지 (호환성)
         function previewImage(input) {
-            previewImageByLocation('main', input);
+            previewImageByLocation('main-pc', input);
         }
         
         function removeImage() {
-            removeImageByLocation('main');
+            removeImageByLocation('main-pc');
         }
+        
+        function hasBannerImage(location) {
+            const imageFile = document.getElementById(`image-${location}`).files[0];
+            return imageFile || (document.getElementById(`preview-${location}`).style.display !== 'none');
+        }
+        
+        const requiredBannerImages = [
+            { location: 'main-pc', label: 'PC 메인 (로그인 후)' },
+            { location: 'front-pc', label: 'PC 프론트 (비로그인)' },
+            { location: 'event-pc', label: 'PC 고객센터 이벤트' },
+            { location: 'main-mo', label: 'MO 메인 (로그인 후)' },
+            { location: 'front-mo', label: 'MO 프론트 (비로그인)' },
+            { location: 'event-mo', label: 'MO 고객센터 이벤트' }
+        ];
         
         // 취소
         function cancelEdit() {
@@ -483,17 +655,12 @@
         
         // 임시 저장
         function saveDraft() {
-            // HTML 모드에서 작성 중이면 동기화
-            if (currentMode === 'html') {
-                document.getElementById('visual-editor').innerHTML = document.getElementById('html-editor').value;
-            }
-            
             const data = {
                 title: document.getElementById('promotion-title').value,
-                content: document.getElementById('visual-editor').innerHTML,
+                contentPc: getEditorContent('pc'),
+                contentMo: getEditorContent('mo'),
                 startDate: document.getElementById('promotion-start-date').value,
                 endDate: document.getElementById('promotion-end-date').value,
-                location: document.getElementById('promotion-location').value,
                 status: 'draft'
             };
             
@@ -508,20 +675,9 @@
             const startDate = document.getElementById('promotion-start-date').value;
             const endDate = document.getElementById('promotion-end-date').value;
             
-            // 각 위치별 이미지 체크
-            const imageMain = document.getElementById('image-main').files[0];
-            const imageFront = document.getElementById('image-front').files[0];
-            const imageEvent = document.getElementById('image-event').files[0];
-            const hasMainImage = imageMain || (document.getElementById('preview-main').style.display !== 'none');
-            const hasFrontImage = imageFront || (document.getElementById('preview-front').style.display !== 'none');
-            const hasEventImage = imageEvent || (document.getElementById('preview-event').style.display !== 'none');
-            
-            // HTML 모드에서 작성 중이면 동기화
-            if (currentMode === 'html') {
-                document.getElementById('visual-editor').innerHTML = document.getElementById('html-editor').value;
-            }
-            
-            const content = document.getElementById('visual-editor').innerHTML.trim();
+            const contentPc = getEditorContent('pc');
+            const contentMo = getEditorContent('mo');
+            const emptyContent = '<p>프로모션 내용을 입력하세요...</p>';
             
             // 유효성 검사
             if (!title) {
@@ -532,22 +688,20 @@
                 showToast('진행 기간을 설정해주세요.', 'error');
                 return;
             }
-            if (!content || content === '<p>프로모션 내용을 입력하세요...</p>') {
-                showToast('내용을 입력해주세요.', 'error');
+            if (!contentPc || contentPc === emptyContent) {
+                showToast('PC 내용을 입력해주세요.', 'error');
                 return;
             }
-            // 배너 이미지 필수 체크 (3곳 모두)
-            if (!hasMainImage) {
-                showToast('메인 (로그인 후) 이미지를 등록해주세요.', 'error');
+            if (!contentMo || contentMo === emptyContent) {
+                showToast('MO 내용을 입력해주세요.', 'error');
                 return;
             }
-            if (!hasFrontImage) {
-                showToast('프론트 (비로그인) 이미지를 등록해주세요.', 'error');
-                return;
-            }
-            if (!hasEventImage) {
-                showToast('고객센터 이벤트 이미지를 등록해주세요.', 'error');
-                return;
+            // 배너 이미지 필수 체크 (PC/MO 각 3곳)
+            for (const banner of requiredBannerImages) {
+                if (!hasBannerImage(banner.location)) {
+                    showToast(`${banner.label} 이미지를 등록해주세요.`, 'error');
+                    return;
+                }
             }
             
             // 저장 처리
