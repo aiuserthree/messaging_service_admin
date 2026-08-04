@@ -128,6 +128,9 @@ function getSidebarHTML(activeMenu) {
                     <a href="permission-group.html" class="menu-item ${activeMenu === 'permission-group' ? 'active' : ''}">
                         <span>권한 그룹 관리</span>
                     </a>
+                    <a href="admin-account-delete.html" class="menu-item ${activeMenu === 'admin-account-delete' ? 'active' : ''}">
+                        <span>계정 삭제·권한 변경</span>
+                    </a>
                 </div>
                 
                 <div class="menu-section">

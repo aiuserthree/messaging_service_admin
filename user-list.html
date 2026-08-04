@@ -24,9 +24,12 @@
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <h3 class="card-title">관리자 목록</h3>
-                            <div class="card-description">전체 관리자 수: 5명</div>
+                            <div class="card-description">전체 관리자 수: 7명</div>
                         </div>
-                        <button class="btn btn-primary" onclick="openModal('addAdminModal')">신규 관리자 등록</button>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-outline" onclick="location.href='admin-account-delete.html'">계정 삭제·권한 변경 이력</button>
+                            <button class="btn btn-primary" onclick="openModal('addAdminModal')">신규 관리자 등록</button>
+                        </div>
                     </div>
                     <div class="table-container">
                         <table id="memberTable">
@@ -41,44 +44,7 @@
                                     <th>관리</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>admin@example.com</td>
-                                    <td>최고 관리자</td>
-                                    <td><span class="badge badge-danger">최고 관리자</span></td>
-                                    <td>2024-01-01</td>
-                                    <td>2024-11-19 14:30</td>
-                                    <td><span class="badge badge-success">정상</span></td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('editAdminModal')">수정</button>
-                                        <button class="btn btn-outline btn-sm" onclick="openModal('resetPasswordModal')">비밀번호 초기화</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>operator@example.com</td>
-                                    <td>운영 관리자</td>
-                                    <td><span class="badge badge-warning">운영 관리자</span></td>
-                                    <td>2024-01-15</td>
-                                    <td>2024-11-19 13:20</td>
-                                    <td><span class="badge badge-success">정상</span></td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('editAdminModal')">수정</button>
-                                        <button class="btn btn-outline btn-sm" onclick="openModal('resetPasswordModal')">비밀번호 초기화</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>reviewer@example.com</td>
-                                    <td>심사 관리자</td>
-                                    <td><span class="badge badge-info">심사 관리자</span></td>
-                                    <td>2024-02-01</td>
-                                    <td>2024-11-19 12:10</td>
-                                    <td><span class="badge badge-success">정상</span></td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" onclick="openModal('editAdminModal')">수정</button>
-                                        <button class="btn btn-outline btn-sm" onclick="openModal('resetPasswordModal')">비밀번호 초기화</button>
-                                    </td>
-                                </tr>
-                            </tbody>
+                            <tbody id="adminTableBody"></tbody>
                         </table>
                     </div>
                     <div class="pagination" id="pagination"></div>
@@ -399,8 +365,65 @@
     
     <script src="js/admin-common.js"></script>
     <script>
-        // 페이지네이션 생성
-        createPagination(1, 10, 'pagination');
+        // 관리자 계정 목록 (계정 삭제·권한 변경 메뉴와 동일한 계정 기준)
+        const adminAccounts = [
+            { email: 'nykim@ibank.co.kr', name: '김나영', role: '최고 관리자', createdAt: '2024-01-01', lastLogin: '2026-08-03 18:12' },
+            { email: 'jhpark@ibank.co.kr', name: '박정호', role: '최고 관리자', createdAt: '2024-01-01', lastLogin: '2026-08-04 09:05' },
+            { email: 'smlee@ibank.co.kr', name: '이수민', role: '운영 관리자', createdAt: '2024-01-15', lastLogin: '2026-08-04 08:47' },
+            { email: 'hnjung@ibank.co.kr', name: '정하늘', role: '운영 관리자', createdAt: '2024-03-02', lastLogin: '2026-08-01 17:33' },
+            { email: 'shoh@ibank.co.kr', name: '오세훈', role: '심사 관리자', createdAt: '2024-02-01', lastLogin: '2026-07-31 11:20' },
+            { email: 'jayoon@ibank.co.kr', name: '윤지아', role: '고객 지원', createdAt: '2024-02-10', lastLogin: '2026-08-04 09:12' },
+            { email: 'mskang@ibank.co.kr', name: '강민서', role: '일반 관리자', createdAt: '2025-06-11', lastLogin: '2026-01-28 14:02', status: '정지' }
+        ];
+
+        const ROLE_BADGE = {
+            '최고 관리자': 'badge-danger',
+            '운영 관리자': 'badge-warning',
+            '심사 관리자': 'badge-info',
+            '고객 지원': 'badge-secondary',
+            '일반 관리자': 'badge-secondary'
+        };
+
+        function renderAdminTable() {
+            document.getElementById('adminTableBody').innerHTML = adminAccounts.map(a => {
+                const status = a.status || '정상';
+                const statusBadge = status === '정상'
+                    ? '<span class="badge badge-success">정상</span>'
+                    : '<span class="badge badge-warning">정지</span>';
+                return `
+                    <tr>
+                        <td>${a.email}</td>
+                        <td>${a.name}</td>
+                        <td><span class="badge ${ROLE_BADGE[a.role] || 'badge-secondary'}">${a.role}</span></td>
+                        <td>${a.createdAt}</td>
+                        <td>${a.lastLogin}</td>
+                        <td>${statusBadge}</td>
+                        <td style="white-space: nowrap;">
+                            <button class="btn btn-primary btn-sm" onclick="openModal('editAdminModal')">수정</button>
+                            <button class="btn btn-outline btn-sm" onclick="openModal('resetPasswordModal')">비밀번호 초기화</button>
+                            <button class="btn btn-secondary btn-sm" onclick="requestRoleChange('${a.email}')">권한 변경 신청</button>
+                            <button class="btn btn-danger btn-sm" onclick="requestAccountDelete('${a.email}')">계정 삭제 신청</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 계정 삭제(탈퇴·말소) 신청 화면으로 이동
+        function requestAccountDelete(email) {
+            location.href = 'admin-account-delete.html?action=delete&email=' + encodeURIComponent(email);
+        }
+
+        // 권한 변경 신청 화면으로 이동
+        function requestRoleChange(email) {
+            location.href = 'admin-account-delete.html?action=change&email=' + encodeURIComponent(email);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            renderAdminTable();
+            // 페이지네이션 생성
+            createPagination(1, 1, 'pagination');
+        });
     </script>
 </body>
 </html>
