@@ -81,6 +81,60 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// ===== 최고 관리자 전용 UI 제어 =====
+const SUPER_ADMIN_ROLE = '최고 관리자';
+
+// 화면 확인용 로그인 계정 (실제 개발 시 로그인 세션 값으로 대체)
+const DEFAULT_ADMIN = { name: '박정호', email: 'jhpark@ibank.co.kr', role: SUPER_ADMIN_ROLE };
+
+function getCurrentAdmin() {
+    try {
+        const saved = sessionStorage.getItem('currentAdmin');
+        if (saved) return JSON.parse(saved);
+    } catch (e) {
+        // 저장값이 손상된 경우 기본 계정으로 복귀
+    }
+    return DEFAULT_ADMIN;
+}
+
+function setCurrentAdmin(admin) {
+    sessionStorage.setItem('currentAdmin', JSON.stringify(admin));
+}
+
+function isSuperAdmin(role) {
+    return (role || getCurrentAdmin().role) === SUPER_ADMIN_ROLE;
+}
+
+// .super-only: 최고 관리자에게만 노출 (숨김 + 비활성화)
+// .super-denied: 최고 관리자가 아닐 때만 노출 (권한 안내용)
+function applySuperAdminGuard(role) {
+    const allowed = isSuperAdmin(role);
+
+    document.querySelectorAll('.super-only').forEach(el => {
+        el.style.display = allowed ? '' : 'none';
+        if ('disabled' in el) el.disabled = !allowed;
+    });
+    document.querySelectorAll('.super-denied').forEach(el => {
+        el.style.display = allowed ? 'none' : '';
+    });
+
+    // 헤더의 로그인 계정 표시 동기화
+    const admin = getCurrentAdmin();
+    const nameLabel = document.querySelector('.admin-header .user-name');
+    const roleLabel = document.querySelector('.admin-header .user-role');
+    if (nameLabel) nameLabel.textContent = admin.name;
+    if (roleLabel) roleLabel.textContent = admin.role;
+
+    return allowed;
+}
+
+// 최고 관리자 전용 동작 진입 차단 (버튼을 숨겨도 함수 호출은 막아야 함)
+function requireSuperAdmin() {
+    if (isSuperAdmin()) return true;
+    showToast('최고 관리자만 수행할 수 있습니다.', 'error');
+    return false;
+}
+
 // 모달 열기/닫기
 function openModal(modalId) {
     const modal = document.getElementById(modalId);

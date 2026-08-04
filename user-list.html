@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>관리자 계정 관리 - 관리자 시스템</title>
     <link rel="stylesheet" href="css/admin-common.css">
+    <style>
+        /* flex 아이템 기본값(min-width:auto) 때문에 넓은 표가 본문을 밀어내는 것을 방지 */
+        .admin-main { min-width: 0; }
+        /* 관리 열의 버튼이 많아 셀 내용이 세로로 접히지 않도록 고정 (좁은 화면에서는 가로 스크롤) */
+        .table-container th,
+        .table-container td { white-space: nowrap; }
+        .denied-box {
+            padding: 16px 20px;
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            color: #92400e;
+            line-height: 1.7;
+        }
+        /* 화면 확인용 권한 시뮬레이터 — 실제 개발 시 제거하고 로그인 세션의 권한을 사용 */
+        .role-sim { font-size: 12px; color: var(--admin-text-secondary); }
+        .role-sim-select { width: auto; padding: 4px 8px; font-size: 12px; }
+    </style>
 </head>
 <body>
     <div class="admin-container">
@@ -19,16 +39,23 @@
             </script>
             
             <div class="admin-content">
+                <div class="denied-box super-denied" style="display: none;">
+                    현재 로그인한 계정(<span id="denied-who">-</span>)은 최고 관리자가 아니므로 <strong>관리자 목록 조회만</strong> 가능합니다.
+                    관리자 등록·수정·비밀번호 초기화·권한 변경·계정 삭제 버튼은 표시되지 않습니다.
+                </div>
+
                 <!-- 관리자 목록 -->
                 <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                         <div>
                             <h3 class="card-title">관리자 목록</h3>
-                            <div class="card-description">전체 관리자 수: 7명</div>
+                            <div class="card-description">전체 관리자 수: <span id="adminCount">0</span>명</div>
                         </div>
-                        <div style="display: flex; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="role-sim">화면 확인용 로그인 권한</span>
+                            <select class="form-control role-sim-select" id="role-sim" onchange="switchCurrentAdmin(this.value)"></select>
                             <button class="btn btn-outline" onclick="location.href='admin-account-delete.html'">계정 삭제·권한 변경 이력</button>
-                            <button class="btn btn-primary" onclick="openModal('addAdminModal')">신규 관리자 등록</button>
+                            <button class="btn btn-primary super-only" onclick="openModal('addAdminModal')">신규 관리자 등록</button>
                         </div>
                     </div>
                     <div class="table-container">
@@ -81,6 +108,7 @@
                         <option value="OPERATOR">운영 관리자</option>
                         <option value="REVIEWER">심사 관리자</option>
                         <option value="SUPPORT">고객 지원</option>
+                        <option value="GENERAL">일반 관리자</option>
                     </select>
                 </div>
             </div>
@@ -114,6 +142,7 @@
                         <option value="OPERATOR">운영 관리자</option>
                         <option value="REVIEWER">심사 관리자</option>
                         <option value="SUPPORT">고객 지원</option>
+                        <option value="GENERAL">일반 관리자</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -399,28 +428,54 @@
                         <td>${a.lastLogin}</td>
                         <td>${statusBadge}</td>
                         <td style="white-space: nowrap;">
-                            <button class="btn btn-primary btn-sm" onclick="openModal('editAdminModal')">수정</button>
-                            <button class="btn btn-outline btn-sm" onclick="openModal('resetPasswordModal')">비밀번호 초기화</button>
-                            <button class="btn btn-secondary btn-sm" onclick="requestRoleChange('${a.email}')">권한 변경 신청</button>
-                            <button class="btn btn-danger btn-sm" onclick="requestAccountDelete('${a.email}')">계정 삭제 신청</button>
+                            <button class="btn btn-primary btn-sm super-only" onclick="openModal('editAdminModal')">수정</button>
+                            <button class="btn btn-outline btn-sm super-only" onclick="openModal('resetPasswordModal')">비밀번호 초기화</button>
+                            <button class="btn btn-secondary btn-sm super-only" onclick="requestRoleChange('${a.email}')">권한 변경</button>
+                            <button class="btn btn-danger btn-sm super-only" onclick="requestAccountDelete('${a.email}')">계정 삭제</button>
+                            <span class="super-denied" style="color: var(--admin-text-muted); display: none;">조회 전용</span>
                         </td>
                     </tr>
                 `;
             }).join('');
         }
 
-        // 계정 삭제(탈퇴·말소) 신청 화면으로 이동
+        // 계정 삭제(탈퇴·말소) 처리 화면으로 이동 — 최고 관리자 전용
         function requestAccountDelete(email) {
+            if (!requireSuperAdmin()) return;
             location.href = 'admin-account-delete.html?action=delete&email=' + encodeURIComponent(email);
         }
 
-        // 권한 변경 신청 화면으로 이동
+        // 권한 변경 처리 화면으로 이동 — 최고 관리자 전용
         function requestRoleChange(email) {
+            if (!requireSuperAdmin()) return;
             location.href = 'admin-account-delete.html?action=change&email=' + encodeURIComponent(email);
+        }
+
+        // 화면 확인용 로그인 권한 전환 (실제 개발 시 제거하고 로그인 세션의 권한을 사용)
+        function switchCurrentAdmin(email) {
+            const account = adminAccounts.find(a => a.email === email);
+            if (account) setCurrentAdmin(account);
+            applyGuard();
+        }
+
+        function applyGuard() {
+            const admin = getCurrentAdmin();
+            document.getElementById('denied-who').textContent = `${admin.name} / ${admin.role}`;
+            applySuperAdminGuard(admin.role);
+        }
+
+        function renderRoleSimulator() {
+            const current = getCurrentAdmin().email;
+            document.getElementById('role-sim').innerHTML = adminAccounts.map(a =>
+                `<option value="${a.email}" ${a.email === current ? 'selected' : ''}>${a.name} — ${a.role}</option>`
+            ).join('');
         }
 
         document.addEventListener('DOMContentLoaded', function () {
             renderAdminTable();
+            renderRoleSimulator();
+            applyGuard();
+            document.getElementById('adminCount').textContent = adminAccounts.length;
             // 페이지네이션 생성
             createPagination(1, 1, 'pagination');
         });

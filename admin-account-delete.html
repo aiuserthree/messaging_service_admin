@@ -9,6 +9,9 @@
         .tab-content { margin-top: 24px; }
         /* flex 아이템 기본값(min-width:auto) 때문에 넓은 표가 본문을 밀어내는 것을 방지 */
         .admin-main { min-width: 0; }
+        /* 열이 많은 표라 헤더·본문이 세로로 접히지 않도록 고정 (좁은 화면에서는 가로 스크롤) */
+        .table-container th,
+        .table-container td { white-space: nowrap; }
         .notice-box {
             padding: 16px 20px;
             background: #fef2f2;
@@ -26,12 +29,18 @@
             color: #991b1b;
             line-height: 1.7;
         }
-        /* 열이 많은 표라 헤더·본문이 세로로 접히지 않도록 고정 (좁은 화면에서는 가로 스크롤) */
-        .table-container th,
-        .table-container td { white-space: nowrap; }
+        .denied-box {
+            padding: 16px 20px;
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            color: #92400e;
+            line-height: 1.7;
+        }
         .reason-cell {
             max-width: 260px;
-            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
@@ -52,6 +61,19 @@
             color: var(--admin-text-muted);
             padding: 40px 0;
         }
+        /* 화면 확인용 권한 시뮬레이터 — 실제 개발 시 제거하고 로그인 세션의 권한을 사용 */
+        .role-sim {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--admin-text-secondary);
+        }
+        .role-sim select {
+            width: auto;
+            padding: 4px 8px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -68,53 +90,67 @@
 
             <div class="admin-content">
                 <div class="notice-box">
-                    <div class="notice-title">관리자 계정 삭제(탈퇴·말소) 및 권한 변경 이력 관리</div>
-                    <div class="notice-desc">
-                        관리자 계정을 삭제(탈퇴·말소)하거나 권한을 변경할 때는 반드시 신청 → 승인 → 처리 절차를 거치며,
-                        <strong>관리자 이름 · 계정 이메일(아이디) · 관리자 권한 · 신청 일자 · 삭제(변경) 일자 · 사유 · 승인자 · 처리자</strong>가 이력으로 남습니다.
-                        처리 이력은 삭제·수정할 수 없으며 <strong>작업 로그</strong>와 <strong>보안 감사</strong>에 함께 기록됩니다.
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 320px;">
+                            <div class="notice-title">관리자 계정 삭제(탈퇴·말소) 및 권한 변경</div>
+                            <div class="notice-desc">
+                                계정 삭제와 권한 변경은 <strong>최고 관리자만</strong> 수행할 수 있으며, 실행 즉시 반영됩니다.
+                                처리 시 <strong>관리자 이름 · 계정 이메일(아이디) · 관리자 권한 · 신청 일자 · 삭제(변경) 일자 · 사유 · 승인자 · 처리자</strong>가
+                                이력으로 기록되며, 기록은 수정·삭제할 수 없습니다.
+                                (운영정책서 11.2.2 — 권한이 불필요해진 경우 지체 없이 말소하고 기록으로 관리, 분기 1회 검토·감사)
+                            </div>
+                        </div>
+                        <div class="role-sim">
+                            <span>화면 확인용 로그인 권한</span>
+                            <select class="form-control" id="role-sim" onchange="switchCurrentAdmin(this.value)"></select>
+                        </div>
                     </div>
+                </div>
+
+                <div class="denied-box super-denied" style="display: none;">
+                    현재 로그인한 계정(<span id="denied-who">-</span>)은 최고 관리자가 아니므로 <strong>이력 조회만</strong> 가능합니다.
+                    계정 삭제 및 권한 변경 버튼은 표시되지 않습니다. 처리가 필요하면 최고 관리자에게 요청하세요.
                 </div>
 
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-card-header">
-                            <span class="stat-card-title">삭제 신청 대기</span>
-                            <div class="stat-card-icon icon-pending">⏳</div>
+                            <span class="stat-card-title">현재 관리자 수</span>
+                            <div class="stat-card-icon icon-user">👤</div>
                         </div>
-                        <div class="stat-card-value" id="stat-delete-pending">0</div>
-                        <div class="stat-card-change">승인이 필요한 계정 삭제 신청</div>
+                        <div class="stat-card-value" id="stat-admins">0</div>
+                        <div class="stat-card-change">활성 상태의 관리자 계정</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-header">
-                            <span class="stat-card-title">권한 변경 대기</span>
+                            <span class="stat-card-title">계정 삭제(말소)</span>
+                            <div class="stat-card-icon icon-fail">🗑</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-deleted">0</div>
+                        <div class="stat-card-change">조회 기간 내 삭제 처리 건수</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">권한 변경</span>
                             <div class="stat-card-icon icon-processing">🔄</div>
                         </div>
-                        <div class="stat-card-value" id="stat-change-pending">0</div>
-                        <div class="stat-card-change">승인이 필요한 권한 변경 신청</div>
+                        <div class="stat-card-value" id="stat-changed">0</div>
+                        <div class="stat-card-change">조회 기간 내 권한 변경 건수</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-header">
-                            <span class="stat-card-title">처리 완료</span>
-                            <div class="stat-card-icon icon-success">✓</div>
+                            <span class="stat-card-title">최근 처리일</span>
+                            <div class="stat-card-icon icon-chart">📋</div>
                         </div>
-                        <div class="stat-card-value" id="stat-completed">0</div>
-                        <div class="stat-card-change positive">삭제·변경 처리가 완료된 건수</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <span class="stat-card-title">반려</span>
-                            <div class="stat-card-icon icon-fail">!</div>
-                        </div>
-                        <div class="stat-card-value" id="stat-rejected">0</div>
-                        <div class="stat-card-change negative">승인자가 반려한 신청</div>
+                        <div class="stat-card-value" id="stat-last" style="font-size: 22px;">-</div>
+                        <div class="stat-card-change">가장 최근 삭제·변경 처리 일자</div>
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="search-filter-bar" style="margin-bottom: 0;">
                         <div class="filter-item">
-                            <label class="form-label">신청 기간</label>
+                            <label class="form-label">처리 기간</label>
                             <input type="date" class="form-control" id="filter-from" value="2025-01-01">
                         </div>
                         <div class="filter-item">
@@ -125,16 +161,6 @@
                             <label class="form-label">관리자 권한</label>
                             <select class="form-control" id="filter-role">
                                 <option value="">전체</option>
-                            </select>
-                        </div>
-                        <div class="filter-item">
-                            <label class="form-label">처리 상태</label>
-                            <select class="form-control" id="filter-status">
-                                <option value="">전체</option>
-                                <option value="pending">승인 대기</option>
-                                <option value="approved">승인 완료(처리 대기)</option>
-                                <option value="completed">처리 완료</option>
-                                <option value="rejected">반려</option>
                             </select>
                         </div>
                         <div class="search-box">
@@ -159,19 +185,19 @@
                     <div class="card">
                         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <h3 class="card-title">관리자 계정 삭제 신청 내역</h3>
+                                <h3 class="card-title">관리자 계정 삭제 이력</h3>
                                 <div class="card-description">조회 건수: <span id="delete-count">0</span>건</div>
                             </div>
                             <div style="display: flex; gap: 8px;">
                                 <button class="btn btn-outline" onclick="exportExcel('계정 삭제')">엑셀 다운로드</button>
-                                <button class="btn btn-danger" onclick="openDeleteRequestModal()">계정 삭제 신청</button>
+                                <button class="btn btn-danger super-only" onclick="openDeleteModal()">계정 삭제</button>
                             </div>
                         </div>
                         <div class="table-container">
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>신청번호</th>
+                                        <th>처리번호</th>
                                         <th>관리자 이름</th>
                                         <th>계정 이메일(아이디)</th>
                                         <th>관리자 권한</th>
@@ -181,7 +207,6 @@
                                         <th>삭제 사유</th>
                                         <th>승인자</th>
                                         <th>처리자</th>
-                                        <th>상태</th>
                                         <th>관리</th>
                                     </tr>
                                 </thead>
@@ -197,19 +222,19 @@
                     <div class="card">
                         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <h3 class="card-title">관리자 권한 변경 신청 내역</h3>
+                                <h3 class="card-title">관리자 권한 변경 이력</h3>
                                 <div class="card-description">조회 건수: <span id="change-count">0</span>건</div>
                             </div>
                             <div style="display: flex; gap: 8px;">
                                 <button class="btn btn-outline" onclick="exportExcel('권한 변경')">엑셀 다운로드</button>
-                                <button class="btn btn-primary" onclick="openChangeRequestModal()">권한 변경 신청</button>
+                                <button class="btn btn-primary super-only" onclick="openChangeModal()">권한 변경</button>
                             </div>
                         </div>
                         <div class="table-container">
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>신청번호</th>
+                                        <th>처리번호</th>
                                         <th>관리자 이름</th>
                                         <th>계정 이메일(아이디)</th>
                                         <th>변경 전 권한</th>
@@ -219,7 +244,6 @@
                                         <th>변경 사유</th>
                                         <th>승인자</th>
                                         <th>처리자</th>
-                                        <th>상태</th>
                                         <th>관리</th>
                                     </tr>
                                 </thead>
@@ -244,7 +268,7 @@
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>신청번호</th>
+                                        <th>처리번호</th>
                                         <th>구분</th>
                                         <th>관리자 이름</th>
                                         <th>계정 이메일(아이디)</th>
@@ -254,7 +278,6 @@
                                         <th>사유</th>
                                         <th>승인자</th>
                                         <th>처리자</th>
-                                        <th>상태</th>
                                         <th>관리</th>
                                     </tr>
                                 </thead>
@@ -268,12 +291,12 @@
         </main>
     </div>
 
-    <!-- 계정 삭제 신청 모달 -->
-    <div id="delete-request-modal" class="modal">
+    <!-- 계정 삭제 처리 모달 -->
+    <div id="delete-modal" class="modal">
         <div class="modal-content" style="max-width: 700px;">
             <div class="modal-header">
-                <h3 class="modal-title">관리자 계정 삭제 신청</h3>
-                <button class="modal-close" onclick="closeModal('delete-request-modal')">&times;</button>
+                <h3 class="modal-title">관리자 계정 삭제(탈퇴·말소)</h3>
+                <button class="modal-close" onclick="closeModal('delete-modal')">&times;</button>
             </div>
             <div style="padding: 24px; max-height: 70vh; overflow-y: auto;">
                 <div class="form-group">
@@ -304,10 +327,8 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">승인 요청 대상(승인자) <span style="color: var(--admin-danger);">*</span></label>
-                        <select class="form-control" id="del-approver">
-                            <option value="">선택하세요</option>
-                        </select>
+                        <label class="form-label">승인자</label>
+                        <input type="text" class="form-control" id="del-approver" placeholder="오프라인 결재자가 있으면 입력">
                     </div>
                 </div>
                 <div class="info-grid">
@@ -316,34 +337,39 @@
                         <input type="date" class="form-control" id="del-request-date">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">삭제 예정 일자 <span style="color: var(--admin-danger);">*</span></label>
+                        <label class="form-label">삭제 일자 <span style="color: var(--admin-danger);">*</span></label>
                         <input type="date" class="form-control" id="del-delete-date">
                     </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">처리자</label>
+                    <div class="form-control readonly-field" id="del-processor">-</div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">삭제 사유 <span style="color: var(--admin-danger);">*</span></label>
                     <textarea class="form-control" id="del-reason" rows="3" placeholder="예) 부서 이동으로 인한 관리자 권한 말소"></textarea>
                 </div>
-                <div style="padding: 12px 16px; background-color: #fef3c7; border-radius: 8px;">
-                    <div style="font-size: 12px; color: #92400e; line-height: 1.7;">
-                        계정 삭제 시 로그인·권한은 즉시 회수되며, 해당 관리자가 남긴 작업 로그와 감사 기록은 보관 정책에 따라 유지됩니다.
-                        최고 관리자 계정은 다른 최고 관리자의 승인이 있어야 삭제할 수 있습니다.
+                <div style="padding: 12px 16px; background-color: #fef2f2; border-radius: 8px;">
+                    <div style="font-size: 12px; color: #b91c1c; line-height: 1.7;">
+                        <strong>삭제는 즉시 반영되며 되돌릴 수 없습니다.</strong>
+                        실행 즉시 해당 계정의 로그인과 모든 권한이 회수되고, 남긴 작업 로그·감사 기록은 보관 정책에 따라 유지됩니다.
+                        본인 계정과 마지막 남은 최고 관리자 계정은 삭제할 수 없습니다.
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('delete-request-modal')">취소</button>
-                <button class="btn btn-danger" onclick="submitDeleteRequest()">삭제 신청</button>
+                <button class="btn btn-outline" onclick="closeModal('delete-modal')">취소</button>
+                <button class="btn btn-danger" onclick="executeDelete()">삭제 처리</button>
             </div>
         </div>
     </div>
 
-    <!-- 권한 변경 신청 모달 -->
-    <div id="change-request-modal" class="modal">
+    <!-- 권한 변경 처리 모달 -->
+    <div id="change-modal" class="modal">
         <div class="modal-content" style="max-width: 700px;">
             <div class="modal-header">
-                <h3 class="modal-title">관리자 권한 변경 신청</h3>
-                <button class="modal-close" onclick="closeModal('change-request-modal')">&times;</button>
+                <h3 class="modal-title">관리자 권한 변경</h3>
+                <button class="modal-close" onclick="closeModal('change-modal')">&times;</button>
             </div>
             <div style="padding: 24px; max-height: 70vh; overflow-y: auto;">
                 <div class="form-group">
@@ -370,10 +396,8 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">승인 요청 대상(승인자) <span style="color: var(--admin-danger);">*</span></label>
-                        <select class="form-control" id="chg-approver">
-                            <option value="">선택하세요</option>
-                        </select>
+                        <label class="form-label">승인자</label>
+                        <input type="text" class="form-control" id="chg-approver" placeholder="오프라인 결재자가 있으면 입력">
                     </div>
                 </div>
                 <div class="info-grid">
@@ -382,9 +406,13 @@
                         <input type="date" class="form-control" id="chg-request-date">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">변경 예정 일자 <span style="color: var(--admin-danger);">*</span></label>
+                        <label class="form-label">변경 일자 <span style="color: var(--admin-danger);">*</span></label>
                         <input type="date" class="form-control" id="chg-change-date">
                     </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">처리자</label>
+                    <div class="form-control readonly-field" id="chg-processor">-</div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">변경 사유 <span style="color: var(--admin-danger);">*</span></label>
@@ -392,129 +420,80 @@
                 </div>
                 <div style="padding: 12px 16px; background-color: #eff6ff; border-radius: 8px;">
                     <div style="font-size: 12px; color: #1e40af; line-height: 1.7;">
-                        권한 상향(최고 관리자 부여)은 승인자 지정이 필수이며, 변경 전·후 권한과 사유가 감사 이력에 그대로 기록됩니다.
+                        변경은 즉시 반영되어 해당 관리자의 메뉴 접근 권한이 교체되며, 변경 전·후 권한과 사유가 감사 이력에 기록됩니다.
+                        마지막 남은 최고 관리자의 권한은 하향할 수 없습니다.
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('change-request-modal')">취소</button>
-                <button class="btn btn-primary" onclick="submitChangeRequest()">변경 신청</button>
+                <button class="btn btn-outline" onclick="closeModal('change-modal')">취소</button>
+                <button class="btn btn-primary" onclick="executeChange()">변경 처리</button>
             </div>
         </div>
     </div>
 
-    <!-- 상세/처리 모달 -->
-    <div id="process-modal" class="modal">
-        <div class="modal-content" style="max-width: 760px;">
+    <!-- 이력 상세 모달 -->
+    <div id="detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 720px;">
             <div class="modal-header">
-                <h3 class="modal-title" id="process-title">신청 상세</h3>
-                <button class="modal-close" onclick="closeModal('process-modal')">&times;</button>
+                <h3 class="modal-title" id="dt-title">처리 이력 상세</h3>
+                <button class="modal-close" onclick="closeModal('detail-modal')">&times;</button>
             </div>
             <div style="padding: 24px; max-height: 70vh; overflow-y: auto;">
-                <h4 style="margin-bottom: 16px;">신청 정보</h4>
                 <div class="info-grid">
                     <div class="form-group">
-                        <label class="form-label">신청번호</label>
-                        <div class="form-control readonly-field" id="pr-id">-</div>
+                        <label class="form-label">처리번호</label>
+                        <div class="form-control readonly-field" id="dt-id">-</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">구분</label>
-                        <div class="form-control readonly-field" id="pr-kind">-</div>
+                        <div class="form-control readonly-field" id="dt-kind">-</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">관리자 이름</label>
-                        <div class="form-control readonly-field" id="pr-name">-</div>
+                        <div class="form-control readonly-field" id="dt-name">-</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">계정 이메일(아이디)</label>
-                        <div class="form-control readonly-field" id="pr-email">-</div>
+                        <div class="form-control readonly-field" id="dt-email">-</div>
                     </div>
-                    <div class="form-group" id="pr-role-wrap">
-                        <label class="form-label">관리자 권한</label>
-                        <div class="form-control readonly-field" id="pr-role">-</div>
+                    <div class="form-group">
+                        <label class="form-label" id="dt-role-label">관리자 권한</label>
+                        <div class="form-control readonly-field" id="dt-role">-</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">신청 일자</label>
-                        <div class="form-control readonly-field" id="pr-request-date">-</div>
+                        <div class="form-control readonly-field" id="dt-request-date">-</div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" id="pr-action-date-label">삭제 일자</label>
-                        <div class="form-control readonly-field" id="pr-action-date">-</div>
+                        <label class="form-label" id="dt-action-date-label">삭제 일자</label>
+                        <div class="form-control readonly-field" id="dt-action-date">-</div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">신청자</label>
-                        <div class="form-control readonly-field" id="pr-requester">-</div>
+                        <label class="form-label">승인자</label>
+                        <div class="form-control readonly-field" id="dt-approver">-</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">처리자</label>
+                        <div class="form-control readonly-field" id="dt-processor">-</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">처리 일시</label>
+                        <div class="form-control readonly-field" id="dt-logged">-</div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" id="pr-reason-label">삭제 사유</label>
-                    <div class="form-control readonly-field" id="pr-reason" style="min-height: 60px;">-</div>
+                    <label class="form-label" id="dt-reason-label">삭제 사유</label>
+                    <div class="form-control readonly-field" id="dt-reason" style="min-height: 60px; white-space: pre-wrap;">-</div>
                 </div>
-
-                <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--admin-border);">
-                    <h4 style="margin-bottom: 16px;">승인·처리 정보</h4>
-                    <div class="info-grid">
-                        <div class="form-group">
-                            <label class="form-label">승인자</label>
-                            <div class="form-control readonly-field" id="pr-approver">-</div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">처리자</label>
-                            <div class="form-control readonly-field" id="pr-processor">-</div>
-                        </div>
-                    </div>
-                    <div class="form-group" id="pr-reject-wrap" style="display: none;">
-                        <label class="form-label">반려 사유</label>
-                        <div class="form-control readonly-field" id="pr-reject-reason" style="min-height: 60px;">-</div>
-                    </div>
-                </div>
-
-                <!-- 승인 대기 상태 처리 영역 -->
-                <div id="pr-approve-area" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--admin-border); display: none;">
-                    <h4 style="margin-bottom: 16px;">승인 처리</h4>
-                    <div class="info-grid">
-                        <div class="form-group">
-                            <label class="form-label">승인 결과 <span style="color: var(--admin-danger);">*</span></label>
-                            <select class="form-control" id="pr-decision" onchange="toggleRejectInput()">
-                                <option value="approved">승인</option>
-                                <option value="rejected">반려</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">승인자 <span style="color: var(--admin-danger);">*</span></label>
-                            <input type="text" class="form-control" id="pr-approver-input" placeholder="승인자 이름">
-                        </div>
-                    </div>
-                    <div class="form-group" id="pr-reject-input-wrap" style="display: none;">
-                        <label class="form-label">반려 사유 <span style="color: var(--admin-danger);">*</span></label>
-                        <textarea class="form-control" id="pr-reject-input" rows="3" placeholder="반려 사유를 입력하세요"></textarea>
-                    </div>
-                </div>
-
-                <!-- 승인 완료 상태 처리 영역 -->
-                <div id="pr-execute-area" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--admin-border); display: none;">
-                    <h4 style="margin-bottom: 16px;" id="pr-execute-title">삭제 처리</h4>
-                    <div class="info-grid">
-                        <div class="form-group">
-                            <label class="form-label">처리자 <span style="color: var(--admin-danger);">*</span></label>
-                            <input type="text" class="form-control" id="pr-processor-input" placeholder="처리자 이름">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" id="pr-execute-date-label">삭제 일자 <span style="color: var(--admin-danger);">*</span></label>
-                            <input type="date" class="form-control" id="pr-execute-date">
-                        </div>
-                    </div>
-                    <div style="padding: 12px 16px; background-color: #fef2f2; border-radius: 8px;">
-                        <div style="font-size: 12px; color: #b91c1c; line-height: 1.7;" id="pr-execute-warning">
-                            처리 후에는 되돌릴 수 없습니다. 처리 즉시 해당 계정의 로그인과 모든 권한이 회수됩니다.
-                        </div>
+                <div style="padding: 12px 16px; background-color: #f8fafc; border-radius: 8px;">
+                    <div style="font-size: 12px; color: var(--admin-text-secondary); line-height: 1.7;">
+                        이 이력은 수정·삭제할 수 없으며, 작업 로그 및 보안 감사에 함께 기록됩니다.
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('process-modal')">닫기</button>
-                <button class="btn btn-primary" id="pr-approve-btn" style="display: none;" onclick="submitApproval()">승인 처리</button>
-                <button class="btn btn-danger" id="pr-execute-btn" style="display: none;" onclick="submitExecution()">처리 완료</button>
+                <button class="btn btn-outline" onclick="closeModal('detail-modal')">닫기</button>
             </div>
         </div>
     </div>
@@ -523,15 +502,10 @@
     <script>
         // 권한 그룹 (권한 그룹 관리 메뉴와 동일한 목록)
         const PERMISSION_GROUPS = ['최고 관리자', '운영 관리자', '심사 관리자', '고객 지원', '일반 관리자'];
-
-        // 승인 권한을 가진 관리자
-        const APPROVERS = ['박정호 (정보보호팀장)', '한동석 (서비스운영팀장)', '최민준 (최고 관리자)'];
-
-        // 현재 로그인한 관리자
-        const CURRENT_ADMIN = '이수민';
+        const SUPER_ADMIN = '최고 관리자';
 
         // 관리자 계정 목록 (관리자 계정 관리 메뉴 연동)
-        const ADMIN_ACCOUNTS = [
+        let adminAccounts = [
             { name: '김나영', email: 'nykim@ibank.co.kr', role: '최고 관리자' },
             { name: '박정호', email: 'jhpark@ibank.co.kr', role: '최고 관리자' },
             { name: '이수민', email: 'smlee@ibank.co.kr', role: '운영 관리자' },
@@ -541,95 +515,55 @@
             { name: '강민서', email: 'mskang@ibank.co.kr', role: '일반 관리자' }
         ];
 
-        // 계정 삭제(탈퇴·말소) 신청 데이터
-        let deleteRequests = [
+        // 현재 로그인한 관리자 (admin-common.js — 실제 개발 시 로그인 세션 값으로 대체)
+        let currentAdmin = getCurrentAdmin();
+
+        // 계정 삭제(탈퇴·말소) 이력
+        let deleteHistory = [
             {
                 id: 'DEL-2026-0001', name: '김나영', email: 'nykim@ibank.co.kr', role: '최고 관리자',
                 type: '권한 말소', requestDate: '2026-01-01', actionDate: '2026-01-01',
                 reason: '부서 이동으로 인한 관리자 권한 말소',
-                requester: '한동석', approver: '박정호 (정보보호팀장)', processor: '이수민',
-                status: 'completed', rejectReason: ''
+                approver: '박정호 (정보보호팀장)', processor: '이수민', loggedAt: '2026-01-01 14:22:05'
             },
             {
                 id: 'DEL-2026-0002', name: '오세훈', email: 'shoh@ibank.co.kr', role: '심사 관리자',
                 type: '퇴사 삭제', requestDate: '2026-02-10', actionDate: '2026-02-12',
                 reason: '2026-02-12 자 퇴사에 따른 관리자 계정 삭제',
-                requester: '윤지아', approver: '한동석 (서비스운영팀장)', processor: '이수민',
-                status: 'completed', rejectReason: ''
-            },
-            {
-                id: 'DEL-2026-0003', name: '강민서', email: 'mskang@ibank.co.kr', role: '일반 관리자',
-                type: '장기 미접속', requestDate: '2026-07-20', actionDate: '2026-08-10',
-                reason: '6개월 이상 미접속 계정으로 보안 정책에 따라 삭제 신청',
-                requester: '이수민', approver: '박정호 (정보보호팀장)', processor: '',
-                status: 'approved', rejectReason: ''
-            },
-            {
-                id: 'DEL-2026-0004', name: '정하늘', email: 'hnjung@ibank.co.kr', role: '운영 관리자',
-                type: '권한 말소', requestDate: '2026-08-01', actionDate: '',
-                reason: '타 부서 전출로 인한 어드민 접근 권한 말소 요청',
-                requester: '한동석', approver: '', processor: '',
-                status: 'pending', rejectReason: ''
+                approver: '한동석 (서비스운영팀장)', processor: '이수민', loggedAt: '2026-02-12 09:10:41'
             },
             {
                 id: 'DEL-2025-0018', name: '서지훈', email: 'jhseo@ibank.co.kr', role: '고객 지원',
-                type: '자진 탈퇴', requestDate: '2025-11-05', actionDate: '',
-                reason: '담당 업무 종료로 계정 삭제 요청',
-                requester: '서지훈', approver: '박정호 (정보보호팀장)', processor: '',
-                status: 'rejected', rejectReason: '인수인계 완료 후 재신청 필요. 담당 중인 문의 12건 이관 후 처리 예정.'
+                type: '자진 탈퇴', requestDate: '2025-11-05', actionDate: '2025-11-07',
+                reason: '담당 업무 종료 및 인수인계 완료로 계정 삭제',
+                approver: '박정호 (정보보호팀장)', processor: '박정호', loggedAt: '2025-11-07 16:48:19'
             }
         ];
 
-        // 권한 변경 신청 데이터
-        let changeRequests = [
+        // 권한 변경 이력
+        let changeHistory = [
             {
                 id: 'CHG-2026-0001', name: '김나영', email: 'nykim@ibank.co.kr',
                 beforeRole: '일반 관리자', afterRole: '최고 관리자',
                 requestDate: '2026-01-01', actionDate: '2026-01-02',
                 reason: '일반 직원에서 문자 발송 담당으로 직무가 확대되어 최고 관리자 권한을 요청합니다',
-                requester: '한동석', approver: '박정호 (정보보호팀장)', processor: '이수민',
-                status: 'completed', rejectReason: ''
+                approver: '박정호 (정보보호팀장)', processor: '이수민', loggedAt: '2026-01-02 10:05:33'
             },
             {
                 id: 'CHG-2026-0002', name: '윤지아', email: 'jayoon@ibank.co.kr',
                 beforeRole: '고객 지원', afterRole: '운영 관리자',
                 requestDate: '2026-03-14', actionDate: '2026-03-16',
                 reason: '고객 지원 업무에 발송 정책 관리 업무가 추가되어 운영 관리자 권한 필요',
-                requester: '윤지아', approver: '한동석 (서비스운영팀장)', processor: '이수민',
-                status: 'completed', rejectReason: ''
-            },
-            {
-                id: 'CHG-2026-0003', name: '정하늘', email: 'hnjung@ibank.co.kr',
-                beforeRole: '운영 관리자', afterRole: '심사 관리자',
-                requestDate: '2026-07-28', actionDate: '2026-08-05',
-                reason: '발신번호 심사 담당으로 직무 변경',
-                requester: '한동석', approver: '박정호 (정보보호팀장)', processor: '',
-                status: 'approved', rejectReason: ''
-            },
-            {
-                id: 'CHG-2026-0004', name: '강민서', email: 'mskang@ibank.co.kr',
-                beforeRole: '일반 관리자', afterRole: '운영 관리자',
-                requestDate: '2026-08-03', actionDate: '',
-                reason: '결제 관리 업무 담당으로 권한 상향 요청',
-                requester: '이수민', approver: '', processor: '',
-                status: 'pending', rejectReason: ''
+                approver: '한동석 (서비스운영팀장)', processor: '이수민', loggedAt: '2026-03-16 11:27:02'
             },
             {
                 id: 'CHG-2025-0031', name: '오세훈', email: 'shoh@ibank.co.kr',
-                beforeRole: '심사 관리자', afterRole: '최고 관리자',
-                requestDate: '2025-12-02', actionDate: '',
-                reason: '심사 업무 총괄을 위한 최고 관리자 권한 요청',
-                requester: '오세훈', approver: '박정호 (정보보호팀장)', processor: '',
-                status: 'rejected', rejectReason: '최고 관리자 권한은 직무 범위를 초과함. 심사 관리자 권한으로 필요한 메뉴만 개별 부여 예정.'
+                beforeRole: '고객 지원', afterRole: '심사 관리자',
+                requestDate: '2025-12-02', actionDate: '2025-12-02',
+                reason: '발신번호·템플릿 심사 담당으로 직무 변경',
+                approver: '박정호 (정보보호팀장)', processor: '박정호', loggedAt: '2025-12-02 13:41:57'
             }
         ];
-
-        const STATUS_META = {
-            pending: { label: '승인 대기', badge: 'badge-warning' },
-            approved: { label: '승인 완료', badge: 'badge-info' },
-            completed: { label: '처리 완료', badge: 'badge-success' },
-            rejected: { label: '반려', badge: 'badge-danger' }
-        };
 
         const ROLE_BADGE = {
             '최고 관리자': 'badge-danger',
@@ -639,19 +573,16 @@
             '일반 관리자': 'badge-secondary'
         };
 
-        let currentTab = 'delete';
-        let currentRequest = null;
-        let currentKind = null; // 'delete' | 'change'
-
         // ===== 유틸 =====
         function today() {
             const d = new Date();
             return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
         }
 
-        function statusBadge(status) {
-            const meta = STATUS_META[status];
-            return `<span class="badge ${meta.badge}">${meta.label}</span>`;
+        function nowStamp() {
+            const d = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            return today() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
         }
 
         function roleBadge(role) {
@@ -668,29 +599,46 @@
             })[ch]);
         }
 
+        function superAdminCount() {
+            return adminAccounts.filter(a => a.role === SUPER_ADMIN).length;
+        }
+
+        // 최고 관리자가 아니면 삭제·변경 버튼을 숨기고 비활성화 (admin-common.js)
+        function applyPermissionGuard() {
+            document.getElementById('denied-who').textContent = `${currentAdmin.name} / ${currentAdmin.role}`;
+            applySuperAdminGuard(currentAdmin.role);
+        }
+
+        function switchCurrentAdmin(email) {
+            const account = adminAccounts.find(a => a.email === email);
+            if (account) {
+                currentAdmin = account;
+                setCurrentAdmin(account);
+            }
+            applyPermissionGuard();
+        }
+
         // ===== 필터 =====
         function getFilter() {
             return {
                 from: document.getElementById('filter-from').value,
                 to: document.getElementById('filter-to').value,
                 role: document.getElementById('filter-role').value,
-                status: document.getElementById('filter-status').value,
                 keyword: document.getElementById('filter-keyword').value.trim().toLowerCase()
             };
         }
 
+        // 처리(삭제·변경) 일자 기준으로 조회
         function matchFilter(item, kind) {
             const f = getFilter();
-            if (f.from && item.requestDate < f.from) return false;
-            if (f.to && item.requestDate > f.to) return false;
-            if (f.status && item.status !== f.status) return false;
+            if (f.from && item.actionDate < f.from) return false;
+            if (f.to && item.actionDate > f.to) return false;
             if (f.role) {
                 const roles = kind === 'delete' ? [item.role] : [item.beforeRole, item.afterRole];
                 if (!roles.includes(f.role)) return false;
             }
             if (f.keyword) {
-                const haystack = (item.name + ' ' + item.email).toLowerCase();
-                if (!haystack.includes(f.keyword)) return false;
+                if (!(item.name + ' ' + item.email).toLowerCase().includes(f.keyword)) return false;
             }
             return true;
         }
@@ -704,19 +652,19 @@
             document.getElementById('filter-from').value = '2025-01-01';
             document.getElementById('filter-to').value = '2026-12-31';
             document.getElementById('filter-role').value = '';
-            document.getElementById('filter-status').value = '';
             document.getElementById('filter-keyword').value = '';
             renderAll();
         }
 
         // ===== 렌더링 =====
         function renderDeleteTable() {
-            const rows = deleteRequests.filter(r => matchFilter(r, 'delete'));
-            const tbody = document.getElementById('delete-tbody');
+            const rows = deleteHistory.filter(r => matchFilter(r, 'delete'))
+                .sort((a, b) => b.actionDate.localeCompare(a.actionDate));
             document.getElementById('delete-count').textContent = rows.length;
+            const tbody = document.getElementById('delete-tbody');
 
             if (rows.length === 0) {
-                tbody.innerHTML = '<tr class="empty-row"><td colspan="12">조회 조건에 해당하는 신청 내역이 없습니다.</td></tr>';
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="11">조회 조건에 해당하는 이력이 없습니다.</td></tr>';
                 return;
             }
 
@@ -728,23 +676,23 @@
                     <td>${roleBadge(r.role)}</td>
                     <td>${r.type}</td>
                     <td>${r.requestDate}</td>
-                    <td>${dash(r.actionDate)}</td>
+                    <td>${r.actionDate}</td>
                     <td class="reason-cell" title="${escapeHtml(r.reason)}">${escapeHtml(r.reason)}</td>
                     <td>${dash(r.approver)}</td>
                     <td>${dash(r.processor)}</td>
-                    <td>${statusBadge(r.status)}</td>
-                    <td>${actionButtons(r, 'delete')}</td>
+                    <td><button class="btn btn-outline btn-sm" onclick="openDetail('delete', '${r.id}')">상세</button></td>
                 </tr>
             `).join('');
         }
 
         function renderChangeTable() {
-            const rows = changeRequests.filter(r => matchFilter(r, 'change'));
-            const tbody = document.getElementById('change-tbody');
+            const rows = changeHistory.filter(r => matchFilter(r, 'change'))
+                .sort((a, b) => b.actionDate.localeCompare(a.actionDate));
             document.getElementById('change-count').textContent = rows.length;
+            const tbody = document.getElementById('change-tbody');
 
             if (rows.length === 0) {
-                tbody.innerHTML = '<tr class="empty-row"><td colspan="12">조회 조건에 해당하는 신청 내역이 없습니다.</td></tr>';
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="11">조회 조건에 해당하는 이력이 없습니다.</td></tr>';
                 return;
             }
 
@@ -756,34 +704,33 @@
                     <td>${roleBadge(r.beforeRole)}</td>
                     <td>${roleBadge(r.afterRole)}</td>
                     <td>${r.requestDate}</td>
-                    <td>${dash(r.actionDate)}</td>
+                    <td>${r.actionDate}</td>
                     <td class="reason-cell" title="${escapeHtml(r.reason)}">${escapeHtml(r.reason)}</td>
                     <td>${dash(r.approver)}</td>
                     <td>${dash(r.processor)}</td>
-                    <td>${statusBadge(r.status)}</td>
-                    <td>${actionButtons(r, 'change')}</td>
+                    <td><button class="btn btn-outline btn-sm" onclick="openDetail('change', '${r.id}')">상세</button></td>
                 </tr>
             `).join('');
         }
 
         function renderHistoryTable() {
             const merged = [
-                ...deleteRequests.filter(r => matchFilter(r, 'delete')).map(r => ({ ...r, kind: 'delete' })),
-                ...changeRequests.filter(r => matchFilter(r, 'change')).map(r => ({ ...r, kind: 'change' }))
-            ].sort((a, b) => (b.actionDate || b.requestDate).localeCompare(a.actionDate || a.requestDate));
+                ...deleteHistory.filter(r => matchFilter(r, 'delete')).map(r => ({ ...r, kind: 'delete' })),
+                ...changeHistory.filter(r => matchFilter(r, 'change')).map(r => ({ ...r, kind: 'change' }))
+            ].sort((a, b) => (b.loggedAt || b.actionDate).localeCompare(a.loggedAt || a.actionDate));
 
-            const tbody = document.getElementById('history-tbody');
             document.getElementById('history-count').textContent = merged.length;
+            const tbody = document.getElementById('history-tbody');
 
             if (merged.length === 0) {
-                tbody.innerHTML = '<tr class="empty-row"><td colspan="12">조회 조건에 해당하는 이력이 없습니다.</td></tr>';
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="11">조회 조건에 해당하는 이력이 없습니다.</td></tr>';
                 return;
             }
 
             tbody.innerHTML = merged.map(r => {
                 const kindLabel = r.kind === 'delete'
-                    ? `<span class="badge badge-danger">계정 삭제</span>`
-                    : `<span class="badge badge-info">권한 변경</span>`;
+                    ? '<span class="badge badge-danger">계정 삭제</span>'
+                    : '<span class="badge badge-info">권한 변경</span>';
                 const roleCell = r.kind === 'delete'
                     ? roleBadge(r.role)
                     : `${roleBadge(r.beforeRole)}<span class="role-arrow">→</span>${roleBadge(r.afterRole)}`;
@@ -793,40 +740,27 @@
                         <td>${kindLabel}</td>
                         <td>${escapeHtml(r.name)}</td>
                         <td>${escapeHtml(r.email)}</td>
-                        <td style="white-space: nowrap;">${roleCell}</td>
+                        <td>${roleCell}</td>
                         <td>${r.requestDate}</td>
-                        <td>${dash(r.actionDate)}</td>
+                        <td>${r.actionDate}</td>
                         <td class="reason-cell" title="${escapeHtml(r.reason)}">${escapeHtml(r.reason)}</td>
                         <td>${dash(r.approver)}</td>
                         <td>${dash(r.processor)}</td>
-                        <td>${statusBadge(r.status)}</td>
-                        <td><button class="btn btn-outline btn-sm" onclick="openProcessModal('${r.kind}', '${r.id}')">상세</button></td>
+                        <td><button class="btn btn-outline btn-sm" onclick="openDetail('${r.kind}', '${r.id}')">상세</button></td>
                     </tr>
                 `;
             }).join('');
         }
 
-        function actionButtons(r, kind) {
-            if (r.status === 'pending') {
-                return `<button class="btn btn-primary btn-sm" onclick="openProcessModal('${kind}', '${r.id}')">승인 처리</button>`;
-            }
-            if (r.status === 'approved') {
-                const label = kind === 'delete' ? '삭제 처리' : '변경 처리';
-                return `<button class="btn btn-danger btn-sm" onclick="openProcessModal('${kind}', '${r.id}')">${label}</button>`;
-            }
-            return `<button class="btn btn-outline btn-sm" onclick="openProcessModal('${kind}', '${r.id}')">상세</button>`;
-        }
-
-        // 통계는 현재 조회 조건이 적용된 결과 기준으로 집계
         function updateStats() {
-            const dels = deleteRequests.filter(r => matchFilter(r, 'delete'));
-            const chgs = changeRequests.filter(r => matchFilter(r, 'change'));
-            const countBy = status => dels.filter(r => r.status === status).length + chgs.filter(r => r.status === status).length;
+            const dels = deleteHistory.filter(r => matchFilter(r, 'delete'));
+            const chgs = changeHistory.filter(r => matchFilter(r, 'change'));
+            const dates = [...dels, ...chgs].map(r => r.actionDate).sort();
 
-            document.getElementById('stat-delete-pending').textContent = dels.filter(r => r.status === 'pending').length;
-            document.getElementById('stat-change-pending').textContent = chgs.filter(r => r.status === 'pending').length;
-            document.getElementById('stat-completed').textContent = countBy('completed');
-            document.getElementById('stat-rejected').textContent = countBy('rejected');
+            document.getElementById('stat-admins').textContent = adminAccounts.length;
+            document.getElementById('stat-deleted').textContent = dels.length;
+            document.getElementById('stat-changed').textContent = chgs.length;
+            document.getElementById('stat-last').textContent = dates.length ? dates[dates.length - 1] : '-';
         }
 
         function renderAll() {
@@ -837,89 +771,97 @@
         }
 
         function switchTab(tabName, el) {
-            currentTab = tabName;
             document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.getElementById(`tab-${tabName}`).style.display = 'block';
             el.classList.add('active');
         }
 
-        // ===== 계정 삭제 신청 =====
-        function openDeleteRequestModal(email) {
+        // ===== 계정 삭제 처리 =====
+        function openDeleteModal(email) {
+            if (!requireSuperAdmin()) return;
             document.getElementById('del-target').value = email || '';
             document.getElementById('del-type').value = '권한 말소';
             document.getElementById('del-approver').value = '';
             document.getElementById('del-request-date').value = today();
             document.getElementById('del-delete-date').value = today();
+            document.getElementById('del-processor').textContent = currentAdmin.name;
             document.getElementById('del-reason').value = '';
             fillDeleteTarget();
-            openModal('delete-request-modal');
+            openModal('delete-modal');
         }
 
         function fillDeleteTarget() {
-            const email = document.getElementById('del-target').value;
-            const account = ADMIN_ACCOUNTS.find(a => a.email === email);
+            const account = adminAccounts.find(a => a.email === document.getElementById('del-target').value);
             document.getElementById('del-email').textContent = account ? account.email : '-';
             document.getElementById('del-role').textContent = account ? account.role : '-';
         }
 
-        function submitDeleteRequest() {
-            const email = document.getElementById('del-target').value;
-            const account = ADMIN_ACCOUNTS.find(a => a.email === email);
-            const approver = document.getElementById('del-approver').value;
+        function executeDelete() {
+            if (!requireSuperAdmin()) return;
+
+            const account = adminAccounts.find(a => a.email === document.getElementById('del-target').value);
             const requestDate = document.getElementById('del-request-date').value;
             const deleteDate = document.getElementById('del-delete-date').value;
             const reason = document.getElementById('del-reason').value.trim();
 
             if (!account) { showToast('대상 관리자를 선택해주세요.', 'error'); return; }
-            if (!approver) { showToast('승인 요청 대상(승인자)을 선택해주세요.', 'error'); return; }
-            if (!requestDate || !deleteDate) { showToast('신청 일자와 삭제 예정 일자를 입력해주세요.', 'error'); return; }
-            if (deleteDate < requestDate) { showToast('삭제 예정 일자는 신청 일자 이후여야 합니다.', 'error'); return; }
+            if (account.email === currentAdmin.email) { showToast('본인 계정은 삭제할 수 없습니다.', 'error'); return; }
+            if (account.role === SUPER_ADMIN && superAdminCount() <= 1) {
+                showToast('마지막 남은 최고 관리자 계정은 삭제할 수 없습니다.', 'error'); return;
+            }
+            if (!requestDate || !deleteDate) { showToast('신청 일자와 삭제 일자를 입력해주세요.', 'error'); return; }
+            if (deleteDate < requestDate) { showToast('삭제 일자는 신청 일자 이후여야 합니다.', 'error'); return; }
             if (!reason) { showToast('삭제 사유를 입력해주세요.', 'error'); return; }
 
-            const hasOpenRequest = deleteRequests.some(r => r.email === email && (r.status === 'pending' || r.status === 'approved'));
-            if (hasOpenRequest) { showToast('해당 관리자의 처리 중인 삭제 신청이 이미 존재합니다.', 'error'); return; }
+            const message = `${account.name}(${account.email}) 계정을 삭제합니다.\n`
+                + '실행 즉시 로그인과 모든 권한이 회수되며 되돌릴 수 없습니다. 진행하시겠습니까?';
 
-            deleteRequests.unshift({
-                id: nextId('DEL', requestDate, deleteRequests),
-                name: account.name, email: account.email, role: account.role,
-                type: document.getElementById('del-type').value,
-                requestDate: requestDate, actionDate: '',
-                reason: reason,
-                requester: CURRENT_ADMIN, approver: '', processor: '',
-                status: 'pending', rejectReason: '',
-                requestedApprover: approver
+            confirmAction(message, function () {
+                deleteHistory.unshift({
+                    id: nextId('DEL', deleteDate, deleteHistory),
+                    name: account.name, email: account.email, role: account.role,
+                    type: document.getElementById('del-type').value,
+                    requestDate: requestDate, actionDate: deleteDate,
+                    reason: reason,
+                    approver: document.getElementById('del-approver').value.trim(),
+                    processor: currentAdmin.name,
+                    loggedAt: nowStamp()
+                });
+
+                adminAccounts = adminAccounts.filter(a => a.email !== account.email);
+                renderAccountOptions();
+                closeModal('delete-modal');
+                renderAll();
+                showToast('계정이 삭제되었습니다. 처리 이력이 기록되었습니다.', 'success');
             });
-
-            closeModal('delete-request-modal');
-            renderAll();
-            showToast('계정 삭제 신청이 등록되었습니다. 승인자 확인 후 처리됩니다.', 'success');
         }
 
-        // ===== 권한 변경 신청 =====
-        function openChangeRequestModal(email) {
+        // ===== 권한 변경 처리 =====
+        function openChangeModal(email) {
+            if (!requireSuperAdmin()) return;
             document.getElementById('chg-target').value = email || '';
             document.getElementById('chg-after').value = '';
             document.getElementById('chg-approver').value = '';
             document.getElementById('chg-request-date').value = today();
             document.getElementById('chg-change-date').value = today();
+            document.getElementById('chg-processor').textContent = currentAdmin.name;
             document.getElementById('chg-reason').value = '';
             fillChangeTarget();
-            openModal('change-request-modal');
+            openModal('change-modal');
         }
 
         function fillChangeTarget() {
-            const email = document.getElementById('chg-target').value;
-            const account = ADMIN_ACCOUNTS.find(a => a.email === email);
+            const account = adminAccounts.find(a => a.email === document.getElementById('chg-target').value);
             document.getElementById('chg-email').textContent = account ? account.email : '-';
             document.getElementById('chg-before').textContent = account ? account.role : '-';
         }
 
-        function submitChangeRequest() {
-            const email = document.getElementById('chg-target').value;
-            const account = ADMIN_ACCOUNTS.find(a => a.email === email);
+        function executeChange() {
+            if (!requireSuperAdmin()) return;
+
+            const account = adminAccounts.find(a => a.email === document.getElementById('chg-target').value);
             const afterRole = document.getElementById('chg-after').value;
-            const approver = document.getElementById('chg-approver').value;
             const requestDate = document.getElementById('chg-request-date').value;
             const changeDate = document.getElementById('chg-change-date').value;
             const reason = document.getElementById('chg-reason').value.trim();
@@ -927,28 +869,36 @@
             if (!account) { showToast('대상 관리자를 선택해주세요.', 'error'); return; }
             if (!afterRole) { showToast('변경 후 권한을 선택해주세요.', 'error'); return; }
             if (afterRole === account.role) { showToast('변경 전 권한과 변경 후 권한이 동일합니다.', 'error'); return; }
-            if (!approver) { showToast('승인 요청 대상(승인자)을 선택해주세요.', 'error'); return; }
-            if (!requestDate || !changeDate) { showToast('신청 일자와 변경 예정 일자를 입력해주세요.', 'error'); return; }
-            if (changeDate < requestDate) { showToast('변경 예정 일자는 신청 일자 이후여야 합니다.', 'error'); return; }
+            if (account.role === SUPER_ADMIN && afterRole !== SUPER_ADMIN && superAdminCount() <= 1) {
+                showToast('마지막 남은 최고 관리자의 권한은 하향할 수 없습니다.', 'error'); return;
+            }
+            if (!requestDate || !changeDate) { showToast('신청 일자와 변경 일자를 입력해주세요.', 'error'); return; }
+            if (changeDate < requestDate) { showToast('변경 일자는 신청 일자 이후여야 합니다.', 'error'); return; }
             if (!reason) { showToast('변경 사유를 입력해주세요.', 'error'); return; }
 
-            const hasOpenRequest = changeRequests.some(r => r.email === email && (r.status === 'pending' || r.status === 'approved'));
-            if (hasOpenRequest) { showToast('해당 관리자의 처리 중인 권한 변경 신청이 이미 존재합니다.', 'error'); return; }
+            const message = `${account.name}(${account.email}) 권한을 ${account.role} → ${afterRole}(으)로 변경합니다.\n`
+                + '실행 즉시 메뉴 접근 권한이 교체됩니다. 진행하시겠습니까?';
 
-            changeRequests.unshift({
-                id: nextId('CHG', requestDate, changeRequests),
-                name: account.name, email: account.email,
-                beforeRole: account.role, afterRole: afterRole,
-                requestDate: requestDate, actionDate: '',
-                reason: reason,
-                requester: CURRENT_ADMIN, approver: '', processor: '',
-                status: 'pending', rejectReason: '',
-                requestedApprover: approver
+            confirmAction(message, function () {
+                const beforeRole = account.role;
+                changeHistory.unshift({
+                    id: nextId('CHG', changeDate, changeHistory),
+                    name: account.name, email: account.email,
+                    beforeRole: beforeRole, afterRole: afterRole,
+                    requestDate: requestDate, actionDate: changeDate,
+                    reason: reason,
+                    approver: document.getElementById('chg-approver').value.trim(),
+                    processor: currentAdmin.name,
+                    loggedAt: nowStamp()
+                });
+
+                account.role = afterRole;
+                renderAccountOptions();
+                applyPermissionGuard();
+                closeModal('change-modal');
+                renderAll();
+                showToast('권한이 변경되었습니다. 처리 이력이 기록되었습니다.', 'success');
             });
-
-            closeModal('change-request-modal');
-            renderAll();
-            showToast('권한 변경 신청이 등록되었습니다. 승인자 확인 후 처리됩니다.', 'success');
         }
 
         function nextId(prefix, dateStr, list) {
@@ -957,174 +907,76 @@
             return `${prefix}-${year}-${String(seq).padStart(4, '0')}`;
         }
 
-        // ===== 상세 / 승인 / 처리 =====
-        function findRequest(kind, id) {
-            const list = kind === 'delete' ? deleteRequests : changeRequests;
-            return list.find(r => r.id === id);
-        }
-
-        function openProcessModal(kind, id) {
-            const r = findRequest(kind, id);
+        // ===== 이력 상세 =====
+        function openDetail(kind, id) {
+            const list = kind === 'delete' ? deleteHistory : changeHistory;
+            const r = list.find(x => x.id === id);
             if (!r) return;
-            currentRequest = r;
-            currentKind = kind;
-
             const isDelete = kind === 'delete';
-            document.getElementById('process-title').textContent = isDelete ? '계정 삭제 신청 상세' : '권한 변경 신청 상세';
-            document.getElementById('pr-id').textContent = r.id;
-            document.getElementById('pr-kind').textContent = isDelete ? `계정 삭제 (${r.type})` : '권한 변경';
-            document.getElementById('pr-name').textContent = r.name;
-            document.getElementById('pr-email').textContent = r.email;
-            document.getElementById('pr-role').innerHTML = isDelete
+
+            document.getElementById('dt-title').textContent = isDelete ? '계정 삭제 이력 상세' : '권한 변경 이력 상세';
+            document.getElementById('dt-id').textContent = r.id;
+            document.getElementById('dt-kind').textContent = isDelete ? `계정 삭제 (${r.type})` : '권한 변경';
+            document.getElementById('dt-name').textContent = r.name;
+            document.getElementById('dt-email').textContent = r.email;
+            document.getElementById('dt-role-label').textContent = isDelete ? '관리자 권한' : '권한 (변경 전 → 변경 후)';
+            document.getElementById('dt-role').innerHTML = isDelete
                 ? roleBadge(r.role)
                 : `${roleBadge(r.beforeRole)}<span class="role-arrow">→</span>${roleBadge(r.afterRole)}`;
-            document.querySelector('#pr-role-wrap .form-label').textContent = isDelete ? '관리자 권한' : '권한 (변경 전 → 변경 후)';
-            document.getElementById('pr-request-date').textContent = r.requestDate;
-            document.getElementById('pr-action-date-label').textContent = isDelete ? '삭제 일자' : '변경 일자';
-            document.getElementById('pr-action-date').textContent = dash(r.actionDate);
-            document.getElementById('pr-requester').textContent = dash(r.requester);
-            document.getElementById('pr-reason-label').textContent = isDelete ? '삭제 사유' : '변경 사유';
-            document.getElementById('pr-reason').textContent = r.reason;
-            document.getElementById('pr-approver').textContent = r.approver || (r.requestedApprover ? r.requestedApprover + ' (승인 대기)' : '-');
-            document.getElementById('pr-processor').textContent = dash(r.processor);
+            document.getElementById('dt-request-date').textContent = r.requestDate;
+            document.getElementById('dt-action-date-label').textContent = isDelete ? '삭제 일자' : '변경 일자';
+            document.getElementById('dt-action-date').textContent = r.actionDate;
+            document.getElementById('dt-approver').textContent = dash(r.approver);
+            document.getElementById('dt-processor').textContent = dash(r.processor);
+            document.getElementById('dt-logged').textContent = dash(r.loggedAt);
+            document.getElementById('dt-reason-label').textContent = isDelete ? '삭제 사유' : '변경 사유';
+            document.getElementById('dt-reason').textContent = r.reason;
 
-            // 반려 사유
-            const rejectWrap = document.getElementById('pr-reject-wrap');
-            rejectWrap.style.display = r.status === 'rejected' ? 'block' : 'none';
-            document.getElementById('pr-reject-reason').textContent = dash(r.rejectReason);
-
-            // 처리 영역 표시 제어
-            const approveArea = document.getElementById('pr-approve-area');
-            const executeArea = document.getElementById('pr-execute-area');
-            const approveBtn = document.getElementById('pr-approve-btn');
-            const executeBtn = document.getElementById('pr-execute-btn');
-
-            approveArea.style.display = 'none';
-            executeArea.style.display = 'none';
-            approveBtn.style.display = 'none';
-            executeBtn.style.display = 'none';
-
-            if (r.status === 'pending') {
-                approveArea.style.display = 'block';
-                approveBtn.style.display = 'inline-block';
-                document.getElementById('pr-decision').value = 'approved';
-                document.getElementById('pr-approver-input').value = r.requestedApprover || '';
-                document.getElementById('pr-reject-input').value = '';
-                toggleRejectInput();
-            } else if (r.status === 'approved') {
-                executeArea.style.display = 'block';
-                executeBtn.style.display = 'inline-block';
-                document.getElementById('pr-execute-title').textContent = isDelete ? '삭제 처리' : '권한 변경 처리';
-                document.getElementById('pr-execute-date-label').innerHTML =
-                    (isDelete ? '삭제 일자' : '변경 일자') + ' <span style="color: var(--admin-danger);">*</span>';
-                document.getElementById('pr-execute-warning').textContent = isDelete
-                    ? '처리 후에는 되돌릴 수 없습니다. 처리 즉시 해당 계정의 로그인과 모든 권한이 회수됩니다.'
-                    : '처리 즉시 해당 관리자의 메뉴 접근 권한이 변경 후 권한으로 교체됩니다.';
-                executeBtn.textContent = isDelete ? '삭제 처리 완료' : '변경 처리 완료';
-                document.getElementById('pr-processor-input').value = CURRENT_ADMIN;
-                document.getElementById('pr-execute-date').value = r.actionDate || today();
-            }
-
-            openModal('process-modal');
-        }
-
-        function toggleRejectInput() {
-            const isReject = document.getElementById('pr-decision').value === 'rejected';
-            document.getElementById('pr-reject-input-wrap').style.display = isReject ? 'block' : 'none';
-        }
-
-        function submitApproval() {
-            const decision = document.getElementById('pr-decision').value;
-            const approver = document.getElementById('pr-approver-input').value.trim();
-            const rejectReason = document.getElementById('pr-reject-input').value.trim();
-
-            if (!approver) { showToast('승인자를 입력해주세요.', 'error'); return; }
-            if (decision === 'rejected' && !rejectReason) { showToast('반려 사유를 입력해주세요.', 'error'); return; }
-
-            currentRequest.approver = approver;
-            currentRequest.status = decision;
-            currentRequest.rejectReason = decision === 'rejected' ? rejectReason : '';
-
-            closeModal('process-modal');
-            renderAll();
-            showToast(decision === 'approved' ? '승인 처리되었습니다. 처리자가 최종 처리를 진행합니다.' : '반려 처리되었습니다.', 'success');
-        }
-
-        function submitExecution() {
-            const processor = document.getElementById('pr-processor-input').value.trim();
-            const actionDate = document.getElementById('pr-execute-date').value;
-            const isDelete = currentKind === 'delete';
-
-            if (!processor) { showToast('처리자를 입력해주세요.', 'error'); return; }
-            if (!actionDate) { showToast(isDelete ? '삭제 일자를 입력해주세요.' : '변경 일자를 입력해주세요.', 'error'); return; }
-            if (actionDate < currentRequest.requestDate) { showToast('처리 일자는 신청 일자 이후여야 합니다.', 'error'); return; }
-
-            const message = isDelete
-                ? `${currentRequest.name}(${currentRequest.email}) 계정을 삭제 처리합니다.\n처리 후에는 되돌릴 수 없습니다. 진행하시겠습니까?`
-                : `${currentRequest.name}(${currentRequest.email}) 권한을 ${currentRequest.beforeRole} → ${currentRequest.afterRole}(으)로 변경합니다. 진행하시겠습니까?`;
-
-            confirmAction(message, function () {
-                currentRequest.processor = processor;
-                currentRequest.actionDate = actionDate;
-                currentRequest.status = 'completed';
-
-                // 관리자 계정 목록 반영
-                const idx = ADMIN_ACCOUNTS.findIndex(a => a.email === currentRequest.email);
-                if (idx > -1) {
-                    if (isDelete) {
-                        ADMIN_ACCOUNTS.splice(idx, 1);
-                    } else {
-                        ADMIN_ACCOUNTS[idx].role = currentRequest.afterRole;
-                    }
-                    renderAccountOptions();
-                }
-
-                closeModal('process-modal');
-                renderAll();
-                showToast(isDelete ? '계정이 삭제 처리되었습니다. 처리 이력이 기록되었습니다.' : '권한이 변경되었습니다. 처리 이력이 기록되었습니다.', 'success');
-            });
+            openModal('detail-modal');
         }
 
         function exportExcel(target) {
-            showToast(`${target} 내역 엑셀 다운로드가 시작되었습니다.`, 'success');
+            showToast(`${target} 이력 엑셀 다운로드가 시작되었습니다.`, 'success');
         }
 
         // ===== 초기화 =====
         function renderAccountOptions() {
-            const options = ADMIN_ACCOUNTS.map(a =>
+            const options = adminAccounts.map(a =>
                 `<option value="${a.email}">${a.name} (${a.email}) — ${a.role}</option>`
             ).join('');
             document.getElementById('del-target').innerHTML = '<option value="">선택하세요</option>' + options;
             document.getElementById('chg-target').innerHTML = '<option value="">선택하세요</option>' + options;
+
+            const sim = document.getElementById('role-sim');
+            const selected = currentAdmin.email;
+            sim.innerHTML = adminAccounts.map(a =>
+                `<option value="${a.email}" ${a.email === selected ? 'selected' : ''}>${a.name} — ${a.role}</option>`
+            ).join('');
         }
 
         function initSelects() {
             renderAccountOptions();
-
             const roleOptions = PERMISSION_GROUPS.map(g => `<option value="${g}">${g}</option>`).join('');
             document.getElementById('filter-role').innerHTML = '<option value="">전체</option>' + roleOptions;
             document.getElementById('chg-after').innerHTML = '<option value="">선택하세요</option>' + roleOptions;
-
-            const approverOptions = APPROVERS.map(a => `<option value="${a}">${a}</option>`).join('');
-            document.getElementById('del-approver').innerHTML = '<option value="">선택하세요</option>' + approverOptions;
-            document.getElementById('chg-approver').innerHTML = '<option value="">선택하세요</option>' + approverOptions;
         }
 
-        // 관리자 계정 관리 화면에서 넘어온 경우 신청 모달 자동 오픈
+        // 관리자 계정 관리 화면에서 넘어온 경우 처리 모달 자동 오픈
         function handleQueryParams() {
             const params = new URLSearchParams(location.search);
             const action = params.get('action');
             const email = params.get('email') || '';
             if (action === 'delete') {
-                openDeleteRequestModal(email);
+                openDeleteModal(email);
             } else if (action === 'change') {
                 document.querySelectorAll('.tab')[1].click();
-                openChangeRequestModal(email);
+                openChangeModal(email);
             }
         }
 
         document.addEventListener('DOMContentLoaded', function () {
             initSelects();
+            applyPermissionGuard();
             renderAll();
             createPagination(1, 1, 'delete-pagination');
             createPagination(1, 1, 'change-pagination');
