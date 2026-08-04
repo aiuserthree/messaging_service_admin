@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>팝업 관리 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('popup-manage'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('팝업 관리'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="card">
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <label class="form-label">검색</label>
+                            <input type="text" class="form-control" id="search-keyword" placeholder="팝업명으로 검색">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">유형</label>
+                            <select class="form-control" id="filter-type">
+                                <option value="">전체</option>
+                                <option value="image">이미지</option>
+                                <option value="text">텍스트</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">상태</label>
+                            <select class="form-control" id="filter-status">
+                                <option value="">전체</option>
+                                <option value="active">노출중</option>
+                                <option value="scheduled">예약</option>
+                                <option value="inactive">비노출</option>
+                                <option value="expired">종료</option>
+                            </select>
+                        </div>
+                        <div class="filter-item" style="align-self: flex-end;">
+                            <button class="btn btn-primary" onclick="searchPopups()">조회</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin: 24px 0; display: flex; justify-content: space-between; align-items: center;">
+                    <button class="btn btn-primary" onclick="location.href='popup-edit.html'">팝업 등록</button>
+                    <div style="font-size: 13px; color: #64748b;">노출 기간 내 활성 팝업이 사용자 화면에 표시됩니다.</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">팝업 목록</h3>
+                        <div class="card-description">이미지 또는 텍스트(공지/알림 템플릿) 팝업을 기간별로 노출합니다. 링크 연결은 선택 사항입니다.</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>팝업명</th>
+                                    <th>유형</th>
+                                    <th>노출 대상</th>
+                                    <th>링크</th>
+                                    <th>노출 기간</th>
+                                    <th>상태</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="popup-list-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        const mockPopups = [
+            {
+                id: 1,
+                name: '2025년 설 연휴 운영 안내',
+                contentType: 'text',
+                textTemplate: 'notice',
+                target: 'all',
+                useLink: false,
+                linkUrl: '',
+                startDate: '2025-01-20 00:00',
+                endDate: '2025-02-05 23:59',
+                status: 'active'
+            },
+            {
+                id: 2,
+                name: '신규 가입 이벤트 팝업',
+                contentType: 'image',
+                target: 'guest',
+                useLink: true,
+                linkUrl: 'https://example.com/event',
+                startDate: '2025-06-01 00:00',
+                endDate: '2025-06-30 23:59',
+                status: 'active'
+            },
+            {
+                id: 3,
+                name: '시스템 점검 안내',
+                contentType: 'text',
+                textTemplate: 'alert',
+                target: 'member',
+                useLink: false,
+                linkUrl: '',
+                startDate: '2025-07-01 02:00',
+                endDate: '2025-07-01 06:00',
+                status: 'scheduled'
+            },
+            {
+                id: 4,
+                name: '여름 프로모션',
+                contentType: 'image',
+                target: 'all',
+                useLink: true,
+                linkUrl: 'https://example.com/summer',
+                startDate: '2024-07-01 00:00',
+                endDate: '2024-08-31 23:59',
+                status: 'expired'
+            }
+        ];
+
+        const typeLabels = { image: '이미지', text: '텍스트' };
+        const targetLabels = { all: '전체', guest: '비로그인', member: '로그인' };
+        const templateLabels = { notice: '공지', alert: '알림' };
+
+        function getDisplayStatus(popup) {
+            const now = new Date();
+            const start = new Date(popup.startDate.replace(' ', 'T'));
+            const end = new Date(popup.endDate.replace(' ', 'T'));
+            if (popup.status === 'inactive') return { key: 'inactive', label: '비노출', badge: 'badge-secondary' };
+            if (now > end) return { key: 'expired', label: '종료', badge: 'badge-secondary' };
+            if (now < start) return { key: 'scheduled', label: '예약', badge: 'badge-info' };
+            return { key: 'active', label: '노출중', badge: 'badge-success' };
+        }
+
+        function loadPopups(data) {
+            const list = data || mockPopups;
+            const tbody = document.getElementById('popup-list-tbody');
+
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #64748b;">등록된 팝업이 없습니다.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = list.map(popup => {
+                const displayStatus = getDisplayStatus(popup);
+                const typeDetail = popup.contentType === 'text'
+                    ? `${typeLabels[popup.contentType]} (${templateLabels[popup.textTemplate]})`
+                    : typeLabels[popup.contentType];
+                const linkInfo = popup.useLink
+                    ? `<a href="${popup.linkUrl}" target="_blank" style="color: #3b82f6; font-size: 12px;">링크 있음</a>`
+                    : '<span style="color: #64748b; font-size: 12px;">공지만</span>';
+
+                return `
+                    <tr>
+                        <td>
+                            <div style="font-weight: 500;">${popup.name}</div>
+                        </td>
+                        <td>${typeDetail}</td>
+                        <td>${targetLabels[popup.target]}</td>
+                        <td>${linkInfo}</td>
+                        <td style="font-size: 13px;">${popup.startDate}<br>~ ${popup.endDate}</td>
+                        <td><span class="badge ${displayStatus.badge}">${displayStatus.label}</span></td>
+                        <td>
+                            <button class="btn btn-outline btn-sm" onclick="previewPopup(${popup.id})">미리보기</button>
+                            <button class="btn btn-primary btn-sm" onclick="editPopup(${popup.id})">수정</button>
+                            <button class="btn btn-danger btn-sm" onclick="deletePopup(${popup.id})">삭제</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function searchPopups() {
+            const keyword = document.getElementById('search-keyword').value.trim().toLowerCase();
+            const type = document.getElementById('filter-type').value;
+            const status = document.getElementById('filter-status').value;
+
+            const filtered = mockPopups.filter(popup => {
+                if (keyword && !popup.name.toLowerCase().includes(keyword)) return false;
+                if (type && popup.contentType !== type) return false;
+                if (status && getDisplayStatus(popup).key !== status && popup.status !== status) return false;
+                return true;
+            });
+
+            loadPopups(filtered);
+            showToast(`${filtered.length}건이 조회되었습니다.`, 'success');
+        }
+
+        function editPopup(id) {
+            location.href = `popup-edit.html?id=${id}`;
+        }
+
+        function previewPopup(id) {
+            location.href = `popup-edit.html?id=${id}&preview=1`;
+        }
+
+        function deletePopup(id) {
+            const popup = mockPopups.find(p => p.id === id);
+            if (!popup) return;
+            if (confirm(`"${popup.name}" 팝업을 삭제하시겠습니까?`)) {
+                const index = mockPopups.findIndex(p => p.id === id);
+                if (index !== -1) mockPopups.splice(index, 1);
+                showToast('삭제되었습니다.', 'success');
+                loadPopups();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => loadPopups());
+    </script>
+</body>
+</html>

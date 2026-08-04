@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그 점검 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+    <style>
+        .tab-content { margin-top: 24px; }
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: var(--admin-surface);
+        }
+        .checklist-item.checked { background: #f0fdf4; border-color: #86efac; }
+        .checklist-item.issue { background: #fef2f2; border-color: #fca5a5; }
+        .checklist-meta {
+            flex: 1;
+        }
+        .checklist-title {
+            font-weight: 600;
+            color: var(--admin-text-primary);
+            margin-bottom: 6px;
+        }
+        .checklist-desc {
+            font-size: 13px;
+            color: var(--admin-text-secondary);
+            line-height: 1.6;
+        }
+        .audit-info-box {
+            padding: 16px 20px;
+            background: #eff6ff;
+            border: 1px solid #93c5fd;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        .audit-info-box strong { color: #1e40af; }
+        .progress-bar-wrap {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
+            border-radius: 999px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('security-log-check'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('로그 점검'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="audit-info-box">
+                    <div style="font-weight: 600; color: #1e40af; margin-bottom: 8px;">사이트 오픈 전 보안 감사 — 로그 점검</div>
+                    <div style="font-size: 13px; color: #1e40af; line-height: 1.7;">
+                        서비스 오픈 전 접근·인증·작업·개인정보 처리 로그를 점검하여 보관 정책 준수, 이상 접근, 권한 남용 여부를 확인합니다.
+                        점검 결과에서 이슈가 발견되면 <strong>조치 및 결과 확인</strong> 메뉴에서 후속 조치를 등록·추적하세요.
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">점검 항목</span>
+                            <div class="stat-card-icon icon-chart">📋</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-total">12</div>
+                        <div class="stat-card-change">오픈 전 필수 점검 항목</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">점검 완료</span>
+                            <div class="stat-card-icon icon-success">✓</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-completed">8</div>
+                        <div class="stat-card-change positive">완료율 <span id="stat-rate">67%</span></div>
+                        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width: 67%;"></div></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">이슈 발견</span>
+                            <div class="stat-card-icon icon-fail">!</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-issues">2</div>
+                        <div class="stat-card-change negative">조치 필요 항목</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="search-filter-bar">
+                        <div class="filter-item">
+                            <label class="form-label">감사 회차</label>
+                            <select class="form-control" id="audit-round">
+                                <option value="2025-06-open">2025-06 사이트 오픈 감사</option>
+                                <option value="2025-03-pre">2025-03 사전 점검</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">점검 기간</label>
+                            <input type="date" class="form-control" id="check-from" value="2025-06-01">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">~</label>
+                            <input type="date" class="form-control" id="check-to" value="2025-06-22">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">점검 상태</label>
+                            <select class="form-control" id="filter-status">
+                                <option value="">전체</option>
+                                <option value="pending">미점검</option>
+                                <option value="completed">완료</option>
+                                <option value="issue">이슈</option>
+                            </select>
+                        </div>
+                        <div class="filter-item" style="align-self: flex-end;">
+                            <button class="btn btn-primary" onclick="searchChecklist()">조회</button>
+                            <button class="btn btn-outline" onclick="exportChecklist()">점검 결과 내보내기</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tabs" style="margin-top: 24px;">
+                    <button class="tab active" onclick="switchTab('checklist', this)">점검 체크리스트</button>
+                    <button class="tab" onclick="switchTab('anomaly', this)">이상 징후 탐지</button>
+                    <button class="tab" onclick="switchTab('retention', this)">로그 보관 현황</button>
+                </div>
+
+                <div id="tab-checklist" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">오픈 전 로그 점검 체크리스트</h3>
+                            <div class="card-description">ISMS·개인정보보호법 및 내부 보안 정책 기준 점검 항목</div>
+                        </div>
+                        <div style="padding: 0 24px 24px;" id="checklist-container"></div>
+                    </div>
+                </div>
+
+                <div id="tab-anomaly" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">로그 기반 이상 징후</h3>
+                            <div class="card-description">점검 기간 내 자동 탐지된 의심 활동 목록</div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>탐지일시</th>
+                                        <th>유형</th>
+                                        <th>심각도</th>
+                                        <th>대상/계정</th>
+                                        <th>IP</th>
+                                        <th>내용</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2025-06-18 02:14:33</td>
+                                        <td>비업무시간 접근</td>
+                                        <td><span class="badge badge-warning">중</span></td>
+                                        <td>admin01</td>
+                                        <td>211.234.56.78</td>
+                                        <td>새벽 2시 관리자 페이지 접속</td>
+                                        <td><button class="btn btn-primary btn-sm" onclick="registerIssue(1)">이슈 등록</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2025-06-17 11:22:05</td>
+                                        <td>로그인 실패 반복</td>
+                                        <td><span class="badge badge-danger">상</span></td>
+                                        <td>admin02</td>
+                                        <td>123.45.67.89</td>
+                                        <td>15분 내 로그인 실패 8회</td>
+                                        <td><button class="btn btn-primary btn-sm" onclick="registerIssue(2)">이슈 등록</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2025-06-16 16:40:12</td>
+                                        <td>대량 개인정보 조회</td>
+                                        <td><span class="badge badge-danger">상</span></td>
+                                        <td>operator01</td>
+                                        <td>192.168.1.55</td>
+                                        <td>회원 상세 조회 120건 (1시간)</td>
+                                        <td><button class="btn btn-primary btn-sm" onclick="registerIssue(3)">이슈 등록</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-retention" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">로그 보관 현황</h3>
+                            <div class="card-description">로그 유형별 보관 기간 및 저장소 상태 (오픈 전 필수 확인)</div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>로그 유형</th>
+                                        <th>보관 정책</th>
+                                        <th>현재 보관 기간</th>
+                                        <th>저장소</th>
+                                        <th>무결성</th>
+                                        <th>점검 결과</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>관리자 접근 로그</td>
+                                        <td>1년 이상</td>
+                                        <td>365일</td>
+                                        <td>운영 DB + 아카이브</td>
+                                        <td><span class="badge badge-success">변경 불가</span></td>
+                                        <td><span class="badge badge-success">적합</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>회원 접근 로그</td>
+                                        <td>1년 이상</td>
+                                        <td>365일</td>
+                                        <td>운영 DB</td>
+                                        <td><span class="badge badge-success">변경 불가</span></td>
+                                        <td><span class="badge badge-success">적합</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>작업(감사) 로그</td>
+                                        <td>3년 이상</td>
+                                        <td>180일</td>
+                                        <td>운영 DB</td>
+                                        <td><span class="badge badge-warning">부분 적용</span></td>
+                                        <td><span class="badge badge-danger">부적합</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>개인정보 처리 로그</td>
+                                        <td>3년 이상</td>
+                                        <td>365일</td>
+                                        <td>별도 보관 서버</td>
+                                        <td><span class="badge badge-success">변경 불가</span></td>
+                                        <td><span class="badge badge-warning">보완 필요</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>API/발송 로그</td>
+                                        <td>3년</td>
+                                        <td>1,095일</td>
+                                        <td>로그 수집 시스템</td>
+                                        <td><span class="badge badge-success">변경 불가</span></td>
+                                        <td><span class="badge badge-success">적합</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="check-detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 640px;">
+            <div class="modal-header">
+                <h3 class="modal-title">점검 항목 상세</h3>
+                <button class="modal-close" onclick="closeModal('check-detail-modal')">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <div class="form-group">
+                    <label class="form-label">점검 항목</label>
+                    <div id="detail-title" class="form-control" style="background: #f8fafc;">-</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">점검 기준</label>
+                    <div id="detail-criteria" class="form-control" style="background: #f8fafc; min-height: 60px;">-</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">점검 결과</label>
+                    <select class="form-control" id="detail-result">
+                        <option value="completed">적합 (완료)</option>
+                        <option value="issue">부적합 (이슈 등록)</option>
+                        <option value="pending">미점검</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">점검 메모</label>
+                    <textarea class="form-control" id="detail-memo" rows="3" placeholder="점검 내용, 확인 근거, 특이사항을 입력하세요"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('check-detail-modal')">취소</button>
+                <button class="btn btn-primary" onclick="saveCheckDetail()">저장</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        const checklistItems = [
+            { id: 1, category: '접근 로그', title: '관리자 접근 로그 수집·보관', criteria: '관리자 로그인/로그아웃, IP, User-Agent, 성공·실패 결과가 1년 이상 보관되는지 확인', status: 'completed' },
+            { id: 2, category: '접근 로그', title: '회원 접근 로그 수집·보관', criteria: '회원 로그인 이력, 세션 생성/종료 로그가 정책 기간 이상 보관되는지 확인', status: 'completed' },
+            { id: 3, category: '인증 로그', title: '로그인 실패·잠금 정책 점검', criteria: '연속 실패 시 계정 잠금, 실패 로그 기록, 알림 발송 여부 확인', status: 'completed' },
+            { id: 4, category: '인증 로그', title: '비업무시간 접근 모니터링', criteria: '관리자 비업무시간(22:00~08:00) 접근 시 알림·로그 기록 여부', status: 'issue' },
+            { id: 5, category: '권한 로그', title: '권한 부여·변경·회수 이력', criteria: '관리자/회원 권한 변경 시 작업자, 변경 전후 값, 시각이 감사 로그에 기록되는지 확인', status: 'completed' },
+            { id: 6, category: '권한 로그', title: '최고 관리자 활동 추적', criteria: '최고 관리자의 민감 메뉴 접근·설정 변경이 별도 추적되는지 확인', status: 'completed' },
+            { id: 7, category: '개인정보', title: '개인정보 조회·다운로드 로그', criteria: '회원 개인정보 조회, 엑셀 다운로드, 마스킹 해제 이력이 기록되는지 확인', status: 'issue' },
+            { id: 8, category: '개인정보', title: '개인정보 처리 로그 보관 기간', criteria: '개인정보보호법 기준 3년 이상 보관 정책 준수 여부', status: 'pending' },
+            { id: 9, category: '시스템', title: '로그 무결성(변경·삭제 방지)', criteria: '감사 로그에 대한 수정·삭제 API 차단 및 DB 권한 분리 확인', status: 'completed' },
+            { id: 10, category: '시스템', title: '로그 백업·아카이브 분리', criteria: '운영 DB와 별도 아카이브/백업 저장소에 로그 이중 보관 여부', status: 'pending' },
+            { id: 11, category: 'API/발송', title: 'API 호출·발송 로그 추적', criteria: '외부 API 호출, 대량 발송 요청에 대한 요청자·IP·파라미터 로그 확인', status: 'completed' },
+            { id: 12, category: '시스템', title: 'WAF/방화벽 로그 연동', criteria: '웹 방화벽, IDS 로그와 어드민 접근 로그 상호 대조 가능 여부', status: 'completed' }
+        ];
+
+        let currentCheckId = null;
+
+        function renderChecklist() {
+            const container = document.getElementById('checklist-container');
+            container.innerHTML = checklistItems.map(item => {
+                const statusClass = item.status === 'completed' ? 'checked' : (item.status === 'issue' ? 'issue' : '');
+                const badge = item.status === 'completed'
+                    ? '<span class="badge badge-success">완료</span>'
+                    : item.status === 'issue'
+                        ? '<span class="badge badge-danger">이슈</span>'
+                        : '<span class="badge badge-secondary">미점검</span>';
+                return `
+                    <div class="checklist-item ${statusClass}" data-id="${item.id}">
+                        <input type="checkbox" ${item.status === 'completed' ? 'checked' : ''} onchange="toggleCheck(${item.id}, this.checked)">
+                        <div class="checklist-meta">
+                            <div class="checklist-title">${item.category} — ${item.title}</div>
+                            <div class="checklist-desc">${item.criteria}</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            ${badge}
+                            <button class="btn btn-outline btn-sm" onclick="openCheckDetail(${item.id})">상세</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = checklistItems.length;
+            const completed = checklistItems.filter(i => i.status === 'completed').length;
+            const issues = checklistItems.filter(i => i.status === 'issue').length;
+            const rate = Math.round((completed / total) * 100);
+
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-completed').textContent = completed;
+            document.getElementById('stat-issues').textContent = issues;
+            document.getElementById('stat-rate').textContent = rate + '%';
+            document.getElementById('progress-fill').style.width = rate + '%';
+        }
+
+        function switchTab(tabName, el) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).style.display = 'block';
+            el.classList.add('active');
+        }
+
+        function toggleCheck(id, checked) {
+            const item = checklistItems.find(i => i.id === id);
+            if (item) {
+                item.status = checked ? 'completed' : 'pending';
+                renderChecklist();
+            }
+        }
+
+        function openCheckDetail(id) {
+            currentCheckId = id;
+            const item = checklistItems.find(i => i.id === id);
+            document.getElementById('detail-title').textContent = item.title;
+            document.getElementById('detail-criteria').textContent = item.criteria;
+            document.getElementById('detail-result').value = item.status;
+            document.getElementById('detail-memo').value = item.memo || '';
+            openModal('check-detail-modal');
+        }
+
+        function saveCheckDetail() {
+            const item = checklistItems.find(i => i.id === currentCheckId);
+            item.status = document.getElementById('detail-result').value;
+            item.memo = document.getElementById('detail-memo').value;
+            renderChecklist();
+            closeModal('check-detail-modal');
+            showToast('점검 결과가 저장되었습니다.', 'success');
+        }
+
+        function searchChecklist() {
+            showToast('점검 목록을 조회했습니다.', 'success');
+        }
+
+        function exportChecklist() {
+            showToast('점검 결과 내보내기가 시작되었습니다.', 'success');
+        }
+
+        function registerIssue(id) {
+            if (confirm('해당 이상 징후를 이슈로 등록하고 조치 및 결과 확인 메뉴로 이동하시겠습니까?')) {
+                location.href = 'security-action-result.html?from=log-check&id=' + id;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', renderChecklist);
+    </script>
+</body>
+</html>

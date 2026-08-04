@@ -121,10 +121,17 @@
             </div>
             <div style="padding: 24px;">
                 <div class="form-group">
-                    <label class="form-label">배너 이미지</label>
-                    <input type="file" class="form-control" id="banner-image" accept="image/*" onchange="previewBannerImage(this)">
-                    <div id="banner-image-preview" style="margin-top: 12px;">
-                        <img id="banner-preview-img" src="" alt="미리보기" style="max-width: 100%; max-height: 300px; display: none; border-radius: 4px;">
+                    <label class="form-label">배너 이미지(PC)</label>
+                    <input type="file" class="form-control" id="banner-image-pc" accept="image/*" onchange="previewBannerImage(this, 'pc')">
+                    <div id="banner-image-preview-pc" style="margin-top: 12px;">
+                        <img id="banner-preview-img-pc" src="" alt="PC 미리보기" style="max-width: 100%; max-height: 300px; display: none; border-radius: 4px;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">배너 이미지(MO)</label>
+                    <input type="file" class="form-control" id="banner-image-mo" accept="image/*" onchange="previewBannerImage(this, 'mo')">
+                    <div id="banner-image-preview-mo" style="margin-top: 12px;">
+                        <img id="banner-preview-img-mo" src="" alt="MO 미리보기" style="max-width: 100%; max-height: 300px; display: none; border-radius: 4px;">
                     </div>
                 </div>
                 <div class="form-group">
@@ -175,6 +182,19 @@
             document.getElementById(`tab-${tabName}`).style.display = 'block';
         }
         
+        function resetBannerImagePreview(type) {
+            document.getElementById(`banner-image-${type}`).value = '';
+            const preview = document.getElementById(`banner-preview-img-${type}`);
+            preview.src = '';
+            preview.style.display = 'none';
+        }
+        
+        function hasBannerImage(type) {
+            const imageFile = document.getElementById(`banner-image-${type}`).files[0];
+            const preview = document.getElementById(`banner-preview-img-${type}`);
+            return imageFile || (preview.style.display !== 'none' && preview.src);
+        }
+        
         function openAddBannerModal(type) {
             currentBannerType = type;
             currentBannerId = null;
@@ -185,8 +205,8 @@
             document.getElementById('banner-end-date').value = '';
             document.getElementById('banner-order').value = '1';
             document.getElementById('banner-status').value = 'active';
-            document.getElementById('banner-image').value = '';
-            document.getElementById('banner-preview-img').style.display = 'none';
+            resetBannerImagePreview('pc');
+            resetBannerImagePreview('mo');
             openModal('banner-modal');
         }
         
@@ -201,11 +221,17 @@
             document.getElementById('banner-end-date').value = '2025-01-31T23:59';
             document.getElementById('banner-order').value = '1';
             document.getElementById('banner-status').value = 'active';
+            resetBannerImagePreview('pc');
+            resetBannerImagePreview('mo');
+            document.getElementById('banner-preview-img-pc').src = 'https://via.placeholder.com/800x400';
+            document.getElementById('banner-preview-img-pc').style.display = 'block';
+            document.getElementById('banner-preview-img-mo').src = 'https://via.placeholder.com/400x400';
+            document.getElementById('banner-preview-img-mo').style.display = 'block';
             openModal('banner-modal');
         }
         
-        function previewBannerImage(input) {
-            const preview = document.getElementById('banner-preview-img');
+        function previewBannerImage(input, type) {
+            const preview = document.getElementById(`banner-preview-img-${type}`);
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -226,6 +252,16 @@
             
             if (!title || !url) {
                 showToast('제목과 링크 URL을 입력해주세요.', 'error');
+                return;
+            }
+            
+            if (!hasBannerImage('pc')) {
+                showToast('PC 배너 이미지를 등록해주세요.', 'error');
+                return;
+            }
+            
+            if (!hasBannerImage('mo')) {
+                showToast('MO 배너 이미지를 등록해주세요.', 'error');
                 return;
             }
             

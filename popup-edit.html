@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>팝업 등록 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+    <style>
+        .form-section {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .form-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .content-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .content-type-option {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .content-type-option:hover { border-color: #93c5fd; background: #f8fafc; }
+        .content-type-option.active { border-color: #3b82f6; background: #eff6ff; }
+        .content-type-option .label { font-weight: 600; color: #1e293b; }
+        .content-type-option .desc { font-size: 12px; color: #64748b; margin-top: 4px; }
+        .template-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .template-option {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .template-option:hover { border-color: #93c5fd; }
+        .template-option.active { border-color: #3b82f6; box-shadow: 0 0 0 3px #dbeafe; }
+        .template-preview-header {
+            padding: 12px 16px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .template-preview-header.notice { background: #dbeafe; color: #1e40af; }
+        .template-preview-header.alert { background: #fef3c7; color: #92400e; }
+        .template-preview-body {
+            padding: 16px;
+            font-size: 13px;
+            color: #475569;
+            background: white;
+            min-height: 60px;
+        }
+        .popup-live-preview {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            max-width: 420px;
+            margin: 0 auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .popup-live-preview .popup-overlay-demo {
+            background: rgba(0,0,0,0.4);
+            padding: 40px 20px;
+        }
+        .popup-live-preview .popup-box {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .popup-live-preview .popup-header {
+            padding: 14px 20px 16px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .popup-live-preview .popup-header.notice { background: #3b82f6; color: white; }
+        .popup-live-preview .popup-header.alert { background: #f59e0b; color: white; }
+        .popup-live-preview .popup-template-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0.9;
+            margin-bottom: 6px;
+        }
+        .popup-live-preview .popup-title {
+            display: block;
+            font-size: 17px;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+        .popup-live-preview .popup-body {
+            padding: 16px 20px 20px;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #334155;
+            text-align: center;
+            text-indent: 0;
+        }
+        .popup-live-preview .popup-image-wrap img {
+            width: 100%;
+            display: block;
+        }
+        .popup-live-preview .popup-footer {
+            padding: 12px 20px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+        .popup-live-preview .popup-link-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        .content-panel { display: none; }
+        .content-panel.active { display: block; }
+        .link-panel { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px dashed #e2e8f0; }
+        .link-panel.active { display: block; }
+        .image-preview {
+            margin-top: 12px;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .image-preview img {
+            max-width: 100%;
+            max-height: 240px;
+            border-radius: 4px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('popup-manage'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('팝업 등록'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="form-section">
+                    <div class="form-section-title">기본 정보</div>
+                    <div class="form-group">
+                        <label class="form-label">팝업명 (관리용) <span style="color: #ef4444;">*</span></label>
+                        <input type="text" class="form-control" id="popup-name" placeholder="어드민에서 구분할 팝업명">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">노출 시작일시 <span style="color: #ef4444;">*</span></label>
+                            <input type="datetime-local" class="form-control" id="popup-start">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">노출 종료일시 <span style="color: #ef4444;">*</span></label>
+                            <input type="datetime-local" class="form-control" id="popup-end">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">노출 대상</label>
+                            <select class="form-control" id="popup-target">
+                                <option value="all">전체 (로그인/비로그인)</option>
+                                <option value="guest">비로그인 사용자</option>
+                                <option value="member">로그인 사용자</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">상태</label>
+                            <select class="form-control" id="popup-status">
+                                <option value="active">노출</option>
+                                <option value="inactive">비노출</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="popup-hide-today" checked>
+                            "오늘 하루 보지 않기" 옵션 제공
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">팝업 유형</div>
+                    <div class="content-type-selector">
+                        <div class="content-type-option active" id="type-image" onclick="selectContentType('image')">
+                            <div class="label">이미지 팝업</div>
+                            <div class="desc">이미지 파일을 업로드하여 노출</div>
+                        </div>
+                        <div class="content-type-option" id="type-text" onclick="selectContentType('text')">
+                            <div class="label">텍스트 팝업</div>
+                            <div class="desc">공지/알림 템플릿으로 텍스트 노출</div>
+                        </div>
+                    </div>
+
+                    <div id="panel-image" class="content-panel active">
+                        <div class="form-group">
+                            <label class="form-label">팝업 이미지(PC) <span style="color: #ef4444;">*</span></label>
+                            <input type="file" class="form-control" id="popup-image-pc" accept="image/*" onchange="previewImage(this, 'pc')">
+                            <div style="color: #64748b; font-size: 12px; margin-top: 8px;">권장: 480 x 600px 이상 | JPG, PNG, GIF, WebP</div>
+                            <div class="image-preview" id="preview-wrap-pc" style="display: none;">
+                                <img id="preview-img-pc" src="" alt="PC 미리보기">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">팝업 이미지(MO)</label>
+                            <input type="file" class="form-control" id="popup-image-mo" accept="image/*" onchange="previewImage(this, 'mo')">
+                            <div style="color: #64748b; font-size: 12px; margin-top: 8px;">미등록 시 PC 이미지 사용 | 권장: 320 x 480px</div>
+                            <div class="image-preview" id="preview-wrap-mo" style="display: none;">
+                                <img id="preview-img-mo" src="" alt="MO 미리보기">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="panel-text" class="content-panel">
+                        <div class="form-group">
+                            <label class="form-label">템플릿 선택 <span style="color: #ef4444;">*</span></label>
+                            <div class="template-selector">
+                                <div class="template-option active" id="template-notice" onclick="selectTemplate('notice')">
+                                    <div class="template-preview-header notice">공지</div>
+                                    <div class="template-preview-body">일반 공지, 이벤트, 운영 안내 등에 사용</div>
+                                </div>
+                                <div class="template-option" id="template-alert" onclick="selectTemplate('alert')">
+                                    <div class="template-preview-header alert">알림</div>
+                                    <div class="template-preview-body">점검, 긴급 안내, 주의사항 등에 사용</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">팝업 제목 (노출) <span style="color: #ef4444;">*</span></label>
+                            <input type="text" class="form-control" id="popup-display-title" placeholder="사용자에게 보이는 제목" oninput="updateLivePreview()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">팝업 내용 <span style="color: #ef4444;">*</span></label>
+                            <textarea class="form-control" id="popup-content" rows="6" placeholder="팝업에 표시할 내용을 입력하세요" oninput="updateLivePreview()"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">링크 설정</div>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="use-link" value="false" checked onchange="toggleLinkPanel(false)">
+                            링크 없음 (공지만 표시)
+                        </label>
+                        <label>
+                            <input type="radio" name="use-link" value="true" onchange="toggleLinkPanel(true)">
+                            링크 연결 (클릭 시 페이지 이동)
+                        </label>
+                    </div>
+                    <div id="link-panel" class="link-panel">
+                        <div class="form-group">
+                            <label class="form-label">링크 URL <span style="color: #ef4444;">*</span></label>
+                            <input type="url" class="form-control" id="popup-link-url" placeholder="https://example.com/page">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">링크 열기 방식</label>
+                            <select class="form-control" id="popup-link-target">
+                                <option value="_self">현재 창에서 열기</option>
+                                <option value="_blank">새 창에서 열기</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="link-button-group" style="display: none;">
+                            <label class="form-label">버튼 문구 (텍스트 팝업)</label>
+                            <input type="text" class="form-control" id="popup-link-text" value="자세히 보기" oninput="updateLivePreview()">
+                        </div>
+                        <div style="font-size: 13px; color: #64748b; margin-top: 8px;" id="link-hint-image">
+                            이미지 팝업: 이미지 클릭 시 링크 URL로 이동합니다.
+                        </div>
+                        <div style="font-size: 13px; color: #64748b; margin-top: 8px; display: none;" id="link-hint-text">
+                            텍스트 팝업: 하단 버튼 클릭 시 링크 URL로 이동합니다.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">미리보기</div>
+                    <div class="popup-live-preview" id="live-preview">
+                        <div class="popup-overlay-demo">
+                            <div class="popup-box" id="preview-box"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-outline" onclick="cancelEdit()">취소</button>
+                    <button class="btn btn-secondary" onclick="openFullPreview()">전체 미리보기</button>
+                    <button class="btn btn-primary" onclick="savePopup()">저장</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="preview-modal" class="modal">
+        <div class="modal-content" style="max-width: 480px; background: transparent; box-shadow: none;">
+            <div id="modal-preview-content"></div>
+            <div style="text-align: center; margin-top: 16px;">
+                <button class="btn btn-outline" style="background: white;" onclick="closeModal('preview-modal')">닫기</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        let contentType = 'image';
+        let textTemplate = 'notice';
+        let popupId = null;
+
+        function selectContentType(type) {
+            contentType = type;
+            document.getElementById('type-image').classList.toggle('active', type === 'image');
+            document.getElementById('type-text').classList.toggle('active', type === 'text');
+            document.getElementById('panel-image').classList.toggle('active', type === 'image');
+            document.getElementById('panel-text').classList.toggle('active', type === 'text');
+            document.getElementById('link-button-group').style.display = type === 'text' ? 'block' : 'none';
+            document.getElementById('link-hint-image').style.display = type === 'image' ? 'block' : 'none';
+            document.getElementById('link-hint-text').style.display = type === 'text' ? 'block' : 'none';
+            updateLivePreview();
+        }
+
+        function selectTemplate(template) {
+            textTemplate = template;
+            document.getElementById('template-notice').classList.toggle('active', template === 'notice');
+            document.getElementById('template-alert').classList.toggle('active', template === 'alert');
+            updateLivePreview();
+        }
+
+        function toggleLinkPanel(useLink) {
+            document.getElementById('link-panel').classList.toggle('active', useLink);
+            updateLivePreview();
+        }
+
+        function previewImage(input, type) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById(`preview-img-${type}`).src = e.target.result;
+                    document.getElementById(`preview-wrap-${type}`).style.display = 'block';
+                    updateLivePreview();
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function isLinkEnabled() {
+            return document.querySelector('input[name="use-link"]:checked').value === 'true';
+        }
+
+        function getPreviewHtml() {
+            const useLink = isLinkEnabled();
+            const linkUrl = document.getElementById('popup-link-url').value || '#';
+            const hideToday = document.getElementById('popup-hide-today').checked;
+
+            if (contentType === 'image') {
+                const pcImg = document.getElementById('preview-img-pc');
+                const imgSrc = pcImg.src && pcImg.style.display !== 'none'
+                    ? pcImg.src
+                    : 'https://via.placeholder.com/400x500?text=Popup+Image';
+                const imageTag = useLink
+                    ? `<a href="${linkUrl}" target="_blank"><img src="${imgSrc}" alt="팝업"></a>`
+                    : `<img src="${imgSrc}" alt="팝업">`;
+                return `
+                    <div class="popup-box">
+                        <div class="popup-image-wrap">${imageTag}</div>
+                        <div class="popup-footer">
+                            ${hideToday ? '<label style="color:#64748b;"><input type="checkbox"> 오늘 하루 보지 않기</label>' : '<span></span>'}
+                            <button style="background:none;border:none;font-size:20px;cursor:pointer;color:#64748b;">&times;</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const title = document.getElementById('popup-display-title').value || '팝업 제목';
+            const content = (document.getElementById('popup-content').value || '팝업 내용을 입력하세요.').trim();
+            const templateLabel = textTemplate === 'notice' ? '공지' : '알림';
+            const linkText = document.getElementById('popup-link-text').value || '자세히 보기';
+            const linkBtn = useLink ? `<a href="${linkUrl}" class="popup-link-btn" target="_blank">${linkText}</a>` : '';
+
+            return `
+                <div class="popup-box">
+                    <div class="popup-header ${textTemplate}">
+                        <span class="popup-template-label">${templateLabel}</span>
+                        <span class="popup-title">${title}</span>
+                    </div>
+                    <div class="popup-body">${content.replace(/\n/g, '<br>')}</div>
+                    <div class="popup-footer">
+                        ${hideToday ? '<label style="color:#64748b;"><input type="checkbox"> 오늘 하루 보지 않기</label>' : '<span></span>'}
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            ${linkBtn}
+                            <button style="background:none;border:none;font-size:20px;cursor:pointer;color:#64748b;">&times;</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateLivePreview() {
+            document.getElementById('live-preview').innerHTML = `
+                <div class="popup-overlay-demo">${getPreviewHtml()}</div>
+            `;
+        }
+
+        function openFullPreview() {
+            updateLivePreview();
+            document.getElementById('modal-preview-content').innerHTML = `
+                <div class="popup-live-preview">
+                    <div class="popup-overlay-demo">${getPreviewHtml()}</div>
+                </div>
+            `;
+            openModal('preview-modal');
+        }
+
+        function loadPopupData(id) {
+            document.getElementById('popup-name').value = '2025년 설 연휴 운영 안내';
+            document.getElementById('popup-start').value = '2025-01-20T00:00';
+            document.getElementById('popup-end').value = '2025-02-05T23:59';
+            document.getElementById('popup-target').value = 'all';
+            document.getElementById('popup-status').value = 'active';
+            selectContentType('text');
+            selectTemplate('notice');
+            document.getElementById('popup-display-title').value = '설 연휴 고객센터 운영 안내';
+            document.getElementById('popup-content').value = '2025년 설 연휴 기간(1/28~1/30) 고객센터 운영 시간이 변경됩니다.\n\n운영 시간: 10:00 ~ 16:00\n긴급 문의: support@tokbell.com';
+            updateLivePreview();
+        }
+
+        function savePopup() {
+            const name = document.getElementById('popup-name').value.trim();
+            const start = document.getElementById('popup-start').value;
+            const end = document.getElementById('popup-end').value;
+            const useLink = isLinkEnabled();
+
+            if (!name) { showToast('팝업명을 입력해주세요.', 'error'); return; }
+            if (!start || !end) { showToast('노출 기간을 설정해주세요.', 'error'); return; }
+            if (new Date(start) >= new Date(end)) { showToast('종료일시는 시작일시 이후여야 합니다.', 'error'); return; }
+
+            if (contentType === 'image') {
+                const hasPc = document.getElementById('popup-image-pc').files[0]
+                    || document.getElementById('preview-wrap-pc').style.display !== 'none';
+                if (!hasPc) { showToast('PC 팝업 이미지를 등록해주세요.', 'error'); return; }
+            } else {
+                const title = document.getElementById('popup-display-title').value.trim();
+                const content = document.getElementById('popup-content').value.trim();
+                if (!title) { showToast('팝업 제목을 입력해주세요.', 'error'); return; }
+                if (!content) { showToast('팝업 내용을 입력해주세요.', 'error'); return; }
+            }
+
+            if (useLink && !document.getElementById('popup-link-url').value.trim()) {
+                showToast('링크 URL을 입력해주세요.', 'error');
+                return;
+            }
+
+            showToast(popupId ? '팝업이 수정되었습니다.' : '팝업이 등록되었습니다.', 'success');
+            setTimeout(() => location.href = 'popup-manage.html', 800);
+        }
+
+        function cancelEdit() {
+            if (confirm('작성 중인 내용이 저장되지 않습니다. 취소하시겠습니까?')) {
+                location.href = 'popup-manage.html';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            popupId = params.get('id');
+            if (popupId) {
+                document.querySelector('.page-title').textContent = '팝업 수정';
+                document.title = '팝업 수정 - 관리자 시스템';
+                loadPopupData(popupId);
+            } else {
+                updateLivePreview();
+            }
+            if (params.get('preview') === '1') {
+                setTimeout(openFullPreview, 300);
+            }
+        });
+    </script>
+</body>
+</html>

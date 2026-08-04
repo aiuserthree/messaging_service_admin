@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>조치 및 결과 확인 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+    <style>
+        .tab-content { margin-top: 24px; }
+        .audit-info-box {
+            padding: 16px 20px;
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        .audit-info-box strong { color: #166534; }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('security-action-result'));
+        </script>
+        
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('조치 및 결과 확인'));
+            </script>
+            
+            <div class="admin-content">
+                <div class="audit-info-box">
+                    <div style="font-weight: 600; color: #166534; margin-bottom: 8px;">사이트 오픈 전 보안 감사 — 조치 및 결과 확인</div>
+                    <div style="font-size: 13px; color: #166534; line-height: 1.7;">
+                        <strong>로그 점검</strong>에서 발견된 이슈에 대한 조치 계획, 진행 상태, 재점검 결과를 관리합니다.
+                        모든 조치 완료 및 재점검 적합 확인 후 오픈 승인 절차를 진행할 수 있습니다.
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">전체 이슈</span>
+                            <div class="stat-card-icon icon-chart">📌</div>
+                        </div>
+                        <div class="stat-card-value">5</div>
+                        <div class="stat-card-change">로그 점검 연계 이슈</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">조치 완료</span>
+                            <div class="stat-card-icon icon-success">✓</div>
+                        </div>
+                        <div class="stat-card-value">2</div>
+                        <div class="stat-card-change positive">재점검 적합 2건</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">조치 중 / 미조치</span>
+                            <div class="stat-card-icon icon-pending">⏳</div>
+                        </div>
+                        <div class="stat-card-value">3</div>
+                        <div class="stat-card-change negative">오픈 전 해결 필요</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="search-filter-bar">
+                        <div class="filter-item">
+                            <label class="form-label">감사 회차</label>
+                            <select class="form-control" id="audit-round">
+                                <option value="2025-06-open">2025-06 사이트 오픈 감사</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">심각도</label>
+                            <select class="form-control" id="filter-severity">
+                                <option value="">전체</option>
+                                <option value="high">상</option>
+                                <option value="medium">중</option>
+                                <option value="low">하</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">조치 상태</label>
+                            <select class="form-control" id="filter-action-status">
+                                <option value="">전체</option>
+                                <option value="open">미조치</option>
+                                <option value="progress">조치 중</option>
+                                <option value="done">조치 완료</option>
+                                <option value="verified">재점검 적합</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">담당자</label>
+                            <input type="text" class="form-control" placeholder="담당자명" id="filter-assignee">
+                        </div>
+                        <div class="filter-item" style="align-self: flex-end;">
+                            <button class="btn btn-primary" onclick="searchActions()">조회</button>
+                            <button class="btn btn-secondary" onclick="openActionModal()">조치 등록</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tabs" style="margin-top: 24px;">
+                    <button class="tab active" onclick="switchTab('list', this)">조치 목록</button>
+                    <button class="tab" onclick="switchTab('timeline', this)">조치 타임라인</button>
+                    <button class="tab" onclick="switchTab('report', this)">감사 결과 보고</button>
+                </div>
+
+                <div id="tab-list" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">이슈별 조치 및 결과</h3>
+                            <div class="card-description">로그 점검에서 도출된 이슈의 조치 계획·실행·재점검 결과</div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>이슈 ID</th>
+                                        <th>발견 경로</th>
+                                        <th>심각도</th>
+                                        <th>이슈 내용</th>
+                                        <th>담당자</th>
+                                        <th>조치 기한</th>
+                                        <th>조치 상태</th>
+                                        <th>재점검 결과</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="action-list-body">
+                                    <tr>
+                                        <td>ISS-2025-001</td>
+                                        <td>로그 점검</td>
+                                        <td><span class="badge badge-danger">상</span></td>
+                                        <td>작업(감사) 로그 보관 기간 180일 — 정책 3년 미달</td>
+                                        <td>김보안</td>
+                                        <td>2025-06-25</td>
+                                        <td><span class="badge badge-warning">조치 중</span></td>
+                                        <td><span class="badge badge-secondary">대기</span></td>
+                                        <td><button class="btn btn-primary btn-sm" onclick="openActionDetail(1)">상세</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>ISS-2025-002</td>
+                                        <td>로그 점검</td>
+                                        <td><span class="badge badge-danger">상</span></td>
+                                        <td>개인정보 대량 조회 탐지 — operator01</td>
+                                        <td>이운영</td>
+                                        <td>2025-06-20</td>
+                                        <td><span class="badge badge-info">조치 완료</span></td>
+                                        <td><span class="badge badge-success">적합</span></td>
+                                        <td><button class="btn btn-primary btn-sm" onclick="openActionDetail(2)">상세</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>ISS-2025-003</td>
+                                        <td>이상 징후 탐지</td>
+                                        <td><span class="badge badge-warning">중</span></td>
+                                        <td>비업무시간 관리자 접근 (admin01, 02:14)</td>
+                                        <td>박감사</td>
+                                        <td>2025-06-22</td>
+                                        <td><span class="badge badge-danger">미조치</span></td>
+                                        <td><span class="badge badge-secondary">대기</span></td>
+                                        <td><button class="btn btn-primary btn-sm" onclick="openActionDetail(3)">상세</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>ISS-2025-004</td>
+                                        <td>이상 징후 탐지</td>
+                                        <td><span class="badge badge-danger">상</span></td>
+                                        <td>로그인 실패 8회 — admin02 계정</td>
+                                        <td>김보안</td>
+                                        <td>2025-06-19</td>
+                                        <td><span class="badge badge-info">조치 완료</span></td>
+                                        <td><span class="badge badge-success">적합</span></td>
+                                        <td><button class="btn btn-primary btn-sm" onclick="openActionDetail(4)">상세</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>ISS-2025-005</td>
+                                        <td>로그 점검</td>
+                                        <td><span class="badge badge-warning">중</span></td>
+                                        <td>개인정보 처리 로그 보관 기간 1년 — 3년 미달</td>
+                                        <td>최개발</td>
+                                        <td>2025-06-28</td>
+                                        <td><span class="badge badge-warning">조치 중</span></td>
+                                        <td><span class="badge badge-secondary">대기</span></td>
+                                        <td><button class="btn btn-primary btn-sm" onclick="openActionDetail(5)">상세</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-timeline" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">조치 진행 타임라인</h3>
+                            <div class="card-description">이슈 발견부터 조치 완료·재점검까지의 이력</div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>일시</th>
+                                        <th>이슈 ID</th>
+                                        <th>구분</th>
+                                        <th>내용</th>
+                                        <th>처리자</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2025-06-22 09:00</td>
+                                        <td>ISS-2025-001</td>
+                                        <td><span class="badge badge-info">조치 계획</span></td>
+                                        <td>아카이브 DB 구축 및 로그 이관 일정 수립</td>
+                                        <td>김보안</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2025-06-20 15:30</td>
+                                        <td>ISS-2025-002</td>
+                                        <td><span class="badge badge-success">재점검 적합</span></td>
+                                        <td>조회 권한 재검토 및 대량 조회 알림 규칙 적용 확인</td>
+                                        <td>이운영</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2025-06-19 11:00</td>
+                                        <td>ISS-2025-004</td>
+                                        <td><span class="badge badge-success">재점검 적합</span></td>
+                                        <td>계정 잠금 정책 적용, IP 차단 완료</td>
+                                        <td>김보안</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2025-06-18 14:20</td>
+                                        <td>ISS-2025-003</td>
+                                        <td><span class="badge badge-warning">이슈 등록</span></td>
+                                        <td>로그 점검 — 비업무시간 접근 이상 징후에서 등록</td>
+                                        <td>박감사</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2025-06-17 10:00</td>
+                                        <td>ISS-2025-001</td>
+                                        <td><span class="badge badge-danger">이슈 등록</span></td>
+                                        <td>로그 보관 현황 점검 — 작업 로그 보관 기간 부적합</td>
+                                        <td>박감사</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-report" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">사이트 오픈 감사 결과 보고</h3>
+                            <div class="card-description">로그 점검 및 조치 결과 종합 — 오픈 승인 판단용</div>
+                        </div>
+                        <div style="padding: 24px;">
+                            <div class="form-group">
+                                <label class="form-label">감사 회차</label>
+                                <input type="text" class="form-control" value="2025-06 사이트 오픈 보안 감사" readonly style="background: #f8fafc;">
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group">
+                                    <label class="form-label">점검 기간</label>
+                                    <input type="text" class="form-control" value="2025-06-01 ~ 2025-06-22" readonly style="background: #f8fafc;">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">종합 판정</label>
+                                    <select class="form-control" id="report-verdict">
+                                        <option value="conditional">조건부 적합 (미완료 조치 존재)</option>
+                                        <option value="pass">적합 (오픈 승인 가능)</option>
+                                        <option value="fail">부적합 (오픈 보류)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">점검 요약</label>
+                                <textarea class="form-control" rows="4" readonly style="background: #f8fafc;">로그 점검 12개 항목 중 8개 완료, 2개 이슈 발견. 이상 징후 3건 중 2건 조치 완료 및 재점검 적합. 작업 로그 보관 기간, 개인정보 로그 보관, 비업무시간 접근 3건 조치 진행/미조치 상태로 오픈 전 완료 필요.</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">잔여 리스크 및 권고사항</label>
+                                <textarea class="form-control" rows="3" placeholder="오픈 후 모니터링 항목, 추가 보완 권고사항">1) 작업 로그 3년 보관 아카이브 구축 완료 전까지 주간 수동 백업 유지
+2) 비업무시간 접근 알림 규칙 적용 및 admin01 접근 사유 확인
+3) 개인정보 처리 로그 보관 정책 개정 및 시스템 반영</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">승인자 의견</label>
+                                <textarea class="form-control" rows="2" placeholder="최종 승인자 의견 입력"></textarea>
+                            </div>
+                            <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                                <button class="btn btn-outline" onclick="exportReport()">보고서 PDF 내보내기</button>
+                                <button class="btn btn-primary" onclick="saveReport()">감사 결과 저장</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="action-modal" class="modal">
+        <div class="modal-content" style="max-width: 720px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="action-modal-title">조치 등록</h3>
+                <button class="modal-close" onclick="closeModal('action-modal')">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <div class="form-group">
+                    <label class="form-label">연계 이슈 / 점검 항목</label>
+                    <select class="form-control" id="action-issue">
+                        <option value="">직접 입력 (신규 이슈)</option>
+                        <option value="log-check-4">로그 점검 — 비업무시간 접근 모니터링</option>
+                        <option value="log-check-7">로그 점검 — 개인정보 조회·다운로드 로그</option>
+                        <option value="anomaly-1">이상 징후 — 비업무시간 접근 (admin01)</option>
+                        <option value="anomaly-2">이상 징후 — 로그인 실패 반복 (admin02)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">이슈 내용 <span style="color: #ef4444;">*</span></label>
+                    <textarea class="form-control" id="action-description" rows="2" placeholder="발견된 이슈 내용"></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">심각도</label>
+                        <select class="form-control" id="action-severity">
+                            <option value="high">상</option>
+                            <option value="medium">중</option>
+                            <option value="low">하</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">담당자</label>
+                        <input type="text" class="form-control" id="action-assignee" placeholder="담당자명">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">조치 계획</label>
+                    <textarea class="form-control" id="action-plan" rows="3" placeholder="구체적인 조치 방안, 일정, 영향 범위"></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">조치 기한</label>
+                        <input type="date" class="form-control" id="action-due">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">조치 상태</label>
+                        <select class="form-control" id="action-status">
+                            <option value="open">미조치</option>
+                            <option value="progress">조치 중</option>
+                            <option value="done">조치 완료</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">조치 결과 / 재점검 내용</label>
+                    <textarea class="form-control" id="action-result" rows="2" placeholder="조치 완료 후 재점검 결과, 증빙 자료 링크 등"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">재점검 결과</label>
+                    <select class="form-control" id="action-verify">
+                        <option value="pending">대기</option>
+                        <option value="pass">적합</option>
+                        <option value="fail">부적합 (추가 조치 필요)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('action-modal')">취소</button>
+                <button class="btn btn-primary" onclick="saveAction()">저장</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/admin-common.js"></script>
+    <script>
+        function switchTab(tabName, el) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).style.display = 'block';
+            el.classList.add('active');
+        }
+
+        function searchActions() {
+            showToast('조치 목록을 조회했습니다.', 'success');
+        }
+
+        function openActionModal() {
+            document.getElementById('action-modal-title').textContent = '조치 등록';
+            document.getElementById('action-description').value = '';
+            document.getElementById('action-plan').value = '';
+            document.getElementById('action-result').value = '';
+            openModal('action-modal');
+        }
+
+        function openActionDetail(id) {
+            document.getElementById('action-modal-title').textContent = '조치 상세 / 수정';
+            const samples = {
+                1: { desc: '작업(감사) 로그 보관 기간 180일 — 정책 3년 미달', assignee: '김보안', status: 'progress', verify: 'pending' },
+                2: { desc: '개인정보 대량 조회 탐지 — operator01', assignee: '이운영', status: 'done', verify: 'pass' },
+                3: { desc: '비업무시간 관리자 접근 (admin01, 02:14)', assignee: '박감사', status: 'open', verify: 'pending' }
+            };
+            const data = samples[id] || samples[1];
+            document.getElementById('action-description').value = data.desc;
+            document.getElementById('action-assignee').value = data.assignee;
+            document.getElementById('action-status').value = data.status;
+            document.getElementById('action-verify').value = data.verify;
+            openModal('action-modal');
+        }
+
+        function saveAction() {
+            const desc = document.getElementById('action-description').value.trim();
+            if (!desc) {
+                showToast('이슈 내용을 입력해주세요.', 'error');
+                return;
+            }
+            closeModal('action-modal');
+            showToast('조치 내용이 저장되었습니다.', 'success');
+        }
+
+        function exportReport() {
+            showToast('감사 결과 보고서 PDF 내보내기가 시작되었습니다.', 'success');
+        }
+
+        function saveReport() {
+            showToast('감사 결과가 저장되었습니다.', 'success');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('from') === 'log-check') {
+                openActionModal();
+                document.getElementById('action-issue').value = 'anomaly-' + (params.get('id') || '1');
+                showToast('로그 점검에서 이슈 등록 화면으로 이동했습니다.', 'info');
+            }
+        });
+    </script>
+</body>
+</html>

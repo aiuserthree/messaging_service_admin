@@ -15,6 +15,9 @@ function getSidebarHTML(activeMenu) {
                     <a href="banner-manage.html" class="menu-item ${activeMenu === 'banner-manage' ? 'active' : ''}">
                         <span>배너 관리</span>
                     </a>
+                    <a href="popup-manage.html" class="menu-item ${activeMenu === 'popup-manage' ? 'active' : ''}">
+                        <span>팝업 관리</span>
+                    </a>
                 </div>
                 
                 <div class="menu-section">
@@ -137,6 +140,12 @@ function getSidebarHTML(activeMenu) {
                     </a>
                     <a href="work-log.html" class="menu-item ${activeMenu === 'work-log' ? 'active' : ''}">
                         <span>작업 로그</span>
+                    </a>
+                    <a href="security-log-check.html" class="menu-item ${activeMenu === 'security-log-check' ? 'active' : ''}">
+                        <span>로그 점검</span>
+                    </a>
+                    <a href="security-action-result.html" class="menu-item ${activeMenu === 'security-action-result' ? 'active' : ''}">
+                        <span>조치 및 결과 확인</span>
                     </a>
                     <a href="security-policy.html" class="menu-item ${activeMenu === 'security-policy' ? 'active' : ''}">
                         <span>보안 정책</span>
