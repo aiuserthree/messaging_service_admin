@@ -41,7 +41,7 @@
                                 <tr>
                                     <td><span class="badge badge-danger">최고 관리자</span></td>
                                     <td>모든 권한을 가진 최고 관리자 그룹</td>
-                                    <td>1명</td>
+                                    <td>2명</td>
                                     <td>2024-01-01</td>
                                     <td>
                                         <button class="btn btn-primary btn-sm" onclick="editPermissionGroup('super')">수정</button>
@@ -51,7 +51,7 @@
                                 <tr>
                                     <td><span class="badge badge-warning">운영 관리자</span></td>
                                     <td>일반 운영 업무를 담당하는 관리자 그룹</td>
-                                    <td>3명</td>
+                                    <td>2명</td>
                                     <td>2024-01-15</td>
                                     <td>
                                         <button class="btn btn-primary btn-sm" onclick="editPermissionGroup('operator')">수정</button>
@@ -61,7 +61,7 @@
                                 <tr>
                                     <td><span class="badge badge-info">심사 관리자</span></td>
                                     <td>발신번호 및 템플릿 심사를 담당하는 관리자 그룹</td>
-                                    <td>2명</td>
+                                    <td>1명</td>
                                     <td>2024-02-01</td>
                                     <td>
                                         <button class="btn btn-primary btn-sm" onclick="editPermissionGroup('reviewer')">수정</button>
@@ -71,11 +71,21 @@
                                 <tr>
                                     <td><span class="badge badge-secondary">고객 지원</span></td>
                                     <td>고객 문의 및 지원을 담당하는 관리자 그룹</td>
-                                    <td>5명</td>
+                                    <td>1명</td>
                                     <td>2024-02-10</td>
                                     <td>
                                         <button class="btn btn-primary btn-sm" onclick="editPermissionGroup('support')">수정</button>
                                         <button class="btn btn-outline btn-sm" onclick="viewPermissionDetail('support')">권한 상세</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge badge-secondary">일반 관리자</span></td>
+                                    <td>조회 위주의 최소 권한을 가진 기본 관리자 그룹</td>
+                                    <td>1명</td>
+                                    <td>2025-06-01</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="editPermissionGroup('general')">수정</button>
+                                        <button class="btn btn-outline btn-sm" onclick="viewPermissionDetail('general')">권한 상세</button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -286,26 +296,24 @@
                 name: '고객 지원',
                 description: '고객 문의 및 지원을 담당하는 관리자 그룹',
                 permissions: {}
+            },
+            'general': {
+                name: '일반 관리자',
+                description: '조회 위주의 최소 권한을 가진 기본 관리자 그룹',
+                permissions: {}
             }
         };
-        
+
         // 모든 메뉴 키를 가져와서 기본 권한 설정
         menuStructure.forEach(section => {
             section.items.forEach(item => {
-                // 최고 관리자는 모든 권한
-                if (!permissionGroups['super'].permissions[item.key]) {
-                    permissionGroups['super'].permissions[item.key] = { read: true, write: true, delete: true };
-                }
-                // 다른 그룹은 기본적으로 false
-                if (!permissionGroups['operator'].permissions[item.key]) {
-                    permissionGroups['operator'].permissions[item.key] = { read: false, write: false, delete: false };
-                }
-                if (!permissionGroups['reviewer'].permissions[item.key]) {
-                    permissionGroups['reviewer'].permissions[item.key] = { read: false, write: false, delete: false };
-                }
-                if (!permissionGroups['support'].permissions[item.key]) {
-                    permissionGroups['support'].permissions[item.key] = { read: false, write: false, delete: false };
-                }
+                Object.keys(permissionGroups).forEach(groupId => {
+                    if (permissionGroups[groupId].permissions[item.key]) return;
+                    // 최고 관리자는 모든 권한, 다른 그룹은 기본적으로 false
+                    permissionGroups[groupId].permissions[item.key] = groupId === 'super'
+                        ? { read: true, write: true, delete: true }
+                        : { read: false, write: false, delete: false };
+                });
             });
         });
         
@@ -327,6 +335,11 @@
         // 고객 지원 기본 권한 설정
         ['index', 'member-list', 'consultation-list', 'inquiry-list', 'notice-list', 'faq-list', 'promotion-manage'].forEach(key => {
             permissionGroups['support'].permissions[key] = { read: true, write: true, delete: false };
+        });
+
+        // 일반 관리자 기본 권한 설정 (조회 전용)
+        ['index', 'send-list', 'member-list', 'inquiry-list', 'notice-list', 'faq-list'].forEach(key => {
+            permissionGroups['general'].permissions[key] = { read: true, write: false, delete: false };
         });
         
         function openAddPermissionGroupModal() {
