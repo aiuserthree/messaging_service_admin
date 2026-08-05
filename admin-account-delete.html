@@ -61,19 +61,6 @@
             color: var(--admin-text-muted);
             padding: 40px 0;
         }
-        /* 화면 확인용 권한 시뮬레이터 — 실제 개발 시 제거하고 로그인 세션의 권한을 사용 */
-        .role-sim {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: var(--admin-text-secondary);
-        }
-        .role-sim select {
-            width: auto;
-            padding: 4px 8px;
-            font-size: 12px;
-        }
     </style>
 </head>
 <body>
@@ -90,20 +77,12 @@
 
             <div class="admin-content">
                 <div class="notice-box">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
-                        <div style="flex: 1; min-width: 320px;">
-                            <div class="notice-title">관리자 계정 삭제(탈퇴·말소) 및 권한 변경</div>
-                            <div class="notice-desc">
-                                계정 삭제와 권한 변경은 <strong>최고 관리자만</strong> 수행할 수 있으며, 실행 즉시 반영됩니다.
-                                처리 시 <strong>관리자 이름 · 계정 이메일(아이디) · 관리자 권한 · 신청 일자 · 삭제(변경) 일자 · 사유 · 승인자 · 처리자</strong>가
-                                이력으로 기록되며, 기록은 수정·삭제할 수 없습니다.
-                                (운영정책서 11.2.2 — 권한이 불필요해진 경우 지체 없이 말소하고 기록으로 관리, 분기 1회 검토·감사)
-                            </div>
-                        </div>
-                        <div class="role-sim">
-                            <span>화면 확인용 로그인 권한</span>
-                            <select class="form-control" id="role-sim" onchange="switchCurrentAdmin(this.value)"></select>
-                        </div>
+                    <div class="notice-title">관리자 계정 삭제(탈퇴·말소) 및 권한 변경</div>
+                    <div class="notice-desc">
+                        계정 삭제와 권한 변경은 <strong>최고 관리자만</strong> 수행할 수 있으며, 실행 즉시 반영됩니다.
+                        처리 시 <strong>관리자 이름 · 계정 이메일(아이디) · 관리자 권한 · 신청 일자 · 삭제(변경) 일자 · 사유 · 승인자 · 처리자</strong>가
+                        이력으로 기록되며, 기록은 수정·삭제할 수 없습니다.
+                        (운영정책서 11.2.2 — 권한이 불필요해진 경우 지체 없이 말소하고 기록으로 관리, 분기 1회 검토·감사)
                     </div>
                 </div>
 
@@ -609,14 +588,6 @@
             applySuperAdminGuard(currentAdmin.role);
         }
 
-        function switchCurrentAdmin(email) {
-            const account = adminAccounts.find(a => a.email === email);
-            if (account) {
-                currentAdmin = account;
-                setCurrentAdmin(account);
-            }
-            applyPermissionGuard();
-        }
 
         // ===== 필터 =====
         function getFilter() {
@@ -946,12 +917,6 @@
             ).join('');
             document.getElementById('del-target').innerHTML = '<option value="">선택하세요</option>' + options;
             document.getElementById('chg-target').innerHTML = '<option value="">선택하세요</option>' + options;
-
-            const sim = document.getElementById('role-sim');
-            const selected = currentAdmin.email;
-            sim.innerHTML = adminAccounts.map(a =>
-                `<option value="${a.email}" ${a.email === selected ? 'selected' : ''}>${a.name} — ${a.role}</option>`
-            ).join('');
         }
 
         function initSelects() {

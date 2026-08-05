@@ -84,21 +84,11 @@ document.addEventListener('DOMContentLoaded', function() {
 // ===== 최고 관리자 전용 UI 제어 =====
 const SUPER_ADMIN_ROLE = '최고 관리자';
 
-// 화면 확인용 로그인 계정 (실제 개발 시 로그인 세션 값으로 대체)
-const DEFAULT_ADMIN = { name: '박정호', email: 'jhpark@ibank.co.kr', role: SUPER_ADMIN_ROLE };
+// 현재 로그인한 관리자 — 실제 개발 시 로그인 세션(또는 인증 API 응답) 값으로 대체
+const CURRENT_ADMIN = { name: '박정호', email: 'jhpark@ibank.co.kr', role: SUPER_ADMIN_ROLE };
 
 function getCurrentAdmin() {
-    try {
-        const saved = sessionStorage.getItem('currentAdmin');
-        if (saved) return JSON.parse(saved);
-    } catch (e) {
-        // 저장값이 손상된 경우 기본 계정으로 복귀
-    }
-    return DEFAULT_ADMIN;
-}
-
-function setCurrentAdmin(admin) {
-    sessionStorage.setItem('currentAdmin', JSON.stringify(admin));
+    return CURRENT_ADMIN;
 }
 
 function isSuperAdmin(role) {
