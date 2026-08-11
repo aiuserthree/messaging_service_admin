@@ -243,7 +243,8 @@
             {
                 section: '스팸·제재 관리',
                 items: [
-                    { key: 'spam-filter', name: '스팸 필터링 단어', href: 'spam-filter.html' },
+                    { key: 'spam-filter', name: '차단정보(금칙어) 관리', href: 'spam-filter.html' },
+                    { key: 'spam-detection-log', name: '탐지·차단 결과 로그', href: 'spam-detection-log.html' },
                     { key: 'sanction-manage', name: '계정 제재 관리', href: 'sanction-manage.html' }
                 ]
             },
@@ -267,6 +268,7 @@
                 items: [
                     { key: 'access-log-admin', name: '관리자 접근 로그', href: 'access-log-admin.html' },
                     { key: 'access-log-member', name: '회원 접근 로그', href: 'access-log-member.html' },
+                    { key: 'member-auth-history', name: '회원 인증 이력', href: 'member-auth-history.html' },
                     { key: 'work-log', name: '작업 로그', href: 'work-log.html' },
                     { key: 'security-log-check', name: '로그 점검', href: 'security-log-check.html' },
                     { key: 'security-action-result', name: '조치 및 결과 확인', href: 'security-action-result.html' },
@@ -323,7 +325,7 @@
          'caller-number-pending', 'kakao-profile-list', 
          'payment-list', 'settlement-monthly', 'refund-list', 'tax-invoice',
          'consultation-list', 'inquiry-list', 'notice-list', 'faq-list', 'promotion-manage',
-         'spam-filter', 'sanction-manage'].forEach(key => {
+         'spam-filter', 'spam-detection-log', 'sanction-manage'].forEach(key => {
             permissionGroups['operator'].permissions[key] = { read: true, write: true, delete: false };
         });
         

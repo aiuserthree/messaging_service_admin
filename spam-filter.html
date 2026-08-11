@@ -3,8 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스팸 필터링 단어 관리 - 관리자 시스템</title>
+    <title>차단정보(금칙어) 관리 - 관리자 시스템</title>
     <link rel="stylesheet" href="css/admin-common.css">
+    <style>
+        .tab-content { margin-top: 24px; }
+        .audit-info-box {
+            padding: 16px 20px;
+            background: #eff6ff;
+            border: 1px solid #93c5fd;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        .audit-info-box strong { color: #1e40af; }
+
+        .empty-row td {
+            text-align: center;
+            padding: 48px 0;
+            color: var(--admin-text-muted);
+            font-size: 14px;
+        }
+
+        tbody tr.row-off { background-color: #f8fafc; color: var(--admin-text-muted); }
+        tbody tr.row-off .spam-chip { opacity: 0.55; }
+
+        .rule-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px 18px;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: var(--admin-surface);
+        }
+        .rule-item.off { background: #f8fafc; }
+        .rule-meta { flex: 1; }
+        .rule-title { font-weight: 600; color: var(--admin-text-primary); margin-bottom: 8px; }
+        .rule-desc { font-size: 13px; color: var(--admin-text-secondary); line-height: 1.7; margin-top: 8px; }
+        .rule-cond { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13px; }
+        .rule-and {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--admin-text-muted);
+            padding: 0 2px;
+        }
+
+        .sync-status {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            padding: 16px 20px;
+            background: #f8fafc;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .sync-status dt { font-size: 12px; color: var(--admin-text-secondary); margin-bottom: 4px; }
+        .sync-status dd { font-size: 15px; font-weight: 700; color: var(--admin-text-primary); }
+    </style>
 </head>
 <body>
     <div class="admin-container">
@@ -12,104 +68,549 @@
         <script>
             document.write(getSidebarHTML('spam-filter'));
         </script>
-        
+
         <main class="admin-main">
             <script>
-                document.write(getHeaderHTML('스팸 필터링 단어 관리'));
+                document.write(getHeaderHTML('차단정보(금칙어) 관리'));
             </script>
-            
+
             <div class="admin-content">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">스팸 필터링 단어 등록</h3>
-                        <div class="card-description">스팸 메시지에 자주 사용되는 단어를 금지어로 설정하여 해당 단어를 포함한 메시지는 발송이 불가하도록 처리</div>
+                <div class="audit-info-box">
+                    <div style="font-weight: 600; color: #1e40af; margin-bottom: 8px;">금칙어 등 차단 체계(스팸 필터링) 운영</div>
+                    <div style="font-size: 13px; color: #1e40af; line-height: 1.7;">
+                        문자 발송 요청 시점에 내용에 포함된 <strong>금칙어·URL·전화번호</strong>를 자동 탐지해 발송을 차단하거나 보류합니다.
+                        차단정보는 자체 등록과 <strong>한국인터넷진흥원 등 외부기관 연동</strong>으로 구성하며,
+                        단독으로는 보류 수준인 항목도 <strong>다중 조합 규칙</strong>에 걸리면 즉시 차단으로 상향됩니다.
+                        탐지 결과는 <a href="spam-detection-log.html" style="color:#1e40af;font-weight:600;">탐지·차단 결과 로그</a>에서 확인합니다.
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">금지어 추가</label>
-                        <div style="display: flex; gap: 12px; align-items: center;">
-                            <input type="text" class="form-control" placeholder="금지어 입력" id="filter-word" style="max-width: 250px;">
-                            <button class="btn btn-primary" onclick="addFilterWord()">추가</button>
+                </div>
+
+                <div class="stats-grid stats-4">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">등록 차단정보</span>
+                            <div class="stat-card-icon icon-chart">📋</div>
                         </div>
+                        <div class="stat-card-value" id="stat-total">0</div>
+                        <div class="stat-card-change">사용 중 <span id="stat-enabled">0</span>건</div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">엑셀 일괄 등록</label>
-                        <div style="display: flex; gap: 12px; align-items: center;">
-                            <input type="file" class="form-control" accept=".xlsx,.xls" id="excel-file" style="max-width: 250px;">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">즉시 차단</span>
+                            <div class="stat-card-icon icon-fail">⛔</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-block">0</div>
+                        <div class="stat-card-change negative">탐지 즉시 발송 중단</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">보류</span>
+                            <div class="stat-card-icon icon-pending">⏸</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-hold">0</div>
+                        <div class="stat-card-change">승인 담당자 검토 대상</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">외부기관 연동</span>
+                            <div class="stat-card-icon icon-notice">🔄</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-sync">-</div>
+                        <div class="stat-card-change" id="stat-sync-desc">최근 동기화</div>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('items', this)">차단정보 목록</button>
+                    <button class="tab" onclick="switchTab('rules', this)">다중 조합 규칙</button>
+                    <button class="tab" onclick="switchTab('sync', this)">외부기관 연동·업데이트 내역</button>
+                </div>
+
+                <!-- 차단정보 목록 -->
+                <div id="tab-items" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">차단정보 등록</h3>
+                            <div class="card-description">금칙어(단어)·URL·도메인·전화번호를 등록하고 탐지 시 조치를 지정합니다</div>
+                        </div>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
+                            <div class="filter-item">
+                                <label class="form-label">구분</label>
+                                <select class="form-control" id="new-type">
+                                    <option value="word">금칙어</option>
+                                    <option value="url">URL·도메인</option>
+                                    <option value="phone">전화번호</option>
+                                </select>
+                            </div>
+                            <div class="search-box">
+                                <label class="form-label">차단정보</label>
+                                <input type="text" class="form-control" placeholder="예: 카지노 / bit.ly / 070-1234-5678" id="new-value">
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">조치</label>
+                                <select class="form-control" id="new-action">
+                                    <option value="block">즉시 차단</option>
+                                    <option value="hold">보류 (승인 담당자 검토)</option>
+                                </select>
+                            </div>
+                            <div class="search-box">
+                                <label class="form-label">비고</label>
+                                <input type="text" class="form-control" placeholder="분류·판단 근거" id="new-note">
+                            </div>
+                            <div class="filter-item" style="align-self: flex-end;">
+                                <button class="btn btn-primary" onclick="addItem()">추가</button>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--admin-border); display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                            <label class="form-label" style="margin: 0;">엑셀 일괄 등록</label>
+                            <input type="file" class="form-control" accept=".xlsx,.xls" id="excel-file" style="max-width: 260px;">
                             <button class="btn btn-outline" onclick="uploadExcel()">업로드</button>
                             <button class="btn btn-outline" onclick="downloadTemplate()">템플릿 다운로드</button>
                         </div>
                     </div>
-                </div>
-                
-                <div class="card" style="margin-top: 24px;">
-                    <div class="card-header">
-                        <h3 class="card-title">등록된 금지어 목록</h3>
+
+                    <div class="card" style="margin-top: 24px;">
+                        <div class="search-filter-bar" style="margin-bottom: 0;">
+                            <div class="search-box">
+                                <label class="form-label">검색</label>
+                                <input type="text" class="form-control" placeholder="차단정보·비고 검색" id="search-item">
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">구분</label>
+                                <select class="form-control" id="filter-type">
+                                    <option value="">전체</option>
+                                    <option value="word">금칙어</option>
+                                    <option value="url">URL·도메인</option>
+                                    <option value="phone">전화번호</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">조치</label>
+                                <select class="form-control" id="filter-action">
+                                    <option value="">전체</option>
+                                    <option value="block">즉시 차단</option>
+                                    <option value="hold">보류</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">출처</label>
+                                <select class="form-control" id="filter-source">
+                                    <option value="">전체</option>
+                                    <option value="self">자체 등록</option>
+                                    <option value="kisa">한국인터넷진흥원</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">사용여부</label>
+                                <select class="form-control" id="filter-enabled">
+                                    <option value="">전체</option>
+                                    <option value="on">사용</option>
+                                    <option value="off">미사용</option>
+                                </select>
+                            </div>
+                            <div class="filter-item" style="align-self: flex-end;">
+                                <button class="btn btn-primary" onclick="renderItems()">조회</button>
+                                <button class="btn btn-outline" onclick="exportItems()">엑셀 다운로드</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>금지어</th>
-                                    <th>등록일</th>
-                                    <th>등록자</th>
-                                    <th>관리</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>무료</td>
-                                    <td>2024-11-19</td>
-                                    <td>관리자</td>
-                                    <td>
-                                        <button class="btn btn-danger btn-sm" onclick="deleteFilterWord(1)">삭제</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>당첨</td>
-                                    <td>2024-11-19</td>
-                                    <td>관리자</td>
-                                    <td>
-                                        <button class="btn btn-danger btn-sm" onclick="deleteFilterWord(2)">삭제</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+
+                    <div class="card" style="margin-top: 24px;">
+                        <div class="card-header">
+                            <h3 class="card-title">등록된 차단정보</h3>
+                            <div class="card-description" id="item-count-desc">전체 0건</div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>구분</th>
+                                        <th>차단정보</th>
+                                        <th>조치</th>
+                                        <th>출처</th>
+                                        <th>비고</th>
+                                        <th>사용</th>
+                                        <th>등록일</th>
+                                        <th>최근 수정</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="item-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 다중 조합 규칙 -->
+                <div id="tab-rules" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">다중 조합 필터링 규칙</h3>
+                            <div class="card-description">차단정보 2개 이상이 함께 탐지될 때 적용하는 규칙 — 단독 보류 항목을 즉시 차단으로 상향합니다</div>
+                        </div>
+                        <div style="padding: 0 24px 24px;" id="rule-container"></div>
+                    </div>
+                </div>
+
+                <!-- 외부기관 연동 -->
+                <div id="tab-sync" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">외부기관 차단정보 연동</h3>
+                            <div class="card-description">한국인터넷진흥원 등 외부기관에서 공유받은 차단정보를 주기적으로 반영합니다</div>
+                        </div>
+                        <div style="padding: 0 24px 24px;">
+                            <dl class="sync-status">
+                                <div>
+                                    <dt>연동 기관</dt>
+                                    <dd>한국인터넷진흥원(KISA)</dd>
+                                </div>
+                                <div>
+                                    <dt>동기화 주기</dt>
+                                    <dd>매주 금요일 04:00 자동</dd>
+                                </div>
+                                <div>
+                                    <dt>최근 동기화</dt>
+                                    <dd id="sync-last">-</dd>
+                                </div>
+                                <div>
+                                    <dt>보유 차단정보</dt>
+                                    <dd id="sync-total">-</dd>
+                                </div>
+                                <div style="margin-left: auto; align-self: center;">
+                                    <button class="btn btn-primary" onclick="syncNow()">지금 동기화</button>
+                                </div>
+                            </dl>
+
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>반영일시</th>
+                                            <th>출처</th>
+                                            <th>신규</th>
+                                            <th>수정</th>
+                                            <th>삭제</th>
+                                            <th>반영 후 보유</th>
+                                            <th>결과</th>
+                                            <th>처리 주체</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="sync-tbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
     </div>
-    
+
+    <!-- 차단정보 수정 -->
+    <div id="item-modal" class="modal">
+        <div class="modal-content" style="max-width: 520px;">
+            <div class="modal-header">
+                <h3 class="modal-title">차단정보 수정</h3>
+                <button class="modal-close" onclick="closeModal('item-modal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">차단정보</label>
+                <div class="form-control" style="background: #f8fafc;" id="edit-value">-</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">조치</label>
+                <select class="form-control" id="edit-action">
+                    <option value="block">즉시 차단 — 탐지 즉시 발송 중단</option>
+                    <option value="hold">보류 — 승인 담당자 검토 후 전송</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">사용여부</label>
+                <select class="form-control" id="edit-enabled">
+                    <option value="on">사용</option>
+                    <option value="off">미사용</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">비고</label>
+                <input type="text" class="form-control" id="edit-note" placeholder="분류·판단 근거">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('item-modal')">취소</button>
+                <button class="btn btn-primary" onclick="saveItem()">저장</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/admin-common.js"></script>
+    <script src="js/spam-filter-data.js"></script>
     <script>
-        function addFilterWord() {
-            const word = document.getElementById('filter-word').value;
-            if (!word) {
-                showToast('금지어를 입력해주세요.', 'error');
+        let editingId = null;
+        let nextId = SPAM_BLOCK_ITEMS.reduce((max, i) => Math.max(max, i.id), 0) + 1;
+
+        /* ---------- 탭 ---------- */
+
+        function switchTab(name, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+            document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + name).style.display = 'block';
+            el.classList.add('active');
+        }
+
+        /* ---------- 차단정보 목록 ---------- */
+
+        function filteredItems() {
+            const keyword = document.getElementById('search-item').value.trim().toLowerCase();
+            const type = document.getElementById('filter-type').value;
+            const action = document.getElementById('filter-action').value;
+            const source = document.getElementById('filter-source').value;
+            const enabled = document.getElementById('filter-enabled').value;
+
+            return SPAM_BLOCK_ITEMS.filter(i => {
+                if (keyword && (i.value + ' ' + (i.note || '')).toLowerCase().indexOf(keyword) === -1) return false;
+                if (type && i.type !== type) return false;
+                if (action && i.action !== action) return false;
+                if (source && i.source !== source) return false;
+                if (enabled === 'on' && !i.enabled) return false;
+                if (enabled === 'off' && i.enabled) return false;
+                return true;
+            });
+        }
+
+        function renderItems() {
+            const list = filteredItems();
+            const tbody = document.getElementById('item-tbody');
+            document.getElementById('item-count-desc').textContent = `전체 ${formatNumber(list.length)}건`;
+
+            if (!list.length) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="9">조회 조건에 해당하는 차단정보가 없습니다.</td></tr>';
+                updateStats();
                 return;
             }
-            showToast('금지어가 추가되었습니다.', 'success');
-            document.getElementById('filter-word').value = '';
+
+            tbody.innerHTML = list.map(i => `
+                <tr class="${i.enabled ? '' : 'row-off'}">
+                    <td>${spamTypeBadge(i.type)}</td>
+                    <td><span class="spam-chip ${i.type}">${spamEscape(i.value)}</span></td>
+                    <td>${spamActionBadge(i.action)}</td>
+                    <td>${spamSourceBadge(i.source)}</td>
+                    <td>${spamEscape(i.note || '-')}</td>
+                    <td>${i.enabled ? '<span class="badge badge-success">사용</span>' : '<span class="badge badge-secondary">미사용</span>'}</td>
+                    <td>${i.createdAt}</td>
+                    <td>${i.updatedAt}</td>
+                    <td>
+                        <button class="btn btn-outline btn-sm" onclick="openItem(${i.id})">수정</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteItem(${i.id})">삭제</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            updateStats();
         }
-        
+
+        function updateStats() {
+            const enabled = SPAM_BLOCK_ITEMS.filter(i => i.enabled);
+            document.getElementById('stat-total').textContent = formatNumber(SPAM_BLOCK_ITEMS.length);
+            document.getElementById('stat-enabled').textContent = formatNumber(enabled.length);
+            document.getElementById('stat-block').textContent = formatNumber(enabled.filter(i => i.action === 'block').length);
+            document.getElementById('stat-hold').textContent = formatNumber(enabled.filter(i => i.action === 'hold').length);
+
+            const last = SPAM_SYNC_HISTORY.filter(s => s.source === 'kisa' && s.result === 'ok')[0];
+            document.getElementById('stat-sync').textContent = last ? last.at.slice(5, 10) : '-';
+            document.getElementById('stat-sync-desc').textContent = last
+                ? `신규 ${last.added} · 수정 ${last.updated} 반영`
+                : '동기화 이력 없음';
+        }
+
+        function today() {
+            const d = new Date();
+            const p = n => ('0' + n).slice(-2);
+            return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+        }
+
+        function addItem() {
+            const value = document.getElementById('new-value').value.trim();
+            if (!value) {
+                showToast('차단정보를 입력해주세요.', 'error');
+                return;
+            }
+            const type = document.getElementById('new-type').value;
+            if (SPAM_BLOCK_ITEMS.some(i => i.type === type && i.value === value)) {
+                showToast('이미 등록된 차단정보입니다.', 'error');
+                return;
+            }
+
+            // 실제 연동 시 POST /api/admin/spam/block-items
+            SPAM_BLOCK_ITEMS.unshift({
+                id: nextId++, type: type, value: value,
+                action: document.getElementById('new-action').value,
+                source: 'self', enabled: true,
+                note: document.getElementById('new-note').value.trim(),
+                createdAt: today(), createdBy: getCurrentAdmin().name, updatedAt: today()
+            });
+
+            document.getElementById('new-value').value = '';
+            document.getElementById('new-note').value = '';
+            renderItems();
+            showToast('차단정보가 등록되었습니다.', 'success');
+        }
+
+        function openItem(id) {
+            const item = SPAM_BLOCK_ITEMS.filter(i => i.id === id)[0];
+            if (!item) return;
+            editingId = id;
+            document.getElementById('edit-value').innerHTML =
+                spamTypeBadge(item.type) + ' <span class="spam-chip ' + item.type + '" style="margin-left:6px;">' + spamEscape(item.value) + '</span>';
+            document.getElementById('edit-action').value = item.action;
+            document.getElementById('edit-enabled').value = item.enabled ? 'on' : 'off';
+            document.getElementById('edit-note').value = item.note || '';
+            openModal('item-modal');
+        }
+
+        function saveItem() {
+            const item = SPAM_BLOCK_ITEMS.filter(i => i.id === editingId)[0];
+            if (!item) return;
+
+            // 실제 연동 시 PUT /api/admin/spam/block-items/{id}
+            item.action = document.getElementById('edit-action').value;
+            item.enabled = document.getElementById('edit-enabled').value === 'on';
+            item.note = document.getElementById('edit-note').value.trim();
+            item.updatedAt = today();
+
+            closeModal('item-modal');
+            renderItems();
+            showToast('차단정보가 수정되었습니다.', 'success');
+        }
+
+        function deleteItem(id) {
+            const item = SPAM_BLOCK_ITEMS.filter(i => i.id === id)[0];
+            if (!item) return;
+            if (item.source === 'kisa') {
+                showToast('외부기관 연동 차단정보는 삭제할 수 없습니다. 사용여부를 미사용으로 변경하세요.', 'error');
+                return;
+            }
+            confirmAction(`차단정보 "${item.value}"를 삭제하시겠습니까?`, function () {
+                // 실제 연동 시 DELETE /api/admin/spam/block-items/{id}
+                SPAM_BLOCK_ITEMS.splice(SPAM_BLOCK_ITEMS.indexOf(item), 1);
+                renderItems();
+                showToast('삭제되었습니다.', 'success');
+            });
+        }
+
         function uploadExcel() {
             const file = document.getElementById('excel-file').files[0];
             if (!file) {
                 showToast('파일을 선택해주세요.', 'error');
                 return;
             }
-            showToast('업로드 중...', 'info');
+            showToast('업로드한 차단정보를 검증 후 반영합니다.', 'info');
         }
-        
+
         function downloadTemplate() {
-            showToast('템플릿 다운로드 기능은 준비 중입니다.', 'info');
+            const csv = ['구분(word/url/phone),차단정보,조치(block/hold),비고',
+                         'word,카지노,block,불법 사행성',
+                         'url,bit.ly,hold,단축 URL',
+                         'phone,070-1234-5678,block,스팸 신고 번호'].join('\r\n');
+            downloadCsv(csv, '차단정보_등록양식.csv');
         }
-        
-        function deleteFilterWord(id) {
-            if (confirm('정말 삭제하시겠습니까?')) {
-                showToast('삭제되었습니다.', 'success');
+
+        function exportItems() {
+            const list = filteredItems();
+            if (!list.length) {
+                showToast('내보낼 차단정보가 없습니다.', 'error');
+                return;
             }
+            const header = ['구분', '차단정보', '조치', '출처', '비고', '사용여부', '등록일', '등록자', '최근 수정'];
+            const rows = list.map(i => [
+                SPAM_TYPE[i.type].label, i.value, SPAM_ACTION[i.action].label, SPAM_SOURCE[i.source].label,
+                i.note || '-', i.enabled ? '사용' : '미사용', i.createdAt, i.createdBy, i.updatedAt
+            ]);
+            downloadCsv([header, ...rows].map(cols =>
+                cols.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\r\n'),
+                `차단정보목록_${today()}.csv`);
+            showToast(`차단정보 ${formatNumber(list.length)}건을 내려받았습니다.`, 'success');
         }
+
+        function downloadCsv(csv, filename) {
+            const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        /* ---------- 다중 조합 규칙 ---------- */
+
+        function renderRules() {
+            document.getElementById('rule-container').innerHTML = SPAM_RULES.map(r => {
+                const cond = r.conditions.map(c =>
+                    `${spamTypeBadge(c.type)} <span class="spam-chip ${c.type}">${spamEscape(c.value)}</span>`
+                ).join('<span class="rule-and">AND</span>');
+                return `
+                    <div class="rule-item ${r.enabled ? '' : 'off'}">
+                        <div class="rule-meta">
+                            <div class="rule-title">${r.id} · ${r.name}</div>
+                            <div class="rule-cond">${cond}</div>
+                            <div class="rule-desc">${r.desc}</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                            ${spamActionBadge(r.action)}
+                            ${r.enabled ? '<span class="badge badge-success">사용</span>' : '<span class="badge badge-secondary">미사용</span>'}
+                            <button class="btn btn-outline btn-sm" onclick="toggleRule('${r.id}')">${r.enabled ? '중지' : '사용'}</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleRule(id) {
+            const rule = SPAM_RULES.filter(r => r.id === id)[0];
+            if (!rule) return;
+            rule.enabled = !rule.enabled;
+            renderRules();
+            showToast(`${rule.name} 규칙을 ${rule.enabled ? '사용' : '중지'}했습니다.`, 'success');
+        }
+
+        /* ---------- 외부기관 연동 ---------- */
+
+        function renderSync() {
+            const last = SPAM_SYNC_HISTORY.filter(s => s.result === 'ok')[0];
+            document.getElementById('sync-last').textContent = last ? last.at : '-';
+            document.getElementById('sync-total').textContent = last ? formatNumber(last.total) + '건' : '-';
+
+            document.getElementById('sync-tbody').innerHTML = SPAM_SYNC_HISTORY.map(s => `
+                <tr class="${s.result === 'ok' ? '' : 'row-off'}">
+                    <td>${s.at}</td>
+                    <td>${spamSourceBadge(s.source)}</td>
+                    <td>${formatNumber(s.added)}</td>
+                    <td>${formatNumber(s.updated)}</td>
+                    <td>${formatNumber(s.removed)}</td>
+                    <td>${formatNumber(s.total)}</td>
+                    <td>${s.result === 'ok'
+                        ? '<span class="badge badge-success">정상</span>'
+                        : '<span class="badge badge-danger">실패</span>'}</td>
+                    <td>${s.actor}${s.note ? `<div style="font-size:12px;color:var(--admin-text-muted);">${s.note}</div>` : ''}</td>
+                </tr>
+            `).join('');
+        }
+
+        function syncNow() {
+            confirmAction('외부기관 차단정보를 지금 동기화하시겠습니까?', function () {
+                // 실제 연동 시 POST /api/admin/spam/sync
+                showToast('외부기관 차단정보 동기화를 요청했습니다.', 'success');
+            });
+        }
+
+        /* ---------- 초기화 ---------- */
+
+        document.addEventListener('DOMContentLoaded', function () {
+            applySuperAdminGuard();
+            renderItems();
+            renderRules();
+            renderSync();
+        });
     </script>
 </body>
 </html>

@@ -436,6 +436,96 @@ tbody tr:last-child td {
     color: #475569;
 }
 
+/* 인증 이력 — 인증 구분 칩·결과 표시 (member-auth-history.html, 회원 상세 인증이력 탭 공용).
+   결과 배지와 색이 겹치지 않도록 상태 배지와 별도 팔레트를 쓴다 */
+.auth-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.auth-tag.login {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.auth-tag.send {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.auth-tag.approval {
+    background-color: #ede9fe;
+    color: #5b21b6;
+}
+
+.auth-tag.manage {
+    background-color: #e2e8f0;
+    color: #475569;
+}
+
+.auth-result {
+    font-weight: 600;
+}
+
+.auth-result.ok {
+    color: #059669;
+}
+
+.auth-result.fail {
+    color: #dc2626;
+}
+
+/* 차단정보 칩 — 탐지된 금칙어·URL·전화번호 (spam-filter.html, spam-detection-log.html 공용) */
+.spam-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 9px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    white-space: nowrap;
+}
+
+.spam-chip.word {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.spam-chip.url {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.spam-chip.phone {
+    background-color: #e2e8f0;
+    color: #475569;
+}
+
+/* 메시지 원문에서 탐지 부분 강조 — 차단 근거 제시용 */
+.spam-mark {
+    padding: 1px 3px;
+    border-radius: 3px;
+    font-weight: 700;
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.spam-mark.url {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.spam-mark.phone {
+    background-color: #e2e8f0;
+    color: #334155;
+}
+
 /* 폼 요소 */
 .form-group {
     margin-bottom: 20px;
@@ -613,6 +703,17 @@ select.form-control {
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
     margin-bottom: 24px;
+}
+
+/* 지표가 4개인 화면용 — 좁은 화면에서는 2열로 접는다 */
+.stats-grid.stats-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 1400px) {
+    .stats-grid.stats-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 .stat-card {

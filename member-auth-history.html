@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 인증 이력 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+    <style>
+        .tab-content { margin-top: 24px; }
+        .audit-info-box {
+            padding: 16px 20px;
+            background: #eff6ff;
+            border: 1px solid #93c5fd;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        .audit-info-box strong { color: #1e40af; }
+        .auth-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 20px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #1e40af;
+        }
+        .auth-legend span.desc { color: #1e3a8a; }
+
+        /* .auth-tag / .auth-result / .stats-4 는 다른 화면과 공용이라 admin-common.css 에 정의되어 있다 */
+        tbody tr.row-fail { background-color: #fef2f2; }
+        tbody tr.row-fail:hover { background-color: #fee2e2; }
+
+        .auth-log-table td, .auth-log-table th { white-space: nowrap; }
+        .auth-log-table td.col-event { white-space: normal; min-width: 220px; }
+
+        .member-cell-name { font-weight: 600; color: var(--admin-text-primary); }
+        .member-cell-id { font-size: 12px; color: var(--admin-text-muted); }
+
+        .empty-row td {
+            text-align: center;
+            padding: 48px 0;
+            color: var(--admin-text-muted);
+            font-size: 14px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 130px 1fr;
+            gap: 12px 16px;
+            font-size: 14px;
+        }
+        .detail-grid dt { color: var(--admin-text-secondary); font-weight: 500; }
+        .detail-grid dd { color: var(--admin-text-primary); font-weight: 500; word-break: break-all; }
+
+        .readonly-note {
+            margin-top: 16px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--admin-text-secondary);
+            line-height: 1.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('member-auth-history'));
+        </script>
+
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('회원 인증 이력'));
+            </script>
+
+            <div class="admin-content">
+                <div class="audit-info-box">
+                    <div style="font-weight: 600; color: #1e40af; margin-bottom: 8px;">회원의 다중인증·추가인증 이력 조회</div>
+                    <div style="font-size: 13px; color: #1e40af; line-height: 1.7;">
+                        회원이 로그인·발송 시 수행한 인증과 인증 수단 변경 이력을 조회합니다.
+                        <strong>감사 로그이므로 수정·삭제할 수 없으며</strong>, 조회와 내보내기만 가능합니다.
+                        반복 실패로 잠긴 계정은 <strong>회원별 인증 수단</strong> 탭에서 사유를 남기고 잠금 해제할 수 있습니다.
+                    </div>
+                    <div class="auth-legend">
+                        <span><span class="auth-tag login">다중인증(로그인)</span> <span class="desc">로그인 시 알림톡·문자(SMS) 인증번호</span></span>
+                        <span><span class="auth-tag send">발송 추가인증</span> <span class="desc">발신번호 소유·계정 연계 확인 (알림톡/ARS)</span></span>
+                        <span><span class="auth-tag approval">발송 사후승인</span> <span class="desc">기업 승인 담당자 이메일 OTP</span></span>
+                        <span><span class="auth-tag manage">인증수단 관리</span> <span class="desc">등록·변경·해제·잠금 해제</span></span>
+                    </div>
+                </div>
+
+                <div class="stats-grid stats-4">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">인증 시도</span>
+                            <div class="stat-card-icon icon-chart">🔐</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-attempts">0</div>
+                        <div class="stat-card-change">조회 조건 기준 (수단 관리 제외)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">인증 성공률</span>
+                            <div class="stat-card-icon icon-success">✓</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-rate">0%</div>
+                        <div class="stat-card-change positive">성공 <span id="stat-success">0</span>건</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">인증 실패</span>
+                            <div class="stat-card-icon icon-fail">!</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-fail">0</div>
+                        <div class="stat-card-change negative">불일치·차단·시도 초과 포함</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">현재 잠금 계정</span>
+                            <div class="stat-card-icon icon-user">🔒</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-locked">0</div>
+                        <div class="stat-card-change">잠금 해제 필요</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <label class="form-label">회원 검색</label>
+                            <input type="text" class="form-control" placeholder="회원명 또는 아이디(이메일)" id="search-member">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">기간</label>
+                            <input type="date" class="form-control" id="date-from" value="2025-06-01">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">~</label>
+                            <input type="date" class="form-control" id="date-to" value="2025-06-30">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">인증 구분</label>
+                            <select class="form-control" id="filter-category">
+                                <option value="">전체</option>
+                                <option value="login">다중인증(로그인)</option>
+                                <option value="send">발송 추가인증</option>
+                                <option value="approval">발송 사후승인</option>
+                                <option value="manage">인증수단 관리</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">채널</label>
+                            <select class="form-control" id="filter-channel">
+                                <option value="">전체</option>
+                                <option value="알림톡">알림톡</option>
+                                <option value="문자(SMS)">문자(SMS)</option>
+                                <option value="ARS">ARS</option>
+                                <option value="이메일 OTP">이메일 OTP</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">결과</label>
+                            <select class="form-control" id="filter-result">
+                                <option value="">전체</option>
+                                <option value="ok">성공</option>
+                                <option value="fail">실패</option>
+                            </select>
+                        </div>
+                        <div class="filter-item" style="align-self: flex-end;">
+                            <button class="btn btn-primary" onclick="searchLogs(1)">조회</button>
+                            <button class="btn btn-outline" onclick="resetFilters()">초기화</button>
+                            <button class="btn btn-outline" onclick="exportLogs()">엑셀 다운로드</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tabs" style="margin-top: 24px;">
+                    <button class="tab active" id="tab-btn-log" onclick="switchTab('log', this)">인증 이력</button>
+                    <button class="tab" id="tab-btn-method" onclick="switchTab('method', this)">회원별 인증 수단</button>
+                </div>
+
+                <div id="tab-log" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">인증 이력</h3>
+                            <div class="card-description" id="log-count-desc">전체 0건</div>
+                        </div>
+                        <div class="table-container">
+                            <table class="auth-log-table">
+                                <thead>
+                                    <tr>
+                                        <th>발생일시</th>
+                                        <th>회원</th>
+                                        <th>인증 구분</th>
+                                        <th>이벤트</th>
+                                        <th>채널</th>
+                                        <th>대상</th>
+                                        <th>처리 주체</th>
+                                        <th>결과</th>
+                                        <th>접속 IP</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="log-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination" id="pagination"></div>
+                    </div>
+                </div>
+
+                <div id="tab-method" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">회원별 인증 수단 현황</h3>
+                            <div class="card-description">다중인증 수단과 발송 승인 담당자 등록 상태 — 미등록·해제 회원은 로그인 또는 발송이 제한됩니다</div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>회원</th>
+                                        <th>회원 유형</th>
+                                        <th>다중인증 수단</th>
+                                        <th>등록 번호</th>
+                                        <th>인증 상태</th>
+                                        <th>최근 인증일시</th>
+                                        <th>발송 승인 담당자</th>
+                                        <th>최근 실패</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="method-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 이력 상세 -->
+    <div id="log-detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 640px;">
+            <div class="modal-header">
+                <h3 class="modal-title">인증 이력 상세</h3>
+                <button class="modal-close" onclick="closeModal('log-detail-modal')">&times;</button>
+            </div>
+            <dl class="detail-grid" id="detail-body"></dl>
+            <div class="readonly-note">
+                인증 이력은 변경·삭제가 불가능한 감사 로그입니다. 보관 기간은 <strong>보안 정책</strong> 메뉴의 로그 보관 정책을 따릅니다.
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('log-detail-modal')">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 인증 잠금 해제 -->
+    <div id="unlock-modal" class="modal">
+        <div class="modal-content" style="max-width: 520px;">
+            <div class="modal-header">
+                <h3 class="modal-title">인증 잠금 해제</h3>
+                <button class="modal-close" onclick="closeModal('unlock-modal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">대상 회원</label>
+                <div class="form-control" style="background: #f8fafc;" id="unlock-member">-</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">잠금 발생일시</label>
+                <div class="form-control" style="background: #f8fafc;" id="unlock-locked-at">-</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">해제 사유 <span style="color: var(--admin-danger);">*</span></label>
+                <textarea class="form-control" id="unlock-reason" rows="3" placeholder="본인확인 방법과 해제 사유를 입력하세요 (예: 유선 본인확인 완료 후 CS 요청 해제)"></textarea>
+            </div>
+            <div class="readonly-note">
+                해제 시 처리 관리자·사유·일시가 <strong>인증수단 관리</strong> 이력으로 기록되며 취소할 수 없습니다.
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('unlock-modal')">취소</button>
+                <button class="btn btn-primary" onclick="confirmUnlock()">잠금 해제</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin-common.js"></script>
+    <script src="js/member-auth-data.js"></script>
+    <script>
+        const PAGE_SIZE = 15;
+        let currentPage = 1;
+        let filteredLogs = [];
+        let unlockTargetId = null;
+
+        /* ---------- 조회 ---------- */
+
+        function getFilters() {
+            return {
+                keyword: document.getElementById('search-member').value.trim().toLowerCase(),
+                from: document.getElementById('date-from').value,
+                to: document.getElementById('date-to').value,
+                category: document.getElementById('filter-category').value,
+                channel: document.getElementById('filter-channel').value,
+                result: document.getElementById('filter-result').value
+            };
+        }
+
+        function matchesFilter(log, f) {
+            const member = getMemberAuthMethod(log.memberId);
+            if (f.keyword) {
+                const hay = ((member ? member.name + ' ' + member.loginId : '') + ' ' + log.memberId).toLowerCase();
+                if (hay.indexOf(f.keyword) === -1) return false;
+            }
+            const day = log.at.slice(0, 10);
+            if (f.from && day < f.from) return false;
+            if (f.to && day > f.to) return false;
+            if (f.category && log.category !== f.category) return false;
+            if (f.channel && log.channel !== f.channel) return false;
+            if (f.result && log.result !== f.result) return false;
+            return true;
+        }
+
+        function searchLogs(page) {
+            currentPage = page || 1;
+            const f = getFilters();
+            filteredLogs = MEMBER_AUTH_LOGS.filter(log => matchesFilter(log, f));
+            renderLogs();
+            updateStats();
+        }
+
+        function resetFilters() {
+            document.getElementById('search-member').value = '';
+            document.getElementById('date-from').value = '2025-06-01';
+            document.getElementById('date-to').value = '2025-06-30';
+            document.getElementById('filter-category').value = '';
+            document.getElementById('filter-channel').value = '';
+            document.getElementById('filter-result').value = '';
+            searchLogs(1);
+        }
+
+        /* ---------- 렌더링 ---------- */
+
+        function memberCell(memberId) {
+            const m = getMemberAuthMethod(memberId);
+            if (!m) return `<div class="member-cell-name">${memberId}</div>`;
+            return `<div class="member-cell-name">${m.name}</div><div class="member-cell-id">${m.loginId}</div>`;
+        }
+
+        function renderLogs() {
+            const tbody = document.getElementById('log-tbody');
+            const total = filteredLogs.length;
+            const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            document.getElementById('log-count-desc').textContent = `전체 ${formatNumber(total)}건`;
+
+            if (!total) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="10">조회 조건에 해당하는 인증 이력이 없습니다.</td></tr>';
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            const start = (currentPage - 1) * PAGE_SIZE;
+            tbody.innerHTML = filteredLogs.slice(start, start + PAGE_SIZE).map((log) => {
+                const idx = MEMBER_AUTH_LOGS.indexOf(log);
+                const anomaly = log.anomaly
+                    ? ` <span class="badge badge-danger" style="margin-left:6px;">${log.anomaly}</span>`
+                    : '';
+                return `
+                    <tr class="${log.result === 'fail' ? 'row-fail' : ''}">
+                        <td>${log.at}</td>
+                        <td>${memberCell(log.memberId)}</td>
+                        <td>${authCategoryTag(log.category)}</td>
+                        <td class="col-event">${log.event}${anomaly}</td>
+                        <td>${log.channel || '-'}</td>
+                        <td>${authTargetLabel(log)}</td>
+                        <td>${log.actor}</td>
+                        <td>${authResultCell(log.result)}</td>
+                        <td>${log.ip}</td>
+                        <td><button class="btn btn-outline btn-sm" onclick="openLogDetail(${idx})">상세</button></td>
+                    </tr>
+                `;
+            }).join('');
+
+            createPagination(currentPage, totalPages, 'pagination');
+        }
+
+        // admin-common.js 의 기본 goToPage 를 이 화면용으로 대체한다
+        function goToPage(page) {
+            currentPage = page;
+            renderLogs();
+        }
+
+        function renderMethods() {
+            document.getElementById('method-tbody').innerHTML = MEMBER_AUTH_METHODS.map(m => {
+                const approver = m.approverEmail
+                    ? `${maskAuthEmail(m.approverEmail)} <span style="color:var(--admin-text-muted);font-size:12px;">${m.approverName}</span>`
+                    : '<span class="badge badge-danger">미지정</span>';
+                const failCell = m.recentFail > 0
+                    ? `<span class="auth-result fail">${m.recentFail}회</span>`
+                    : '0회';
+                const unlockBtn = m.mfaStatus === 'locked'
+                    ? `<button class="btn btn-primary btn-sm" onclick="openUnlock('${m.memberId}')">잠금 해제</button>`
+                    : '';
+                return `
+                    <tr class="${m.mfaStatus === 'locked' ? 'row-fail' : ''}">
+                        <td>${memberCell(m.memberId)}</td>
+                        <td>${m.memberType}</td>
+                        <td>${m.mfaChannel}</td>
+                        <td>${maskAuthPhone(m.mfaPhone)}</td>
+                        <td>${authMethodStatusBadge(m.mfaStatus)}</td>
+                        <td>${m.lastVerifiedAt || '-'}</td>
+                        <td>${approver}</td>
+                        <td>${failCell}</td>
+                        <td>
+                            <button class="btn btn-outline btn-sm" onclick="showMemberLogs('${m.memberId}')">이력 보기</button>
+                            ${unlockBtn}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateStats() {
+            const attempts = filteredLogs.filter(l => l.category !== 'manage');
+            const success = attempts.filter(l => l.result === 'ok').length;
+            const fail = attempts.length - success;
+            const rate = attempts.length ? Math.round((success / attempts.length) * 100) : 0;
+
+            document.getElementById('stat-attempts').textContent = formatNumber(attempts.length);
+            document.getElementById('stat-success').textContent = formatNumber(success);
+            document.getElementById('stat-fail').textContent = formatNumber(fail);
+            document.getElementById('stat-rate').textContent = rate + '%';
+            document.getElementById('stat-locked').textContent =
+                MEMBER_AUTH_METHODS.filter(m => m.mfaStatus === 'locked').length;
+        }
+
+        /* ---------- 탭 ---------- */
+
+        function switchTab(tabName, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+            document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tabName).style.display = 'block';
+            el.classList.add('active');
+        }
+
+        /* 인증 수단 탭에서 특정 회원의 이력으로 이동 */
+        function showMemberLogs(memberId) {
+            const m = getMemberAuthMethod(memberId);
+            document.getElementById('search-member').value = m ? m.name : memberId;
+            switchTab('log', document.getElementById('tab-btn-log'));
+            searchLogs(1);
+        }
+
+        /* ---------- 상세 ---------- */
+
+        function openLogDetail(index) {
+            const log = MEMBER_AUTH_LOGS[index];
+            if (!log) return;
+            const m = getMemberAuthMethod(log.memberId);
+            const meta = MEMBER_AUTH_CATEGORY[log.category] || {};
+
+            const rows = [
+                ['발생일시', log.at],
+                ['회원', m ? `${m.name} (${m.loginId} · ${log.memberId})` : log.memberId],
+                ['인증 구분', `${authCategoryTag(log.category)} <span style="color:var(--admin-text-secondary);font-size:13px;">${meta.desc || ''}</span>`],
+                ['이벤트', log.event],
+                ['채널', log.channel || '-'],
+                ['대상', authTargetLabel(log)],
+                ['처리 주체', log.actor],
+                ['결과', authResultCell(log.result)]
+            ];
+            if (log.reason) rows.push(['사유·비고', log.reason]);
+            if (log.caller) rows.push(['발신번호', log.caller]);
+            if (log.count) rows.push(['발송 건수', formatNumber(log.count) + '건']);
+            if (log.anomaly) rows.push(['이상 징후', `<span class="badge badge-danger">${log.anomaly}</span>`]);
+            rows.push(['접속 IP', log.ip]);
+            rows.push(['접속 환경', log.ua || '-']);
+            rows.push(['세션 ID', log.session || '-']);
+
+            document.getElementById('detail-body').innerHTML = rows
+                .map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+            openModal('log-detail-modal');
+        }
+
+        /* ---------- 잠금 해제 ---------- */
+
+        function openUnlock(memberId) {
+            const m = getMemberAuthMethod(memberId);
+            if (!m || m.mfaStatus !== 'locked') {
+                showToast('잠금 상태인 회원만 해제할 수 있습니다.', 'error');
+                return;
+            }
+            unlockTargetId = memberId;
+            document.getElementById('unlock-member').textContent = `${m.name} (${m.loginId})`;
+            document.getElementById('unlock-locked-at').textContent = m.lockedAt || '-';
+            document.getElementById('unlock-reason').value = '';
+            openModal('unlock-modal');
+        }
+
+        function confirmUnlock() {
+            const reason = document.getElementById('unlock-reason').value.trim();
+            if (!reason) {
+                showToast('해제 사유를 입력해주세요.', 'error');
+                return;
+            }
+            const m = getMemberAuthMethod(unlockTargetId);
+            if (!m) return;
+
+            // 실제 연동 시 POST /api/admin/members/{id}/auth/unlock
+            m.mfaStatus = 'active';
+            m.recentFail = 0;
+            delete m.lockedAt;
+
+            const admin = getCurrentAdmin();
+            MEMBER_AUTH_LOGS.unshift({
+                at: nowStamp(),
+                memberId: m.memberId,
+                category: 'manage',
+                event: '인증 잠금 해제',
+                channel: '-',
+                phone: m.mfaPhone,
+                actor: `관리자(${admin.name})`,
+                result: 'ok',
+                ip: '10.0.3.21',
+                ua: 'Chrome 126 / Windows 11',
+                session: 'A-' + nowStamp().replace(/[-: ]/g, '').slice(0, 12),
+                reason: reason
+            });
+
+            closeModal('unlock-modal');
+            renderMethods();
+            searchLogs(1);
+            showToast(`${m.name} 회원의 인증 잠금을 해제했습니다.`, 'success');
+        }
+
+        function nowStamp() {
+            const d = new Date();
+            const p = n => ('0' + n).slice(-2);
+            return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' +
+                   p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+        }
+
+        /* ---------- 내보내기 ---------- */
+
+        function exportLogs() {
+            if (!filteredLogs.length) {
+                showToast('내보낼 인증 이력이 없습니다.', 'error');
+                return;
+            }
+            const header = ['발생일시', '회원명', '아이디', '인증 구분', '이벤트', '채널', '대상', '처리 주체', '결과', '사유·비고', '발신번호', '발송 건수', '접속 IP', '접속 환경', '세션 ID'];
+            const rows = filteredLogs.map(log => {
+                const m = getMemberAuthMethod(log.memberId);
+                const meta = MEMBER_AUTH_CATEGORY[log.category] || {};
+                const target = authTargetLabel(log).replace(/<[^>]*>/g, '').trim();
+                return [
+                    log.at, m ? m.name : log.memberId, m ? m.loginId : '-',
+                    meta.label || '-', log.event, log.channel || '-', target, log.actor,
+                    log.result === 'ok' ? '성공' : '실패',
+                    log.reason || '-', log.caller || '-', log.count || '-',
+                    log.ip, log.ua || '-', log.session || '-'
+                ];
+            });
+
+            const csv = [header, ...rows]
+                .map(cols => cols.map(c => `"${String(c).replace(/"/g, '""')}"`).join(','))
+                .join('\r\n');
+            const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `회원_인증이력_${nowStamp().slice(0, 10)}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+            showToast(`인증 이력 ${formatNumber(filteredLogs.length)}건을 내려받았습니다.`, 'success');
+        }
+
+        /* ---------- 초기화 ---------- */
+
+        document.addEventListener('DOMContentLoaded', function () {
+            applySuperAdminGuard();
+
+            // 회원 목록 > 회원 상세에서 넘어온 경우 해당 회원으로 좁혀 조회한다
+            const params = new URLSearchParams(location.search);
+            const memberId = params.get('member');
+            if (memberId) {
+                const m = getMemberAuthMethod(memberId);
+                if (m) document.getElementById('search-member').value = m.name;
+            }
+            if (params.get('tab') === 'method') {
+                switchTab('method', document.getElementById('tab-btn-method'));
+            }
+
+            renderMethods();
+            searchLogs(1);
+        });
+    </script>
+</body>
+</html>

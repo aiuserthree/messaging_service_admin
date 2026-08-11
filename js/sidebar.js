@@ -103,7 +103,10 @@ function getSidebarHTML(activeMenu) {
                 <div class="menu-section">
                     <div class="menu-section-title">스팸·제재 관리</div>
                     <a href="spam-filter.html" class="menu-item ${activeMenu === 'spam-filter' ? 'active' : ''}">
-                        <span>스팸 필터링 단어</span>
+                        <span>차단정보(금칙어) 관리</span>
+                    </a>
+                    <a href="spam-detection-log.html" class="menu-item ${activeMenu === 'spam-detection-log' ? 'active' : ''}">
+                        <span>탐지·차단 결과 로그</span>
                     </a>
                     <a href="sanction-manage.html" class="menu-item ${activeMenu === 'sanction-manage' ? 'active' : ''}">
                         <span>계정 제재 관리</span>
@@ -140,6 +143,9 @@ function getSidebarHTML(activeMenu) {
                     </a>
                     <a href="access-log-member.html" class="menu-item ${activeMenu === 'access-log-member' ? 'active' : ''}">
                         <span>회원 접근 로그</span>
+                    </a>
+                    <a href="member-auth-history.html" class="menu-item ${activeMenu === 'member-auth-history' ? 'active' : ''}">
+                        <span>회원 인증 이력</span>
                     </a>
                     <a href="work-log.html" class="menu-item ${activeMenu === 'work-log' ? 'active' : ''}">
                         <span>작업 로그</span>

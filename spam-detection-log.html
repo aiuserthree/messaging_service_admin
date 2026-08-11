@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>탐지·차단 결과 로그 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+    <style>
+        .audit-info-box {
+            padding: 16px 20px;
+            background: #eff6ff;
+            border: 1px solid #93c5fd;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        .audit-info-box strong { color: #1e40af; }
+        .flow-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 20px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #1e40af;
+        }
+
+        tbody tr.row-block { background-color: #fef2f2; }
+        tbody tr.row-block:hover { background-color: #fee2e2; }
+        tbody tr.row-pending { background-color: #fffbeb; }
+        tbody tr.row-pending:hover { background-color: #fef3c7; }
+
+        .log-table td, .log-table th { white-space: nowrap; }
+        .log-table td.col-matched { white-space: normal; min-width: 260px; line-height: 2; }
+
+        .member-cell-name { font-weight: 600; color: var(--admin-text-primary); }
+        .member-cell-id { font-size: 12px; color: var(--admin-text-muted); }
+
+        .empty-row td {
+            text-align: center;
+            padding: 48px 0;
+            color: var(--admin-text-muted);
+            font-size: 14px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 10px 16px;
+            font-size: 14px;
+        }
+        .detail-grid dt { color: var(--admin-text-secondary); font-weight: 500; }
+        .detail-grid dd { color: var(--admin-text-primary); font-weight: 500; word-break: break-all; }
+
+        .msg-body {
+            padding: 14px 16px;
+            background: #f8fafc;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--admin-text-primary);
+            word-break: break-all;
+        }
+
+        .section-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--admin-text-secondary);
+            margin: 20px 0 8px;
+        }
+
+        .decision-box {
+            padding: 14px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.75;
+            border: 1px solid var(--admin-border);
+            background: #f8fafc;
+        }
+        .decision-box.approved { background: #f0fdf4; border-color: #86efac; }
+        .decision-box.rejected { background: #fef2f2; border-color: #fca5a5; }
+        .decision-box.pending  { background: #fffbeb; border-color: #fcd34d; }
+
+        .readonly-note {
+            margin-top: 16px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--admin-text-secondary);
+            line-height: 1.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('spam-detection-log'));
+        </script>
+
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('탐지·차단 결과 로그'));
+            </script>
+
+            <div class="admin-content">
+                <div class="audit-info-box">
+                    <div style="font-weight: 600; color: #1e40af; margin-bottom: 8px;">금칙어 등 차단 체계 탐지·차단 결과</div>
+                    <div style="font-size: 13px; color: #1e40af; line-height: 1.7;">
+                        발송 요청 시점에 문자 내용에서 차단정보(금칙어·URL·전화번호)를 탐지한 결과입니다.
+                        <strong>즉시 차단</strong>은 발송이 중단되고 이용자에게 차단 사유가 안내되며,
+                        <strong>보류</strong>는 오탐 가능성이 있는 건으로 <strong>기업 고객사 승인 담당자</strong>가
+                        <strong>이메일 OTP</strong>로 승인해야 전송되며, 승인하지 않으면 차단으로 확정됩니다.
+                        본 이력은 사후 점검·이용자 소명 요청·현장 점검 시 근거자료로 제출됩니다.
+                    </div>
+                    <div class="flow-legend">
+                        <span><span class="badge badge-danger">즉시 차단</span> 발송 중단 + 이용자 경고 안내</span>
+                        <span><span class="badge badge-warning">보류</span> 검토 요청 메일 + 이메일 OTP 발송</span>
+                        <span><span class="badge badge-success">승인 후 발송</span> 담당자 인증번호 입력 → 전송</span>
+                        <span><span class="badge badge-danger">반려</span> 미승인 → 차단 확정</span>
+                    </div>
+                </div>
+
+                <div class="stats-grid stats-4">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">탐지 건수</span>
+                            <div class="stat-card-icon icon-chart">🔎</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-total">0</div>
+                        <div class="stat-card-change">조회 조건 기준</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">즉시 차단</span>
+                            <div class="stat-card-icon icon-fail">⛔</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-block">0</div>
+                        <div class="stat-card-change negative">발송 중단 + 이용자 안내</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">보류</span>
+                            <div class="stat-card-icon icon-pending">⏸</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-hold">0</div>
+                        <div class="stat-card-change">승인 <span id="stat-approved">0</span> · 반려 <span id="stat-rejected">0</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">승인 대기</span>
+                            <div class="stat-card-icon icon-processing">⏱</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-pending">0</div>
+                        <div class="stat-card-change">담당자 검토 진행 중</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <label class="form-label">검색</label>
+                            <input type="text" class="form-control" placeholder="회원명·아이디·탐지 차단정보·메시지 내용" id="search-keyword">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">기간</label>
+                            <input type="date" class="form-control" id="date-from" value="2025-06-01">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">~</label>
+                            <input type="date" class="form-control" id="date-to" value="2025-06-30">
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">탐지 구분</label>
+                            <select class="form-control" id="filter-type">
+                                <option value="">전체</option>
+                                <option value="word">금칙어</option>
+                                <option value="url">URL·도메인</option>
+                                <option value="phone">전화번호</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">조치</label>
+                            <select class="form-control" id="filter-action">
+                                <option value="">전체</option>
+                                <option value="block">즉시 차단</option>
+                                <option value="hold">보류</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">보류 처리</label>
+                            <select class="form-control" id="filter-hold">
+                                <option value="">전체</option>
+                                <option value="pending">승인 대기</option>
+                                <option value="approved">승인 후 발송</option>
+                                <option value="rejected">반려(차단 확정)</option>
+                                <option value="forced">운영자 차단</option>
+                            </select>
+                        </div>
+                        <div class="filter-item" style="align-self: flex-end;">
+                            <button class="btn btn-primary" onclick="searchLogs()">조회</button>
+                            <button class="btn btn-outline" onclick="resetFilters()">초기화</button>
+                            <button class="btn btn-outline" onclick="exportLogs()">엑셀 다운로드</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">탐지·차단 이력</h3>
+                        <div class="card-description" id="log-count-desc">전체 0건</div>
+                    </div>
+                    <div class="table-container">
+                        <table class="log-table">
+                            <thead>
+                                <tr>
+                                    <th>탐지일시</th>
+                                    <th>탐지 ID</th>
+                                    <th>회원</th>
+                                    <th>메시지 유형</th>
+                                    <th>발송 건수</th>
+                                    <th>탐지 차단정보</th>
+                                    <th>적용 규칙</th>
+                                    <th>조치</th>
+                                    <th>보류 처리</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="log-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 탐지 상세 -->
+    <div id="detection-modal" class="modal">
+        <div class="modal-content" style="max-width: 760px;">
+            <div class="modal-header">
+                <h3 class="modal-title">탐지·차단 상세</h3>
+                <button class="modal-close" onclick="closeModal('detection-modal')">&times;</button>
+            </div>
+
+            <dl class="detail-grid" id="detail-basic"></dl>
+
+            <div class="section-label">메시지 내용 — 탐지 부분 표시</div>
+            <div class="msg-body" id="detail-content">-</div>
+
+            <div class="section-label">탐지 차단정보</div>
+            <div id="detail-matched" style="line-height: 2.2;">-</div>
+
+            <div class="section-label">조치 결과</div>
+            <div class="decision-box" id="detail-decision">-</div>
+
+            <div class="readonly-note">
+                탐지·차단 이력은 변경·삭제가 불가능하며, 사후 점검과 이용자 소명 요청 대응 시 근거자료로 사용됩니다.
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="force-block-btn" style="display:none;" onclick="openForceBlock()">운영자 강제 차단</button>
+                <button class="btn btn-outline" onclick="closeModal('detection-modal')">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 운영자 강제 차단 -->
+    <div id="force-block-modal" class="modal">
+        <div class="modal-content" style="max-width: 520px;">
+            <div class="modal-header">
+                <h3 class="modal-title">운영자 강제 차단</h3>
+                <button class="modal-close" onclick="closeModal('force-block-modal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">대상 탐지 건</label>
+                <div class="form-control" style="background: #f8fafc;" id="force-target">-</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">차단 사유 <span style="color: var(--admin-danger);">*</span></label>
+                <textarea class="form-control" id="force-reason" rows="3" placeholder="승인 담당자 검토를 기다리지 않고 차단하는 사유를 입력하세요 (예: 불법 도박 유인 문구 확인)"></textarea>
+            </div>
+            <div class="readonly-note">
+                강제 차단 시 승인 요청이 종료되고 발송이 확정 차단됩니다. 처리 관리자·사유·일시가 이력에 기록되며 취소할 수 없습니다.
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('force-block-modal')">취소</button>
+                <button class="btn btn-danger" onclick="confirmForceBlock()">강제 차단</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin-common.js"></script>
+    <script src="js/spam-filter-data.js"></script>
+    <script>
+        let filtered = [];
+        let currentDetectionId = null;
+
+        /* ---------- 조회 ---------- */
+
+        function getFilters() {
+            return {
+                keyword: document.getElementById('search-keyword').value.trim().toLowerCase(),
+                from: document.getElementById('date-from').value,
+                to: document.getElementById('date-to').value,
+                type: document.getElementById('filter-type').value,
+                action: document.getElementById('filter-action').value,
+                hold: document.getElementById('filter-hold').value
+            };
+        }
+
+        function matches(d, f) {
+            if (f.keyword) {
+                const hay = [d.memberName, d.loginId, d.content, d.rule,
+                             ...d.matched.map(m => m.value)].join(' ').toLowerCase();
+                if (hay.indexOf(f.keyword) === -1) return false;
+            }
+            const day = d.at.slice(0, 10);
+            if (f.from && day < f.from) return false;
+            if (f.to && day > f.to) return false;
+            if (f.type && !d.matched.some(m => m.type === f.type)) return false;
+            if (f.action && d.action !== f.action) return false;
+            if (f.hold && d.holdStatus !== f.hold) return false;
+            return true;
+        }
+
+        function searchLogs() {
+            const f = getFilters();
+            filtered = SPAM_DETECTIONS.filter(d => matches(d, f));
+            render();
+            updateStats();
+        }
+
+        function resetFilters() {
+            document.getElementById('search-keyword').value = '';
+            document.getElementById('date-from').value = '2025-06-01';
+            document.getElementById('date-to').value = '2025-06-30';
+            document.getElementById('filter-type').value = '';
+            document.getElementById('filter-action').value = '';
+            document.getElementById('filter-hold').value = '';
+            searchLogs();
+        }
+
+        /* ---------- 렌더링 ---------- */
+
+        function render() {
+            const tbody = document.getElementById('log-tbody');
+            document.getElementById('log-count-desc').textContent = `전체 ${formatNumber(filtered.length)}건`;
+
+            if (!filtered.length) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="10">조회 조건에 해당하는 탐지 이력이 없습니다.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(d => {
+                const rowClass = d.action === 'block' ? 'row-block'
+                    : (d.holdStatus === 'pending' ? 'row-pending' : '');
+                return `
+                    <tr class="${rowClass}">
+                        <td>${d.at}</td>
+                        <td style="font-family:ui-monospace,Menlo,monospace;font-size:12px;">${d.id}</td>
+                        <td>
+                            <div class="member-cell-name">${d.memberName}</div>
+                            <div class="member-cell-id">${d.loginId}</div>
+                        </td>
+                        <td>${d.msgType}</td>
+                        <td>${formatNumber(d.count)}건</td>
+                        <td class="col-matched">${spamMatchedChips(d.matched)}</td>
+                        <td>${d.rule === '-' ? '<span style="color:var(--admin-text-muted);">단일 탐지</span>' : d.rule}</td>
+                        <td>${spamActionBadge(d.action)}</td>
+                        <td>${spamHoldBadge(d.holdStatus)}</td>
+                        <td><button class="btn btn-outline btn-sm" onclick="openDetection('${d.id}')">상세</button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateStats() {
+            const block = filtered.filter(d => d.action === 'block').length;
+            const hold = filtered.filter(d => d.action === 'hold');
+            const approved = hold.filter(d => d.holdStatus === 'approved').length;
+            const rejected = hold.filter(d => d.holdStatus === 'rejected' || d.holdStatus === 'forced').length;
+            const pending = hold.filter(d => d.holdStatus === 'pending').length;
+
+            document.getElementById('stat-total').textContent = formatNumber(filtered.length);
+            document.getElementById('stat-block').textContent = formatNumber(block);
+            document.getElementById('stat-hold').textContent = formatNumber(hold.length);
+            document.getElementById('stat-approved').textContent = formatNumber(approved);
+            document.getElementById('stat-rejected').textContent = formatNumber(rejected);
+            document.getElementById('stat-pending').textContent = formatNumber(pending);
+        }
+
+        /* ---------- 상세 ---------- */
+
+        function openDetection(id) {
+            const d = getSpamDetection(id);
+            if (!d) return;
+            currentDetectionId = id;
+
+            const rows = [
+                ['탐지 ID', d.id],
+                ['탐지일시', d.at],
+                ['회원', `${d.memberName} (${d.loginId} · ${d.memberId})`],
+                ['메시지 유형', d.msgType],
+                ['발신번호', d.caller],
+                ['발송 건수', formatNumber(d.count) + '건'],
+                ['적용 규칙', d.rule === '-' ? '단일 차단정보 탐지 (조합 규칙 미해당)' : d.rule],
+                ['접속 IP', d.ip]
+            ];
+            document.getElementById('detail-basic').innerHTML =
+                rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+
+            document.getElementById('detail-content').innerHTML = spamHighlight(d.content, d.matched);
+
+            document.getElementById('detail-matched').innerHTML = d.matched.map(m => {
+                const item = SPAM_BLOCK_ITEMS.filter(i => i.value === m.value)[0];
+                const action = item ? spamActionBadge(item.action) : '';
+                const source = item ? spamSourceBadge(item.source) : '';
+                return `<div style="margin-bottom:6px;">
+                    ${spamTypeBadge(m.type)}
+                    <span class="spam-chip ${m.type}" style="margin:0 6px;">${spamEscape(m.value)}</span>
+                    ${action} ${source}
+                    ${item && item.note ? `<span style="color:var(--admin-text-muted);font-size:12px;margin-left:6px;">${spamEscape(item.note)}</span>` : ''}
+                </div>`;
+            }).join('');
+
+            document.getElementById('detail-decision').className = 'decision-box ' + (d.holdStatus || (d.action === 'block' ? 'rejected' : ''));
+            document.getElementById('detail-decision').innerHTML = decisionHtml(d);
+
+            // 승인 대기 상태에서만 운영자가 개입할 수 있다
+            document.getElementById('force-block-btn').style.display =
+                (d.action === 'hold' && d.holdStatus === 'pending') ? '' : 'none';
+
+            openModal('detection-modal');
+        }
+
+        function decisionHtml(d) {
+            if (d.action === 'block') {
+                return `${spamActionBadge('block')} 발송이 즉시 차단되었습니다.<br>
+                        이용자 화면에 <strong>금칙어 포함으로 차단되었다는 경고 메시지</strong>가 표시되었습니다.`;
+            }
+            if (d.holdStatus === 'pending') {
+                return `${spamHoldBadge('pending')} 기업 고객사 승인 담당자 이메일로 <strong>검토 요청과 6자리 인증번호</strong>가
+                        발송되어 대기 중입니다.<br>
+                        담당자가 인증번호를 입력하면 보류가 해제되어 전송되고, 승인하지 않으면 차단으로 확정됩니다.`;
+            }
+            const label = d.holdStatus === 'approved' ? '담당자가 승인 인증번호를 입력해 보류가 해제되고 전송되었습니다.'
+                : d.holdStatus === 'forced' ? '운영 관리자가 강제 차단했습니다.'
+                : '승인되지 않아 차단으로 확정되었습니다.';
+            const verify = d.verify === 'email-otp' ? '이메일 OTP' : (d.verify || '-');
+            return `${spamHoldBadge(d.holdStatus)} ${label}<br>
+                    ${d.approvalNo ? `<strong>승인번호</strong> ${d.approvalNo} &nbsp;·&nbsp;` : ''}
+                    <strong>처리자</strong> ${d.approver || '-'}<br>
+                    <strong>처리일시</strong> ${d.decidedAt || '-'} &nbsp;·&nbsp;
+                    <strong>본인확인 수단</strong> ${verify} &nbsp;·&nbsp;
+                    <strong>접속 IP</strong> ${d.decidedIp || '-'}<br>
+                    <strong>사유</strong> ${spamEscape(d.decisionReason || '-')}`;
+        }
+
+        /* ---------- 운영자 강제 차단 ---------- */
+
+        function openForceBlock() {
+            const d = getSpamDetection(currentDetectionId);
+            if (!d || d.holdStatus !== 'pending') {
+                showToast('승인 대기 중인 건만 강제 차단할 수 있습니다.', 'error');
+                return;
+            }
+            document.getElementById('force-target').textContent = `${d.id} · ${d.memberName} · ${formatNumber(d.count)}건`;
+            document.getElementById('force-reason').value = '';
+            openModal('force-block-modal');
+        }
+
+        function confirmForceBlock() {
+            const reason = document.getElementById('force-reason').value.trim();
+            if (!reason) {
+                showToast('차단 사유를 입력해주세요.', 'error');
+                return;
+            }
+            const d = getSpamDetection(currentDetectionId);
+            if (!d) return;
+
+            // 실제 연동 시 POST /api/admin/spam/detections/{id}/block
+            const admin = getCurrentAdmin();
+            d.holdStatus = 'forced';
+            d.approver = `${admin.name}(${admin.email})`;
+            d.decidedAt = nowStamp();
+            d.verify = '관리자 콘솔';
+            d.decidedIp = '10.0.3.21';
+            d.decisionReason = reason;
+
+            closeModal('force-block-modal');
+            closeModal('detection-modal');
+            searchLogs();
+            showToast('해당 발송을 차단 처리했습니다.', 'success');
+        }
+
+        function nowStamp() {
+            const d = new Date();
+            const p = n => ('0' + n).slice(-2);
+            return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' +
+                   p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+        }
+
+        /* ---------- 내보내기 ---------- */
+
+        function exportLogs() {
+            if (!filtered.length) {
+                showToast('내보낼 탐지 이력이 없습니다.', 'error');
+                return;
+            }
+            const header = ['탐지일시', '탐지 ID', '회원명', '아이디', '메시지 유형', '발신번호', '발송 건수',
+                            '탐지 차단정보', '적용 규칙', '조치', '보류 처리', '승인번호', '처리자', '처리일시',
+                            '본인확인 수단', '처리 IP', '사유', '메시지 내용', '요청 IP'];
+            const rows = filtered.map(d => [
+                d.at, d.id, d.memberName, d.loginId, d.msgType, d.caller, d.count,
+                d.matched.map(m => `${SPAM_TYPE[m.type].label}:${m.value}`).join(' / '),
+                d.rule, SPAM_ACTION[d.action].label,
+                d.holdStatus ? SPAM_HOLD_STATUS[d.holdStatus].label : '-',
+                d.approvalNo || '-', d.approver || '-', d.decidedAt || '-',
+                d.verify === 'email-otp' ? '이메일 OTP' : (d.verify || '-'), d.decidedIp || '-',
+                d.decisionReason || '-', d.content, d.ip
+            ]);
+
+            const csv = [header, ...rows]
+                .map(cols => cols.map(c => `"${String(c).replace(/"/g, '""')}"`).join(','))
+                .join('\r\n');
+            const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `탐지차단결과로그_${nowStamp().slice(0, 10)}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+            showToast(`탐지 이력 ${formatNumber(filtered.length)}건을 내려받았습니다.`, 'success');
+        }
+
+        /* ---------- 초기화 ---------- */
+
+        document.addEventListener('DOMContentLoaded', function () {
+            applySuperAdminGuard();
+
+            const params = new URLSearchParams(location.search);
+            if (params.get('hold') === 'pending') {
+                document.getElementById('filter-hold').value = 'pending';
+            }
+            searchLogs();
+        });
+    </script>
+</body>
+</html>

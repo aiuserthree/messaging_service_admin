@@ -108,6 +108,7 @@
                     <button class="tab" onclick="switchModalTab('sender')">발신번호</button>
                     <button class="tab" onclick="switchModalTab('payment')">결제내역</button>
                     <button class="tab" onclick="switchModalTab('send-history')">발송이력</button>
+                    <button class="tab" onclick="switchModalTab('auth')">인증이력</button>
                     <button class="tab" id="conversion-tab" onclick="switchModalTab('conversion')" style="display: none;">회원 전환</button>
                 </div>
                 
@@ -247,6 +248,66 @@
                         </div>
                     </div>
                 </div>
+
+                <div id="modal-tab-auth" class="tab-content" style="display: none; margin-top: 24px;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">인증 수단</h3>
+                            <div class="card-description">로그인 다중인증과 발송 사후승인에 사용하는 수단</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                            <div class="form-group">
+                                <label class="form-label">다중인증 수단</label>
+                                <div class="form-control" style="background-color: #f1f5f9;" id="modal-auth-channel">-</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">등록 번호</label>
+                                <div class="form-control" style="background-color: #f1f5f9;" id="modal-auth-phone">-</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">인증 상태</label>
+                                <div class="form-control" style="background-color: #f1f5f9;" id="modal-auth-status">-</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">최근 인증일시</label>
+                                <div class="form-control" style="background-color: #f1f5f9;" id="modal-auth-last">-</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">발송 승인 담당자</label>
+                                <div class="form-control" style="background-color: #f1f5f9;" id="modal-auth-approver">-</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">최근 인증 실패</label>
+                                <div class="form-control" style="background-color: #f1f5f9;" id="modal-auth-fail">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 24px;">
+                        <div class="card-header">
+                            <h3 class="card-title">최근 인증 이력</h3>
+                            <div class="card-description">최근 5건 — 전체 이력·기간 조회는 보안 및 감사 &gt; 회원 인증 이력에서 확인합니다</div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>발생일시</th>
+                                        <th>인증 구분</th>
+                                        <th>이벤트</th>
+                                        <th>채널</th>
+                                        <th>결과</th>
+                                        <th>접속 IP</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modal-auth-log-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div style="margin-top: 16px; text-align: right;">
+                            <button class="btn btn-primary btn-sm" onclick="openAuthHistory()">전체 인증 이력 보기</button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="closeModal('member-detail-modal')">닫기</button>
@@ -255,6 +316,7 @@
     </div>
     
     <script src="js/admin-common.js"></script>
+    <script src="js/member-auth-data.js"></script>
     <script>
         let currentPage = 1;
         let mockData = [];
@@ -378,6 +440,8 @@
                 document.getElementById('modal-member-join-date').textContent = member.joinDate;
                 document.getElementById('modal-member-status').innerHTML = `<span class="badge ${getStatusBadge(member.status)}">${getStatusLabel(member.status)}</span>`;
                 
+                renderMemberAuth(member.id);
+
                 // 선거회원일 경우 회원 전환 탭 표시
                 const conversionTab = document.getElementById('conversion-tab');
                 if (member.type === 'election') {
@@ -395,6 +459,52 @@
             }
         }
         
+        /* 인증이력 탭 — 다중인증·발송 추가인증 요약과 최근 이력.
+         * 데이터는 js/member-auth-data.js 를 회원 인증 이력 화면과 공유한다. */
+        function renderMemberAuth(memberId) {
+            const method = getMemberAuthMethod(memberId);
+            const tbody = document.getElementById('modal-auth-log-tbody');
+
+            if (!method) {
+                ['channel', 'phone', 'status', 'last', 'approver', 'fail'].forEach(key => {
+                    document.getElementById('modal-auth-' + key).textContent = '-';
+                });
+                document.getElementById('modal-auth-status').textContent = '미등록';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:32px 0;">인증 이력이 없습니다.</td></tr>';
+                return;
+            }
+
+            document.getElementById('modal-auth-channel').textContent = method.mfaChannel;
+            document.getElementById('modal-auth-phone').textContent = maskAuthPhone(method.mfaPhone);
+            document.getElementById('modal-auth-status').innerHTML = authMethodStatusBadge(method.mfaStatus);
+            document.getElementById('modal-auth-last').textContent = method.lastVerifiedAt || '-';
+            document.getElementById('modal-auth-approver').innerHTML = method.approverEmail
+                ? `${maskAuthEmail(method.approverEmail)} <span style="color:#94a3b8;font-size:12px;">${method.approverName}</span>`
+                : '<span class="badge badge-danger">미지정</span>';
+            document.getElementById('modal-auth-fail').innerHTML = method.recentFail > 0
+                ? `<span class="auth-result fail">${method.recentFail}회</span>`
+                : '0회';
+
+            const logs = getMemberAuthLogs(memberId).slice(0, 5);
+            tbody.innerHTML = logs.length
+                ? logs.map(log => `
+                    <tr>
+                        <td>${log.at}</td>
+                        <td>${authCategoryTag(log.category)}</td>
+                        <td>${log.event}</td>
+                        <td>${log.channel || '-'}</td>
+                        <td>${authResultCell(log.result)}</td>
+                        <td>${log.ip}</td>
+                    </tr>
+                `).join('')
+                : '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:32px 0;">인증 이력이 없습니다.</td></tr>';
+        }
+
+        function openAuthHistory() {
+            const memberId = document.getElementById('modal-member-id').textContent;
+            location.href = 'member-auth-history.html?member=' + encodeURIComponent(memberId);
+        }
+
         function revertToIndividual() {
             const member = mockData.find(m => m.id === document.getElementById('modal-member-id').textContent);
             if (!member || member.type !== 'election') {
