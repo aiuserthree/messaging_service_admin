@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자별 권한 현황 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+    <style>
+        /* 넓은 표가 본문 폭을 밀어내지 않고 표 영역 안에서 가로 스크롤되도록 */
+        .admin-main { min-width: 0; }
+        .tab-content { margin-top: 0; }
+        .audit-info-box {
+            padding: 16px 20px;
+            background: #eff6ff;
+            border: 1px solid #93c5fd;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        .audit-info-box strong { color: #1e40af; }
+        .info-box-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .info-box-title { font-weight: 600; color: #1e40af; }
+        .base-at {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1e40af;
+            background: #dbeafe;
+            padding: 3px 10px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+        .principle-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px 24px;
+            list-style: none;
+            font-size: 13px;
+            color: #1e3a8a;
+            line-height: 1.6;
+        }
+        .principle-list li::before { content: '· '; color: #1e40af; font-weight: 700; }
+        .principle-list li strong { margin-right: 4px; }
+        @media (max-width: 1200px) {
+            .principle-list { grid-template-columns: 1fr; }
+        }
+
+        /* 탭 줄 오른쪽에 기준일시·내보내기 */
+        .tabs-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 12px;
+            border-bottom: 2px solid var(--admin-border);
+            margin: 24px 0;
+        }
+        .tabs-row .tabs { border-bottom: none; margin-bottom: 0; }
+        .tabs-row .tab { margin-bottom: -2px; }
+        .tabs-actions { display: flex; gap: 8px; padding-bottom: 8px; }
+
+        /* 민감 권한 칩 — 삭제는 빨강, 나머지는 분류별 색 */
+        .perm-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .perm-chip.admin    { background: #ede9fe; color: #5b21b6; }
+        .perm-chip.security { background: #fef3c7; color: #92400e; }
+        .perm-chip.privacy  { background: #fce7f3; color: #9d174d; }
+        .perm-chip.delete   { background: #fee2e2; color: #991b1b; }
+        .perm-chip.log      { background: #e0f2fe; color: #075985; }
+        .perm-chip.all      { background: #1e293b; color: #ffffff; }
+        .chip-list { display: flex; flex-wrap: wrap; gap: 4px; }
+
+        .muted { color: var(--admin-text-muted); font-size: 13px; }
+
+        .summary-table td, .summary-table th { white-space: nowrap; padding: 12px 10px; }
+        .summary-table th { vertical-align: bottom; line-height: 1.4; }
+        .summary-table td.col-chips { white-space: normal; min-width: 190px; }
+        .groups-table td.col-chips { min-width: 240px; }
+        .groups-table td.col-desc { white-space: normal; min-width: 180px; }
+        .summary-table td.num, .summary-table th.num { text-align: center; }
+        .summary-table td.col-date { font-size: 13px; }
+        .num-delete { color: #dc2626; font-weight: 700; }
+        .num-write { color: #b45309; font-weight: 600; }
+        .num-zero { color: var(--admin-text-muted); }
+        .admin-cell-name { font-weight: 600; color: var(--admin-text-primary); }
+        .admin-cell-sub { font-size: 12px; color: var(--admin-text-muted); }
+        .admin-cell-dept { font-size: 12px; font-weight: 400; color: var(--admin-text-muted); }
+        .tag-external {
+            display: inline-block;
+            margin-left: 4px;
+            padding: 0 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #e0f2fe;
+            color: #075985;
+            vertical-align: 1px;
+        }
+        tbody tr.row-suspended td { color: var(--admin-text-muted); }
+        tbody tr.row-suspended .admin-cell-name { color: var(--admin-text-secondary); }
+
+        /* 권한 매트릭스 — 헤더·첫 열 고정 */
+        .matrix-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .matrix-toolbar .form-control { width: auto; min-width: 160px; }
+        .matrix-toolbar label.check {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .matrix-legend {
+            margin-left: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--admin-text-secondary);
+            align-items: center;
+        }
+        .matrix-wrap { max-height: 70vh; overflow: auto; }
+        .matrix-table { border-collapse: separate; border-spacing: 0; }
+        .matrix-table th, .matrix-table td { white-space: nowrap; }
+        .matrix-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: var(--admin-bg);
+            text-align: center;
+            text-transform: none;
+            letter-spacing: 0;
+            vertical-align: bottom;
+            padding: 10px 12px;
+        }
+        .matrix-table thead th.col-menu { left: 0; z-index: 3; text-align: left; min-width: 220px; }
+        .matrix-table td.col-menu {
+            position: sticky;
+            left: 0;
+            z-index: 1;
+            background: var(--admin-surface);
+            box-shadow: 1px 0 0 var(--admin-border);
+        }
+        .matrix-table tbody tr:hover td.col-menu { background: var(--admin-bg); }
+        .matrix-table td.cell { text-align: center; padding: 8px 10px; }
+        .matrix-table td.cell-sensitive { background: #fff7ed; }
+        .matrix-table tr.section-row td {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--admin-text-secondary);
+            font-size: 13px;
+            padding: 8px 16px;
+            border-bottom: 2px solid var(--admin-border);
+        }
+        .matrix-table tr.section-row td.col-menu { background: #f8fafc; }
+        .matrix-head-name { font-weight: 600; color: var(--admin-text-primary); font-size: 13px; }
+        .matrix-head-group { margin-top: 4px; }
+        .matrix-head-group .badge { padding: 2px 8px; font-size: 11px; }
+        .matrix-head-note { font-size: 11px; color: var(--admin-text-muted); font-weight: 500; margin-top: 2px; }
+        .menu-sensitive-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #f97316;
+            margin-left: 6px;
+            vertical-align: 2px;
+        }
+
+        .pm {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            margin: 0 1px;
+        }
+        .pm.r { background: #dbeafe; color: #1e40af; }
+        .pm.w { background: #fef3c7; color: #b45309; }
+        .pm.d { background: #fee2e2; color: #dc2626; }
+        .pm-none { color: #cbd5e1; font-weight: 600; }
+
+        /* 권한 상세 모달 */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 110px 1fr 110px 1fr;
+            gap: 10px 16px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .detail-grid dt { color: var(--admin-text-secondary); font-weight: 500; }
+        .detail-grid dd { color: var(--admin-text-primary); font-weight: 500; word-break: break-all; }
+        .detail-table td, .detail-table th { padding: 8px 14px; }
+        .detail-table th.c, .detail-table td.c { text-align: center; width: 90px; }
+        .detail-table tr.section-row td {
+            background: #f8fafc;
+            font-weight: 600;
+            border-bottom: 2px solid var(--admin-border);
+        }
+        .dot { font-size: 14px; font-weight: 700; }
+        .dot.r { color: #2563eb; }
+        .dot.w { color: #d97706; }
+        .dot.d { color: #dc2626; }
+        .dot.none { color: #cbd5e1; }
+
+        .readonly-note {
+            margin-top: 16px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--admin-text-secondary);
+            line-height: 1.7;
+        }
+        .readonly-note a { color: var(--admin-primary); font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('admin-permission-status'));
+        </script>
+
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('관리자별 권한 현황'));
+            </script>
+
+            <div class="admin-content">
+                <div class="audit-info-box">
+                    <div class="info-box-head">
+                        <div class="info-box-title">관리자 계정별 보유 권한 현황 · 권한 부여 원칙</div>
+                        <span class="base-at" id="base-at">-</span>
+                    </div>
+                    <ul class="principle-list">
+                        <li><strong>최소 권한</strong>담당 업무 수행에 필요한 메뉴와 권한만 부여합니다.</li>
+                        <li><strong>역할별 분리</strong>운영·심사·고객 지원·조회 전용 그룹으로 나누고, 삭제와 관리자·보안 설정 권한은 최고 관리자 그룹에만 둡니다.</li>
+                        <li><strong>권한 그룹으로만 부여</strong>계정은 1개 권한 그룹에 소속되며, 계정별 개별 예외 권한은 두지 않습니다.</li>
+                        <li><strong>정기 검토</strong><span id="review-principle">분기 1회 전체 계정 권한을 검토하고, 퇴사·직무 변경 시 즉시 회수합니다.</span></li>
+                        <li><strong>외부 협력사</strong>조회 전용 그룹만 부여하고 계약 기간에 맞춰 사용 기한을 지정합니다.</li>
+                        <li><strong>조회 전용 화면</strong>권한 변경은 <a href="admin-account-delete.html">계정 생성·삭제·권한 변경</a> 승인 절차 또는 <a href="permission-group.html">권한 그룹 관리</a>에서만 처리합니다.</li>
+                    </ul>
+                </div>
+
+                <div class="stats-grid stats-4">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">관리자 계정 수</span>
+                            <div class="stat-card-icon icon-user">👤</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-accounts">0</div>
+                        <div class="stat-card-change" id="stat-accounts-desc">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">삭제 권한 보유 계정</span>
+                            <div class="stat-card-icon icon-fail">D</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-delete">0</div>
+                        <div class="stat-card-change" id="stat-delete-desc">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">관리자·보안 설정 권한 보유 계정</span>
+                            <div class="stat-card-icon icon-pending">🔐</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-admin-sec">0</div>
+                        <div class="stat-card-change" id="stat-admin-sec-desc">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">최근 권한 검토일</span>
+                            <div class="stat-card-icon icon-success">✓</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-review">-</div>
+                        <div class="stat-card-change" id="stat-review-desc">-</div>
+                    </div>
+                </div>
+
+                <div class="tabs-row">
+                    <div class="tabs">
+                        <button class="tab active" id="tab-btn-summary" onclick="switchTab('summary', this)">계정별 권한 요약</button>
+                        <button class="tab" id="tab-btn-matrix" onclick="switchTab('matrix', this)">권한 매트릭스</button>
+                        <button class="tab" id="tab-btn-groups" onclick="switchTab('groups', this)">권한 그룹 정의</button>
+                    </div>
+                    <div class="tabs-actions">
+                        <button class="btn btn-outline btn-sm" onclick="exportMatrix()">권한 목록 CSV 다운로드</button>
+                    </div>
+                </div>
+
+                <!-- 탭 1: 계정별 권한 요약 -->
+                <div id="tab-summary" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">계정별 권한 요약</h3>
+                            <div class="card-description" id="summary-desc">-</div>
+                        </div>
+                        <div class="table-container">
+                            <table class="summary-table">
+                                <thead>
+                                    <tr>
+                                        <th>관리자 / 계정 이메일</th>
+                                        <th>권한 그룹</th>
+                                        <th>계정 상태</th>
+                                        <th class="num">접근 가능<br>메뉴</th>
+                                        <th class="num">조회</th>
+                                        <th class="num">등록·수정</th>
+                                        <th class="num">삭제</th>
+                                        <th>민감 권한</th>
+                                        <th>최근 권한<br>변경일</th>
+                                        <th>최근<br>검토일</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="summary-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 탭 2: 권한 매트릭스 -->
+                <div id="tab-matrix" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">관리자 × 메뉴 권한 매트릭스</h3>
+                            <div class="card-description" id="matrix-desc">-</div>
+                        </div>
+                        <div class="matrix-toolbar">
+                            <select class="form-control" id="matrix-group" onchange="renderMatrix()">
+                                <option value="">전체 권한 그룹</option>
+                            </select>
+                            <label class="check">
+                                <input type="checkbox" id="matrix-sensitive" onchange="renderMatrix()">
+                                민감 권한 메뉴만 보기
+                            </label>
+                            <div class="matrix-legend">
+                                <span><span class="pm r">R</span> 조회</span>
+                                <span><span class="pm w">W</span> 등록·수정</span>
+                                <span><span class="pm d">D</span> 삭제</span>
+                                <span><span class="pm-none">–</span> 권한 없음</span>
+                                <span><span class="menu-sensitive-dot" style="margin-left:0;"></span> 민감 권한 메뉴</span>
+                            </div>
+                        </div>
+                        <div class="table-container matrix-wrap">
+                            <table class="matrix-table">
+                                <thead id="matrix-thead"></thead>
+                                <tbody id="matrix-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 탭 3: 권한 그룹 정의 -->
+                <div id="tab-groups" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header flex-between">
+                            <div>
+                                <h3 class="card-title">권한 그룹 정의</h3>
+                                <div class="card-description">계정 권한은 소속 권한 그룹의 메뉴 권한과 동일합니다</div>
+                            </div>
+                            <a class="btn btn-outline btn-sm" href="permission-group.html">권한 그룹 관리로 이동</a>
+                        </div>
+                        <div class="table-container">
+                            <table class="summary-table groups-table">
+                                <thead>
+                                    <tr>
+                                        <th>권한 그룹</th>
+                                        <th>설명</th>
+                                        <th class="num">소속 계정</th>
+                                        <th class="num">접근 가능 메뉴</th>
+                                        <th class="num">조회</th>
+                                        <th class="num">등록·수정</th>
+                                        <th class="num">삭제</th>
+                                        <th>민감 권한</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="groups-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h3 class="card-title">민감 권한 분류 기준</h3>
+                            <div class="card-description">아래 권한을 보유한 계정은 요약·매트릭스에서 표시되며 분기 검토 시 우선 확인합니다</div>
+                        </div>
+                        <div class="table-container">
+                            <table class="summary-table">
+                                <thead>
+                                    <tr>
+                                        <th>분류</th>
+                                        <th>판단 기준</th>
+                                        <th>대상 메뉴 · 권한</th>
+                                        <th>보유 그룹</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sensitive-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 계정별 권한 상세 -->
+    <div id="perm-detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 820px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="perm-detail-title">권한 상세</h3>
+                <button class="modal-close" onclick="closeModal('perm-detail-modal')">&times;</button>
+            </div>
+            <dl class="detail-grid" id="perm-detail-info"></dl>
+            <div class="chip-list" id="perm-detail-flags" style="margin-bottom: 16px;"></div>
+            <div class="table-container">
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th>메뉴</th>
+                            <th class="c">조회</th>
+                            <th class="c">등록·수정</th>
+                            <th class="c">삭제</th>
+                            <th>민감 권한</th>
+                        </tr>
+                    </thead>
+                    <tbody id="perm-detail-tbody"></tbody>
+                </table>
+            </div>
+            <div class="readonly-note">
+                계정 권한은 소속 권한 그룹 기준으로만 부여되며 계정별 예외 권한은 없습니다.
+                권한 변경은 <a href="admin-account-delete.html">계정 생성·삭제·권한 변경</a>에서 요청·승인 후 처리되고, 변경 이력은 작업 로그에 기록됩니다.
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="perm-detail-matrix-btn">매트릭스에서 보기</button>
+                <button class="btn btn-primary" onclick="closeModal('perm-detail-modal')">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin-common.js"></script>
+    <script src="js/admin-permission-data.js"></script>
+    <script>
+        const esc = escapePermHtml;
+        const MENU_ITEMS = getAdminMenuItems();
+        const TOTAL_MENUS = MENU_ITEMS.length;
+
+        /* ---------- 공통 ---------- */
+
+        function countCell(n, cls) {
+            return n > 0 ? `<span class="${cls || ''}">${n}</span>` : '<span class="num-zero">0</span>';
+        }
+
+        function isAllPermission(groupId) {
+            const s = summarizeGroupPermissions(groupId);
+            return s.read === s.total && s.write === s.total && s.delete === s.total;
+        }
+
+        /* 계정(그룹)의 민감 권한 칩 목록 — 칩에 마우스를 올리면 해당 메뉴가 보인다 */
+        function sensitiveChips(groupId) {
+            const flags = getGroupSensitiveFlags(groupId);
+            const chips = [];
+            if (isAllPermission(groupId)) chips.push('<span class="perm-chip all" title="전 메뉴 조회·등록·수정·삭제">전체 권한(ALL)</span>');
+            flags.forEach(f => chips.push(permSensitiveChip(f.category, f.menus.join(', '))));
+            return chips.length ? `<div class="chip-list">${chips.join('')}</div>` : '<span class="muted">없음</span>';
+        }
+
+        function accountCell(a) {
+            const ext = a.external ? '<span class="tag-external">외부</span>' : '';
+            return `<div class="admin-cell-name">${esc(a.name)} <span class="admin-cell-dept">${esc(a.dept)}</span>${ext}</div>` +
+                `<div class="admin-cell-sub">${esc(a.email)}</div>`;
+        }
+
+        function statusCell(a) {
+            let html = permStatusBadge(a.status);
+            if (a.status === 'suspended' && a.statusNote) {
+                html += `<div class="admin-cell-sub" style="margin-top:4px;">로그인 차단</div>`;
+            } else if (a.expiresAt) {
+                html += `<div class="admin-cell-sub" style="margin-top:4px;" title="사용 기한">~${esc(a.expiresAt)}</div>`;
+            }
+            return html;
+        }
+
+        /* ---------- 상단 지표 ---------- */
+
+        function renderStats() {
+            const accounts = ADMIN_PERMISSION_ACCOUNTS;
+            const active = accounts.filter(a => a.status === 'active').length;
+            const suspended = accounts.length - active;
+            const external = accounts.filter(a => a.external).length;
+
+            const deleteHolders = accounts.filter(a => groupHasSensitive(a.groupId, 'delete'));
+            const adminSecHolders = accounts.filter(a =>
+                groupHasSensitive(a.groupId, 'admin') || groupHasSensitive(a.groupId, 'security'));
+            const holderGroups = list => [...new Set(list.map(a => ADMIN_PERMISSION_GROUPS[a.groupId].name))].join('·') || '없음';
+
+            const reviewed = accounts.map(a => a.reviewedAt).sort().pop() || '-';
+
+            document.getElementById('stat-accounts').textContent = formatNumber(accounts.length);
+            document.getElementById('stat-accounts-desc').textContent =
+                `활성 ${active} · 정지 ${suspended} · 외부 협력사 ${external}`;
+
+            document.getElementById('stat-delete').textContent = formatNumber(deleteHolders.length);
+            document.getElementById('stat-delete-desc').textContent =
+                `${holderGroups(deleteHolders)} 그룹 한정 (${deleteHolders.map(a => a.name).join(', ')})`;
+
+            document.getElementById('stat-admin-sec').textContent = formatNumber(adminSecHolders.length);
+            document.getElementById('stat-admin-sec-desc').textContent =
+                `${holderGroups(adminSecHolders)} 그룹 한정 (${adminSecHolders.map(a => a.name).join(', ')})`;
+
+            document.getElementById('stat-review').textContent = reviewed;
+            document.getElementById('stat-review-desc').textContent =
+                `${ADMIN_PERMISSION_REVIEW.cycle} 정기 검토 · 다음 ${ADMIN_PERMISSION_REVIEW.nextReviewAt}`;
+
+            document.getElementById('base-at').textContent = `${ADMIN_PERMISSION_BASE_AT} 기준`;
+            document.getElementById('review-principle').textContent =
+                `${ADMIN_PERMISSION_REVIEW.cycle} 전체 계정 권한을 검토하고(최근 ${ADMIN_PERMISSION_REVIEW.lastReviewedAt}), 퇴사·직무 변경 시 즉시 회수합니다.`;
+        }
+
+        /* ---------- 탭 1: 계정별 권한 요약 ---------- */
+
+        function renderSummary() {
+            document.getElementById('summary-desc').textContent =
+                `관리자 ${ADMIN_PERMISSION_ACCOUNTS.length}명 · 전체 메뉴 ${TOTAL_MENUS}개 기준 · 권한 상세에서 메뉴별 조회/등록·수정/삭제 여부를 확인할 수 있습니다`;
+
+            document.getElementById('summary-tbody').innerHTML = ADMIN_PERMISSION_ACCOUNTS.map((a, idx) => {
+                const s = summarizeGroupPermissions(a.groupId);
+                return `
+                    <tr class="${a.status === 'suspended' ? 'row-suspended' : ''}">
+                        <td>${accountCell(a)}</td>
+                        <td>${permGroupBadge(a.groupId)}</td>
+                        <td>${statusCell(a)}</td>
+                        <td class="num"><strong>${s.access}</strong> <span class="muted">/ ${s.total}</span></td>
+                        <td class="num">${countCell(s.read)}</td>
+                        <td class="num">${countCell(s.write, 'num-write')}</td>
+                        <td class="num">${countCell(s.delete, 'num-delete')}</td>
+                        <td class="col-chips">${sensitiveChips(a.groupId)}</td>
+                        <td class="col-date" title="${esc(a.changeNote || '')}">${esc(a.changedAt)}</td>
+                        <td class="col-date">${esc(a.reviewedAt)}</td>
+                        <td><button class="btn btn-outline btn-sm" onclick="openPermDetail(${idx})">권한 상세</button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openPermDetail(idx) {
+            const a = ADMIN_PERMISSION_ACCOUNTS[idx];
+            if (!a) return;
+            const group = getAdminPermissionGroup(a.groupId);
+            const s = summarizeGroupPermissions(a.groupId);
+
+            document.getElementById('perm-detail-title').textContent = `${a.name} 권한 상세`;
+
+            const info = [
+                ['관리자', `${esc(a.name)} <span class="muted">(${esc(a.dept)})</span>`],
+                ['계정 이메일', esc(a.email)],
+                ['권한 그룹', permGroupBadge(a.groupId)],
+                ['계정 상태', permStatusBadge(a.status) + (a.statusNote ? ` <span class="muted">${esc(a.statusNote)}</span>` : '') +
+                    (a.expiresAt ? ` <span class="muted">사용 기한 ${esc(a.expiresAt)}</span>` : '')],
+                ['최근 권한 변경', `${esc(a.changedAt)}<div class="admin-cell-sub">${esc(a.changeNote || '')}</div>`],
+                ['최근 검토일', esc(a.reviewedAt)],
+                ['보유 권한', `접근 ${s.access}/${s.total} · 조회 ${s.read} · 등록·수정 ${s.write} · 삭제 ${s.delete}`],
+                ['그룹 설명', esc(group ? group.description : '-')]
+            ];
+            document.getElementById('perm-detail-info').innerHTML =
+                info.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+            document.getElementById('perm-detail-flags').innerHTML = sensitiveChips(a.groupId);
+
+            const dot = (on, cls) => on ? `<span class="dot ${cls}">●</span>` : '<span class="dot none">–</span>';
+            let html = '';
+            ADMIN_MENU_STRUCTURE.forEach(section => {
+                html += `<tr class="section-row"><td colspan="5">${esc(section.section)}</td></tr>`;
+                section.items.forEach(item => {
+                    const p = getGroupMenuPermission(a.groupId, item.key);
+                    const cats = [];
+                    ADMIN_PERMISSION_TYPES.forEach(t => {
+                        if (!p[t.key]) return;
+                        getSensitiveCategoriesFor(item.key, t.key).forEach(c => { if (cats.indexOf(c) === -1) cats.push(c); });
+                    });
+                    html += `
+                        <tr>
+                            <td style="padding-left: 28px;"><span style="color:#94a3b8;">└</span> ${esc(item.name)}</td>
+                            <td class="c">${dot(p.read, 'r')}</td>
+                            <td class="c">${dot(p.write, 'w')}</td>
+                            <td class="c">${dot(p.delete, 'd')}</td>
+                            <td>${cats.length ? `<div class="chip-list">${cats.map(c => permSensitiveChip(c)).join('')}</div>` : ''}</td>
+                        </tr>
+                    `;
+                });
+            });
+            document.getElementById('perm-detail-tbody').innerHTML = html;
+
+            document.getElementById('perm-detail-matrix-btn').onclick = function () {
+                closeModal('perm-detail-modal');
+                document.getElementById('matrix-group').value = a.groupId;
+                switchTab('matrix', document.getElementById('tab-btn-matrix'));
+                renderMatrix();
+            };
+            openModal('perm-detail-modal');
+        }
+
+        /* ---------- 탭 2: 권한 매트릭스 ---------- */
+
+        function permMarks(p) {
+            const marks = ADMIN_PERMISSION_TYPES
+                .filter(t => p[t.key])
+                .map(t => `<span class="pm ${t.short.toLowerCase()}" title="${t.label}">${t.short}</span>`);
+            return marks.length ? marks.join('') : '<span class="pm-none">–</span>';
+        }
+
+        /* 셀이 민감 권한(삭제 전반 제외 — D 표시로 이미 구분)을 포함하는지 */
+        function isSensitiveCell(menuKey, p) {
+            return ADMIN_PERMISSION_TYPES.some(t =>
+                p[t.key] && getSensitiveCategoriesFor(menuKey, t.key).some(c => !c.anyMenu));
+        }
+
+        function renderMatrix() {
+            const groupId = document.getElementById('matrix-group').value;
+            const sensitiveOnly = document.getElementById('matrix-sensitive').checked;
+            const accounts = ADMIN_PERMISSION_ACCOUNTS.filter(a => !groupId || a.groupId === groupId);
+
+            document.getElementById('matrix-thead').innerHTML = `
+                <tr>
+                    <th class="col-menu">메뉴</th>
+                    ${accounts.map(a => `
+                        <th>
+                            <div class="matrix-head-name">${esc(a.name)}${a.external ? '<span class="tag-external">외부</span>' : ''}</div>
+                            <div class="matrix-head-group">${permGroupBadge(a.groupId)}</div>
+                            <div class="matrix-head-note">${a.status === 'suspended' ? '정지' : '&nbsp;'}</div>
+                        </th>
+                    `).join('')}
+                </tr>
+            `;
+
+            let html = '';
+            let menuCount = 0;
+            ADMIN_MENU_STRUCTURE.forEach(section => {
+                const items = section.items.filter(item => !sensitiveOnly || isSensitiveMenu(item.key));
+                if (!items.length) return;
+                html += `<tr class="section-row"><td class="col-menu">${esc(section.section)}</td><td colspan="${accounts.length}"></td></tr>`;
+                items.forEach(item => {
+                    menuCount++;
+                    const dot = isSensitiveMenu(item.key) ? '<span class="menu-sensitive-dot" title="민감 권한 메뉴"></span>' : '';
+                    html += `<tr><td class="col-menu" style="padding-left: 28px;">${esc(item.name)}${dot}</td>`;
+                    accounts.forEach(a => {
+                        const p = getGroupMenuPermission(a.groupId, item.key);
+                        html += `<td class="cell${isSensitiveCell(item.key, p) ? ' cell-sensitive' : ''}">${permMarks(p)}</td>`;
+                    });
+                    html += '</tr>';
+                });
+            });
+            if (!accounts.length) {
+                html = '<tr><td class="col-menu muted" style="padding: 40px 16px;">해당 권한 그룹에 소속된 계정이 없습니다.</td></tr>';
+            }
+            document.getElementById('matrix-tbody').innerHTML = html;
+
+            document.getElementById('matrix-desc').textContent =
+                `관리자 ${accounts.length}명 × 메뉴 ${menuCount}개 · 주황 배경은 민감 권한 보유 셀 · ${ADMIN_PERMISSION_BASE_AT} 기준`;
+        }
+
+        /* ---------- 탭 3: 권한 그룹 정의 ---------- */
+
+        function renderGroups() {
+            document.getElementById('groups-tbody').innerHTML = Object.keys(ADMIN_PERMISSION_GROUPS).map(groupId => {
+                const g = ADMIN_PERMISSION_GROUPS[groupId];
+                const s = summarizeGroupPermissions(groupId);
+                const members = getGroupAccounts(groupId);
+                const active = members.filter(a => a.status === 'active').length;
+                const memberNote = members.length
+                    ? `<div class="admin-cell-sub">${members.map(a => esc(a.name)).join(', ')}</div>` : '';
+                return `
+                    <tr>
+                        <td>${permGroupBadge(groupId)}</td>
+                        <td class="col-desc">${esc(g.description)}</td>
+                        <td class="num"><strong>${members.length}명</strong>${members.length !== active ? ` <span class="muted">(활성 ${active})</span>` : ''}${memberNote}</td>
+                        <td class="num"><strong>${s.access}</strong> <span class="muted">/ ${s.total}</span></td>
+                        <td class="num">${countCell(s.read)}</td>
+                        <td class="num">${countCell(s.write, 'num-write')}</td>
+                        <td class="num">${countCell(s.delete, 'num-delete')}</td>
+                        <td class="col-chips">${sensitiveChips(groupId)}</td>
+                        <td><a class="btn btn-outline btn-sm" href="permission-group.html">권한 그룹 관리</a></td>
+                    </tr>
+                `;
+            }).join('');
+
+            const menuName = key => (MENU_ITEMS.find(m => m.key === key) || { name: key }).name;
+            const typeLabel = type => (ADMIN_PERMISSION_TYPES.find(t => t.key === type) || { label: type }).label;
+            document.getElementById('sensitive-tbody').innerHTML = ADMIN_SENSITIVE_CATEGORIES.map(cat => {
+                const target = cat.anyMenu
+                    ? `전체 메뉴 · ${cat.anyMenu.map(typeLabel).join('/')}`
+                    : Object.keys(cat.rules).map(key => `${esc(menuName(key))} <span class="muted">(${cat.rules[key].map(typeLabel).join('/')})</span>`).join('<br>');
+                const holders = Object.keys(ADMIN_PERMISSION_GROUPS)
+                    .filter(groupId => groupHasSensitive(groupId, cat.id))
+                    .map(groupId => permGroupBadge(groupId)).join(' ');
+                return `
+                    <tr>
+                        <td>${permSensitiveChip(cat)}</td>
+                        <td>${esc(cat.desc)}</td>
+                        <td style="white-space: normal;">${target}</td>
+                        <td>${holders || '<span class="muted">없음</span>'}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        /* ---------- 탭 ---------- */
+
+        function switchTab(tabName, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+            document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tabName).style.display = 'block';
+            el.classList.add('active');
+        }
+
+        /* ---------- 내보내기 ---------- */
+
+        // 계정 × 메뉴 전체 권한 목록 (필터와 무관하게 전체를 내보낸다)
+        function exportMatrix() {
+            const header = ['관리자', '이메일', '권한 그룹', '섹션', '메뉴', '조회', '등록·수정', '삭제'];
+            const mark = v => v ? 'O' : 'X';
+            const rows = [];
+            ADMIN_PERMISSION_ACCOUNTS.forEach(a => {
+                const groupName = (getAdminPermissionGroup(a.groupId) || { name: '-' }).name;
+                MENU_ITEMS.forEach(item => {
+                    const p = getGroupMenuPermission(a.groupId, item.key);
+                    rows.push([a.name, a.email, groupName, item.section, item.name, mark(p.read), mark(p.write), mark(p.delete)]);
+                });
+            });
+
+            const csv = [header, ...rows]
+                .map(cols => cols.map(c => `"${String(c).replace(/"/g, '""')}"`).join(','))
+                .join('\r\n');
+            const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `관리자별_권한현황_${ADMIN_PERMISSION_BASE_AT.slice(0, 10)}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+            showToast(`관리자 ${ADMIN_PERMISSION_ACCOUNTS.length}명 × 메뉴 ${TOTAL_MENUS}개 권한 목록을 내려받았습니다.`, 'success');
+        }
+
+        /* ---------- 초기화 ---------- */
+
+        document.addEventListener('DOMContentLoaded', function () {
+            applySuperAdminGuard();
+
+            const groupSelect = document.getElementById('matrix-group');
+            Object.keys(ADMIN_PERMISSION_GROUPS).forEach(groupId => {
+                const opt = document.createElement('option');
+                opt.value = groupId;
+                opt.textContent = ADMIN_PERMISSION_GROUPS[groupId].name;
+                groupSelect.appendChild(opt);
+            });
+
+            renderStats();
+            renderSummary();
+            renderMatrix();
+            renderGroups();
+
+            // ?tab=matrix|groups 로 특정 탭을 바로 연다
+            const tab = new URLSearchParams(location.search).get('tab');
+            if (tab === 'matrix' || tab === 'groups') {
+                switchTab(tab, document.getElementById('tab-btn-' + tab));
+            }
+        });
+    </script>
+</body>
+</html>

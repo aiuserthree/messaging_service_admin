@@ -6,7 +6,6 @@
     <title>로그 점검 - 관리자 시스템</title>
     <link rel="stylesheet" href="css/admin-common.css">
     <style>
-        .tab-content { margin-top: 24px; }
         .checklist-item {
             display: flex;
             align-items: flex-start;
@@ -40,6 +39,14 @@
             margin-bottom: 24px;
         }
         .audit-info-box strong { color: #1e40af; }
+        .flow-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 20px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #1e40af;
+        }
         .progress-bar-wrap {
             height: 8px;
             background: #e2e8f0;
@@ -52,6 +59,170 @@
             background: linear-gradient(90deg, #3b82f6, #2563eb);
             border-radius: 999px;
         }
+
+        /* 넓은 표가 본문 폭을 밀어내지 않도록 — 표 영역만 가로 스크롤 */
+        .admin-main { min-width: 0; }
+
+        /* ---------- 월간 로그 점검 ---------- */
+        .round-table td, .round-table th { white-space: nowrap; }
+        .round-table td.num, .round-table th.num { text-align: right; }
+        .round-table tbody tr.row-selected { background: #eff6ff; }
+        .round-table tbody tr.row-selected:hover { background: #dbeafe; }
+
+        .form-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--admin-border);
+        }
+        .form-toolbar .toolbar-title { font-size: 18px; font-weight: 600; color: var(--admin-text-primary); }
+        .form-toolbar .toolbar-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+        /* 점검표 양식 — 화면과 인쇄 모두 문서 형태로 보이도록 테두리 표를 쓴다 */
+        .check-form { color: #0f172a; }
+        .form-title-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px 24px;
+            margin-bottom: 16px;
+        }
+        .form-doc-no { font-size: 12px; color: var(--admin-text-muted); font-family: ui-monospace, Menlo, monospace; }
+        .form-title { font-size: 22px; font-weight: 700; margin: 4px 0; letter-spacing: -0.3px; }
+        .form-sub { font-size: 13px; color: var(--admin-text-secondary); }
+
+        .form-grid-table, .sign-table, .form-log-table, .followup-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .form-grid-table th, .form-grid-table td,
+        .sign-table th, .sign-table td,
+        .form-log-table th, .form-log-table td,
+        .followup-table th, .followup-table td {
+            border: 1px solid #cbd5e1;
+            padding: 8px 10px;
+            font-size: 13px;
+            text-transform: none;
+            letter-spacing: 0;
+            vertical-align: middle;
+        }
+        .form-grid-table th, .sign-table th, .form-log-table th, .followup-table th {
+            background: #f1f5f9;
+            color: #334155;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .form-grid-table th { width: 130px; text-align: left; }
+        .check-form tbody tr:hover { background: transparent; }
+
+        .sign-table { width: auto; }
+        .sign-table th, .sign-table td { text-align: center; min-width: 110px; }
+        .sign-table th.sign-side { min-width: 0; width: 30px; padding: 4px; }
+        .sign-table td.sign-name { height: 48px; font-size: 15px; font-weight: 700; }
+        .sign-table td.sign-date { font-size: 11px; color: var(--admin-text-secondary); }
+        .sign-mark {
+            display: inline-block;
+            margin-left: 4px;
+            padding: 0 5px;
+            border: 1.5px solid #dc2626;
+            border-radius: 50%;
+            color: #dc2626;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 18px;
+        }
+        .sign-pending { color: var(--admin-text-muted); font-size: 12px; font-weight: 500; }
+
+        .form-section-title {
+            margin: 22px 0 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .form-log-table th { text-align: center; }
+        .form-log-table td { font-size: 12.5px; line-height: 1.55; }
+        .form-log-table td.c { text-align: center; white-space: nowrap; }
+        .form-log-table td.r { text-align: right; white-space: nowrap; }
+        .form-log-table td.loc { font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; min-width: 170px; word-break: break-all; }
+        .form-log-table td.name { font-weight: 600; white-space: nowrap; }
+        .form-log-table td.txt { min-width: 124px; }
+        .form-log-table tr.row-issue td { background: #fffbeb; }
+        .form-log-table tr.row-missing td { background: #fef2f2; }
+        .form-log-table tr.row-unchecked td { color: var(--admin-text-muted); }
+        .missing-range { display: block; margin-top: 4px; min-width: 100px; font-size: 11.5px; color: #b91c1c; white-space: normal; }
+        .muted { color: var(--admin-text-muted); }
+
+        .opinion-box {
+            border: 1px solid #cbd5e1;
+            padding: 12px 14px;
+            min-height: 64px;
+            font-size: 13px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+        .followup-table td.c { text-align: center; white-space: nowrap; }
+        .followup-add {
+            display: grid;
+            grid-template-columns: 1fr 140px 160px auto;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .form-foot {
+            margin-top: 18px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 11.5px;
+            color: var(--admin-text-muted);
+        }
+        .lock-note {
+            margin-top: 16px;
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            line-height: 1.7;
+            background: #f8fafc;
+            border: 1px solid var(--admin-border);
+            color: var(--admin-text-secondary);
+        }
+        .lock-note.approved { background: #f0fdf4; border-color: #86efac; color: #166534; }
+        .lock-note.requested { background: #fffbeb; border-color: #fcd34d; color: #92400e; }
+
+        /* 인쇄 — 인쇄 버튼으로 호출할 때만 점검표를 A4 가로 한 장 양식으로 출력한다 */
+        @media print {
+            @page { size: A4 landscape; margin: 10mm; }
+            body.print-check-form { background: #fff !important; }
+            body.print-check-form * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body.print-check-form .admin-sidebar,
+            body.print-check-form .admin-header,
+            body.print-check-form .admin-content > *:not(#tab-monthly),
+            body.print-check-form #tab-monthly > *:not(#check-form-card),
+            body.print-check-form .no-print,
+            body.print-check-form .modal,
+            body.print-check-form .toast { display: none !important; }
+            body.print-check-form .admin-container { display: block; min-height: 0; }
+            body.print-check-form .admin-main { margin-left: 0 !important; min-height: 0; }
+            body.print-check-form .admin-content { padding: 0 !important; }
+            body.print-check-form #tab-monthly { display: block !important; margin: 0; }
+            body.print-check-form #check-form-card { border: none; box-shadow: none; padding: 0; }
+            body.print-check-form .table-container { overflow: visible; border: none; }
+            body.print-check-form .form-title { font-size: 18px; }
+            body.print-check-form .form-grid-table th, body.print-check-form .form-grid-table td,
+            body.print-check-form .followup-table th, body.print-check-form .followup-table td,
+            body.print-check-form .opinion-box { font-size: 10.5px; padding: 5px 7px; }
+            body.print-check-form .form-log-table th,
+            body.print-check-form .form-log-table td { font-size: 9px; padding: 4px 5px; }
+            body.print-check-form .form-log-table td.loc { font-size: 8.5px; min-width: 0; }
+            body.print-check-form .form-log-table td.txt { min-width: 0; }
+            body.print-check-form .form-log-table tr { page-break-inside: avoid; }
+            body.print-check-form thead { display: table-header-group; }
+        }
     </style>
 </head>
 <body>
@@ -60,90 +231,175 @@
         <script>
             document.write(getSidebarHTML('security-log-check'));
         </script>
-        
+
         <main class="admin-main">
             <script>
                 document.write(getHeaderHTML('로그 점검'));
             </script>
-            
+
             <div class="admin-content">
                 <div class="audit-info-box">
-                    <div style="font-weight: 600; color: #1e40af; margin-bottom: 8px;">사이트 오픈 전 보안 감사 — 로그 점검</div>
+                    <div style="font-weight: 600; color: #1e40af; margin-bottom: 8px;">로그 정기 점검 — 월 1회 점검표 작성·승인</div>
                     <div style="font-size: 13px; color: #1e40af; line-height: 1.7;">
-                        서비스 오픈 전 접근·인증·작업·개인정보 처리 로그를 점검하여 보관 정책 준수, 이상 접근, 권한 남용 여부를 확인합니다.
-                        점검 결과에서 이슈가 발견되면 <strong>조치 및 결과 확인</strong> 메뉴에서 후속 조치를 등록·추적하세요.
+                        접근·인증·작업·개인정보 처리·발송·보안 로그를 <strong>매월 1회(익월 10일 이내)</strong> 점검합니다.
+                        점검자가 로그별 파일 크기·건수, 누락, 이상징후와 원인·조치를 점검표에 기록해 <strong>승인 요청</strong>하면
+                        승인자(정보보호 책임자)가 검토 후 <strong>결재</strong>합니다. 승인 완료된 점검표는 <strong>수정할 수 없으며 3년간 보관</strong>됩니다.
+                        이상징후 중 추가 조치가 필요한 건은 <strong>조치 및 결과 확인</strong> 메뉴에서 등록·추적하세요.
+                    </div>
+                    <div class="flow-legend">
+                        <span><span class="badge badge-secondary">작성중</span> 점검자 작성·임시 저장</span>
+                        <span><span class="badge badge-warning">승인 요청</span> 승인자 결재 대기</span>
+                        <span><span class="badge badge-success">승인 완료</span> 결재 완료 · 수정 불가 보관</span>
                     </div>
                 </div>
 
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <span class="stat-card-title">점검 항목</span>
-                            <div class="stat-card-icon icon-chart">📋</div>
-                        </div>
-                        <div class="stat-card-value" id="stat-total">12</div>
-                        <div class="stat-card-change">오픈 전 필수 점검 항목</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <span class="stat-card-title">점검 완료</span>
-                            <div class="stat-card-icon icon-success">✓</div>
-                        </div>
-                        <div class="stat-card-value" id="stat-completed">8</div>
-                        <div class="stat-card-change positive">완료율 <span id="stat-rate">67%</span></div>
-                        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width: 67%;"></div></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <span class="stat-card-title">이슈 발견</span>
-                            <div class="stat-card-icon icon-fail">!</div>
-                        </div>
-                        <div class="stat-card-value" id="stat-issues">2</div>
-                        <div class="stat-card-change negative">조치 필요 항목</div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="search-filter-bar">
-                        <div class="filter-item">
-                            <label class="form-label">감사 회차</label>
-                            <select class="form-control" id="audit-round">
-                                <option value="2025-06-open">2025-06 사이트 오픈 감사</option>
-                                <option value="2025-03-pre">2025-03 사전 점검</option>
-                            </select>
-                        </div>
-                        <div class="filter-item">
-                            <label class="form-label">점검 기간</label>
-                            <input type="date" class="form-control" id="check-from" value="2025-06-01">
-                        </div>
-                        <div class="filter-item">
-                            <label class="form-label">~</label>
-                            <input type="date" class="form-control" id="check-to" value="2025-06-22">
-                        </div>
-                        <div class="filter-item">
-                            <label class="form-label">점검 상태</label>
-                            <select class="form-control" id="filter-status">
-                                <option value="">전체</option>
-                                <option value="pending">미점검</option>
-                                <option value="completed">완료</option>
-                                <option value="issue">이슈</option>
-                            </select>
-                        </div>
-                        <div class="filter-item" style="align-self: flex-end;">
-                            <button class="btn btn-primary" onclick="searchChecklist()">조회</button>
-                            <button class="btn btn-outline" onclick="exportChecklist()">점검 결과 내보내기</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tabs" style="margin-top: 24px;">
-                    <button class="tab active" onclick="switchTab('checklist', this)">점검 체크리스트</button>
+                <div class="tabs">
+                    <button class="tab active" id="tab-btn-monthly" onclick="switchTab('monthly', this)">월간 로그 점검</button>
+                    <button class="tab" id="tab-btn-checklist" onclick="switchTab('checklist', this)">오픈 전 점검 체크리스트</button>
                     <button class="tab" onclick="switchTab('anomaly', this)">이상 징후 탐지</button>
                     <button class="tab" onclick="switchTab('retention', this)">로그 보관 현황</button>
                 </div>
 
-                <div id="tab-checklist" class="tab-content">
+                <!-- 월간 로그 점검 — 인증기준 4.3-01 월 1회 로그 점검표·실적 -->
+                <div id="tab-monthly" class="tab-content">
+                    <div class="stats-grid stats-4">
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span class="stat-card-title">점검 대상 로그</span>
+                                <div class="stat-card-icon icon-chart">📋</div>
+                            </div>
+                            <div class="stat-card-value" id="m-stat-logs">0종</div>
+                            <div class="stat-card-change">접근·인증·작업·발송·보안 로그</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span class="stat-card-title">당월 점검</span>
+                                <div class="stat-card-icon icon-processing">⏱</div>
+                            </div>
+                            <div class="stat-card-value" id="m-stat-current">-</div>
+                            <div class="stat-card-change" id="m-stat-current-desc">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span class="stat-card-title">최근 승인 회차</span>
+                                <div class="stat-card-icon icon-success">✓</div>
+                            </div>
+                            <div class="stat-card-value" id="m-stat-approved">-</div>
+                            <div class="stat-card-change positive" id="m-stat-approved-desc">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span class="stat-card-title">최근 회차 누락 · 이상징후</span>
+                                <div class="stat-card-icon icon-fail">!</div>
+                            </div>
+                            <div class="stat-card-value" id="m-stat-issues">-</div>
+                            <div class="stat-card-change" id="m-stat-issues-desc">-</div>
+                        </div>
+                    </div>
+
                     <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">점검 회차</h3>
+                            <div class="card-description">점검 주기 매월 1회 (익월 10일 이내) · 점검자 작성 → 승인자 결재 · 승인 완료 회차는 수정 불가</div>
+                        </div>
+                        <div class="table-container">
+                            <table class="round-table">
+                                <thead>
+                                    <tr>
+                                        <th>점검 월</th>
+                                        <th>점검 대상 기간</th>
+                                        <th>점검일</th>
+                                        <th>점검자</th>
+                                        <th>승인자</th>
+                                        <th class="num">점검 로그 수</th>
+                                        <th class="num">누락 건</th>
+                                        <th class="num">이상징후 건</th>
+                                        <th>상태</th>
+                                        <th>승인일시</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="round-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card" id="check-form-card" style="margin-top: 24px;">
+                        <div class="form-toolbar no-print">
+                            <div>
+                                <span class="toolbar-title" id="form-toolbar-title">점검표</span>
+                                <span id="form-toolbar-status" style="margin-left: 8px;"></span>
+                            </div>
+                            <div class="toolbar-actions" id="form-actions"></div>
+                        </div>
+                        <div id="check-form" class="check-form"></div>
+                    </div>
+                </div>
+
+                <!-- 오픈 전 점검 체크리스트 -->
+                <div id="tab-checklist" class="tab-content" style="display: none;">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span class="stat-card-title">점검 항목</span>
+                                <div class="stat-card-icon icon-chart">📋</div>
+                            </div>
+                            <div class="stat-card-value" id="stat-total">12</div>
+                            <div class="stat-card-change">오픈 전 필수 점검 항목</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span class="stat-card-title">점검 완료</span>
+                                <div class="stat-card-icon icon-success">✓</div>
+                            </div>
+                            <div class="stat-card-value" id="stat-completed">8</div>
+                            <div class="stat-card-change positive">완료율 <span id="stat-rate">67%</span></div>
+                            <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width: 67%;"></div></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span class="stat-card-title">이슈 발견</span>
+                                <div class="stat-card-icon icon-fail">!</div>
+                            </div>
+                            <div class="stat-card-value" id="stat-issues">2</div>
+                            <div class="stat-card-change negative">조치 필요 항목</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="search-filter-bar">
+                            <div class="filter-item">
+                                <label class="form-label">감사 회차</label>
+                                <select class="form-control" id="audit-round">
+                                    <option value="2025-06-open">2025-06 사이트 오픈 감사</option>
+                                    <option value="2025-03-pre">2025-03 사전 점검</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">점검 기간</label>
+                                <input type="date" class="form-control" id="check-from" value="2025-06-01">
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">~</label>
+                                <input type="date" class="form-control" id="check-to" value="2025-06-22">
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">점검 상태</label>
+                                <select class="form-control" id="filter-status">
+                                    <option value="">전체</option>
+                                    <option value="pending">미점검</option>
+                                    <option value="completed">완료</option>
+                                    <option value="issue">이슈</option>
+                                </select>
+                            </div>
+                            <div class="filter-item" style="align-self: flex-end;">
+                                <button class="btn btn-primary" onclick="searchChecklist()">조회</button>
+                                <button class="btn btn-outline" onclick="exportChecklist()">점검 결과 내보내기</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 24px;">
                         <div class="card-header">
                             <h3 class="card-title">오픈 전 로그 점검 체크리스트</h3>
                             <div class="card-description">ISMS·개인정보보호법 및 내부 보안 정책 기준 점검 항목</div>
@@ -243,18 +499,18 @@
                                     <tr>
                                         <td>작업(감사) 로그</td>
                                         <td>3년 이상</td>
-                                        <td>180일</td>
-                                        <td>운영 DB</td>
-                                        <td><span class="badge badge-warning">부분 적용</span></td>
-                                        <td><span class="badge badge-danger">부적합</span></td>
+                                        <td>1,095일</td>
+                                        <td>운영 DB + 아카이브</td>
+                                        <td><span class="badge badge-success">변경 불가</span></td>
+                                        <td><span class="badge badge-success">적합</span></td>
                                     </tr>
                                     <tr>
                                         <td>개인정보 처리 로그</td>
                                         <td>3년 이상</td>
-                                        <td>365일</td>
+                                        <td>1,095일</td>
                                         <td>별도 보관 서버</td>
                                         <td><span class="badge badge-success">변경 불가</span></td>
-                                        <td><span class="badge badge-warning">보완 필요</span></td>
+                                        <td><span class="badge badge-success">적합</span></td>
                                     </tr>
                                     <tr>
                                         <td>API/발송 로그</td>
@@ -307,9 +563,744 @@
             </div>
         </div>
     </div>
-    
+
+    <!-- 월간 점검표 — 로그별 점검 결과 입력 (작성중 회차만) -->
+    <div id="log-row-modal" class="modal">
+        <div class="modal-content" style="max-width: 640px;">
+            <div class="modal-header">
+                <h3 class="modal-title">로그 점검 결과 입력</h3>
+                <button class="modal-close" onclick="closeModal('log-row-modal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">로그명 · 저장 위치</label>
+                <div class="form-control" style="background: #f8fafc; height: auto; line-height: 1.6;" id="row-target">-</div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px;">
+                <div class="form-group">
+                    <label class="form-label">파일 크기</label>
+                    <input type="text" class="form-control" id="row-size" placeholder="예: 1.2 GB">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">건수</label>
+                    <input type="number" class="form-control" id="row-count" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">누락 여부</label>
+                    <select class="form-control" id="row-missing-yn" onchange="toggleMissingRange()">
+                        <option value="N">정상 (누락 없음)</option>
+                        <option value="Y">누락</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">누락 구간</label>
+                    <input type="text" class="form-control" id="row-missing" placeholder="예: 2026-09-14 02:00 ~ 02:20 (20분)">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">이상징후 <span style="color: var(--admin-text-muted); font-weight: 400;">(없으면 비워두세요)</span></label>
+                <textarea class="form-control" id="row-anomaly" rows="2" placeholder="탐지된 이상징후 내용 — 일시·계정·IP·건수 포함"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">원인</label>
+                <textarea class="form-control" id="row-cause" rows="2" placeholder="누락·이상징후가 있으면 필수"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">조치</label>
+                <textarea class="form-control" id="row-action" rows="2" placeholder="누락·이상징후가 있으면 필수"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">조치 결과</label>
+                <input type="text" class="form-control" id="row-result" placeholder="예: 조치 완료 (2026-10-03) · 재발 방지 설정 적용">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('log-row-modal')">취소</button>
+                <button class="btn btn-primary" onclick="saveLogRow()">점검 완료로 저장</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/admin-common.js"></script>
     <script>
+        /* ================= 월간 로그 점검 (인증기준 4.3-01) =================
+         * 매월 1회(익월 10일 이내) 로그 10종을 점검해 점검표를 작성하고 승인자가 결재한다.
+         * 점검표 항목: 점검일, 점검자, 로그명·저장 위치·파일 크기·건수, 누락, 이상징후, 원인, 조치, 승인자.
+         * 상태: draft(작성중) → requested(승인 요청) → approved(승인 완료, 수정 불가)
+         *
+         * 실제 연동 시 아래 API 로 대체한다.
+         *   GET  /api/admin/security/log-checks              점검 회차 목록
+         *   GET  /api/admin/security/log-checks/{id}         점검표 상세
+         *   PUT  /api/admin/security/log-checks/{id}         점검표 저장 (작성중만)
+         *   POST /api/admin/security/log-checks/{id}/request 승인 요청
+         *   POST /api/admin/security/log-checks/{id}/approve 승인 (최고 관리자, 점검자 본인 불가)
+         */
+
+        const CHECK_STATUS = {
+            draft:     { label: '작성중',    badge: 'badge-secondary' },
+            requested: { label: '승인 요청', badge: 'badge-warning' },
+            approved:  { label: '승인 완료', badge: 'badge-success' }
+        };
+
+        const STAFF = {
+            jhpark: { name: '박정호', dept: '정보보호팀',   title: '정보보호 책임자' },
+            smlee:  { name: '이수민', dept: '서비스운영팀', title: '운영 관리자' },
+            hnjung: { name: '정하늘', dept: '서비스운영팀', title: '운영 관리자' }
+        };
+
+        /* 점검 대상 로그 10종 — 저장 위치는 대상 월(ym)로 파일명·파티션을 만든다.
+         * size 는 MB 기준 월 평균, count 는 월 평균 건수 */
+        const LOG_CATALOG = [
+            { key: 'admin-access',  name: '관리자 접근 로그',          retention: '1년', size: 38.6,  count: 214382,
+              loc: ym => `/var/log/tokbell/admin/admin-access-${ym}.log.gz` },
+            { key: 'member-access', name: '회원 접근 로그',            retention: '1년', size: 1228.8, count: 9842116,
+              loc: ym => `/var/log/tokbell/web/member-access-${ym}.log.gz` },
+            { key: 'member-auth',   name: '회원 인증 로그',            retention: '1년', size: 186.4, count: 612904,
+              loc: ym => `DB tb_member_auth_log (파티션 p${ym.replace('-', '')})` },
+            { key: 'admin-audit',   name: '작업(관리자 행위) 로그',    retention: '3년', size: 96.4,  count: 48217,
+              loc: ym => `DB tb_admin_audit_log (파티션 p${ym.replace('-', '')})` },
+            { key: 'privacy',       name: '개인정보 처리 로그',        retention: '3년', size: 12.8,  count: 6905,
+              loc: ym => `DB tb_privacy_access_log (파티션 p${ym.replace('-', '')})` },
+            { key: 'send',          name: '발송 로그',                 retention: '3년', size: 49868.8, count: 31208544,
+              loc: ym => `DB tb_send_log (파티션 p${ym.replace('-', '')}) · /data/archive/send/${ym}/` },
+            { key: 'spam',          name: '스팸 탐지·차단 로그',       retention: '3년', size: 0.09,  count: 19,
+              loc: ym => `DB tb_spam_detection_log (파티션 p${ym.replace('-', '')})` },
+            { key: 'geo-block',     name: '국외·우회 접속 차단 로그',  retention: '3년', size: 286.2, count: 1904227,
+              loc: ym => `/var/log/tokbell/waf/geo-block-${ym}.log.gz` },
+            { key: 'error',         name: '장애 로그',                 retention: '1년', size: 524.3, count: 402118,
+              loc: ym => `/var/log/tokbell/app/error-${ym}.log.gz` },
+            { key: 'waf',           name: 'WAF/방화벽 로그',           retention: '1년', size: 3891.2, count: 27501930,
+              loc: ym => `/var/log/tokbell/waf/waf-${ym}.log.gz · fw-syslog-${ym}.log.gz` }
+        ];
+
+        // 스팸 탐지·차단 로그 월별 건수 — 탐지·차단 결과 로그(spam-detection-log.html) 보관 현황과 동일
+        const SPAM_MONTHLY_COUNT = { '2026-05': 17, '2026-06': 18, '2026-07': 17, '2026-08': 19, '2026-09': 13 };
+
+        const CHECK_METHOD = '로그 파일·파티션 존재 및 크기 확인, 10분 단위 수집 건수 연속성 확인(누락 탐지), 월 해시값 대조(무결성), 이상징후 탐지 규칙 결과 검토';
+
+        function formatSize(mb) {
+            if (mb >= 1024) return (mb / 1024).toFixed(1) + ' GB';
+            if (mb >= 1) return mb.toFixed(1) + ' MB';
+            return Math.max(1, Math.round(mb * 1024)) + ' KB';
+        }
+
+        /* 대상 월의 로그 10종 점검 행을 만든다. factor 는 월별 증감 비율, overrides 는 로그별 점검 결과 */
+        function buildLogs(ym, factor, overrides, uncheckedFrom) {
+            const seed = +ym.slice(5, 7);
+            return LOG_CATALOG.map((c, i) => {
+                // 로그마다 ±2% 편차를 줘 월별 수치가 일정 비율로만 움직이지 않도록 한다
+                const f = factor * (1 + (((i * 7 + seed) % 5) - 2) / 100);
+                const count = c.key === 'spam' ? (SPAM_MONTHLY_COUNT[ym] || c.count) : Math.round(c.count * f);
+                const size = c.key === 'spam' ? count * 0.0048 : c.size * f;
+                const row = {
+                    no: i + 1, key: c.key, name: c.name, loc: c.loc(ym), retention: c.retention,
+                    size: formatSize(size), count: count,
+                    checked: !(uncheckedFrom && i + 1 >= uncheckedFrom),
+                    missing: '', anomaly: '', cause: '', action: '', result: ''
+                };
+                return Object.assign(row, (overrides || {})[c.key] || {});
+            });
+        }
+
+        const MONTHLY_LOG_CHECKS = [
+            {
+                id: 'LC-2026-09', month: '2026-09', from: '2026-09-01', to: '2026-09-30', due: '2026-10-10',
+                checkDate: '2026-09-28', checker: 'smlee', approver: 'jhpark', status: 'draft',
+                requestedAt: '', approvedAt: '',
+                note: '월 마감 전 사전 점검 — 09-27 수집분까지 확인. 월 마감 후 10월 초 최종 확인하고 승인 요청 예정',
+                logs: buildLogs('2026-09', 0.93, {}, 6),
+                opinion: '',
+                followUps: [
+                    { item: '로그 수집 누락 알림 임계치(5분 무수신) 추가 적용 확인', owner: '정하늘', due: '2026-09-30', status: '진행 중' }
+                ]
+            },
+            {
+                // 실제 1회분 — 증빙 제출용으로 모든 항목을 채운 회차
+                id: 'LC-2026-08', month: '2026-08', from: '2026-08-01', to: '2026-08-31', due: '2026-09-10',
+                checkDate: '2026-09-04', checker: 'smlee', approver: 'jhpark', status: 'approved',
+                requestedAt: '2026-09-04 17:42:10', approvedAt: '2026-09-07 10:15:22',
+                logs: buildLogs('2026-08', 1, {
+                    'admin-access': {
+                        anomaly: '비업무시간(22:00~08:00) 관리자 로그인 1건 — 2026-08-22(토) 23:41 정하늘(hnjung) · 10.0.3.44',
+                        cause: '발송 결과 수신 지연 장애(INC-2026-0822-01) 긴급 대응을 위한 접속. 본인 및 서비스운영팀장 확인, 장애 보고서의 대응 시각과 일치',
+                        action: '본인 소명 접수, 접속 시간대 작업 로그 38건 대조 — 장애 대응 외 메뉴 접근 없음',
+                        result: '정상 업무 확인 — 조치 완료 (2026-09-02)'
+                    },
+                    'member-access': {
+                        missing: '2026-08-14 02:00 ~ 02:20 (20분)',
+                        cause: '로그 수집 에이전트 보안 업데이트 적용 중 재시작 — 재시작 구간 전송 버퍼 미설정으로 수집 누락',
+                        action: '원본 웹서버(web-01·02) 로컬 로그에서 해당 구간 3,412건 재수집·적재 후 건수 대조',
+                        result: '재수집 완료·건수 일치 (2026-09-03). 재발 방지: 에이전트 재시작 시 파일 버퍼링 설정 적용'
+                    },
+                    'privacy': {
+                        action: '개인정보 다운로드 14건 — 다운로드 사유·승인 기록 확인',
+                        result: '정상'
+                    },
+                    'spam': {
+                        action: '즉시 차단 10건·보류 9건 — 관리자 처리 결과(처리자·처리일시) 누락 없음 확인',
+                        result: '정상'
+                    },
+                    'geo-block': {
+                        anomaly: '해외 IP 대역(185.220.101.0/24 외 7개 대역)에서 관리자 로그인 페이지 접속 시도 반복 — 08-19 ~ 08-21, 4,812회',
+                        cause: '해외 자동화 도구에 의한 무작위 로그인 시도(크리덴셜 스터핑 추정)',
+                        action: '국외 접속 차단 정책으로 전량 차단 확인, 해당 8개 대역을 IP 차단 목록에 영구 등록',
+                        result: '차단 정상·로그인 성공 0건 확인 — 조치 완료 (2026-09-04)'
+                    },
+                    'error': {
+                        action: '장애 1건(INC-2026-0822-01 발송 결과 수신 지연) 장애 관리대장 등록·종결 확인',
+                        result: '대장 일치'
+                    },
+                    'waf': {
+                        action: 'SQL 인젝션·XSS 탐지 312건 — 정책에 따른 정상 차단 확인',
+                        result: '정상'
+                    }
+                }),
+                opinion: '2026년 8월 로그 10종을 점검한 결과 회원 접근 로그 수집 누락 1건(20분)과 이상징후 2건을 확인하였다.\n' +
+                         '누락 구간은 원본 서버 로그에서 재수집해 보완하였고 건수 대조 결과 일치한다. 이상징후 2건은 각각 장애 대응을 위한 정상 업무 접속, 국외 접속 차단 정책에 의한 정상 차단으로 확인되었다.\n' +
+                         '로그별 보관 기간·무결성(월 해시 대조)·접근 권한은 정책에 부합한다. 재발 방지를 위해 로그 수집 에이전트 버퍼링 설정과 수집 누락 알림을 추가한다.',
+                followUps: [
+                    { item: '로그 수집 에이전트 재시작 시 파일 버퍼링 설정 적용 (web-01·02, api-01~03)', owner: '정하늘', due: '2026-09-10', status: '완료 (2026-09-03)' },
+                    { item: '비업무시간 관리자 접속 시 사후 소명 등록 절차 공지 (장애 대응 포함)', owner: '이수민', due: '2026-09-15', status: '완료 (2026-09-08)' },
+                    { item: '로그 수집 누락 알림 임계치(5분 무수신) 추가', owner: '정하늘', due: '2026-09-30', status: '진행 중' },
+                    { item: '국외 우회 접속 차단 대역 분기별 재검토', owner: '박정호', due: '2026-10-15', status: '예정' }
+                ]
+            },
+            {
+                id: 'LC-2026-07', month: '2026-07', from: '2026-07-01', to: '2026-07-31', due: '2026-08-10',
+                checkDate: '2026-08-05', checker: 'hnjung', approver: 'jhpark', status: 'approved',
+                requestedAt: '2026-08-05 16:20:11', approvedAt: '2026-08-06 09:12:40',
+                logs: buildLogs('2026-07', 0.97, {
+                    'admin-access': {
+                        anomaly: '관리자 로그인 5회 연속 실패로 계정 잠금 1건 — 2026-07-15 09:02 김나영(nykim)',
+                        cause: '비밀번호 변경 직후 이전 비밀번호 입력 — 본인 확인',
+                        action: '유선 본인 확인 후 잠금 해제(사유 기록)',
+                        result: '정상 — 조치 완료 (2026-07-15)'
+                    }
+                }),
+                opinion: '2026년 7월 로그 10종 점검 결과 누락 없음. 이상징후 1건(관리자 계정 잠금)은 본인 확인 결과 비밀번호 입력 착오로 정상 확인하였다.',
+                followUps: []
+            },
+            {
+                id: 'LC-2026-06', month: '2026-06', from: '2026-06-01', to: '2026-06-30', due: '2026-07-10',
+                checkDate: '2026-07-06', checker: 'smlee', approver: 'jhpark', status: 'approved',
+                requestedAt: '2026-07-06 18:05:37', approvedAt: '2026-07-07 11:30:02',
+                logs: buildLogs('2026-06', 0.94, {}),
+                opinion: '2026년 6월 로그 10종 점검 결과 누락·이상징후 없음. 보관 기간과 무결성 정상.',
+                followUps: []
+            },
+            {
+                id: 'LC-2026-05', month: '2026-05', from: '2026-05-01', to: '2026-05-31', due: '2026-06-10',
+                checkDate: '2026-06-04', checker: 'hnjung', approver: 'jhpark', status: 'approved',
+                requestedAt: '2026-06-04 15:48:20', approvedAt: '2026-06-05 09:41:55',
+                logs: buildLogs('2026-05', 0.91, {}),
+                opinion: '2026년 5월 로그 10종 점검 결과 누락·이상징후 없음. 보관 기간과 무결성 정상.',
+                followUps: []
+            }
+        ];
+
+        let selectedCheckId = 'LC-2026-08';
+        let editingRowNo = null;
+
+        function esc(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function getCheck(id) {
+            return MONTHLY_LOG_CHECKS.filter(c => c.id === id)[0] || null;
+        }
+
+        function staffLabel(key, withDept) {
+            const s = STAFF[key];
+            if (!s) return '-';
+            return withDept ? `${s.name} (${s.dept} · ${s.title})` : s.name;
+        }
+
+        function statusBadge(status) {
+            const meta = CHECK_STATUS[status] || CHECK_STATUS.draft;
+            return `<span class="badge ${meta.badge}">${meta.label}</span>`;
+        }
+
+        function summarize(c) {
+            return {
+                total: c.logs.length,
+                checked: c.logs.filter(l => l.checked).length,
+                missing: c.logs.filter(l => l.checked && l.missing).length,
+                anomaly: c.logs.filter(l => l.checked && l.anomaly).length
+            };
+        }
+
+        function monthLabel(ym) {
+            return `${ym.slice(0, 4)}년 ${+ym.slice(5, 7)}월`;
+        }
+
+        /* ---------- 회차 목록 ---------- */
+
+        function renderRounds() {
+            document.getElementById('round-tbody').innerHTML = MONTHLY_LOG_CHECKS.map(c => {
+                const s = summarize(c);
+                const logs = s.checked === s.total ? `${s.total}종` : `${s.checked}/${s.total}종`;
+                return `
+                    <tr class="${c.id === selectedCheckId ? 'row-selected' : ''}">
+                        <td><strong>${esc(c.month)}</strong></td>
+                        <td>${esc(c.from)} ~ ${esc(c.to)}</td>
+                        <td>${esc(c.checkDate || '-')}</td>
+                        <td>${esc(staffLabel(c.checker))}</td>
+                        <td>${esc(staffLabel(c.approver))}</td>
+                        <td class="num">${logs}</td>
+                        <td class="num">${s.missing ? `<span style="color:var(--admin-danger);font-weight:600;">${s.missing}건</span>` : '0건'}</td>
+                        <td class="num">${s.anomaly ? `<span style="color:#b45309;font-weight:600;">${s.anomaly}건</span>` : '0건'}</td>
+                        <td>${statusBadge(c.status)}</td>
+                        <td>${esc(c.approvedAt || '-')}</td>
+                        <td><button class="btn btn-outline btn-sm" onclick="openCheck('${c.id}')">열기</button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateMonthlyStats() {
+            document.getElementById('m-stat-logs').textContent = LOG_CATALOG.length + '종';
+
+            const current = MONTHLY_LOG_CHECKS[0];
+            document.getElementById('m-stat-current').textContent = current.month;
+            document.getElementById('m-stat-current-desc').innerHTML =
+                `${statusBadge(current.status)} &nbsp;기한 ${esc(current.due)}`;
+
+            const approved = MONTHLY_LOG_CHECKS.filter(c => c.status === 'approved')[0];
+            document.getElementById('m-stat-approved').textContent = approved ? approved.month : '-';
+            document.getElementById('m-stat-approved-desc').textContent = approved
+                ? `${approved.approvedAt.slice(0, 10)} 승인 · ${staffLabel(approved.approver)}`
+                : '승인 이력 없음';
+
+            if (approved) {
+                const s = summarize(approved);
+                const open = approved.logs.filter(l => (l.missing || l.anomaly) && !/완료|정상/.test(l.result)).length;
+                document.getElementById('m-stat-issues').textContent = `${s.missing}건 · ${s.anomaly}건`;
+                document.getElementById('m-stat-issues-desc').textContent =
+                    `${approved.month} 기준 · ${open ? `미조치 ${open}건` : '원인 확인·조치 완료'}`;
+            }
+        }
+
+        function openCheck(id) {
+            selectedCheckId = id;
+            renderRounds();
+            renderCheckForm();
+            document.getElementById('check-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        /* ---------- 점검표 ---------- */
+
+        function renderCheckForm() {
+            const c = getCheck(selectedCheckId);
+            if (!c) return;
+            const s = summarize(c);
+            const editable = c.status === 'draft';
+            const checker = STAFF[c.checker];
+            const approver = STAFF[c.approver];
+
+            document.getElementById('form-toolbar-title').textContent = `점검표 — ${monthLabel(c.month)}`;
+            document.getElementById('form-toolbar-status').innerHTML = statusBadge(c.status);
+            renderFormActions(c);
+
+            const signApprover = c.status === 'approved'
+                ? `${esc(approver.name)}<span class="sign-mark">인</span>`
+                : `<span class="sign-pending">${esc(approver.name)} (미결)</span>`;
+            const signChecker = c.status === 'draft'
+                ? `<span class="sign-pending">${esc(checker.name)} (작성중)</span>`
+                : `${esc(checker.name)}<span class="sign-mark">인</span>`;
+
+            const logRows = c.logs.map(l => {
+                const rowCls = !l.checked ? 'row-unchecked' : (l.missing ? 'row-missing' : (l.anomaly ? 'row-issue' : ''));
+                const missingCell = !l.checked
+                    ? '<span class="badge badge-secondary">미점검</span>'
+                    : l.missing
+                        ? `<span class="badge badge-danger">누락</span><span class="missing-range">${esc(l.missing)}</span>`
+                        : '<span class="badge badge-success">정상</span>';
+                const anomalyCell = !l.checked ? '<span class="muted">-</span>'
+                    : l.anomaly ? esc(l.anomaly) : '<span class="muted">없음</span>';
+                const txt = v => (l.checked && v) ? esc(v) : '<span class="muted">-</span>';
+                return `
+                    <tr class="${rowCls}">
+                        <td class="c">${l.no}</td>
+                        <td class="name">${esc(l.name)}</td>
+                        <td class="loc">${esc(l.loc)}</td>
+                        <td class="r">${l.checked ? esc(l.size) : '-'}</td>
+                        <td class="r">${l.checked ? formatNumber(l.count) : '-'}</td>
+                        <td class="c">${esc(l.retention)}</td>
+                        <td class="c">${missingCell}</td>
+                        <td class="txt">${anomalyCell}</td>
+                        <td class="txt">${txt(l.cause)}</td>
+                        <td class="txt">${txt(l.action)}</td>
+                        <td class="txt">${txt(l.result)}</td>
+                        ${editable ? `<td class="c no-print"><button class="btn btn-outline btn-sm" onclick="openLogRow(${l.no})">${l.checked ? '수정' : '입력'}</button></td>` : ''}
+                    </tr>
+                `;
+            }).join('');
+
+            const followRows = c.followUps.length
+                ? c.followUps.map((f, i) => `
+                    <tr>
+                        <td class="c">${i + 1}</td>
+                        <td>${esc(f.item)}</td>
+                        <td class="c">${esc(f.owner)}</td>
+                        <td class="c">${esc(f.due)}</td>
+                        <td class="c">${esc(f.status)}</td>
+                        ${editable ? `<td class="c no-print"><button class="btn btn-outline btn-sm" onclick="removeFollowUp(${i})">삭제</button></td>` : ''}
+                    </tr>`).join('')
+                : `<tr><td colspan="${editable ? 6 : 5}" style="text-align:center;" class="muted">후속 조치 없음</td></tr>`;
+
+            const opinion = editable
+                ? `<textarea class="form-control" id="form-opinion" rows="4" placeholder="점검 결과 종합 의견 — 누락·이상징후 요약, 원인·조치 결과, 보관·무결성 적정성">${esc(c.opinion)}</textarea>`
+                : `<div class="opinion-box">${c.opinion ? esc(c.opinion) : '<span class="muted">-</span>'}</div>`;
+
+            const lockNote = c.status === 'approved'
+                ? `<div class="lock-note approved no-print">승인 완료된 점검표입니다. <strong>수정할 수 없으며</strong> 감사 증적으로 3년간 보관됩니다. (승인 ${esc(c.approvedAt)} · ${esc(approver.name)})</div>`
+                : c.status === 'requested'
+                    ? `<div class="lock-note requested no-print">승인 요청된 점검표입니다 (${esc(c.requestedAt)}). 승인자 결재 전까지 수정할 수 없습니다. 점검자 본인은 승인할 수 없습니다.</div>`
+                    : `<div class="lock-note no-print">작성중인 점검표입니다. 로그 10종의 점검 결과와 종합 의견을 모두 입력한 뒤 <strong>승인 요청</strong>하세요. 제출 기한 <strong>${esc(c.due)}</strong></div>`;
+
+            document.getElementById('check-form').innerHTML = `
+                <div class="form-title-row">
+                    <div>
+                        <div class="form-doc-no">문서번호 ${esc(c.id)}</div>
+                        <h2 class="form-title">로그 점검표 (${monthLabel(c.month)})</h2>
+                        <div class="form-sub">톡벨 문자 발송 서비스 · (주)아이뱅크 · 월간 로그 정기 점검</div>
+                    </div>
+                    <table class="sign-table">
+                        <tr>
+                            <th class="sign-side" rowspan="3">결<br>재</th>
+                            <th>점검자</th>
+                            <th>승인자</th>
+                        </tr>
+                        <tr>
+                            <td class="sign-name">${signChecker}</td>
+                            <td class="sign-name">${signApprover}</td>
+                        </tr>
+                        <tr>
+                            <td class="sign-date">${esc(c.requestedAt ? c.requestedAt.slice(0, 10) : '-')}</td>
+                            <td class="sign-date">${esc(c.approvedAt ? c.approvedAt.slice(0, 10) : '-')}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <table class="form-grid-table">
+                    <tr>
+                        <th>점검 대상 기간</th><td>${esc(c.from)} ~ ${esc(c.to)}</td>
+                        <th>점검일</th><td>${esc(c.checkDate || '-')}</td>
+                    </tr>
+                    <tr>
+                        <th>점검자</th><td>${esc(staffLabel(c.checker, true))}</td>
+                        <th>승인자</th><td>${esc(staffLabel(c.approver, true))}</td>
+                    </tr>
+                    <tr>
+                        <th>승인 요청일시</th><td>${esc(c.requestedAt || '-')}</td>
+                        <th>승인일시</th><td>${esc(c.approvedAt || '-')}</td>
+                    </tr>
+                    <tr>
+                        <th>상태</th><td>${statusBadge(c.status)}</td>
+                        <th>점검 결과 요약</th>
+                        <td>로그 ${s.total}종 중 ${s.checked}종 점검 · 누락 <strong>${s.missing}건</strong> · 이상징후 <strong>${s.anomaly}건</strong></td>
+                    </tr>
+                    <tr>
+                        <th>점검 방법</th><td colspan="3">${esc(CHECK_METHOD)}</td>
+                    </tr>
+                    ${c.note ? `<tr><th>비고</th><td colspan="3">${esc(c.note)}</td></tr>` : ''}
+                </table>
+
+                <div class="form-section-title">1. 로그별 점검 결과</div>
+                <div class="table-container">
+                    <table class="form-log-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>로그명</th>
+                                <th>저장 위치 / 파일명</th>
+                                <th>파일 크기</th>
+                                <th>건수</th>
+                                <th>보관 기간</th>
+                                <th>누락 여부</th>
+                                <th>이상징후</th>
+                                <th>원인</th>
+                                <th>조치</th>
+                                <th>조치 결과</th>
+                                ${editable ? '<th class="no-print">입력</th>' : ''}
+                            </tr>
+                        </thead>
+                        <tbody>${logRows}</tbody>
+                    </table>
+                </div>
+
+                <div class="form-section-title">2. 종합 의견</div>
+                ${opinion}
+
+                <div class="form-section-title">3. 후속 조치</div>
+                <table class="followup-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 48px;">No</th>
+                            <th>조치 항목</th>
+                            <th style="width: 110px;">담당</th>
+                            <th style="width: 120px;">기한</th>
+                            <th style="width: 150px;">상태</th>
+                            ${editable ? '<th class="no-print" style="width: 70px;">관리</th>' : ''}
+                        </tr>
+                    </thead>
+                    <tbody>${followRows}</tbody>
+                </table>
+                ${editable ? `
+                <div class="followup-add no-print">
+                    <input type="text" class="form-control" id="fu-item" placeholder="후속 조치 항목">
+                    <select class="form-control" id="fu-owner">
+                        ${Object.keys(STAFF).map(k => `<option value="${STAFF[k].name}">${STAFF[k].name}</option>`).join('')}
+                    </select>
+                    <input type="date" class="form-control" id="fu-due">
+                    <button class="btn btn-outline" onclick="addFollowUp()">추가</button>
+                </div>` : ''}
+
+                <div class="form-foot">
+                    <span>본 점검표는 승인 완료 후 수정할 수 없으며 작성·요청·승인 이력은 작업 로그에 기록됩니다. 보관 기간 3년.</span>
+                    <span>출력 ${esc(nowStamp())} · ${esc(getCurrentAdmin().name)}</span>
+                </div>
+                ${lockNote}
+            `;
+        }
+
+        function renderFormActions(c) {
+            const admin = getCurrentAdmin();
+            const checker = STAFF[c.checker];
+            const btns = [];
+            if (c.status === 'draft') {
+                btns.push('<button class="btn btn-outline" onclick="saveCheck()">저장</button>');
+                btns.push('<button class="btn btn-primary" onclick="requestApproval()">승인 요청</button>');
+            }
+            // 승인 — 최고 관리자만, 승인 요청 상태에서만, 점검자 본인은 불가(직무 분리)
+            if (c.status === 'requested' && isSuperAdmin() && admin.name !== checker.name) {
+                btns.push('<button class="btn btn-success" onclick="approveCheck()">승인</button>');
+            }
+            btns.push('<button class="btn btn-outline" onclick="printCheck()">인쇄</button>');
+            btns.push('<button class="btn btn-outline" onclick="exportCheck()">CSV 내보내기</button>');
+            document.getElementById('form-actions').innerHTML = btns.join('');
+        }
+
+        /* ---------- 작성·승인 ---------- */
+
+        function openLogRow(no) {
+            const c = getCheck(selectedCheckId);
+            if (!c || c.status !== 'draft') {
+                showToast('작성중인 점검표만 수정할 수 있습니다.', 'error');
+                return;
+            }
+            const l = c.logs.filter(r => r.no === no)[0];
+            if (!l) return;
+            editingRowNo = no;
+            document.getElementById('row-target').innerHTML =
+                `<strong>${esc(l.name)}</strong><br><span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;">${esc(l.loc)}</span>`;
+            document.getElementById('row-size').value = l.size;
+            document.getElementById('row-count').value = l.count;
+            document.getElementById('row-missing-yn').value = l.missing ? 'Y' : 'N';
+            document.getElementById('row-missing').value = l.missing;
+            document.getElementById('row-anomaly').value = l.anomaly;
+            document.getElementById('row-cause').value = l.cause;
+            document.getElementById('row-action').value = l.action;
+            document.getElementById('row-result').value = l.result;
+            toggleMissingRange();
+            openModal('log-row-modal');
+        }
+
+        function toggleMissingRange() {
+            const on = document.getElementById('row-missing-yn').value === 'Y';
+            document.getElementById('row-missing').disabled = !on;
+            if (!on) document.getElementById('row-missing').value = '';
+        }
+
+        function saveLogRow() {
+            const c = getCheck(selectedCheckId);
+            const l = c && c.logs.filter(r => r.no === editingRowNo)[0];
+            if (!l) return;
+
+            const missingYn = document.getElementById('row-missing-yn').value === 'Y';
+            const v = id => document.getElementById(id).value.trim();
+            const missing = missingYn ? v('row-missing') : '';
+            if (missingYn && !missing) {
+                showToast('누락 구간을 입력해주세요.', 'error');
+                return;
+            }
+            const anomaly = v('row-anomaly');
+            if ((missing || anomaly) && (!v('row-cause') || !v('row-action'))) {
+                showToast('누락 또는 이상징후가 있으면 원인과 조치를 입력해야 합니다.', 'error');
+                return;
+            }
+            Object.assign(l, {
+                size: v('row-size') || l.size,
+                count: +document.getElementById('row-count').value || 0,
+                missing: missing, anomaly: anomaly,
+                cause: v('row-cause'), action: v('row-action'), result: v('row-result'),
+                checked: true
+            });
+            closeModal('log-row-modal');
+            refreshMonthly();
+            showToast(`${l.name} 점검 결과를 저장했습니다.`, 'success');
+        }
+
+        function addFollowUp() {
+            const c = getCheck(selectedCheckId);
+            if (!c || c.status !== 'draft') return;
+            const item = document.getElementById('fu-item').value.trim();
+            const due = document.getElementById('fu-due').value;
+            if (!item || !due) {
+                showToast('후속 조치 항목과 기한을 입력해주세요.', 'error');
+                return;
+            }
+            syncOpinion(c);
+            c.followUps.push({ item: item, owner: document.getElementById('fu-owner').value, due: due, status: '예정' });
+            renderCheckForm();
+        }
+
+        function removeFollowUp(index) {
+            const c = getCheck(selectedCheckId);
+            if (!c || c.status !== 'draft') return;
+            syncOpinion(c);
+            c.followUps.splice(index, 1);
+            renderCheckForm();
+        }
+
+        // 다시 그리기 전에 입력 중인 종합 의견을 보존한다
+        function syncOpinion(c) {
+            const el = document.getElementById('form-opinion');
+            if (el) c.opinion = el.value.trim();
+        }
+
+        function saveCheck() {
+            const c = getCheck(selectedCheckId);
+            if (!c || c.status !== 'draft') return;
+            // 실제 연동 시 PUT /api/admin/security/log-checks/{id}
+            syncOpinion(c);
+            refreshMonthly();
+            showToast('점검표를 임시 저장했습니다.', 'success');
+        }
+
+        function requestApproval() {
+            const c = getCheck(selectedCheckId);
+            if (!c || c.status !== 'draft') return;
+            syncOpinion(c);
+
+            const unchecked = c.logs.filter(l => !l.checked);
+            if (unchecked.length) {
+                showToast(`미점검 로그 ${unchecked.length}종이 있습니다. 모든 로그를 점검한 뒤 요청하세요.`, 'error');
+                return;
+            }
+            const noAction = c.logs.filter(l => (l.missing || l.anomaly) && (!l.cause || !l.action));
+            if (noAction.length) {
+                showToast(`원인·조치가 비어 있는 누락·이상징후가 ${noAction.length}건 있습니다.`, 'error');
+                return;
+            }
+            if (!c.opinion) {
+                showToast('종합 의견을 입력해주세요.', 'error');
+                return;
+            }
+            if (!confirm(`${monthLabel(c.month)} 점검표를 승인 요청하시겠습니까?\n요청 후에는 수정할 수 없습니다.`)) return;
+
+            // 실제 연동 시 POST /api/admin/security/log-checks/{id}/request
+            c.status = 'requested';
+            c.requestedAt = nowStamp();
+            if (!c.checkDate) c.checkDate = c.requestedAt.slice(0, 10);
+            refreshMonthly();
+            showToast(`승인자(${staffLabel(c.approver)})에게 승인 요청했습니다.`, 'success');
+        }
+
+        function approveCheck() {
+            if (!requireSuperAdmin()) return;
+            const c = getCheck(selectedCheckId);
+            if (!c || c.status !== 'requested') {
+                showToast('승인 요청 상태의 점검표만 승인할 수 있습니다.', 'error');
+                return;
+            }
+            const admin = getCurrentAdmin();
+            if (admin.name === STAFF[c.checker].name) {
+                showToast('점검자 본인은 승인할 수 없습니다.', 'error');
+                return;
+            }
+            if (!confirm(`${monthLabel(c.month)} 점검표를 승인하시겠습니까?\n승인 후에는 수정할 수 없습니다.`)) return;
+
+            // 실제 연동 시 POST /api/admin/security/log-checks/{id}/approve
+            const key = Object.keys(STAFF).filter(k => STAFF[k].name === admin.name)[0];
+            if (key) c.approver = key;
+            c.status = 'approved';
+            c.approvedAt = nowStamp();
+            refreshMonthly();
+            showToast(`${monthLabel(c.month)} 점검표를 승인했습니다.`, 'success');
+        }
+
+        function refreshMonthly() {
+            renderRounds();
+            renderCheckForm();
+            updateMonthlyStats();
+        }
+
+        /* ---------- 인쇄·내보내기 ---------- */
+
+        function printCheck() {
+            const c = getCheck(selectedCheckId);
+            if (c) syncOpinion(c);
+            renderCheckForm();   // 출력 일시 갱신
+            document.body.classList.add('print-check-form');
+            window.print();
+            // afterprint 를 지원하지 않는 브라우저 대비
+            setTimeout(() => document.body.classList.remove('print-check-form'), 1000);
+        }
+        window.addEventListener('afterprint', () => document.body.classList.remove('print-check-form'));
+
+        function exportCheck() {
+            const c = getCheck(selectedCheckId);
+            if (!c) return;
+            syncOpinion(c);
+            const s = summarize(c);
+            const rows = [
+                ['로그 점검표', monthLabel(c.month)],
+                ['문서번호', c.id],
+                ['점검 대상 기간', `${c.from} ~ ${c.to}`],
+                ['점검일', c.checkDate || '-'],
+                ['점검자', staffLabel(c.checker, true)],
+                ['승인자', staffLabel(c.approver, true)],
+                ['승인 요청일시', c.requestedAt || '-'],
+                ['승인일시', c.approvedAt || '-'],
+                ['상태', CHECK_STATUS[c.status].label],
+                ['점검 결과 요약', `로그 ${s.total}종 중 ${s.checked}종 점검 · 누락 ${s.missing}건 · 이상징후 ${s.anomaly}건`],
+                ['점검 방법', CHECK_METHOD],
+                [],
+                ['No', '로그명', '저장 위치/파일명', '파일 크기', '건수', '보관 기간', '누락 여부', '누락 구간', '이상징후', '원인', '조치', '조치 결과']
+            ];
+            c.logs.forEach(l => rows.push([
+                l.no, l.name, l.loc, l.checked ? l.size : '-', l.checked ? l.count : '-', l.retention,
+                !l.checked ? '미점검' : (l.missing ? '누락' : '정상'), l.missing || '-',
+                !l.checked ? '-' : (l.anomaly || '없음'), l.cause || '-', l.action || '-', l.result || '-'
+            ]));
+            rows.push([]);
+            rows.push(['종합 의견', c.opinion || '-']);
+            rows.push([]);
+            rows.push(['후속 조치 No', '조치 항목', '담당', '기한', '상태']);
+            c.followUps.forEach((f, i) => rows.push([i + 1, f.item, f.owner, f.due, f.status]));
+
+            const csv = rows
+                .map(cols => cols.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+                .join('\r\n');
+            const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `로그점검표_${c.month}_${nowStamp().slice(0, 10)}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+            showToast(`${monthLabel(c.month)} 점검표를 내려받았습니다.`, 'success');
+        }
+
+        function nowStamp() {
+            const d = new Date();
+            const p = n => ('0' + n).slice(-2);
+            return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' +
+                   p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+        }
+
+        /* ================= 오픈 전 점검 체크리스트 ================= */
+
         const checklistItems = [
             { id: 1, category: '접근 로그', title: '관리자 접근 로그 수집·보관', criteria: '관리자 로그인/로그아웃, IP, User-Agent, 성공·실패 결과가 1년 이상 보관되는지 확인', status: 'completed' },
             { id: 2, category: '접근 로그', title: '회원 접근 로그 수집·보관', criteria: '회원 로그인 이력, 세션 생성/종료 로그가 정책 기간 이상 보관되는지 확인', status: 'completed' },
@@ -368,7 +1359,7 @@
 
         function switchTab(tabName, el) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tabs .tab').forEach(tab => tab.classList.remove('active'));
             document.getElementById(`tab-${tabName}`).style.display = 'block';
             el.classList.add('active');
         }
@@ -414,7 +1405,19 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', renderChecklist);
+        document.addEventListener('DOMContentLoaded', function () {
+            applySuperAdminGuard();
+
+            // ?check=LC-2026-09 로 특정 회차를, ?tab=checklist 로 오픈 전 체크리스트를 바로 연다
+            const params = new URLSearchParams(location.search);
+            if (params.get('check') && getCheck(params.get('check'))) selectedCheckId = params.get('check');
+            if (params.get('tab') === 'checklist') {
+                switchTab('checklist', document.getElementById('tab-btn-checklist'));
+            }
+
+            refreshMonthly();
+            renderChecklist();
+        });
     </script>
 </body>
 </html>

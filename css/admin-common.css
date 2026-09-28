@@ -448,6 +448,11 @@ tbody tr:last-child td {
     white-space: nowrap;
 }
 
+.auth-tag.signup {
+    background-color: #ccfbf1;
+    color: #115e59;
+}
+
 .auth-tag.login {
     background-color: #dbeafe;
     color: #1e40af;

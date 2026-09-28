@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>국외·우회 접속 차단 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+    <style>
+        .tab-content { margin-top: 24px; }
+        /* 표가 넓어도 본문이 화면 밖으로 밀리지 않고 표 영역만 가로 스크롤되도록 한다 */
+        .admin-main { min-width: 0; }
+        .tab-content > .card + .card { margin-top: 24px; }
+
+        .audit-info-box {
+            padding: 16px 20px;
+            background: #eff6ff;
+            border: 1px solid #93c5fd;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        .audit-info-box strong { color: #1e40af; }
+        .policy-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 20px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #1e40af;
+        }
+
+        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+        .muted { color: var(--admin-text-muted); }
+        .sub-text { font-size: 12px; color: var(--admin-text-muted); }
+
+        /* 탐지 유형 칩 — 결과 배지(허용·차단)와 색이 겹치지 않도록 별도 팔레트 */
+        .oac-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .oac-tag.foreign  { background: #ffedd5; color: #9a3412; }
+        .oac-tag.vpn      { background: #ede9fe; color: #5b21b6; }
+        .oac-tag.proxy    { background: #fef3c7; color: #92400e; }
+        .oac-tag.tor      { background: #e0e7ff; color: #3730a3; }
+        .oac-tag.hosting  { background: #cffafe; color: #155e75; }
+        .oac-tag.mismatch { background: #fce7f3; color: #9d174d; }
+        .oac-tag.none     { background: #f1f5f9; color: #475569; }
+        .oac-tag.unknown  { background: #e2e8f0; color: #334155; }
+
+        /* ---------- 차단 설정 ---------- */
+        .system-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        @media (max-width: 1200px) {
+            .system-grid { grid-template-columns: 1fr; }
+        }
+        .system-card {
+            border: 1px solid #86efac;
+            background: #f0fdf4;
+            border-radius: 10px;
+            padding: 18px 20px;
+        }
+        .system-card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .system-card-title { font-size: 16px; font-weight: 700; color: var(--admin-text-primary); }
+        .system-card-scope { font-size: 13px; color: var(--admin-text-secondary); margin-top: 2px; }
+        .system-card dl {
+            display: grid;
+            grid-template-columns: 76px 1fr;
+            gap: 6px 10px;
+            font-size: 13px;
+        }
+        .system-card dt { color: var(--admin-text-secondary); }
+        .system-card dd { color: var(--admin-text-primary); }
+        .lock-note {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px dashed #86efac;
+            font-size: 12px;
+            color: #166534;
+            font-weight: 600;
+        }
+
+        /* 적용 스위치 — 정책상 해제 불가이므로 항상 켜진 상태로 잠겨 있다 */
+        .oac-switch { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .oac-switch input { display: none; }
+        .oac-switch .track {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            background: #cbd5e1;
+            transition: background 0.2s;
+        }
+        .oac-switch .track::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            transition: left 0.2s;
+        }
+        .oac-switch input:checked + .track { background: #16a34a; }
+        .oac-switch input:checked + .track::after { left: 23px; }
+        .oac-switch input:disabled + .track { cursor: not-allowed; }
+        .oac-switch .state { font-size: 13px; font-weight: 700; color: #166534; }
+
+        .country-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: #f8fafc;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+        .country-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: #1e40af;
+            color: #fff;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .section-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--admin-text-primary);
+            margin: 4px 0 10px;
+        }
+
+        .oac-table td, .oac-table th { white-space: nowrap; }
+        .oac-table td.wrap { white-space: normal; min-width: 280px; line-height: 1.6; }
+
+        .no-exception-box {
+            border: 2px solid #fca5a5;
+            background: #fef2f2;
+            border-radius: 10px;
+            padding: 20px 24px;
+        }
+        .no-exception-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 800;
+            color: #991b1b;
+            margin-bottom: 12px;
+        }
+        .no-exception-box ul { padding-left: 20px; font-size: 14px; color: #7f1d1d; line-height: 1.9; }
+        .no-exception-box .evidence-line {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed #fca5a5;
+            font-size: 13px;
+            color: #7f1d1d;
+        }
+        .link-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            color: var(--admin-primary);
+            font-size: inherit;
+            font-weight: 600;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .notice-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        @media (max-width: 1200px) {
+            .notice-grid { grid-template-columns: 1fr; }
+        }
+        /* 이용자 화면 미리보기 — 실제 차단 안내 화면을 흉내 낸 박스 */
+        .block-preview {
+            border: 1px solid var(--admin-border);
+            border-radius: 10px;
+            background: #f8fafc;
+            padding: 28px 24px;
+            text-align: center;
+        }
+        .block-preview-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            border-radius: 50%;
+            background: #fee2e2;
+            color: #dc2626;
+            font-size: 24px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .block-preview-title { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+        .block-preview-msg { font-size: 14px; color: var(--admin-text-secondary); line-height: 1.8; }
+        .block-preview-meta { margin-top: 14px; font-size: 12px; color: var(--admin-text-muted); }
+        .api-preview {
+            margin-top: 12px;
+            padding: 12px 14px;
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 8px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 12px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-break: break-all;
+            text-align: left;
+        }
+        #notice-message { font-family: inherit; line-height: 1.7; resize: vertical; }
+        .inline-form {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .inline-form .form-control { width: auto; }
+
+        /* ---------- 접속 시험 ---------- */
+        .test-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        .sample-ips {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px 8px;
+            margin-top: 14px;
+            font-size: 12px;
+            color: var(--admin-text-secondary);
+        }
+        .sample-ip {
+            border: 1px solid var(--admin-border);
+            background: #fff;
+            border-radius: 6px;
+            padding: 3px 9px;
+            font-size: 12px;
+            cursor: pointer;
+            color: var(--admin-text-primary);
+        }
+        .sample-ip:hover { background: var(--admin-bg); }
+        .sample-ip .mono { margin-right: 4px; }
+
+        .test-result {
+            margin-top: 20px;
+            border-radius: 10px;
+            padding: 18px 20px;
+            border: 1px solid var(--admin-border);
+        }
+        .test-result.allow { background: #f0fdf4; border-color: #86efac; }
+        .test-result.block { background: #fef2f2; border-color: #fca5a5; }
+        .test-result-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+        .decision-big {
+            font-size: 15px;
+            font-weight: 800;
+            padding: 6px 16px;
+            border-radius: 8px;
+            color: #fff;
+        }
+        .decision-big.allow { background: #16a34a; }
+        .decision-big.block { background: #dc2626; }
+
+        .test-method-note {
+            margin-top: 16px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--admin-text-secondary);
+            line-height: 1.8;
+        }
+        .fit-ok { color: #059669; font-weight: 700; }
+        .fit-ng { color: #dc2626; font-weight: 700; }
+
+        /* ---------- 차단 로그 ---------- */
+        .account-cell-id { font-weight: 600; color: var(--admin-text-primary); }
+        .account-cell-type { font-size: 12px; color: var(--admin-text-muted); }
+        .path-cell { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+        .path-cell .method { color: var(--admin-text-muted); margin-right: 4px; }
+        tbody tr.row-alert { background-color: #fff7ed; }
+        tbody tr.row-alert:hover { background-color: #ffedd5; }
+
+        .empty-row td {
+            text-align: center;
+            padding: 48px 0;
+            color: var(--admin-text-muted);
+            font-size: 14px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 130px 1fr;
+            gap: 12px 16px;
+            font-size: 14px;
+        }
+        .detail-grid dt { color: var(--admin-text-secondary); font-weight: 500; }
+        .detail-grid dd { color: var(--admin-text-primary); font-weight: 500; word-break: break-all; }
+
+        .readonly-note {
+            margin-top: 16px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--admin-text-secondary);
+            line-height: 1.7;
+        }
+
+        /* ---------- 탐지·차단 방법 (설명자료) ---------- */
+        .doc-section { margin-top: 28px; }
+        .doc-section:first-child { margin-top: 0; }
+        .doc-section h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--admin-text-primary);
+            margin-bottom: 12px;
+            padding-left: 10px;
+            border-left: 3px solid var(--admin-primary);
+        }
+        .doc-section p, .doc-section li { font-size: 14px; color: var(--admin-text-secondary); line-height: 1.8; }
+        .doc-section ul { padding-left: 20px; }
+
+        .flow-steps { list-style: none; padding: 0; margin: 0; }
+        .flow-step {
+            position: relative;
+            display: grid;
+            grid-template-columns: 40px 1fr;
+            gap: 14px;
+            padding-bottom: 18px;
+        }
+        .flow-step:not(:last-child)::before {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 40px;
+            bottom: 0;
+            width: 2px;
+            background: #bfdbfe;
+        }
+        .flow-num {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #1e40af;
+            color: #fff;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+        }
+        .flow-step.block-step .flow-num { background: #dc2626; }
+        .flow-body {
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            background: #fff;
+        }
+        .flow-title { font-size: 15px; font-weight: 700; color: var(--admin-text-primary); margin-bottom: 4px; }
+        .flow-desc { font-size: 13px; color: var(--admin-text-secondary); line-height: 1.8; }
+        .flow-desc code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 12px;
+            background: #f1f5f9;
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+        .flow-rule { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('overseas-access-control'));
+        </script>
+
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('국외·우회 접속 차단'));
+            </script>
+
+            <div class="admin-content">
+                <div class="audit-info-box">
+                    <div style="font-weight: 600; color: #1e40af; margin-bottom: 8px;">국외 IP·우회접속 차단 정책 — 대한민국(KR) IP 에서만 이용 가능</div>
+                    <div style="font-size: 13px; color: #1e40af; line-height: 1.7;">
+                        톡벨 서비스는 <strong>대한민국(KR) IP 에서만</strong> 이용할 수 있습니다.
+                        국외 IP 와 <strong>VPN·프록시·Tor·호스팅(IDC)</strong> 등 우회접속은
+                        <strong>사용자 웹 발송 사이트, 발송 API, 관리자 페이지</strong> 모두에서 차단됩니다.
+                        <strong>예외 허용은 없으며</strong>, 해외 출장·협력사를 포함해 예외 IP 를 등록할 수 없습니다
+                        (IP 화이트리스트로도 국외 IP 를 통과시킬 수 없음).
+                        차단 시 계정·IP·일시·사유·결과를 로그로 남기며 <strong>수정·삭제할 수 없습니다</strong>.
+                    </div>
+                    <div class="policy-legend">
+                        <span><span class="oac-tag foreign">국외 IP</span> GeoIP 국가 ≠ KR</span>
+                        <span><span class="oac-tag vpn">VPN</span> <span class="oac-tag proxy">프록시</span> <span class="oac-tag tor">Tor</span> <span class="oac-tag hosting">호스팅·IDC</span> <span class="oac-tag mismatch">국가 불일치</span> 우회접속</span>
+                        <span><span class="badge badge-danger">차단</span> HTTP 403 · 안내 화면 · 로그 기록</span>
+                    </div>
+                </div>
+
+                <div class="stats-grid stats-4">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">오늘 차단 건수</span>
+                            <div class="stat-card-icon icon-fail">⛔</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-today">0</div>
+                        <div class="stat-card-change" id="stat-today-desc">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">국외 IP 차단</span>
+                            <div class="stat-card-icon icon-pending">🌐</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-foreign">0</div>
+                        <div class="stat-card-change" id="stat-period-desc">조회기간 기준</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">우회접속(VPN·프록시·Tor) 차단</span>
+                            <div class="stat-card-icon icon-user">🛡</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-bypass">0</div>
+                        <div class="stat-card-change" id="stat-bypass-desc">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">최근 시험 결과</span>
+                            <div class="stat-card-icon icon-success">✓</div>
+                        </div>
+                        <div class="stat-card-value" id="stat-test">-</div>
+                        <div class="stat-card-change positive" id="stat-test-desc">-</div>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" id="tab-btn-policy" onclick="switchTab('policy', this)">차단 설정</button>
+                    <button class="tab" id="tab-btn-test" onclick="switchTab('test', this)">접속 시험</button>
+                    <button class="tab" id="tab-btn-log" onclick="switchTab('log', this)">차단 로그</button>
+                    <button class="tab" id="tab-btn-method" onclick="switchTab('method', this)">탐지·차단 방법</button>
+                </div>
+
+                <!-- ===================== 1. 차단 설정 ===================== -->
+                <div id="tab-policy" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">적용 대상 시스템</h3>
+                            <div class="card-description">국외 IP·우회접속 차단이 적용되는 시스템 — 모든 시스템이 적용 중이며 정책상 해제할 수 없습니다</div>
+                        </div>
+                        <div class="system-grid" id="system-grid"></div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">허용 국가 및 국가 판정 기준</h3>
+                            <div class="card-description">접속 IP 의 국가를 GeoIP DB 로 판정하고, 허용 국가가 아니면 차단합니다</div>
+                        </div>
+                        <div class="country-row">
+                            <strong>허용 국가</strong>
+                            <span class="country-chip">대한민국 (KR)</span>
+                            <span class="muted">그 외 모든 국가 차단 (IPv4·IPv6) · 허용 국가는 KR 로 고정되며 추가할 수 없습니다</span>
+                        </div>
+                        <div class="section-label">국가·우회 판정 DB</div>
+                        <div class="table-container">
+                            <table class="oac-table">
+                                <thead>
+                                    <tr>
+                                        <th>판정 DB</th>
+                                        <th>용도</th>
+                                        <th>DB 버전</th>
+                                        <th>최종 업데이트</th>
+                                        <th>업데이트 주기</th>
+                                        <th>상태</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="geo-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div class="readonly-note">
+                            DB 업데이트에 실패하면 보안 담당자에게 알림이 발송되며, 직전 버전으로 판정을 계속합니다.
+                            국가를 판정할 수 없는 IP(조회 결과 없음·사설 대역·DB 조회 장애)는 <strong>허용하지 않고 차단</strong>합니다(R-DEF-01, 기본 차단).
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">우회접속 탐지 항목</h3>
+                            <div class="card-description">GeoIP 국가가 KR 로 판정되더라도 아래 우회 수단이 확인되면 차단합니다</div>
+                        </div>
+                        <div class="table-container">
+                            <table class="oac-table">
+                                <thead>
+                                    <tr>
+                                        <th>탐지 항목</th>
+                                        <th>규칙 ID</th>
+                                        <th>탐지 방법</th>
+                                        <th>적용 대상</th>
+                                        <th>조치</th>
+                                        <th>사용 여부</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bypass-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">예외 정책</h3>
+                            <div class="card-description">국외·우회 접속 차단의 예외 허용 여부</div>
+                        </div>
+                        <div class="no-exception-box">
+                            <div class="no-exception-title">
+                                <span class="badge badge-danger" style="font-size: 14px; padding: 6px 14px;">예외 없음</span>
+                                국외 IP·우회접속은 어떠한 경우에도 허용하지 않습니다
+                            </div>
+                            <ul>
+                                <li><strong>해외 출장·해외 협력사·해외 지사</strong> 등 어떠한 사유로도 예외 IP 를 등록할 수 없습니다.</li>
+                                <li><strong>보안 정책 &gt; IP 접근 제어(화이트리스트)</strong>는 관리자 페이지 접근을 사내 IP 로 <strong>좁히는 용도</strong>로만 사용되며,
+                                    국외 IP 는 화이트리스트에 등록할 수 없고 등록 여부와 무관하게 국가 판정 단계에서 먼저 차단됩니다.</li>
+                                <li>최고 관리자를 포함한 모든 관리자·회원·API 연동 고객에게 동일하게 적용됩니다.</li>
+                                <li>차단 해제·예외 등록 기능은 관리자 화면과 API 어디에도 제공되지 않습니다.</li>
+                            </ul>
+                            <div class="evidence-line">
+                                적용 사례: 2026-09-27 관리자(이수민) 해외 출장 중 관리자 페이지 접속 시도 → 예외 없이 차단
+                                (<button class="link-btn" onclick="openLogDetailById('BLK-20260927-0003')">BLK-20260927-0003</button>)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">차단 시 안내 및 반복 차단 알림</h3>
+                            <div class="card-description">차단된 이용자에게 표시되는 안내 문구와 반복 차단 시 보안 담당자 알림 기준</div>
+                        </div>
+                        <div class="notice-grid">
+                            <div>
+                                <div class="form-group">
+                                    <label class="form-label">차단 안내 문구</label>
+                                    <textarea class="form-control" id="notice-message" rows="5" oninput="renderNoticePreview()"></textarea>
+                                    <div class="sub-text" style="margin-top: 6px;">사용자 웹 사이트·관리자 페이지 안내 화면과 발송 API 오류 응답(message)에 동일하게 사용됩니다.</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">반복 차단 알림</label>
+                                    <div class="inline-form">
+                                        동일 계정·IP 에서
+                                        <select class="form-control" id="alert-window">
+                                            <option value="10">10분</option>
+                                            <option value="30">30분</option>
+                                            <option value="60">60분</option>
+                                        </select>
+                                        내
+                                        <select class="form-control" id="alert-threshold">
+                                            <option value="2">2회</option>
+                                            <option value="3">3회</option>
+                                            <option value="5">5회</option>
+                                        </select>
+                                        이상 차단 시 보안 담당자 알림 + 모니터링 지정
+                                    </div>
+                                    <div class="sub-text" style="margin-top: 6px;">
+                                        알림 수신: <span id="alert-to">-</span> · 관리자 계정은 기준과 무관하게 <strong>1회 차단부터 즉시 알림</strong>
+                                    </div>
+                                </div>
+                                <div class="super-denied readonly-note">설정 변경은 최고 관리자만 할 수 있습니다.</div>
+                                <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                    <button class="btn btn-primary super-only" onclick="savePolicy()">설정 저장</button>
+                                    <button class="btn btn-outline super-only" onclick="resetPolicyForm()">되돌리기</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="form-label">이용자 화면 미리보기</label>
+                                <div class="block-preview">
+                                    <div class="block-preview-icon">!</div>
+                                    <div class="block-preview-title">접속이 제한되었습니다</div>
+                                    <div class="block-preview-msg" id="notice-preview"></div>
+                                    <div class="block-preview-meta">HTTP 403 · 차단 ID BLK-20260928-0006 · 2026-09-28 10:42:17</div>
+                                </div>
+                                <div class="api-preview" id="api-preview"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">설정 변경 이력</h3>
+                            <div class="card-description">적용 대상·허용 국가·탐지 항목은 변경할 수 없으며, 안내 문구·알림 기준 변경만 기록됩니다</div>
+                        </div>
+                        <div class="table-container">
+                            <table class="oac-table">
+                                <thead>
+                                    <tr>
+                                        <th>변경일시</th>
+                                        <th>처리 관리자</th>
+                                        <th>항목</th>
+                                        <th>변경 내용</th>
+                                        <th>접속 IP</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===================== 2. 접속 시험 ===================== -->
+                <div id="tab-test" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">판정 시험</h3>
+                            <div class="card-description">실제 차단 필터와 동일한 판정 엔진으로 IP 의 국가·우회 여부와 차단 판정을 확인합니다. 시험 결과는 이력으로 저장됩니다.</div>
+                        </div>
+                        <div class="test-form">
+                            <div class="filter-item">
+                                <label class="form-label">대상 시스템</label>
+                                <select class="form-control" id="test-system">
+                                    <option value="web">사용자 웹 사이트</option>
+                                    <option value="api">발송 API</option>
+                                    <option value="admin">관리자 페이지</option>
+                                </select>
+                            </div>
+                            <div class="filter-item" style="min-width: 220px;">
+                                <label class="form-label">시험 IP (IPv4)</label>
+                                <input type="text" class="form-control" id="test-ip" placeholder="예: 203.0.113.1" onkeydown="if (event.key === 'Enter') runTest()">
+                            </div>
+                            <div class="filter-item">
+                                <button class="btn btn-primary" onclick="runTest()">판정 시험</button>
+                            </div>
+                        </div>
+                        <div class="sample-ips" id="sample-ips"></div>
+                        <div id="test-result"></div>
+                        <div class="test-method-note">
+                            <strong>정기 시험 방법</strong> — 매월 1회, 국외 소재 시험 노드(US·DE·JP)와 상용 VPN·공개 프록시·Tor Browser 로
+                            3개 시스템(사용자 웹 사이트·발송 API·관리자 페이지)에 <strong>실제 접속</strong>하여 차단 여부와 차단 로그 기록을 확인하고,
+                            결과를 아래 이력에 등록합니다. 설정·판정 DB 변경 시에는 수시 시험을 추가로 수행합니다.
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header flex-between" style="align-items: flex-end;">
+                            <div>
+                                <h3 class="card-title">시험 결과 이력</h3>
+                                <div class="card-description" id="test-count-desc">전체 0건</div>
+                            </div>
+                            <button class="btn btn-outline btn-sm" onclick="exportTests()">엑셀 다운로드</button>
+                        </div>
+                        <div class="table-container">
+                            <table class="oac-table">
+                                <thead>
+                                    <tr>
+                                        <th>시험일시</th>
+                                        <th>시험 ID</th>
+                                        <th>대상 시스템</th>
+                                        <th>시험 IP</th>
+                                        <th>국가</th>
+                                        <th>탐지 유형</th>
+                                        <th>기대 결과</th>
+                                        <th>실제 결과</th>
+                                        <th>적합 여부</th>
+                                        <th>시험자</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="test-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===================== 3. 차단 로그 ===================== -->
+                <div id="tab-log" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="search-filter-bar">
+                            <div class="search-box">
+                                <label class="form-label">계정 검색</label>
+                                <input type="text" class="form-control" placeholder="회원·관리자 아이디 또는 접속 IP" id="search-account" onkeydown="if (event.key === 'Enter') searchLogs(1)">
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">기간</label>
+                                <input type="date" class="form-control" id="date-from" value="2026-09-01">
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">~</label>
+                                <input type="date" class="form-control" id="date-to" value="2026-09-28">
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">대상 시스템</label>
+                                <select class="form-control" id="filter-system">
+                                    <option value="">전체</option>
+                                    <option value="web">사용자 웹 사이트</option>
+                                    <option value="api">발송 API</option>
+                                    <option value="admin">관리자 페이지</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">탐지 유형</label>
+                                <select class="form-control" id="filter-type">
+                                    <option value="">전체</option>
+                                    <option value="foreign">국외 IP</option>
+                                    <option value="vpn">VPN</option>
+                                    <option value="proxy">프록시</option>
+                                    <option value="tor">Tor</option>
+                                    <option value="hosting">호스팅·IDC</option>
+                                    <option value="mismatch">국가 불일치</option>
+                                </select>
+                            </div>
+                            <div class="filter-item" style="align-self: flex-end;">
+                                <button class="btn btn-primary" onclick="searchLogs(1)">조회</button>
+                                <button class="btn btn-outline" onclick="resetFilters()">초기화</button>
+                                <button class="btn btn-outline" onclick="exportLogs()">엑셀 다운로드</button>
+                            </div>
+                        </div>
+
+                        <div class="card-header" style="margin-bottom: 16px;">
+                            <h3 class="card-title">차단 로그</h3>
+                            <div class="card-description" id="log-count-desc">전체 0건</div>
+                        </div>
+                        <div class="table-container">
+                            <table class="oac-table">
+                                <thead>
+                                    <tr>
+                                        <th>차단일시 / 로그 ID</th>
+                                        <th>대상 시스템</th>
+                                        <th>계정</th>
+                                        <th>접속 IP / 국가</th>
+                                        <th>탐지 유형</th>
+                                        <th>차단 사유</th>
+                                        <th>결과</th>
+                                        <th>요청 경로</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="log-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination" id="pagination"></div>
+                        <div class="readonly-note">
+                            차단 로그는 <strong>수정·삭제가 불가능한 감사 로그</strong>로, 추가 전용(append-only) 저장소에 <strong>3년간</strong> 보관됩니다.
+                            관리자 화면에서는 조회와 내보내기만 가능합니다. 주황색 행은 반복 차단으로 보안 담당자 알림이 발송된 건입니다.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===================== 4. 탐지·차단 방법 ===================== -->
+                <div id="tab-method" class="tab-content" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">국외·우회 접속 탐지·차단 방법 (설명자료)</h3>
+                            <div class="card-description">전송자격인증 2.2-01 국외 IP 차단 · 2.2-02 우회접속 통제 — (주)아이뱅크 톡벨 문자 발송 서비스</div>
+                        </div>
+
+                        <div class="doc-section">
+                            <h4>1. 처리 흐름</h4>
+                            <ol class="flow-steps">
+                                <li class="flow-step">
+                                    <div class="flow-num">1</div>
+                                    <div class="flow-body">
+                                        <div class="flow-title">요청 수신</div>
+                                        <div class="flow-desc">
+                                            사용자 웹 사이트·발송 API·관리자 페이지로 들어오는 <strong>모든 요청</strong>은 웹 방화벽(WAF)·API 게이트웨이를 거쳐 접속 필터에 도달합니다.
+                                            로그인 전 요청(로그인·회원가입 화면)도 동일하게 검사하므로 계정이 없는 상태의 접근도 차단됩니다.
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="flow-step">
+                                    <div class="flow-num">2</div>
+                                    <div class="flow-body">
+                                        <div class="flow-title">클라이언트 IP 식별 (프록시 헤더 신뢰 범위)</div>
+                                        <div class="flow-desc">
+                                            TCP 연결 IP 를 기준으로 하며, <code>X-Forwarded-For</code> 는 <strong>자사 로드밸런서(신뢰 프록시)가 추가한 값만</strong> 사용합니다.
+                                            이용자가 임의로 넣은 헤더 값은 무시하여 IP 위조를 막습니다. IPv4·IPv6 모두 판정합니다.
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="flow-step">
+                                    <div class="flow-num">3</div>
+                                    <div class="flow-body">
+                                        <div class="flow-title">GeoIP 국가 판정</div>
+                                        <div class="flow-desc">
+                                            MaxMind GeoIP2 Country 로 국가를 판정하고 KISA 국가별 IP 할당 정보로 교차 검증합니다.
+                                            KR 이 아니면 차단 대상입니다. 판정 불가·DB 조회 장애 시에도 허용하지 않고 <strong>기본 차단(Fail-close)</strong>합니다.
+                                        </div>
+                                        <div class="flow-rule"><span class="oac-tag foreign">R-GEO-01 국외 IP</span><span class="oac-tag unknown">R-DEF-01 판정 불가</span></div>
+                                    </div>
+                                </li>
+                                <li class="flow-step">
+                                    <div class="flow-num">4</div>
+                                    <div class="flow-body">
+                                        <div class="flow-title">우회접속 판정 (IP 평판·Tor 목록·ASN·헤더)</div>
+                                        <div class="flow-desc">
+                                            국가가 KR 이더라도 IP 평판 DB(VPN·공개/익명 프록시·호스팅), Tor 출구 노드 목록(1시간 주기 동기화),
+                                            ASN 기반 호스팅·IDC 분류, 프록시 경유 헤더(<code>Via</code>·<code>Forwarded</code>), 접속 환경 국가 불일치를 검사하여
+                                            하나라도 해당하면 차단합니다.
+                                        </div>
+                                        <div class="flow-rule">
+                                            <span class="oac-tag vpn">R-BYP-01 VPN</span><span class="oac-tag proxy">R-BYP-02 프록시</span><span class="oac-tag tor">R-BYP-03 Tor</span><span class="oac-tag hosting">R-BYP-04 호스팅·IDC</span><span class="oac-tag mismatch">R-BYP-05 국가 불일치</span>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="flow-step block-step">
+                                    <div class="flow-num">5</div>
+                                    <div class="flow-body">
+                                        <div class="flow-title">차단 및 로그 기록</div>
+                                        <div class="flow-desc">
+                                            HTTP 403 과 함께 차단 안내 화면(API 는 오류 코드 <code>E403_ACCESS_BLOCKED</code>)을 반환하고,
+                                            세션 발급·인증번호 발송·문자 발송 등 후속 처리는 수행하지 않습니다. 로그인 상태였다면 세션을 즉시 만료합니다.
+                                            <strong>계정·접속 IP·일시·국가·탐지 유형·사유·결과·요청 경로·User-Agent·판정 근거(DB 버전)</strong>를 차단 로그에 기록합니다.
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="flow-step">
+                                    <div class="flow-num">6</div>
+                                    <div class="flow-body">
+                                        <div class="flow-title">반복 시도 알림·모니터링</div>
+                                        <div class="flow-desc">
+                                            동일 계정·IP 에서 <strong id="doc-alert-rule">10분 내 3회</strong> 이상 차단되면 보안 담당자(<span id="doc-alert-to">-</span>)에게 알림을 발송하고
+                                            해당 계정·IP 를 모니터링 대상으로 지정합니다. <strong>관리자 계정은 1회 차단부터 즉시 알림</strong>합니다.
+                                        </div>
+                                    </div>
+                                </li>
+                            </ol>
+                        </div>
+
+                        <div class="doc-section">
+                            <h4>2. 적용 지점</h4>
+                            <div class="table-container">
+                                <table class="oac-table">
+                                    <thead>
+                                        <tr>
+                                            <th>대상 시스템</th>
+                                            <th>인입 경로</th>
+                                            <th>적용 지점</th>
+                                            <th>차단 시 응답</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>사용자 웹 사이트</strong><div class="sub-text">발송·로그인·회원가입</div></td>
+                                            <td class="wrap">/login, /join, /send/*, /mypage/* 등 전체 경로</td>
+                                            <td class="wrap">웹 방화벽(WAF) 국가 차단 + 웹 서버 애플리케이션 접속 필터(우회 판정)</td>
+                                            <td class="wrap">HTTP 403 · 차단 안내 화면</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>발송 API</strong><div class="sub-text">연동 고객</div></td>
+                                            <td class="wrap">/api/v1/* 전체 (발송·조회·잔액)</td>
+                                            <td class="wrap">API 게이트웨이 접속 필터 (API 키 인증 이전 단계)</td>
+                                            <td class="wrap">HTTP 403 · <code class="mono">E403_ACCESS_BLOCKED</code></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>관리자 페이지</strong><div class="sub-text">운영·보안 관리자</div></td>
+                                            <td class="wrap">/admin/* 전체 (로그인 화면 포함)</td>
+                                            <td class="wrap">웹 방화벽(WAF) 국가 차단 + 관리자 서버 접속 필터 → 이후 IP 접근 제어(화이트리스트) 적용</td>
+                                            <td class="wrap">HTTP 403 · 차단 안내 화면 · 보안 담당자 즉시 알림</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="doc-section">
+                            <h4>3. 로그 기록 및 보관</h4>
+                            <ul>
+                                <li>기록 항목: 차단일시, 로그 ID, 대상 시스템, 계정(미로그인 포함), 접속 IP, 국가, 탐지 유형, 적용 규칙, 차단 사유, 결과, 요청 메서드·경로, User-Agent, 세션, 판정 근거 DB·버전</li>
+                                <li>보관 기간: <strong>3년</strong> (최소 1년 이상 보관 기준 충족)</li>
+                                <li>무결성: 추가 전용(append-only) 로그 저장소에 적재하며, 관리자 화면·API 어디에도 <strong>수정·삭제 기능이 없습니다</strong>.</li>
+                                <li>활용: 차단 로그 탭에서 기간·대상 시스템·탐지 유형·계정으로 조회하고 엑셀(CSV)로 내보낼 수 있습니다.</li>
+                            </ul>
+                        </div>
+
+                        <div class="doc-section">
+                            <h4>4. 판정 DB 갱신 및 정기 시험</h4>
+                            <ul>
+                                <li>GeoIP 국가 DB·KISA 할당 정보는 <strong>매주 자동</strong> 갱신, IP 평판 DB 는 매일, Tor 출구 노드 목록은 1시간 주기로 동기화합니다.</li>
+                                <li>갱신 실패 시 보안 담당자에게 알림이 발송되고 직전 버전으로 판정을 계속합니다.</li>
+                                <li>매월 1회 3개 시스템 × 5개 유형(국내 허용·국외·VPN·프록시·Tor)을 실제 접속으로 시험하고 결과를 <strong>접속 시험</strong> 탭에 기록합니다.</li>
+                            </ul>
+                        </div>
+
+                        <div class="doc-section">
+                            <h4>5. 예외 정책</h4>
+                            <div class="no-exception-box" style="padding: 14px 18px;">
+                                <div class="no-exception-title" style="font-size: 15px; margin-bottom: 6px;">
+                                    <span class="badge badge-danger">예외 없음</span>
+                                    해외 출장·협력사 포함 예외 IP 등록 불가
+                                </div>
+                                <ul>
+                                    <li>IP 화이트리스트(보안 정책)는 관리자 접근을 좁히는 용도로만 쓰이며 국외 IP 를 통과시키지 못합니다.</li>
+                                    <li>최고 관리자를 포함한 모든 이용자에게 동일하게 적용하며, 차단 해제 기능을 제공하지 않습니다.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 차단 로그 상세 -->
+    <div id="log-detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 680px;">
+            <div class="modal-header">
+                <h3 class="modal-title">차단 로그 상세</h3>
+                <button class="modal-close" onclick="closeModal('log-detail-modal')">&times;</button>
+            </div>
+            <dl class="detail-grid" id="detail-body"></dl>
+            <div class="readonly-note">
+                차단 로그는 변경·삭제가 불가능한 감사 로그이며 3년간 보관됩니다. 국외·우회 접속은 예외 없이 차단되므로 차단 해제 기능을 제공하지 않습니다.
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('log-detail-modal')">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin-common.js"></script>
+    <script src="js/overseas-access-data.js"></script>
+    <script>
+        const PAGE_SIZE = 15;
+        let currentPage = 1;
+        let filteredLogs = [];
+
+        /* ================= 차단 설정 ================= */
+
+        function todayBlocksBySystem(system) {
+            return OAC_BLOCK_LOGS.filter(l => l.at.slice(0, 10) === OAC_TODAY && (!system || l.system === system)).length;
+        }
+
+        function renderSystems() {
+            document.getElementById('system-grid').innerHTML = Object.keys(OAC_SYSTEMS).map(key => {
+                const s = OAC_SYSTEMS[key];
+                return `
+                    <div class="system-card">
+                        <div class="system-card-head">
+                            <div>
+                                <div class="system-card-title">${s.label}</div>
+                                <div class="system-card-scope">${s.scope}</div>
+                            </div>
+                            <label class="oac-switch" title="정책상 해제 불가">
+                                <input type="checkbox" ${s.enabled ? 'checked' : ''} disabled>
+                                <span class="track"></span>
+                                <span class="state">${s.enabled ? 'ON' : 'OFF'}</span>
+                            </label>
+                        </div>
+                        <dl>
+                            <dt>적용 상태</dt><dd><span class="badge badge-success">적용 중</span></dd>
+                            <dt>허용 국가</dt><dd>대한민국(KR)만</dd>
+                            <dt>우회 차단</dt><dd>VPN·프록시·Tor·호스팅${key === 'api' ? '' : '·국가 불일치'}</dd>
+                            <dt>적용 지점</dt><dd>${s.entry}</dd>
+                            <dt>적용 경로</dt><dd>${s.paths}</dd>
+                            <dt>적용 개시</dt><dd>${s.since}</dd>
+                            <dt>오늘 차단</dt><dd><strong>${formatNumber(todayBlocksBySystem(key))}건</strong></dd>
+                        </dl>
+                        <div class="lock-note">🔒 정책상 해제 불가 — 적용 대상은 끌 수 없습니다</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderGeoSources() {
+            document.getElementById('geo-tbody').innerHTML = OAC_GEO_SOURCES.map(g => `
+                <tr>
+                    <td><strong>${g.name}</strong></td>
+                    <td>${g.role}</td>
+                    <td class="mono">${g.version}</td>
+                    <td>${g.updatedAt}</td>
+                    <td>${g.cycle}</td>
+                    <td><span class="badge ${g.status === 'ok' ? 'badge-success' : 'badge-danger'}">${g.status === 'ok' ? '정상' : '갱신 실패'}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderBypassRules() {
+            document.getElementById('bypass-tbody').innerHTML = OAC_BYPASS_RULES.map(r => `
+                <tr>
+                    <td><span class="oac-tag ${(OAC_DETECT_TYPE[r.type] || {}).cls}">${r.item}</span></td>
+                    <td class="mono">${r.rule}</td>
+                    <td class="wrap">${r.method}</td>
+                    <td>${r.target}</td>
+                    <td><span class="badge badge-danger">${r.action}</span></td>
+                    <td><span class="badge badge-success">사용</span> <span class="sub-text">🔒 고정</span></td>
+                </tr>
+            `).join('');
+        }
+
+        /* 안내 문구 미리보기 — 입력값은 이스케이프 후 줄바꿈만 반영한다 */
+        function renderNoticePreview() {
+            const msg = document.getElementById('notice-message').value;
+            document.getElementById('notice-preview').innerHTML = oacEscape(msg).replace(/\n/g, '<br>');
+            const apiBody = {
+                code: 'E403_ACCESS_BLOCKED',
+                message: msg.replace(/\n/g, ' '),
+                blockId: 'BLK-20260928-0005',
+                reason: 'HOSTING_IP',
+                country: 'JP'
+            };
+            // textContent 로 넣으므로 별도 이스케이프가 필요 없다
+            document.getElementById('api-preview').textContent =
+                '// 발송 API 차단 응답 (HTTP 403)\n' + JSON.stringify(apiBody, null, 2);
+        }
+
+        function syncAlertLabels() {
+            const rule = `${OAC_NOTICE.alertWindow}분 내 ${OAC_NOTICE.alertThreshold}회`;
+            document.getElementById('doc-alert-rule').textContent = rule;
+            document.getElementById('doc-alert-to').textContent = OAC_NOTICE.alertTo;
+            document.getElementById('alert-to').textContent = OAC_NOTICE.alertTo;
+        }
+
+        function resetPolicyForm() {
+            document.getElementById('notice-message').value = OAC_NOTICE.message;
+            document.getElementById('alert-window').value = String(OAC_NOTICE.alertWindow);
+            document.getElementById('alert-threshold').value = String(OAC_NOTICE.alertThreshold);
+            renderNoticePreview();
+        }
+
+        function renderPolicyHistory() {
+            document.getElementById('history-tbody').innerHTML = OAC_POLICY_HISTORY.map(h => `
+                <tr>
+                    <td>${h.at}</td>
+                    <td>${oacEscape(h.admin)}</td>
+                    <td>${oacEscape(h.item)}</td>
+                    <td style="white-space: normal;">${oacEscape(h.detail)}</td>
+                    <td class="mono">${h.ip}</td>
+                </tr>
+            `).join('');
+        }
+
+        function savePolicy() {
+            if (!requireSuperAdmin()) return;
+
+            const message = document.getElementById('notice-message').value.trim();
+            const win = Number(document.getElementById('alert-window').value);
+            const threshold = Number(document.getElementById('alert-threshold').value);
+            if (!message) {
+                showToast('차단 안내 문구를 입력해주세요.', 'error');
+                return;
+            }
+            if (message.length > 300) {
+                showToast('차단 안내 문구는 300자 이내로 입력해주세요.', 'error');
+                return;
+            }
+
+            const changes = [];
+            if (message !== OAC_NOTICE.message) changes.push({ item: '차단 안내 문구', detail: '안내 문구 변경' });
+            if (win !== OAC_NOTICE.alertWindow || threshold !== OAC_NOTICE.alertThreshold) {
+                changes.push({
+                    item: '반복 차단 알림',
+                    detail: `${OAC_NOTICE.alertWindow}분 내 ${OAC_NOTICE.alertThreshold}회 → ${win}분 내 ${threshold}회`
+                });
+            }
+            if (!changes.length) {
+                showToast('변경된 내용이 없습니다.', 'info');
+                return;
+            }
+
+            if (!confirm('차단 설정을 저장하시겠습니까?\n\n변경 내용은 즉시 적용되며 설정 변경 이력에 기록됩니다.\n(적용 대상·허용 국가·탐지 항목은 변경되지 않습니다)')) return;
+
+            // 실제 연동 시 PUT /api/admin/access-control/policy
+            OAC_NOTICE.message = message;
+            OAC_NOTICE.alertWindow = win;
+            OAC_NOTICE.alertThreshold = threshold;
+
+            const admin = getCurrentAdmin();
+            const at = nowStamp();
+            changes.forEach(c => OAC_POLICY_HISTORY.unshift({
+                at: at, admin: `${admin.name}(${admin.email})`, item: c.item, detail: c.detail, ip: '10.0.3.21'
+            }));
+
+            renderPolicyHistory();
+            syncAlertLabels();
+            showToast('차단 설정을 저장했습니다.', 'success');
+        }
+
+        /* ================= 접속 시험 ================= */
+
+        function renderSampleIps() {
+            const samples = [
+                ['211.36.142.77', '국내'], ['203.0.113.1', '미국'], ['104.28.52.17', 'VPN'],
+                ['58.120.33.4', '프록시'], ['185.220.101.1', 'Tor'], ['45.77.20.31', '호스팅'],
+                ['43.201.10.88', '국내 클라우드'], ['10.0.3.21', '사설']
+            ];
+            document.getElementById('sample-ips').innerHTML = '<span>시험용 샘플 IP</span>' + samples.map(([ip, label]) =>
+                `<button class="sample-ip" onclick="fillTestIp('${ip}')"><span class="mono">${ip}</span>${label}</button>`
+            ).join('');
+        }
+
+        function fillTestIp(ip) {
+            document.getElementById('test-ip').value = ip;
+            document.getElementById('test-ip').focus();
+        }
+
+        function runTest() {
+            const system = document.getElementById('test-system').value;
+            const ip = document.getElementById('test-ip').value.trim();
+            if (!ip) {
+                showToast('시험 IP 를 입력해주세요.', 'error');
+                return;
+            }
+            if (!oacIsValidIPv4(ip)) {
+                showToast('올바른 IPv4 주소 형식이 아닙니다. (예: 203.0.113.1)', 'error');
+                return;
+            }
+
+            // 실제 연동 시 POST /api/admin/access-control/test — 운영 차단 필터와 같은 판정 엔진을 호출한다
+            const r = oacJudge(ip, system);
+            const expected = (r.country === 'KR' && r.type === 'none') ? 'allow' : 'block';
+            const admin = getCurrentAdmin();
+            const at = nowStamp();
+            const day = at.slice(0, 10).replace(/-/g, '');
+            const seq = OAC_TESTS.filter(t => t.id.indexOf('AT-' + day) === 0).length + 1;
+
+            const test = {
+                at: at, id: `AT-${day}-${('0' + seq).slice(-2)}`, round: '수시', system: system,
+                ip: ip, country: r.country, type: r.type,
+                expected: expected, actual: r.decision, tester: admin.name
+            };
+            OAC_TESTS.unshift(test);
+
+            renderTestResult(test, r);
+            renderTests();
+        }
+
+        function renderTestResult(test, r) {
+            const blocked = r.decision === 'block';
+            const rows = [
+                ['시험 ID', `<span class="mono">${test.id}</span>`],
+                ['대상 시스템', oacSystemLabel(test.system)],
+                ['시험 IP', `<span class="mono">${oacEscape(test.ip)}</span>`],
+                ['국가', oacCountryLabel(r.country)],
+                ['ISP / ASN', oacEscape(r.isp)],
+                ['탐지 유형', oacTypeTag(r.type)],
+                ['적용 규칙', `<span class="mono">${r.rule}</span> ${OAC_RULES[r.rule] || ''}`],
+                ['판정 근거', `${oacEscape(r.note)}<div class="sub-text">${oacEscape(r.evidence)}</div>`],
+                ['적합 여부', test.expected === test.actual
+                    ? '<span class="fit-ok">적합</span> <span class="sub-text">(정책 기대 결과와 일치)</span>'
+                    : '<span class="fit-ng">부적합</span>']
+            ];
+            if (blocked) {
+                rows.push(['이용자 안내', `<span style="font-size: 13px;">${oacEscape(OAC_NOTICE.message).replace(/\n/g, '<br>')}</span>`]);
+            }
+            document.getElementById('test-result').innerHTML = `
+                <div class="test-result ${blocked ? 'block' : 'allow'}">
+                    <div class="test-result-head">
+                        <span class="decision-big ${blocked ? 'block' : 'allow'}">${blocked ? '차단' : '허용'}</span>
+                        ${blocked ? '접속이 차단됩니다' : '접속이 허용됩니다'}
+                    </div>
+                    <dl class="detail-grid">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>
+                </div>
+            `;
+        }
+
+        function resultLabel(v) {
+            return v === 'allow' ? '허용' : '차단';
+        }
+
+        function renderTests() {
+            document.getElementById('test-count-desc').textContent =
+                `전체 ${formatNumber(OAC_TESTS.length)}건 · 적합 ${formatNumber(OAC_TESTS.filter(t => t.expected === t.actual).length)}건`;
+            document.getElementById('test-tbody').innerHTML = OAC_TESTS.map(t => `
+                <tr>
+                    <td>${t.at}</td>
+                    <td><span class="mono">${t.id}</span><div class="sub-text">${oacEscape(t.round)}</div></td>
+                    <td>${oacSystemLabel(t.system)}</td>
+                    <td class="mono">${oacEscape(t.ip)}</td>
+                    <td>${oacCountryLabel(t.country)}</td>
+                    <td>${oacTypeTag(t.type)}</td>
+                    <td>${resultLabel(t.expected)}</td>
+                    <td>${oacDecisionBadge(t.actual)}</td>
+                    <td>${t.expected === t.actual ? '<span class="badge badge-success">적합</span>' : '<span class="badge badge-danger">부적합</span>'}</td>
+                    <td>${oacEscape(t.tester)}</td>
+                </tr>
+            `).join('');
+            updateTestStat();
+        }
+
+        /* 최근 정기 시험 회차의 적합 건수 */
+        function updateTestStat() {
+            const latest = OAC_TESTS.filter(t => t.round.indexOf('정기') !== -1)[0];
+            if (!latest) return;
+            const round = OAC_TESTS.filter(t => t.round === latest.round);
+            const ok = round.filter(t => t.expected === t.actual).length;
+            document.getElementById('stat-test').textContent = `적합 ${ok}/${round.length}`;
+            const date = round[round.length - 1].at.slice(0, 10);
+            const systems = new Set(round.map(t => t.system)).size;
+            const types = new Set(round.map(t => t.type)).size;
+            document.getElementById('stat-test-desc').textContent = `${date} 정기 시험 · ${systems}개 시스템 × ${types}개 유형`;
+        }
+
+        function exportTests() {
+            const header = ['시험일시', '시험 ID', '회차', '대상 시스템', '시험 IP', '국가', '탐지 유형', '기대 결과', '실제 결과', '적합 여부', '시험자'];
+            const rows = OAC_TESTS.map(t => [
+                t.at, t.id, t.round, oacSystemLabel(t.system), t.ip, oacCountryLabel(t.country),
+                (OAC_DETECT_TYPE[t.type] || {}).label || '-', resultLabel(t.expected), resultLabel(t.actual),
+                t.expected === t.actual ? '적합' : '부적합', t.tester
+            ]);
+            downloadCsv([header, ...rows], `국외우회접속_시험결과_${nowStamp().slice(0, 10)}.csv`);
+            showToast(`시험 결과 ${formatNumber(OAC_TESTS.length)}건을 내려받았습니다.`, 'success');
+        }
+
+        /* ================= 차단 로그 ================= */
+
+        function getFilters() {
+            return {
+                keyword: document.getElementById('search-account').value.trim().toLowerCase(),
+                from: document.getElementById('date-from').value,
+                to: document.getElementById('date-to').value,
+                system: document.getElementById('filter-system').value,
+                type: document.getElementById('filter-type').value
+            };
+        }
+
+        function matchesFilter(log, f) {
+            if (f.keyword) {
+                const hay = [log.account || '미로그인', log.accountType, log.ip].join(' ').toLowerCase();
+                if (hay.indexOf(f.keyword) === -1) return false;
+            }
+            const day = log.at.slice(0, 10);
+            if (f.from && day < f.from) return false;
+            if (f.to && day > f.to) return false;
+            if (f.system && log.system !== f.system) return false;
+            if (f.type && log.type !== f.type) return false;
+            return true;
+        }
+
+        function searchLogs(page) {
+            currentPage = page || 1;
+            const f = getFilters();
+            filteredLogs = OAC_BLOCK_LOGS.filter(log => matchesFilter(log, f));
+            renderLogs();
+            updateLogStats(f);
+        }
+
+        function resetFilters() {
+            document.getElementById('search-account').value = '';
+            document.getElementById('date-from').value = '2026-09-01';
+            document.getElementById('date-to').value = OAC_TODAY;
+            document.getElementById('filter-system').value = '';
+            document.getElementById('filter-type').value = '';
+            searchLogs(1);
+        }
+
+        function accountCell(log) {
+            if (!log.account) return '<span class="muted">미로그인</span>';
+            return `<div class="account-cell-id">${oacEscape(log.account)}</div><div class="account-cell-type">${oacEscape(log.accountType)}</div>`;
+        }
+
+        function renderLogs() {
+            const tbody = document.getElementById('log-tbody');
+            const total = filteredLogs.length;
+            const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            document.getElementById('log-count-desc').textContent = `전체 ${formatNumber(total)}건`;
+
+            if (!total) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="9">조회 조건에 해당하는 차단 로그가 없습니다.</td></tr>';
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            const start = (currentPage - 1) * PAGE_SIZE;
+            tbody.innerHTML = filteredLogs.slice(start, start + PAGE_SIZE).map(log => `
+                <tr class="${log.alert ? 'row-alert' : ''}">
+                    <td>${log.at}<div class="sub-text mono">${log.id}</div></td>
+                    <td>${oacSystemLabel(log.system)}</td>
+                    <td>${accountCell(log)}</td>
+                    <td><span class="mono">${oacEscape(log.ip)}</span><div class="sub-text">${oacCountryLabel(log.country)}</div></td>
+                    <td>${oacTypeTag(log.type)}</td>
+                    <td class="wrap" style="min-width: 200px;">${oacEscape(log.reason)}</td>
+                    <td><span class="badge badge-danger">차단</span></td>
+                    <td class="path-cell"><span class="method">${log.method}</span>${oacEscape(log.path)}</td>
+                    <td><button class="btn btn-outline btn-sm" onclick="openLogDetailById('${log.id}')">상세</button></td>
+                </tr>
+            `).join('');
+
+            createPagination(currentPage, totalPages, 'pagination');
+        }
+
+        // admin-common.js 의 기본 goToPage 를 이 화면용으로 대체한다
+        function goToPage(page) {
+            currentPage = page;
+            renderLogs();
+        }
+
+        function updateLogStats(f) {
+            const foreign = filteredLogs.filter(l => l.type === 'foreign').length;
+            const bypass = filteredLogs.filter(l => l.type !== 'foreign');
+            const count = t => bypass.filter(l => l.type === t).length;
+
+            document.getElementById('stat-foreign').textContent = formatNumber(foreign);
+            document.getElementById('stat-period-desc').textContent =
+                `조회기간 ${f.from || '처음'} ~ ${f.to || '현재'}`;
+            document.getElementById('stat-bypass').textContent = formatNumber(bypass.length);
+            document.getElementById('stat-bypass-desc').textContent =
+                `VPN ${count('vpn')} · 프록시 ${count('proxy')} · Tor ${count('tor')} · 호스팅 ${count('hosting')} · 불일치 ${count('mismatch')}`;
+        }
+
+        function updateTodayStat() {
+            document.getElementById('stat-today').textContent = formatNumber(todayBlocksBySystem());
+            document.getElementById('stat-today-desc').textContent =
+                `${OAC_TODAY} · 웹 ${todayBlocksBySystem('web')} / API ${todayBlocksBySystem('api')} / 관리자 ${todayBlocksBySystem('admin')}`;
+        }
+
+        /* 차단 시 이용자에게 돌아간 결과 */
+        function blockResultText(log) {
+            if (log.system === 'api') return 'HTTP 403 · E403_ACCESS_BLOCKED 응답 — 발송 요청 미처리';
+            if (/login|join/.test(log.path)) return 'HTTP 403 · 차단 안내 화면 표시 — 로그인·회원가입 미진행';
+            if (log.account) return 'HTTP 403 · 차단 안내 화면 표시 — 로그인 세션 즉시 만료';
+            return 'HTTP 403 · 차단 안내 화면 표시';
+        }
+
+        // 로그 목록과 예외 정책 카드의 사례 링크에서 호출 — 로그 탭으로 이동하지 않고 상세만 연다
+        function openLogDetailById(id) {
+            const log = OAC_BLOCK_LOGS.filter(l => l.id === id)[0];
+            if (!log) return;
+            const rule = OAC_TYPE_RULE[log.type];
+
+            const rows = [
+                ['로그 ID', `<span class="mono">${log.id}</span>`],
+                ['차단일시', log.at],
+                ['대상 시스템', `${oacSystemLabel(log.system)} <span class="sub-text">${OAC_SYSTEMS[log.system].scope}</span>`],
+                ['계정', log.account ? `${oacEscape(log.account)} <span class="sub-text">${oacEscape(log.accountType)}</span>` : '<span class="muted">미로그인 (로그인 전 차단)</span>'],
+                ['접속 IP', `<span class="mono">${oacEscape(log.ip)}</span>`],
+                ['국가', oacCountryLabel(log.country)],
+                ['탐지 유형', oacTypeTag(log.type)],
+                ['적용 규칙', `<span class="mono">${rule}</span> ${OAC_RULES[rule] || ''}`],
+                ['차단 사유', oacEscape(log.reason)],
+                ['결과', `<span class="badge badge-danger">차단</span> <span style="font-size: 13px; color: var(--admin-text-secondary);">${blockResultText(log)}</span>`],
+                ['요청', `<span class="mono">${log.method} ${oacEscape(log.path)}</span>`],
+                ['User-Agent', oacEscape(log.ua)],
+                ['세션', log.session === '-' ? '-' : `<span class="mono">${oacEscape(log.session)}</span>`],
+                ['판정 근거', oacEscape(log.evidence)],
+                ['후속 조치', log.alert ? `<span class="badge badge-warning">알림</span> ${oacEscape(log.alert)}` : '-']
+            ];
+
+            document.getElementById('detail-body').innerHTML = rows
+                .map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+            openModal('log-detail-modal');
+        }
+
+        function exportLogs() {
+            if (!filteredLogs.length) {
+                showToast('내보낼 차단 로그가 없습니다.', 'error');
+                return;
+            }
+            const header = ['차단일시', '로그 ID', '대상 시스템', '계정', '계정 구분', '접속 IP', '국가', '탐지 유형', '적용 규칙',
+                            '차단 사유', '결과', '요청 메서드', '요청 경로', 'User-Agent', '세션', '판정 근거', '후속 조치'];
+            const rows = filteredLogs.map(log => {
+                const rule = OAC_TYPE_RULE[log.type];
+                return [
+                    log.at, log.id, oacSystemLabel(log.system), log.account || '미로그인', log.accountType || '-',
+                    log.ip, oacCountryLabel(log.country), (OAC_DETECT_TYPE[log.type] || {}).label || '-',
+                    `${rule} ${OAC_RULES[rule] || ''}`, log.reason, '차단', log.method, log.path,
+                    log.ua, log.session, log.evidence, log.alert || '-'
+                ];
+            });
+            downloadCsv([header, ...rows], `국외우회접속_차단로그_${nowStamp().slice(0, 10)}.csv`);
+            showToast(`차단 로그 ${formatNumber(filteredLogs.length)}건을 내려받았습니다.`, 'success');
+        }
+
+        /* ================= 공통 ================= */
+
+        function switchTab(tabName, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+            document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tabName).style.display = 'block';
+            el.classList.add('active');
+        }
+
+        function nowStamp() {
+            const d = new Date();
+            const p = n => ('0' + n).slice(-2);
+            return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' +
+                   p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+        }
+
+        /* 엑셀에서 한글이 깨지지 않도록 BOM 을 붙인 CSV 로 내려받는다 */
+        function downloadCsv(table, filename) {
+            const csv = table
+                .map(cols => cols.map(c => `"${String(c).replace(/"/g, '""')}"`).join(','))
+                .join('\r\n');
+            const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        /* ================= 초기화 ================= */
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const isSuper = applySuperAdminGuard();
+
+            // 안내 문구·알림 기준은 최고 관리자만 수정할 수 있다 (그 외에는 읽기 전용으로 노출)
+            document.getElementById('notice-message').readOnly = !isSuper;
+            document.getElementById('alert-window').disabled = !isSuper;
+            document.getElementById('alert-threshold').disabled = !isSuper;
+
+            renderSystems();
+            renderGeoSources();
+            renderBypassRules();
+            resetPolicyForm();
+            syncAlertLabels();
+            renderPolicyHistory();
+            renderSampleIps();
+            renderTests();
+            updateTodayStat();
+            searchLogs(1);
+
+            const tab = new URLSearchParams(location.search).get('tab');
+            if (['policy', 'test', 'log', 'method'].indexOf(tab) !== -1) {
+                switchTab(tab, document.getElementById('tab-btn-' + tab));
+            }
+        });
+    </script>
+</body>
+</html>

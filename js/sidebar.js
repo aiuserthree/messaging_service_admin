@@ -131,8 +131,11 @@ function getSidebarHTML(activeMenu) {
                     <a href="permission-group.html" class="menu-item ${activeMenu === 'permission-group' ? 'active' : ''}">
                         <span>권한 그룹 관리</span>
                     </a>
+                    <a href="admin-permission-status.html" class="menu-item ${activeMenu === 'admin-permission-status' ? 'active' : ''}">
+                        <span>관리자별 권한 현황</span>
+                    </a>
                     <a href="admin-account-delete.html" class="menu-item ${activeMenu === 'admin-account-delete' ? 'active' : ''}">
-                        <span>계정 삭제·권한 변경</span>
+                        <span>계정 생성·삭제·권한 변경</span>
                     </a>
                 </div>
                 
@@ -155,6 +158,9 @@ function getSidebarHTML(activeMenu) {
                     </a>
                     <a href="security-action-result.html" class="menu-item ${activeMenu === 'security-action-result' ? 'active' : ''}">
                         <span>조치 및 결과 확인</span>
+                    </a>
+                    <a href="overseas-access-control.html" class="menu-item ${activeMenu === 'overseas-access-control' ? 'active' : ''}">
+                        <span>국외·우회 접속 차단</span>
                     </a>
                     <a href="security-policy.html" class="menu-item ${activeMenu === 'security-policy' ? 'active' : ''}">
                         <span>보안 정책</span>

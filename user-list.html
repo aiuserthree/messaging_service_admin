@@ -21,6 +21,56 @@
             color: #92400e;
             line-height: 1.7;
         }
+        .policy-box {
+            padding: 16px 20px;
+            background: #eff6ff;
+            border: 1px solid #93c5fd;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        .policy-box .policy-title {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+        .policy-box .policy-list {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 13px;
+            color: #1e3a8a;
+            line-height: 1.8;
+        }
+        .domain-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .domain-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border: 1px solid #fca5a5;
+            background: #fef2f2;
+            color: #991b1b;
+            border-radius: 999px;
+            font-size: 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+        .domain-chip::before {
+            content: '⛔';
+            font-size: 11px;
+        }
+        .sub-text {
+            display: block;
+            font-size: 12px;
+            color: var(--admin-text-muted);
+            margin-top: 2px;
+        }
+        .row-deleted td {
+            color: var(--admin-text-muted);
+            background-color: #f8fafc;
+        }
     </style>
 </head>
 <body>
@@ -41,77 +91,148 @@
                     관리자 등록·수정·비밀번호 초기화·권한 변경·계정 삭제 버튼은 표시되지 않습니다.
                 </div>
 
+                <div class="tabs" id="mainTabs">
+                    <button class="tab active" id="main-tab-btn-list" onclick="switchMainTab('list')">관리자 목록</button>
+                    <button class="tab" id="main-tab-btn-external" onclick="switchMainTab('external')">외부 도메인 계정 통제</button>
+                </div>
+
                 <!-- 관리자 목록 -->
-                <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-                        <div>
-                            <h3 class="card-title">관리자 목록</h3>
-                            <div class="card-description">전체 관리자 수: <span id="adminCount">0</span>명</div>
+                <div id="main-tab-list">
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                            <div>
+                                <h3 class="card-title">관리자 목록</h3>
+                                <div class="card-description">
+                                    전체 관리자 수: <span id="adminCount">0</span>명
+                                    (정상 <span id="adminActiveCount">0</span> · 정지 <span id="adminSuspendedCount">0</span> / 외부 도메인 <span id="adminExternalCount">0</span>)
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <button class="btn btn-outline" onclick="location.href='admin-account-delete.html'">계정 생성·삭제·권한 변경 이력</button>
+                                <button class="btn btn-primary super-only" onclick="requestAccountCreate()">신규 관리자 등록</button>
+                            </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <button class="btn btn-outline" onclick="location.href='admin-account-delete.html'">계정 삭제·권한 변경 이력</button>
-                            <button class="btn btn-primary super-only" onclick="openModal('addAdminModal')">신규 관리자 등록</button>
+                        <div class="table-container">
+                            <table id="memberTable">
+                                <thead>
+                                    <tr>
+                                        <th>관리자 ID</th>
+                                        <th>이름</th>
+                                        <th>소속</th>
+                                        <th>도메인 구분</th>
+                                        <th>권한 그룹</th>
+                                        <th>생성일</th>
+                                        <th>최종 로그인</th>
+                                        <th>계정 상태</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminTableBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination" id="pagination"></div>
+                    </div>
+                </div>
+
+                <!-- 외부 도메인 계정 통제 (보안심사 3.2-02) -->
+                <div id="main-tab-external" style="display: none;">
+                    <div class="policy-box">
+                        <div class="policy-title">외부 도메인 관리자 계정 통제 기준</div>
+                        <ul class="policy-list">
+                            <li>관리자 계정은 <strong>사내 도메인(@ibank.co.kr) 발급이 원칙</strong>입니다.</li>
+                            <li>외부 도메인 계정은 <strong>협력사(유지보수·구축 용역 등) 투입 인력에 한해</strong> 계약 근거와 도메인 소유·재직 확인 후,
+                                <strong>정보보호팀장(또는 정보보호최고책임자) 승인</strong>을 받아 최고 관리자가 발급합니다.</li>
+                            <li>사용 기한은 <strong>최대 <span id="policyMaxMonths">6</span>개월</strong>(계약 기간 이내)이며, 기한이 지나면 <strong>자동 정지</strong>되고 연장 계약이 없으면 삭제(말소)합니다.</li>
+                            <li><strong>개인 메일(gmail·naver 등 무료 메일) 도메인은 발급할 수 없습니다.</strong> 외부 계정에는 최고 관리자 권한을 부여할 수 없습니다.</li>
+                            <li>내부 책임자가 <strong><span id="policyCheckCycle">분기 1회</span> 소유·재직 여부를 재확인</strong>하고 결과를 기록합니다. 퇴사·계약 종료 시 즉시 삭제합니다.</li>
+                        </ul>
+                    </div>
+
+                    <div class="stats-grid stats-4">
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span class="stat-card-title">외부 도메인 계정</span>
+                                <div class="stat-card-icon icon-user">🌐</div>
+                            </div>
+                            <div class="stat-card-value" id="ext-stat-total">0</div>
+                            <div class="stat-card-change">현재 존재하는 외부 도메인 계정 (정상 + 정지)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span class="stat-card-title">사용 중</span>
+                                <div class="stat-card-icon icon-processing">✅</div>
+                            </div>
+                            <div class="stat-card-value" id="ext-stat-active">0</div>
+                            <div class="stat-card-change">사용 기한 내 정상 계정</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span class="stat-card-title">기한 만료·정지</span>
+                                <div class="stat-card-icon icon-fail">⛔</div>
+                            </div>
+                            <div class="stat-card-value" id="ext-stat-suspended">0</div>
+                            <div class="stat-card-change">자동 정지된 외부 계정</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span class="stat-card-title">30일 내 만료 예정</span>
+                                <div class="stat-card-icon icon-chart">⏰</div>
+                            </div>
+                            <div class="stat-card-value" id="ext-stat-expiring">0</div>
+                            <div class="stat-card-change">연장 계약 또는 삭제 조치 필요</div>
                         </div>
                     </div>
-                    <div class="table-container">
-                        <table id="memberTable">
-                            <thead>
-                                <tr>
-                                    <th>관리자 ID</th>
-                                    <th>이름</th>
-                                    <th>권한 그룹</th>
-                                    <th>생성일</th>
-                                    <th>최종 로그인</th>
-                                    <th>계정 상태</th>
-                                    <th>관리</th>
-                                </tr>
-                            </thead>
-                            <tbody id="adminTableBody"></tbody>
-                        </table>
+
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                            <div>
+                                <h3 class="card-title">외부 도메인 계정 소유·통제 현황</h3>
+                                <div class="card-description">
+                                    협력사 인력에게 발급한 외부 도메인 관리자 계정의 소유 확인·계약 근거·승인·사용 기한·정기 확인 결과입니다.
+                                    계약 종료로 삭제된 계정도 함께 표시합니다. 조회 건수: <span id="extCount">0</span>건
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <button class="btn btn-outline" onclick="exportExternalCsv()">엑셀 다운로드</button>
+                                <button class="btn btn-primary super-only" onclick="requestAccountCreate()">외부 계정 발급</button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>계정</th>
+                                        <th>소속 회사</th>
+                                        <th>도메인</th>
+                                        <th>도메인 소유 확인</th>
+                                        <th>계약 근거</th>
+                                        <th>부여 권한</th>
+                                        <th>내부 책임자</th>
+                                        <th>승인자</th>
+                                        <th>승인일</th>
+                                        <th>사용 기한</th>
+                                        <th>최근 확인일</th>
+                                        <th>확인 결과</th>
+                                        <th>상태</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="externalTableBody"></tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="pagination" id="pagination"></div>
+
+                    <div class="card" style="margin-top: 24px;">
+                        <div class="card-header">
+                            <h3 class="card-title">무료 메일 도메인 차단 목록</h3>
+                            <div class="card-description">
+                                아래 도메인의 이메일로는 관리자 계정을 생성할 수 없습니다. 계정 생성 시 자동으로 차단되며, 차단 목록은 정보보호팀이 관리합니다.
+                            </div>
+                        </div>
+                        <div class="domain-chips" id="freeMailChips"></div>
+                    </div>
                 </div>
             </div>
         </main>
-    </div>
-    
-    <!-- 관리자 등록 모달 -->
-    <div class="modal" id="addAdminModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">신규 관리자 등록</h3>
-                <button class="modal-close" onclick="closeModal('addAdminModal')">&times;</button>
-            </div>
-            <div>
-                <div class="form-group">
-                    <label class="form-label">관리자 ID (이메일)</label>
-                    <input type="email" class="form-control" placeholder="admin@example.com">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">이름</label>
-                    <input type="text" class="form-control" placeholder="관리자 이름">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">비밀번호</label>
-                    <input type="password" class="form-control" placeholder="비밀번호">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">권한 그룹</label>
-                    <select class="form-control">
-                        <option value="">선택</option>
-                        <option value="SUPER">최고 관리자</option>
-                        <option value="OPERATOR">운영 관리자</option>
-                        <option value="REVIEWER">심사 관리자</option>
-                        <option value="SUPPORT">고객 지원</option>
-                        <option value="GENERAL">일반 관리자</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" onclick="showToast('관리자가 등록되었습니다.', 'success'); closeModal('addAdminModal');">등록</button>
-                <button class="btn btn-outline" onclick="closeModal('addAdminModal')">취소</button>
-            </div>
-        </div>
     </div>
     
     <!-- 관리자 수정 모달 -->
@@ -388,50 +509,170 @@
     </div>
     
     <script src="js/admin-common.js"></script>
+    <script src="js/admin-account-data.js"></script>
     <script>
-        // 관리자 계정 목록 (계정 삭제·권한 변경 메뉴와 동일한 계정 기준)
-        const adminAccounts = [
-            { email: 'nykim@ibank.co.kr', name: '김나영', role: '최고 관리자', createdAt: '2024-01-01', lastLogin: '2026-08-03 18:12' },
-            { email: 'jhpark@ibank.co.kr', name: '박정호', role: '최고 관리자', createdAt: '2024-01-01', lastLogin: '2026-08-04 09:05' },
-            { email: 'smlee@ibank.co.kr', name: '이수민', role: '운영 관리자', createdAt: '2024-01-15', lastLogin: '2026-08-04 08:47' },
-            { email: 'hnjung@ibank.co.kr', name: '정하늘', role: '운영 관리자', createdAt: '2024-03-02', lastLogin: '2026-08-01 17:33' },
-            { email: 'shoh@ibank.co.kr', name: '오세훈', role: '심사 관리자', createdAt: '2024-02-01', lastLogin: '2026-07-31 11:20' },
-            { email: 'jayoon@ibank.co.kr', name: '윤지아', role: '고객 지원', createdAt: '2024-02-10', lastLogin: '2026-08-04 09:12' },
-            { email: 'mskang@ibank.co.kr', name: '강민서', role: '일반 관리자', createdAt: '2025-06-11', lastLogin: '2026-01-28 14:02', status: '정지' }
-        ];
-
-        const ROLE_BADGE = {
-            '최고 관리자': 'badge-danger',
-            '운영 관리자': 'badge-warning',
-            '심사 관리자': 'badge-info',
-            '고객 지원': 'badge-secondary',
-            '일반 관리자': 'badge-secondary'
-        };
+        // 관리자 계정 목록·외부 도메인 통제 항목은 js/admin-account-data.js 의 ADMIN_ACCOUNTS 를 사용한다
+        // (계정 생성·삭제·권한 변경 메뉴와 동일한 계정 기준)
 
         function renderAdminTable() {
-            document.getElementById('adminTableBody').innerHTML = adminAccounts.map(a => {
+            document.getElementById('adminTableBody').innerHTML = ADMIN_ACCOUNTS.map(a => {
                 const status = a.status || '정상';
-                const statusBadge = status === '정상'
-                    ? '<span class="badge badge-success">정상</span>'
-                    : '<span class="badge badge-warning">정지</span>';
+                const statusCell = adminStatusBadge(status)
+                    + (a.statusNote ? `<span class="sub-text">${adminEscapeHtml(a.statusNote)}</span>` : '');
+                const domainCell = adminDomainBadge(a.domainType)
+                    + (a.domainType === 'external' && a.external ? `<span class="sub-text">사용 기한 ~${a.external.expiresAt}</span>` : '');
                 return `
                     <tr>
-                        <td>${a.email}</td>
-                        <td>${a.name}</td>
-                        <td><span class="badge ${ROLE_BADGE[a.role] || 'badge-secondary'}">${a.role}</span></td>
+                        <td>${adminEscapeHtml(a.email)}</td>
+                        <td>${adminEscapeHtml(a.name)}</td>
+                        <td>${adminEscapeHtml(a.org)}</td>
+                        <td>${domainCell}</td>
+                        <td>${adminRoleBadge(a.role)}</td>
                         <td>${a.createdAt}</td>
-                        <td>${a.lastLogin}</td>
-                        <td>${statusBadge}</td>
+                        <td>${a.lastLogin || '-'}</td>
+                        <td>${statusCell}</td>
                         <td style="white-space: nowrap;">
                             <button class="btn btn-primary btn-sm super-only" onclick="openModal('editAdminModal')">수정</button>
                             <button class="btn btn-outline btn-sm super-only" onclick="openModal('resetPasswordModal')">비밀번호 초기화</button>
-                            <button class="btn btn-secondary btn-sm super-only" onclick="requestRoleChange('${a.email}')">권한 변경</button>
-                            <button class="btn btn-danger btn-sm super-only" onclick="requestAccountDelete('${a.email}')">계정 삭제</button>
+                            <button class="btn btn-secondary btn-sm super-only" onclick="requestRoleChange('${adminEscapeHtml(a.email)}')">권한 변경</button>
+                            <button class="btn btn-danger btn-sm super-only" onclick="requestAccountDelete('${adminEscapeHtml(a.email)}')">계정 삭제</button>
                             <span class="super-denied" style="color: var(--admin-text-muted); display: none;">조회 전용</span>
                         </td>
                     </tr>
                 `;
             }).join('');
+
+            const active = ADMIN_ACCOUNTS.filter(a => (a.status || '정상') === '정상').length;
+            document.getElementById('adminCount').textContent = ADMIN_ACCOUNTS.length;
+            document.getElementById('adminActiveCount').textContent = active;
+            document.getElementById('adminSuspendedCount').textContent = ADMIN_ACCOUNTS.length - active;
+            document.getElementById('adminExternalCount').textContent = ADMIN_ACCOUNTS.filter(a => a.domainType === 'external').length;
+        }
+
+        // ===== 외부 도메인 계정 통제 (보안심사 3.2-02) =====
+
+        // 현재 외부 계정 + 계약 종료로 삭제된 외부 계정(생성 이력 기준)을 한 목록으로 구성
+        function getExternalControlRows() {
+            const current = ADMIN_ACCOUNTS.filter(a => a.domainType === 'external').map(a => {
+                const create = getAdminCreateRecord(a.email);
+                return {
+                    email: a.email, name: a.name, role: a.role, status: a.status || '정상', statusNote: a.statusNote || '',
+                    company: a.external.company, domain: a.external.domain,
+                    ownershipCheck: a.external.ownershipCheck, contract: a.external.contract,
+                    internalOwner: a.external.internalOwner,
+                    approver: a.external.approver || (create ? create.approver : '-'),
+                    approvedAt: (a.external.approvedAt || (create ? create.approvedAt : '-')).substring(0, 10),
+                    expiresAt: a.external.expiresAt,
+                    lastCheckedAt: a.external.lastCheckedAt, checkResult: a.external.checkResult, checkOk: a.external.checkOk,
+                    deleted: false
+                };
+            });
+
+            const deleted = ADMIN_CREATE_HISTORY
+                .filter(r => r.domainType === 'external' && r.external && !getAdminAccount(r.email))
+                .map(r => {
+                    const del = ADMIN_DELETE_HISTORY.filter(d => d.email === r.email)[0];
+                    const delDate = del ? del.processedAt.substring(0, 10) : '-';
+                    return {
+                        email: r.email, name: r.name, role: r.role,
+                        status: '삭제', statusNote: del ? `${delDate} ${del.type} (${del.id})` : '',
+                        company: r.external.company, domain: r.external.domain,
+                        ownershipCheck: r.external.ownershipCheck, contract: r.external.contract,
+                        internalOwner: r.external.internalOwner,
+                        approver: r.approver, approvedAt: r.approvedAt.substring(0, 10),
+                        expiresAt: r.external.expiresAt,
+                        lastCheckedAt: delDate, checkResult: '계약 종료 — 계정 삭제(말소) 완료', checkOk: true,
+                        deleted: true
+                    };
+                });
+
+            return current.concat(deleted);
+        }
+
+        function expiryCell(row) {
+            if (row.deleted) return row.expiresAt;
+            const days = adminDaysUntil(row.expiresAt);
+            const hint = days < 0
+                ? `<span class="sub-text" style="color: var(--admin-danger);">만료 (D+${-days})</span>`
+                : `<span class="sub-text">D-${days}</span>`;
+            return row.expiresAt + hint;
+        }
+
+        function externalStatusCell(row) {
+            if (row.deleted) return '<span class="badge badge-secondary">삭제(말소)</span>'
+                + `<span class="sub-text">${adminEscapeHtml(row.statusNote)}</span>`;
+            return adminStatusBadge(row.status)
+                + (row.statusNote ? `<span class="sub-text">${adminEscapeHtml(row.statusNote)}</span>` : '');
+        }
+
+        function renderExternalTab() {
+            const rows = getExternalControlRows();
+            const live = rows.filter(r => !r.deleted);
+
+            document.getElementById('extCount').textContent = rows.length;
+            document.getElementById('ext-stat-total').textContent = live.length;
+            document.getElementById('ext-stat-active').textContent = live.filter(r => r.status === '정상').length;
+            document.getElementById('ext-stat-suspended').textContent = live.filter(r => r.status === '정지').length;
+            document.getElementById('ext-stat-expiring').textContent = live.filter(r => {
+                const days = adminDaysUntil(r.expiresAt);
+                return r.status === '정상' && days >= 0 && days <= 30;
+            }).length;
+
+            document.getElementById('externalTableBody').innerHTML = rows.map(r => `
+                <tr class="${r.deleted ? 'row-deleted' : ''}">
+                    <td>${adminEscapeHtml(r.email)}<span class="sub-text">${adminEscapeHtml(r.name)}</span></td>
+                    <td>${adminEscapeHtml(r.company)}</td>
+                    <td>@${adminEscapeHtml(r.domain)}</td>
+                    <td>${adminEscapeHtml(r.ownershipCheck)}</td>
+                    <td>${adminEscapeHtml(r.contract)}</td>
+                    <td>${adminRoleBadge(r.role)}</td>
+                    <td>${adminEscapeHtml(r.internalOwner)}</td>
+                    <td>${adminEscapeHtml(r.approver)}</td>
+                    <td>${r.approvedAt}</td>
+                    <td>${expiryCell(r)}</td>
+                    <td>${r.lastCheckedAt || '-'}</td>
+                    <td>${r.checkOk
+                        ? `<span class="badge badge-success">적합</span><span class="sub-text">${adminEscapeHtml(r.checkResult)}</span>`
+                        : `<span class="badge badge-danger">조치 필요</span><span class="sub-text">${adminEscapeHtml(r.checkResult)}</span>`}</td>
+                    <td>${externalStatusCell(r)}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('policyMaxMonths').textContent = ADMIN_EXTERNAL_POLICY.maxMonths;
+            document.getElementById('policyCheckCycle').textContent = ADMIN_EXTERNAL_POLICY.checkCycle;
+            document.getElementById('freeMailChips').innerHTML = ADMIN_FREE_MAIL_DOMAINS
+                .map(d => `<span class="domain-chip">@${adminEscapeHtml(d)}</span>`).join('');
+        }
+
+        function exportExternalCsv() {
+            const rows = getExternalControlRows();
+            const header = ['계정', '이름', '소속 회사', '도메인', '도메인 소유 확인', '계약 근거', '부여 권한', '내부 책임자',
+                '승인자', '승인일', '사용 기한', '최근 확인일', '확인 결과', '상태', '비고'];
+            adminDownloadCsv(`외부도메인_관리자계정_통제현황_${todayStr()}.csv`, header, rows.map(r => [
+                r.email, r.name, r.company, '@' + r.domain, r.ownershipCheck, r.contract, r.role, r.internalOwner,
+                r.approver, r.approvedAt, r.expiresAt, r.lastCheckedAt || '-', r.checkResult,
+                r.deleted ? '삭제(말소)' : r.status, r.statusNote || '-'
+            ]));
+            showToast(`외부 도메인 계정 ${rows.length}건을 내려받았습니다.`, 'success');
+        }
+
+        function todayStr() {
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+
+        // 상단 탭 전환 (회원 상세 모달의 탭과 구분하기 위해 id 로만 제어)
+        function switchMainTab(name) {
+            ['list', 'external'].forEach(key => {
+                document.getElementById(`main-tab-${key}`).style.display = key === name ? '' : 'none';
+                document.getElementById(`main-tab-btn-${key}`).classList.toggle('active', key === name);
+            });
+        }
+
+        // 신규 관리자 등록 — 요청자·승인자·사유를 함께 기록하도록 관리대장의 계정 생성 화면으로 이동 (최고 관리자 전용)
+        function requestAccountCreate() {
+            if (!requireSuperAdmin()) return;
+            location.href = 'admin-account-delete.html?action=create';
         }
 
         // 계정 삭제(탈퇴·말소) 처리 화면으로 이동 — 최고 관리자 전용
@@ -454,12 +695,13 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             renderAdminTable();
+            renderExternalTab();
             applyGuard();
-            document.getElementById('adminCount').textContent = adminAccounts.length;
             // 페이지네이션 생성
             createPagination(1, 1, 'pagination');
+            // 외부 도메인 탭 바로가기 (?tab=external)
+            if (new URLSearchParams(location.search).get('tab') === 'external') switchMainTab('external');
         });
     </script>
 </body>
 </html>
-
