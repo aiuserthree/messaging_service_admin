@@ -7,7 +7,7 @@
 |------|------|
 | **프로젝트명** | Tokbell Admin (톡벨 관리자 시스템) |
 | **버전** | v1.0.0 |
-| **배포 URL** | https://admin-weld-ten.vercel.app |
+| **배포 URL** | https://tokbell-admin.vercel.app |
 | **개발 환경** | HTML5, CSS3, JavaScript (Vanilla) |
 | **호스팅** | Vercel |
 
@@ -297,7 +297,7 @@ admin/
 ```
 
 ### 8.2 배포 URL
-- **Production**: https://admin-weld-ten.vercel.app
+- **Production**: https://tokbell-admin.vercel.app
 - **Preview**: 자동 생성 (PR별)
 
 ---
