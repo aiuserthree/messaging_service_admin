@@ -21,7 +21,7 @@
 
             <div class="admin-content">
                 <!-- 통계 카드 -->
-                <div class="stats-grid stats-4" id="taStats">
+                <div class="stats-grid stats-5" id="taStats">
                     <div class="stat-card" id="statCardNew">
                         <div class="stat-card-header">
                             <div class="stat-card-title">신규 접수</div>
@@ -49,8 +49,8 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                             </div>
                         </div>
-                        <div class="stat-card-value">4건</div>
-                        <div class="stat-card-change"><span>견적 확정 · 결제 · 문구 수정 · 테스트 확인</span></div>
+                        <div class="stat-card-value">6건</div>
+                        <div class="stat-card-change"><span>견적 확정 2 · 결제 1 · 문구 수정 1 · 테스트 확인 2</span></div>
                     </div>
                     <div class="stat-card" id="statCardOver">
                         <div class="stat-card-header">
@@ -61,6 +61,16 @@
                         </div>
                         <div class="stat-card-value" style="color:#dc2626;">3건</div>
                         <div class="stat-card-change negative"><span>클릭하면 기한 초과만 봅니다</span></div>
+                    </div>
+                    <div class="stat-card" id="statCardQuestion">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">새 고객 질문</div>
+                            <div class="stat-card-icon icon-inquiry">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-card-value">3건</div>
+                        <div class="stat-card-change"><span>답변 필요 2 · 답 초안 1 · 클릭하면 미답변만</span></div>
                     </div>
                 </div>
 
@@ -144,6 +154,7 @@
                             <input type="date" class="form-control" id="endDate" value="2026-11-13">
                         </div>
                         <label class="ta-check"><input type="checkbox" id="overdueOnly"> 기한 초과만</label>
+                        <label class="ta-check" id="questionOnlyWrap"><input type="checkbox" id="questionOnly"> 미답변 질문만</label>
                         <button class="btn btn-primary" onclick="applyFilter()">검색</button>
                         <button class="btn btn-outline" onclick="resetFilter()">초기화</button>
                         <button class="btn btn-secondary" onclick="showToast('엑셀 파일 다운로드를 시작합니다. 연락처는 마스킹되어 내려받아집니다.', 'success')">엑셀 다운로드</button>
@@ -157,7 +168,7 @@
                             <h3 class="card-title">신청 목록</h3>
                             <div class="card-description">챗봇 상담으로 접수된 타겟 광고 신청. 행을 누르면 신청 상세로 이동합니다.</div>
                         </div>
-                        <div class="ta-muted" id="resultCount">전체 14건</div>
+                        <div class="ta-muted" id="resultCount">전체 16건</div>
                     </div>
                     <div class="table-container">
                         <table id="requestTable" class="ta-table">
@@ -207,16 +218,18 @@
         // 목업 데이터 (회사 · 현장 · 번호는 모두 가상). 기준일 2026-11-13(금) 16:00
         const REQUESTS = [
             { no:'TA-20261113-002', company:'그린모터스',        campaign:'연말 중고차 특가전',  media:['KT','TMAP'],             industry:'CAR',         send:'2026-11-27', status:'RECEIVED',         due:'11/16(월) 11:30', over:false, soon:false, pending:1, received:'2026-11-13 11:30' },
-            { no:'TA-20261113-001', company:'(주)한빛분양마케팅', campaign:'고덕 한빛 리버뷰',    media:['SKT','ZIGBANG'],         industry:'REALESTATE',  send:'2026-11-20', status:'AUDIENCE_REPLIED', due:'11/16(월) 15:20', over:false, soon:false, pending:1, received:'2026-11-13 09:12' },
+            { no:'TA-20261113-001', company:'(주)한빛분양마케팅', campaign:'고덕 한빛 리버뷰',    media:['SKT','ZIGBANG'],         industry:'REALESTATE',  send:'2026-11-20', status:'AUDIENCE_REPLIED', due:'11/16(월) 15:20', over:false, soon:false, pending:1, q:{ n:1, need:true, note:'답변 필요 · CJ 확인 필요' }, received:'2026-11-13 09:12' },
             { no:'TA-20261112-002', company:'라온교육',          campaign:'겨울방학 특강 모집',  media:['OKCASHBAG'],             industry:'EDU',         send:'2026-11-26', status:'PAYMENT_WAIT',     due:'11/15(일) 23:59', over:false, soon:false, pending:0, received:'2026-11-12 14:05' },
             { no:'TA-20261112-001', company:'(주)서해개발',      campaign:'서산 골드클래스 2차', media:['ZIGBANG','KAKAOPAY'],    industry:'REALESTATE',  send:'2026-11-24', status:'CJ_REQUESTED',     due:'11/16(월) 10:00', over:false, soon:false, pending:0, received:'2026-11-12 09:40' },
             { no:'TA-20261111-002', company:'스타일몰',          campaign:'블랙프라이데이 기획전', media:['SSGPOINT'],            industry:'FASHION',     send:'2026-11-21', status:'CREATIVE_REVIEW',  due:'11/13(금) 10:00', over:true,  soon:false, pending:0, received:'2026-11-11 16:22' },
             { no:'TA-20261111-001', company:'(주)온누리분양',    campaign:'김해 온누리 풍경채움', media:['CARD_SAMSUNG'],         industry:'REALESTATE',  send:'2026-11-19', status:'CREATIVE_FIX',     due:'11/13(금) 09:00', over:true,  soon:false, pending:1, received:'2026-11-11 10:18' },
+            { no:'TA-20261110-003', company:'(주)한빛분양마케팅', campaign:'평택 한빛 더퍼스트',  media:['ZIGBANG','KAKAOPAY'],    industry:'REALESTATE',  send:'2026-11-24', status:'QUOTED',           due:'11/16(월) 17:00', over:false, soon:false, pending:0, q:{ n:1, need:true,  note:'환불 질문 · 답변 필요' }, received:'2026-11-10 10:41' },
             { no:'TA-20261110-002', company:'바른건강',          campaign:'겨울 홍삼 기획전',    media:['CJONE','LPOINT'],        industry:'HEALTH_FOOD', send:'2026-11-25', status:'QUOTED',           due:'11/13(금) 17:00', over:false, soon:true,  pending:0, received:'2026-11-10 13:50' },
             { no:'TA-20261110-001', company:'(주)남부하우징',    campaign:'부산 명지 하늘채움',  media:['KAKAOPAY'],              industry:'REALESTATE',  send:'2026-11-18', status:'TEST_CHECK',       due:'11/17(화) 18:00', over:false, soon:false, pending:1, received:'2026-11-10 09:03' },
             { no:'TA-20261106-001', company:'여행공방',          campaign:'제주 겨울 패키지',    media:['CARD_KB'],               industry:'TRAVEL',      send:'2026-11-16', status:'SCHEDULED',        due:'11/16(월) 10:00', over:false, soon:false,  pending:0, received:'2026-11-06 15:31' },
             { no:'TA-20261105-001', company:'(주)한강부동산',    campaign:'청량리 한강 시티',    media:['CARD_SHINHAN'],          industry:'REALESTATE',  send:'2026-11-06', status:'SENT',             due:'11/12(목) 18:00', over:true,  soon:false, pending:0, received:'2026-10-29 11:12' },
-            { no:'TA-20261104-001', company:'스마일치과',        campaign:'임플란트 상담 이벤트', media:['SKT'],                  industry:'STORE',       send:'2026-11-10', status:'REPORTED',         due:'-',               over:false, soon:false, pending:0, received:'2026-11-04 10:20' },
+            { no:'TA-20261104-002', company:'스마일치과',        campaign:'임플란트 상담 이벤트', media:['SKT'],                  industry:'STORE',       send:'2026-11-10', status:'REPORTED',         due:'-',               over:false, soon:false, pending:0, received:'2026-11-04 16:20' },
+            { no:'TA-20261104-001', company:'(주)한빛분양마케팅', campaign:'동탄 한빛 오피스텔',  media:['SKT','ZIGBANG','CARD_SAMSUNG'], industry:'REALESTATE', send:'2026-11-18', status:'TEST_CHECK', due:'11/17(화) 17:00', over:false, soon:false, pending:1, q:{ n:1, need:false, note:'답 초안 있음 (확인함 승인 대기)' }, received:'2026-11-04 15:02' },
             { no:'TA-20261103-001', company:'(주)대성분양',      campaign:'오산 세교 센트럴',    media:['LGU','RECOMMEND'],       industry:'REALESTATE',  send:'2026-11-30', status:'ON_HOLD',          due:'-',               over:false, soon:false, pending:0, received:'2026-11-03 17:45' },
             { no:'TA-20261102-001', company:'코인나우',          campaign:'신규 가입 이벤트',    media:['NICE'],                  industry:'CRYPTO',      send:'2026-11-12', status:'CANCELED',         due:'-',               over:false, soon:false, pending:0, received:'2026-11-02 12:00' },
             { no:'TA-20261028-001', company:'(주)동탄하우스',    campaign:'동탄 레이크 파크',    media:['SKT','KT'],              industry:'REALESTATE',  send:'2026-11-03', status:'CLOSED',           due:'-',               over:false, soon:false, pending:0, received:'2026-10-28 09:30' }
@@ -237,7 +250,7 @@
                     <tr class="${r.over ? 'row-over' : ''}" style="cursor:pointer;" onclick="location.href='target-ad-request-detail.html?no=${r.no}'">
                         <td><a href="target-ad-request-detail.html?no=${r.no}" class="ta-mono" style="color:var(--admin-primary);font-weight:600;text-decoration:none;">${r.no}</a></td>
                         <td>${r.company}</td>
-                        <td class="wrap">${r.campaign}</td>
+                        <td class="wrap">${r.campaign}${r.q ? `<a href="target-ad-request-detail.html?no=${r.no}#secTimeline" class="ta-q ${r.q.need ? 'need' : ''}" title="미답변 고객 질문 · ${r.q.note}">질문 ${r.q.n}</a>` : ''}</td>
                         <td class="wrap">${r.media.map(m => `<span class="ta-media">${MEDIA[m]}</span>`).join('')}</td>
                         <td>${fmtDate(r.send)}</td>
                         <td><span class="ta-status ${STATUS[r.status].cls}">${STATUS[r.status].name}</span></td>
@@ -258,6 +271,7 @@
             const from = document.getElementById('startDate').value;
             const to = document.getElementById('endDate').value;
             const over = document.getElementById('overdueOnly').checked;
+            const qOnly = document.getElementById('questionOnly').checked;
             const rows = REQUESTS.filter(r => {
                 if (q && !(r.no.toLowerCase().includes(q) || r.company.toLowerCase().includes(q) || r.campaign.toLowerCase().includes(q))) return false;
                 if (st && r.status !== st) return false;
@@ -267,6 +281,7 @@
                 if (from && d < from) return false;
                 if (to && d > to) return false;
                 if (over && !r.over) return false;
+                if (qOnly && !r.q) return false;
                 return true;
             });
             renderRows(rows);
@@ -278,15 +293,20 @@
             document.getElementById('startDate').value = '2026-10-14';
             document.getElementById('endDate').value = '2026-11-13';
             document.getElementById('overdueOnly').checked = false;
+            document.getElementById('questionOnly').checked = false;
             applyFilter();
         }
 
         document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyFilter(); });
-        ['statusFilter','mediaFilter','industryFilter','dateBasis','startDate','endDate','overdueOnly'].forEach(id =>
+        ['statusFilter','mediaFilter','industryFilter','dateBasis','startDate','endDate','overdueOnly','questionOnly'].forEach(id =>
             document.getElementById(id).addEventListener('change', applyFilter));
         document.getElementById('statCardOver').style.cursor = 'pointer';
         document.getElementById('statCardOver').addEventListener('click', () => {
             document.getElementById('overdueOnly').checked = true; applyFilter();
+        });
+        document.getElementById('statCardQuestion').style.cursor = 'pointer';
+        document.getElementById('statCardQuestion').addEventListener('click', () => {
+            document.getElementById('questionOnly').checked = true; applyFilter();
         });
 
         renderRows(REQUESTS);
@@ -337,7 +357,8 @@
                     '【집계 기준】',
                     '• QUOTED + PAYMENT_WAIT + CREATIVE_FIX + TEST_CHECK',
                     '【운영】',
-                    '• 고객 응답은 마이페이지 버튼(POST /target-ad/requests/:no/replies)으로만 들어오며, 들어오면 상태가 자동으로 바뀜'
+                    '• 고객 응답은 마이페이지 버튼(POST /target-ad/requests/:no/replies)으로만 들어오며, 들어오면 상태가 자동으로 바뀜',
+                    '• 단, 질문(type: QUESTION)은 상태를 바꾸지 않음 → 「새 고객 질문」 카드로 따로 셈'
                 ]
             },
             {
@@ -357,10 +378,30 @@
                     '• 상태별 기한 값은 〔CJ〕〔결정〕 확정 전 임시값'
                 ]
             },
+            {
+                selector: '#statCardQuestion',
+                title: '5. 새 고객 질문',
+                position: { top: '-10px', left: '-10px' },
+                description: '통계 카드 (Stat Card)',
+                function: '고객이 마이페이지에서 남긴 질문 중 아직 답이 나가지 않은 수',
+                behavior: [
+                    '【집계 기준 (미답변 질문)】',
+                    '• target_ad_message 중 category_cd = CUSTOMER_QUESTION (direction IN · actor CUSTOMER · channel MYPAGE)',
+                    '• 그 질문을 근거(draft_of_id)로 한 OUT 메시지가 아직 발송되지 않은 것 (초안이 PENDING 이거나 초안이 없음)',
+                    '• 끝난 상태(CANCELED · CLOSED) 신청도 포함 (질문이 남아 있으면 답해야 함)',
+                    '【보조 문구】',
+                    '• 답변 필요(초안 없음) 수 · 답 초안(확인함 승인 대기) 수',
+                    '【동작】',
+                    '• 카드 클릭 → 「미답변 질문만」 체크 후 목록 재조회',
+                    '• 답변 필요 질문은 운영자에게 TA_OP_QUESTION 알림이 감 (확인함 화면설계 참고)',
+                    '【비고】',
+                    '• 질문은 신청 상태를 바꾸지 않으므로 다른 카드(상태별 집계)와 겹쳐 셀 수 있음'
+                ]
+            },
             // ===== 검색 · 필터 =====
             {
                 selector: '#searchInput',
-                title: '5. 검색어',
+                title: '6. 검색어',
                 position: { top: '-10px', left: '-10px' },
                 description: '텍스트 입력 (Input Text)',
                 function: '접수번호 · 상호 · 현장/캠페인명 부분 일치 검색',
@@ -374,7 +415,7 @@
             },
             {
                 selector: '#statusFilter',
-                title: '6. 상태 필터',
+                title: '7. 상태 필터',
                 position: { top: '-10px', left: '-10px' },
                 description: '셀렉트 박스 (Select)',
                 function: '설계서 3장 상태 코드 14개를 운영자용 이름으로 골라 보기',
@@ -391,7 +432,7 @@
             },
             {
                 selector: '#mediaFilter',
-                title: '7. 매체 필터',
+                title: '8. 매체 필터',
                 position: { top: '-10px', left: '-10px' },
                 description: '셀렉트 박스 (Select)',
                 function: '신청의 매체별 줄(target_ad_request_media) 중 하나라도 해당 매체가 있으면 표시',
@@ -403,7 +444,7 @@
             },
             {
                 selector: '#industryFilter',
-                title: '8. 업종 필터',
+                title: '9. 업종 필터',
                 position: { top: '-10px', left: '-10px' },
                 description: '셀렉트 박스 (Select)',
                 function: '공통코드 TARGET_AD_INDUSTRY 기준 업종 필터',
@@ -414,7 +455,7 @@
             },
             {
                 selector: '#dateBasis',
-                title: '9. 기간',
+                title: '10. 기간',
                 position: { top: '-10px', left: '-10px' },
                 description: '셀렉트 박스 + 날짜 입력 2개 (Select + Date)',
                 function: '접수일 또는 희망 발송일(1순위) 기준 기간 조회',
@@ -428,7 +469,7 @@
             },
             {
                 selector: '.ta-check',
-                title: '10. 기한 초과만',
+                title: '11. 기한 초과만',
                 position: { top: '-12px', left: '-10px' },
                 description: '체크박스 (Checkbox)',
                 function: '현재 상태 기한을 넘긴 신청만 보기',
@@ -438,10 +479,23 @@
                     '• 「기한 초과」 통계 카드를 눌러도 체크됨'
                 ]
             },
+            {
+                selector: '#questionOnlyWrap',
+                title: '12. 미답변 질문만',
+                position: { top: '-12px', left: '-10px' },
+                description: '체크박스 (Checkbox)',
+                function: '미답변 고객 질문이 있는 신청만 보기',
+                behavior: [
+                    '【동작】',
+                    '• 체크하면 unansweredQuestion=true 로 조회. 다른 필터와 함께 적용',
+                    '• 「새 고객 질문」 통계 카드를 눌러도 체크됨',
+                    '• [초기화]로 해제'
+                ]
+            },
             // ===== 목록 =====
             {
                 selector: '#taListCard',
-                title: '11. 신청 목록',
+                title: '13. 신청 목록',
                 position: { top: '-10px', left: '-10px' },
                 description: '테이블 (Table)',
                 function: '타겟 광고 신청 목록. 행 클릭 시 신청 상세(target-ad-request-detail.html)로 이동',
@@ -452,10 +506,13 @@
                     '• 기한을 넘긴 행은 배경을 붉게, 기한 칸에 「초과」 표시',
                     '• 기한이 오늘 안에 끝나면 주황 글씨',
                     '• 확인 대기: 확인함에서 승인 대기 중인(approval_cd = PENDING) 메시지 수. 0이면 회색',
+                    '• 질문 배지: 현장/캠페인명 옆 「질문 N」 = 미답변 고객 질문 수. 답변 필요(초안 없음)가 하나라도 있으면 빨강, 답 초안만 있으면 파랑. 누르면 신청 상세 메시지 기록으로 이동',
+                    '• 마우스를 올리면 상태 설명 (예: 답변 필요 · CJ 확인 필요)',
                     '【정렬 · 페이지】',
                     '• 기본 정렬: 접수일 최신순, 한 페이지 20건',
                     '【API】',
-                    '• GET /admin/target-ad/requests?status=&media=&industry=&from=&to=&dateBasis=&overdue=&q=&page='
+                    '• GET /admin/target-ad/requests?status=&media=&industry=&from=&to=&dateBasis=&overdue=&unansweredQuestion=&q=&page=',
+                    '• 행마다 unanswered_question_cnt, needs_answer(초안 없는 질문 있음) 포함'
                 ]
             }
         ];

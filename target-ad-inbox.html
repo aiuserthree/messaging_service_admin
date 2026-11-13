@@ -35,20 +35,21 @@
                     <div class="card-header flex-between">
                         <div>
                             <h3 class="card-title">사람 확인 단계</h3>
-                            <div class="card-description">밖으로 나가는 메시지 가운데 운영자가 확인할 범위. 지금은 「처음」 단계라 모두 확인합니다.</div>
+                            <div class="card-description">밖으로 나가는 메시지 가운데 운영자가 확인할 범위. 지금은 「처음」 단계라 고객 질문 답까지 모두 확인합니다.</div>
                         </div>
                         <div class="ta-muted">누적 승인 6건 · 고쳐서 보낸 비율 33% (2/6)</div>
                     </div>
                     <div class="table-container">
                         <table class="ta-stage-table">
-                            <thead><tr><th>단계</th><th>CJ 전송</th><th>고객 견적 안내</th><th>고객 일반 안내 (문구 수정 · 테스트 · 리포트)</th></tr></thead>
+                            <thead><tr><th>단계</th><th>CJ 전송</th><th>고객 견적 안내</th><th>고객 일반 안내 (문구 수정 · 테스트 · 리포트)</th><th>고객 질문 답</th></tr></thead>
                             <tbody>
-                                <tr class="current"><td>처음 (첫 몇 건)<span class="now">현재</span></td><td class="ta-confirm">확인</td><td class="ta-confirm">확인</td><td class="ta-confirm">확인</td></tr>
-                                <tr><td>안정화</td><td class="ta-auto">자동 (슬랙일 때)</td><td class="ta-confirm">확인</td><td class="ta-auto">자동</td></tr>
-                                <tr><td>이후</td><td class="ta-auto">자동</td><td>판매 단가 규칙 안이면 <span class="ta-auto">자동</span></td><td class="ta-auto">자동</td></tr>
+                                <tr class="current"><td>처음 (첫 몇 건)<span class="now">현재</span></td><td class="ta-confirm">확인</td><td class="ta-confirm">확인</td><td class="ta-confirm">확인</td><td class="ta-confirm">확인</td></tr>
+                                <tr><td>안정화</td><td class="ta-auto">자동 (슬랙일 때)</td><td class="ta-confirm">확인</td><td class="ta-auto">자동</td><td>규칙 근거가 있으면 <span class="ta-auto">자동</span></td></tr>
+                                <tr><td>이후</td><td class="ta-auto">자동</td><td>판매 단가 규칙 안이면 <span class="ta-auto">자동</span></td><td class="ta-auto">자동</td><td class="ta-auto">자동</td></tr>
                             </tbody>
                         </table>
                     </div>
+                    <div class="ta-muted" style="margin-top:10px;">고객 질문 답은 단계와 상관없이 <b class="ta-confirm">금액 · 환불 · 취소 · 법적 문제</b>면 항상 운영자가 확인합니다 (답 초안을 만들지 않고 「답변 필요」로 올림).</div>
                 </div>
 
                 <div class="ta-inbox">
@@ -56,8 +57,8 @@
                     <div class="card ta-inbox-list" id="inboxList">
                         <div class="card-header">
                             <div class="flex-between" style="margin-bottom:10px;">
-                                <h3 class="card-title" style="font-size:16px;">승인 대기 <span class="ta-count">5</span></h3>
-                                <span class="ta-muted">오래된 순</span>
+                                <h3 class="card-title" style="font-size:16px;">승인 대기 <span class="ta-count">8</span></h3>
+                                <span class="ta-muted">오래된 순 · 답변 필요 2 포함</span>
                             </div>
                             <select class="form-control sm" id="kindFilter" onchange="filterKind(this.value)">
                                 <option value="">종류 (전체)</option>
@@ -65,8 +66,15 @@
                                 <option value="quote">고객 견적 안내</option>
                                 <option value="fix">문구 수정 안내</option>
                                 <option value="test">테스트 확인 요청</option>
+                                <option value="question">고객 질문</option>
                                 <option value="etc">기타</option>
                             </select>
+                            <div class="ta-q-summary" id="questionSummary">
+                                <span>고객 질문 <b>3</b></span>
+                                <span class="ta-flag need">답변 필요 2</span>
+                                <span class="ta-flag cj">CJ 확인 필요 1</span>
+                                <a href="#" onclick="document.getElementById('kindFilter').value='question';filterKind('question');return false;">질문만 보기</a>
+                            </div>
                         </div>
                         <div id="inboxItems"></div>
                     </div>
@@ -94,7 +102,7 @@
                         </div>
 
                         <div class="ta-block form-group" id="editWrap" style="margin-bottom:0;">
-                            <label class="form-label">초안 편집 <span class="ta-muted" style="font-weight:400;">· 고치면 「수정 후 발송」으로 보냅니다 (EDITED)</span></label>
+                            <label class="form-label" id="editLabel">초안 편집 <span class="ta-muted" style="font-weight:400;">· 고치면 「수정 후 발송」으로 보냅니다 (EDITED)</span></label>
                             <textarea class="form-control" id="draftEdit" oninput="onEdit()"></textarea>
                         </div>
 
@@ -108,6 +116,7 @@
                                 <span class="ta-muted" id="sendTo"></span>
                                 <div class="ta-actions">
                                     <button class="btn btn-outline" onclick="openModal('rejectModal')">반려</button>
+                                    <button class="btn btn-outline" id="btnAskCj" onclick="openAskCj()" style="display:none;">CJ에 묻기</button>
                                     <button class="btn btn-warning" id="btnEditSend" onclick="send('EDITED')" disabled>수정 후 발송</button>
                                     <button class="btn btn-primary" id="btnApprove" onclick="send('APPROVED')">승인 후 발송</button>
                                 </div>
@@ -145,6 +154,27 @@
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="closeModal('rejectModal')">닫기</button>
                 <button class="btn btn-danger" onclick="reject()">반려</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CJ에 묻기 모달 -->
+    <div class="modal" id="askCjModal">
+        <div class="modal-content" style="max-width:560px;">
+            <div class="modal-header">
+                <h3 class="modal-title">CJ에 묻기</h3>
+                <button class="modal-close" onclick="closeModal('askCjModal')">&times;</button>
+            </div>
+            <p style="font-size:13px;color:var(--admin-text-secondary);margin-bottom:12px;">고객 질문을 CJ에 확인하는 회신 초안입니다. 고객 이름 · 연락처는 넣지 않고, 머리에 [톡벨 접수번호]를 붙입니다.</p>
+            <div class="form-group">
+                <label class="form-label">CJ 회신 초안</label>
+                <textarea class="form-control" id="askCjText" rows="7" style="font-size:13px;line-height:1.7;"></textarea>
+            </div>
+            <ul class="ta-checks" id="askCjChecks"></ul>
+            <div class="ta-alert info" style="margin-top:8px;">카카오톡은 자동 연동이 안 되므로 복사해 붙여 넣고 「보냈음 기록」으로 남깁니다. 질문은 「CJ 회신 대기」로 확인함에 남고, CJ 답이 오면 그 답을 근거로 고객 답 초안이 만들어집니다.</div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('askCjModal')">닫기</button>
+                <button class="btn btn-primary" onclick="askCjSend()">복사하고 보냈음 기록</button>
             </div>
         </div>
     </div>
@@ -228,6 +258,41 @@
                 blocked: false, sendTo: '보낼 곳: 고객 · 알림톡(TA_CREATIVE_FIX) + 마이페이지'
             },
             {
+                id: 106, kind: 'question', kindName: '고객 질문', no: 'TA-20261104-001', company: '(주)한빛분양마케팅', campaign: '동탄 한빛 오피스텔',
+                waited: '1시간 20분', conf: null, lowConf: false, link: '이 신청',
+                flags: [{ c: 'ok', t: '규칙으로 답 초안' }], needAnswer: false, needsCj: false,
+                srcTitle: '근거: 고객 질문 (마이페이지 · 11/13 14:40)', srcMeta: 'CUSTOMER_QUESTION',
+                src: `리포트는 언제 받을 수 있나요? 클릭 수도 나오나요?
+
+──────────
+접수번호: TA-20261104-001
+받은 시각: 2026-11-13 14:40
+채널: 마이페이지 (질문 보내기)
+신청 상태: 테스트 확인 (질문으로 바뀌지 않음)`,
+                draftTitle: '초안: 고객 질문 답', draftMeta: '중계 에이전트 · 근거 규칙 4개',
+                draft: `[톡벨] 동탄 한빛 오피스텔 질문 답변 (TA-20261104-001)
+
+결과 리포트는 발송 후 영업일 4일 안에 마이페이지로 드립니다.
+11/18(수)에 발송되면 11/24(화)까지 받으실 수 있습니다.
+리포트에는 매체별 발송 건수와 성공 건수가 들어갑니다.
+클릭 수는 삼성카드는 제공되지 않고, SKT · 직방은 확인 후 안내드리겠습니다.`,
+                hl: [],
+                exHead: ['근거 규칙', '내용', '출처'],
+                exRows: [['리포트 시점', '발송 후 영업일 4일 안', 'CJ 회신 11/12 · 안내 원칙'], ['리포트 항목', '매체별 발송 · 성공 건수, 클릭 수(제공 매체만)', 'CJ 리포트 양식'], ['클릭 수 · 삼성카드', '미제공', '매체 규칙표 · CARD_SAMSUNG'], ['클릭 수 · SKT · 직방', '미확인 → 확인 후 안내', '매체 규칙표 (값 없음)']],
+                checks: [
+                    { r: 'ok', t: '금지 표현 없음' },
+                    { r: 'ok', t: '개인정보 없음' },
+                    { r: 'ok', t: '숫자 근거: 영업일 4일은 근거 규칙, 11/24는 발송 예정일 11/18에서 영업일로 계산' },
+                    { r: 'ok', t: '미확인 값(SKT · 직방 클릭 수)은 "확인 후 안내"로 둠' },
+                    { r: 'ok', t: '금액 · 환불 · 취소 · 법적 문제 아님 → 규칙 답 초안 허용 (처음 단계라 운영자 확인)' }
+                ],
+                cjAsk: `[톡벨 TA-20261104-001] 확인 요청
+- 매체사: SKT, 직방
+- 현장명: 동탄 한빛 오피스텔
+- 문의: 리포트에 클릭 수가 제공되는지 확인 부탁드립니다.`,
+                blocked: false, sendTo: '보낼 곳: 고객 · 마이페이지 안내 기록 + 알림톡(TA_ANSWERED) · 신청 상태는 그대로 (테스트 확인)'
+            },
+            {
                 id: 103, kind: 'test', kindName: '테스트 확인 요청', no: 'TA-20261110-001', company: '(주)남부하우징', campaign: '부산 명지 하늘채움',
                 waited: '55분', conf: 0.96, lowConf: false, link: '이 신청',
                 srcTitle: '근거: CJ 메시지 (카카오톡 · 15:03)', srcMeta: '분류 TEST_SENT · 0.96',
@@ -309,12 +374,74 @@
                     { r: 'ok', t: '개인정보 없음' }
                 ],
                 blocked: true, sendTo: '보낼 곳: 고객 · 알림톡 + 마이페이지 (연결한 신청의 고객)'
+            },
+            {
+                id: 107, kind: 'question', kindName: '고객 질문', no: 'TA-20261113-001', company: '(주)한빛분양마케팅', campaign: '고덕 한빛 리버뷰',
+                waited: '15분', conf: null, lowConf: false, link: '이 신청',
+                flags: [{ c: 'need', t: '답변 필요' }, { c: 'cj', t: 'CJ 확인 필요' }], needAnswer: true, needsCj: true,
+                srcTitle: '근거: 고객 질문 (마이페이지 · 11/13 15:45)', srcMeta: 'CUSTOMER_QUESTION',
+                src: `무주택자만 골라서 보낼 수 있나요?
+
+──────────
+접수번호: TA-20261113-001
+받은 시각: 2026-11-13 15:45
+채널: 마이페이지 (질문 보내기)
+신청 상태: 모수 회신 (질문으로 바뀌지 않음)`,
+                draftTitle: '초안 없음: 답변 필요', draftMeta: '중계 에이전트 판단',
+                draft: '',
+                needReason: '매체 규칙표 · 안내 원칙에 「무주택 여부」 타겟 규칙이 없습니다. 매체에서 가능한지 CJ 확인이 필요합니다 (needs_cj). 11/13 모수확인 요청의 추가 요청 줄에 적었지만 CJ 회신(15:20)에는 답이 없었습니다.',
+                hl: [],
+                exHead: ['판단', '내용'],
+                exRows: [['규칙으로 답할 수 있는지', '아니오 · 규칙표에 무주택 조건 없음'], ['CJ 확인', '필요 · 특정 타겟 조건의 가능 여부'], ['관련 기록', '챗봇 메모 「무주택자 조건: 매체 확인 필요」 · CJ 회신 15:20에 답 없음']],
+                checks: [
+                    { r: 'ng', t: '답: 아직 작성하지 않음 → 작성 전에는 발송 불가' },
+                    { r: 'wa', t: '단정 금지: CJ 답을 받기 전에는 「가능합니다」라고 쓰지 않음. 먼저 [CJ에 묻기]' },
+                    { r: 'ok', t: '개인정보: 작성한 답에 전화번호 · 이메일 패턴이 있으면 차단' },
+                    { r: 'ok', t: '금지 표현: 작성한 답을 다시 검사' }
+                ],
+                cjAsk: `[톡벨 TA-20261113-001] 조건 확인 요청
+- 매체사: SKT, 직방
+- 현장명: 고덕 한빛 리버뷰
+- 문의: 무주택자만 골라서 발송할 수 있는지 매체별로 확인 부탁드립니다.
+  (11/13 모수 확인 요청의 추가 요청 줄에 적었으나 회신에 없어 다시 여쭙니다)`,
+                blocked: true, sendTo: '보낼 곳: 고객 · 마이페이지 안내 기록 + 알림톡(TA_ANSWERED) · 신청 상태는 그대로 (모수 회신)'
+            },
+            {
+                id: 108, kind: 'question', kindName: '고객 질문', no: 'TA-20261110-003', company: '(주)한빛분양마케팅', campaign: '평택 한빛 더퍼스트',
+                waited: '8분', conf: null, lowConf: false, link: '이 신청',
+                flags: [{ c: 'need', t: '답변 필요' }, { c: 'always', t: '항상 확인 · 환불' }], needAnswer: true, needsCj: false,
+                srcTitle: '근거: 고객 질문 (마이페이지 · 11/13 15:52)', srcMeta: 'CUSTOMER_QUESTION',
+                src: `결제 후에 취소하면 환불되나요?
+
+──────────
+접수번호: TA-20261110-003
+받은 시각: 2026-11-13 15:52
+채널: 마이페이지 (질문 보내기)
+신청 상태: 견적 안내 · 결제 전 (질문으로 바뀌지 않음)`,
+                draftTitle: '초안 없음: 답변 필요', draftMeta: '중계 에이전트 판단',
+                draft: '',
+                needReason: '환불 · 취소 질문은 단계와 상관없이 운영자가 직접 답합니다. 그래서 답 초안을 만들지 않았습니다. 결제 후 취소 · 환불 규칙은 아직 〔결정〕 전입니다.',
+                hl: [],
+                exHead: ['판단', '내용'],
+                exRows: [['규칙으로 답할 수 있는지', '아니오 · 환불 · 취소 → 항상 운영자'], ['CJ 확인', '필수 아님 (CJ 선불 이후 환불이 궁금하면 [CJ에 묻기])'], ['현재 상태', '견적 안내 · 결제 전']],
+                checks: [
+                    { r: 'ng', t: '답: 아직 작성하지 않음 → 작성 전에는 발송 불가' },
+                    { r: 'wa', t: '환불 규칙 〔결정〕 전: 정해지지 않은 환불 조건 · 금액을 약속하지 않음. 필요하면 경영지원과 확인' },
+                    { r: 'ok', t: '개인정보: 작성한 답에 전화번호 · 이메일 패턴이 있으면 차단' },
+                    { r: 'ok', t: '금지 표현: 작성한 답을 다시 검사' }
+                ],
+                cjAsk: `[톡벨 TA-20261110-003] 확인 요청
+- 매체사: 직방, 카카오페이
+- 현장명: 평택 한빛 더퍼스트
+- 문의: 결제(선불) 후 발송 전에 취소하면 매체 비용을 돌려받을 수 있는지 확인 부탁드립니다.`,
+                blocked: true, sendTo: '보낼 곳: 고객 · 마이페이지 안내 기록 + 알림톡(TA_ANSWERED) · 신청 상태는 그대로 (견적 안내) · 환불 질문이라 단계와 상관없이 항상 확인'
             }
         ];
 
         let current = null;
 
         function escapeHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+        function flagsHtml(it) { return (it.flags || []).map(f => `<span class="ta-flag ${f.c}">${f.t}</span>`).join(''); }
 
         function renderList() {
             document.getElementById('inboxItems').innerHTML = ITEMS.map(it => `
@@ -326,6 +453,7 @@
                     <div class="ta-mono" style="font-weight:600;">${it.no}</div>
                     <div class="ta-muted" style="margin-top:2px;">${it.company} · ${it.campaign}</div>
                     ${it.lowConf ? `<div style="margin-top:6px;"><span class="ta-lowconf">분류 신뢰도 낮음 ${it.conf}</span></div>` : ''}
+                    ${it.flags ? `<div class="ta-flags">${flagsHtml(it)}</div>` : ''}
                 </div>`).join('');
         }
 
@@ -352,6 +480,7 @@
                         ${it.link ? `<a href="target-ad-request-detail.html?no=${it.no}" class="ta-mono" style="font-weight:700;color:var(--admin-primary);text-decoration:none;">${it.no}</a>` : '<span class="ta-lowconf">연결 안 됨</span>'}
                         <span>${it.company} · ${it.campaign}</span>
                         <span>${it.waited} 대기</span>
+                        ${flagsHtml(it)}
                         ${it.conf !== null ? `<span>분류 신뢰도 ${it.conf}${it.lowConf ? ' <span class="ta-lowconf">낮음</span>' : ''}</span>` : ''}
                     </div>
                     ${it.link ? '' : `<select class="form-control sm" style="width:auto;" onchange="linkRequest(this.value)">
@@ -365,14 +494,29 @@
             document.getElementById('srcBody').innerHTML = highlight(it.src, it.hl.filter(x => it.src.includes(x.t)));
             document.getElementById('draftTitle').textContent = it.draftTitle;
             document.getElementById('draftMeta').textContent = it.draftMeta;
-            document.getElementById('draftBody').innerHTML = highlight(it.draft, it.hl);
+            document.getElementById('draftBody').innerHTML = it.needAnswer
+                ? `<div class="ta-alert warn" style="white-space:normal;"><b>규칙표로 답할 수 없는 질문입니다. 직접 답을 써 주세요.</b><br>${it.needReason}</div>`
+                  + (it.needsCj ? '<div class="ta-alert info" style="white-space:normal;">CJ 확인이 필요한 질문입니다. [CJ에 묻기]로 CJ 회신 초안을 만들 수 있습니다.</div>' : '')
+                : highlight(it.draft, it.hl);
             document.getElementById('extractHead').innerHTML = `<tr>${it.exHead.map(h => `<th>${h}</th>`).join('')}</tr>`;
             document.getElementById('extractBody').innerHTML = it.exRows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('');
-            document.getElementById('draftEdit').value = it.draft;
+            const isQ = it.kind === 'question';
+            const edit = document.getElementById('draftEdit');
+            edit.value = it.draft;
+            edit.placeholder = it.needAnswer ? '규칙표로 답할 수 없는 질문입니다. 직접 답을 써 주세요' : '';
+            document.getElementById('editLabel').innerHTML = !isQ
+                ? '초안 편집 <span class="ta-muted" style="font-weight:400;">· 고치면 「수정 후 발송」으로 보냅니다 (EDITED)</span>'
+                : it.needAnswer
+                    ? '답 작성<span class="ta-req">*</span> <span class="ta-muted" style="font-weight:400;">· 직접 써서 「작성 후 발송」으로 보냅니다 (EDITED, 근거 = 이 질문)</span>'
+                    : '답 초안 편집 <span class="ta-muted" style="font-weight:400;">· 고치면 「수정 후 발송」으로 보냅니다 (EDITED)</span>';
             renderChecks(it.checks);
             document.getElementById('sendTo').textContent = it.sendTo;
-            document.getElementById('btnApprove').disabled = it.blocked;
+            document.getElementById('btnApprove').disabled = it.blocked || it.needAnswer;
             document.getElementById('btnEditSend').disabled = true;
+            document.getElementById('btnEditSend').textContent = it.needAnswer ? '작성 후 발송' : '수정 후 발송';
+            const ask = document.getElementById('btnAskCj');
+            ask.style.display = isQ ? '' : 'none';
+            ask.className = it.needsCj ? 'btn btn-info' : 'btn btn-outline';
         }
 
         function renderChecks(checks) {
@@ -394,12 +538,18 @@
         function onEdit() {
             if (!current) return;
             const edited = document.getElementById('draftEdit').value;
-            const changed = edited !== current.draft;
+            const changed = edited.trim() !== '' && edited !== current.draft;
             document.getElementById('btnEditSend').disabled = !changed;
-            // 다시 검사: 전화번호 · 이메일 패턴
+            // 다시 검사: 전화번호 · 이메일 패턴, 고객 질문 답은 작성 여부 · 금지 표현도
             if (changed) {
                 const pii = /01[016789]-?\d{3,4}-?\d{4}|[\w.+-]+@[\w-]+\.[\w.]+/.test(edited);
-                const checks = current.checks.map(c => c.t.startsWith('개인정보') ? { r: pii ? 'ng' : 'ok', t: pii ? '개인정보: 전화번호 · 이메일 패턴이 남아 있음 → 차단' : '개인정보: 고친 본문에서 전화번호 · 이메일 패턴 없음' } : c);
+                const banned = (edited.match(/반드시|보장|확실히|무조건|100%|틀림없이/g) || []);
+                const checks = current.checks.map(c => {
+                    if (c.t.startsWith('개인정보')) return { r: pii ? 'ng' : 'ok', t: pii ? '개인정보: 전화번호 · 이메일 패턴이 남아 있음 → 차단' : '개인정보: 고친 본문에서 전화번호 · 이메일 패턴 없음' };
+                    if (c.t.startsWith('답:')) return { r: 'ok', t: '답: 운영자가 작성함 → 보내면 EDITED, 근거(draft_of_id)는 이 질문' };
+                    if (c.t.startsWith('금지 표현:')) return banned.length ? { r: 'ng', t: `금지 표현: ${[...new Set(banned)].join(', ')} → 차단` } : { r: 'ok', t: '금지 표현: 작성한 답에서 없음' };
+                    return c;
+                });
                 renderChecks(checks);
                 const stillBlocked = checks.some(c => c.r === 'ng');
                 document.getElementById('btnEditSend').disabled = stillBlocked;
@@ -410,7 +560,41 @@
 
         function send(mode) {
             if (!current) return;
+            if (current.kind === 'question') {
+                showToast(`${mode === 'EDITED' ? '작성 · 수정한 답' : '답 초안'}을 고객에게 보냈습니다 (마이페이지 안내 기록 + 알림톡, ${mode}). 신청 상태는 그대로입니다.`, 'success');
+                return;
+            }
             showToast(mode === 'EDITED' ? '고친 내용으로 보냈습니다. (EDITED 기록)' : '승인하고 보냈습니다. (APPROVED 기록)', 'success');
+        }
+
+        // CJ에 묻기: 고객 질문을 CJ 회신 초안으로 (개인정보 없음, [톡벨 접수번호] 머리)
+        function askCjChecks(text) {
+            const pii = /01[016789]-?\d{3,4}-?\d{4}|[\w.+-]+@[\w-]+\.[\w.]+|님[,\s]/.test(text);
+            const head = /^\[톡벨 TA-\d{8}-\d{3}\]/.test(text.trim());
+            const checks = [
+                { r: head ? 'ok' : 'ng', t: head ? '머리: [톡벨 접수번호] 있음' : '머리: 첫 줄에 [톡벨 접수번호]가 없음 → 차단' },
+                { r: pii ? 'ng' : 'ok', t: pii ? '개인정보: 전화번호 · 이메일 · 고객 이름 패턴 → 차단' : '개인정보: 고객 이름 · 연락처 없음' }
+            ];
+            const label = { ok: '통과', ng: '차단', wa: '주의' };
+            document.getElementById('askCjChecks').innerHTML = checks.map(c => `<li><span class="r ${c.r}">${label[c.r]}</span><span>${c.t}</span></li>`).join('');
+            return checks.every(c => c.r === 'ok');
+        }
+        function openAskCj() {
+            if (!current || current.kind !== 'question') return;
+            const t = document.getElementById('askCjText');
+            t.value = current.cjAsk;
+            t.oninput = () => askCjChecks(t.value);
+            askCjChecks(t.value);
+            openModal('askCjModal');
+        }
+        function askCjSend() {
+            const text = document.getElementById('askCjText').value;
+            if (!askCjChecks(text)) { showToast('차단된 검사가 있어 보낼 수 없습니다.', 'error'); return; }
+            if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
+            closeModal('askCjModal');
+            current.flags = current.flags.filter(f => f.c !== 'cj').concat([{ c: 'cj', t: 'CJ 회신 대기' }]);
+            renderList(); selectItem(current.id);
+            showToast('CJ 회신 초안을 복사하고 「보냈음 기록」을 남겼습니다. CJ 답이 오면 그 답으로 고객 답 초안이 만들어집니다.', 'info');
         }
 
         function reject() {
@@ -435,11 +619,12 @@
                 function: '밖으로 나가는 메시지 중 운영자 확인을 거칠 범위를 단계별로 보여 주고, 지금 단계를 강조',
                 behavior: [
                     '【단계별 규칙 (에이전트 설계 7장)】',
-                    '• 처음(첫 몇 건): CJ 전송 확인 · 고객 견적 안내 확인 · 고객 일반 안내(문구 수정 · 테스트 · 리포트) 확인',
-                    '• 안정화: CJ 전송은 슬랙일 때 자동 · 견적 안내 확인 · 일반 안내 자동',
-                    '• 이후: CJ 전송 자동 · 견적 안내는 판매 단가 규칙 안이면 자동 · 일반 안내 자동',
+                    '• 처음(첫 몇 건): CJ 전송 확인 · 고객 견적 안내 확인 · 고객 일반 안내(문구 수정 · 테스트 · 리포트) 확인 · 고객 질문 답 확인',
+                    '• 안정화: CJ 전송은 슬랙일 때 자동 · 견적 안내 확인 · 일반 안내 자동 · 고객 질문 답은 규칙 근거(매체 규칙표 · 안내 원칙)가 있으면 자동',
+                    '• 이후: CJ 전송 자동 · 견적 안내는 판매 단가 규칙 안이면 자동 · 일반 안내 자동 · 고객 질문 답 자동',
                     '【단계와 상관없이 항상 확인】',
                     '• 견적 금액이 들어간 안내, 취소 · 환불 관련 안내',
+                    '• 금액 · 환불 · 취소 · 법적 문제에 관한 고객 질문: 답 초안을 만들지 않고 「답변 필요」로 올림 (단계 무관)',
                     '• 분류 신뢰도 0.9 미만, 연결 신청 후보가 둘 이상, 발송 전 검사에서 차단이 나온 초안',
                     '【단계 넘어가기】',
                     '• 기준은 운영 사례를 보고 정함. 예: 운영자 수정 없이 보낸 비율 (EDITED 비율)',
@@ -457,16 +642,20 @@
                 function: '확인을 기다리는 초안(approval_cd = PENDING 인 OUT 메시지) 목록',
                 behavior: [
                     '【항목 표시】',
-                    '• 종류: CJ 모수확인 요청 / 고객 견적 안내 / 문구 수정 안내 / 테스트 확인 요청 / 기타',
+                    '• 종류: CJ 모수확인 요청 / 고객 견적 안내 / 문구 수정 안내 / 테스트 확인 요청 / 고객 질문 / 기타',
                     '• 접수번호 (연결 안 됐으면 「연결 안 됨」), 상호 · 현장명, 대기 시간',
                     '• 분류 신뢰도가 0.9 미만이면 붉은 「분류 신뢰도 낮음」 표시',
+                    '• 고객 질문: 「규칙으로 답 초안」(초록) · 「답변 필요」(빨강) · 「CJ 확인 필요」 / 「CJ 회신 대기」(노랑) · 「항상 확인 · 환불」(검정) 표시',
+                    '【대상】',
+                    '• approval_cd = PENDING 인 OUT 초안 + 초안 없이 올라온 미답변 고객 질문(답변 필요)',
+                    '• 머리의 숫자 = 둘을 합친 수 (예시 8 = 초안 6 + 답변 필요 2)',
                     '【정렬 · 필터】',
                     '• 오래 기다린 순. 위 셀렉트로 종류 필터',
                     '【동작】',
                     '• 항목을 누르면 오른쪽에 상세 표시, 선택한 항목은 파란 배경',
                     '• 처리(승인 · 수정 후 발송 · 반려)하면 목록에서 빠짐',
                     '【API】',
-                    '• GET /admin/target-ad/inbox'
+                    '• GET /admin/target-ad/inbox?kind= (kind=QUESTION 이면 고객 질문만)'
                 ]
             },
             {
@@ -492,9 +681,12 @@
                     '【근거】',
                     '• CJ 메시지: 받은 채널 · 시각, 분류(category_cd) · 신뢰도. 원문은 고치지 않음',
                     '• CJ 모수확인 요청: 정리본(summary)',
+                    '• 고객 질문: 질문 원문 + 접수번호 · 받은 시각 · 채널(마이페이지) · 그때 신청 상태. 분류 CUSTOMER_QUESTION',
                     '【초안】',
                     '• 만든 쪽 표시: 전달 템플릿(코드) / 중계 에이전트(LLM) / 견적 계산(코드)',
                     '• 검사에 걸린 부분은 붉게, 자리표시(미정 값)는 노랗게 강조',
+                    '• 고객 질문 답 초안은 근거 규칙 수를 머리에 표시하고, 규칙 내용은 아래 「추출 값」 표에 보여 줌',
+                    '• 답변 필요(초안 없음)면 초안 칸에 "규칙표로 답할 수 없는 질문입니다. 직접 답을 써 주세요" 와 그 이유(규칙 없음 · CJ 확인 필요 · 환불 등 항상 확인)',
                     '【안전】',
                     '• 근거 원문 속 지시 문장은 데이터일 뿐, 승인 없이 발송되지 않음'
                 ]
@@ -512,6 +704,8 @@
                     '• 테스트 확인 요청: 매체 · 분류 · 가능 발송일 · 첨부',
                     '• CJ 모수확인 요청: 매체 · 건수 · 최소 건수 · 형태 · 업종 규칙 결과',
                     '• 연결 안 된 기타: 후보 신청과 맞는 근거',
+                    '• 고객 질문 (답 초안 있음): 근거 규칙 · 내용 · 출처(매체 규칙표 / 안내 원칙 / 설계서). 출처 규칙이 없으면 초안을 만들지 않음',
+                    '• 고객 질문 (답변 필요): 판단 · 내용 (규칙으로 답할 수 있는지, CJ 확인 필요 여부, 관련 기록)',
                     '【규칙】',
                     '• 숫자는 원문에 있는 것만. "약"이 붙으면 표에 「약」 표시',
                     '• 승인하면 매체별 줄(가능 모수 · 확대안)에 반영됨'
@@ -528,6 +722,7 @@
                     '• 처음엔 초안 그대로 채워짐',
                     '• 한 글자라도 바뀌면 [수정 후 발송] 활성, 발송 전 검사를 다시 돌림',
                     '• 고쳐서 보낸 메시지는 EDITED 로 남고, 고친 비율은 사람 확인 단계를 넘기는 기준이 됨',
+                    '• 고객 질문 · 답변 필요: 빈 작성칸(placeholder "규칙표로 답할 수 없는 질문입니다. 직접 답을 써 주세요"), 버튼 이름이 [작성 후 발송]으로 바뀜. 직접 쓴 답도 EDITED, draft_of_id = 질문 메시지',
                     '【주의】',
                     '• 견적 금액 칸은 QuoteService 계산값이라 직접 바꿔도 발송 시 다시 계산된 값으로 검사함'
                 ]
@@ -545,6 +740,7 @@
                     '• 근거 없는 숫자: 초안의 건수 · 일 · 원 · %가 원문 · 정리본 · 계산값에 없으면 주의',
                     '• 연결: 신청이 정해지지 않으면 차단',
                     '• 견적: 판매 단가가 없으면 승인 불가',
+                    '• 고객 질문 답: 답 미작성이면 차단, CJ 확인 필요 질문에 단정 표현(가능합니다 등) 주의, 환불 · 취소 질문은 〔결정〕 전 조건 약속 주의',
                     '【표시】',
                     '• 통과(초록) · 주의(주황) · 차단(빨강). 차단이 하나라도 있으면 [승인 후 발송] 비활성'
                 ]
@@ -562,6 +758,11 @@
                     '• [승인 후 발송]: 초안 그대로 발송, APPROVED. POST /admin/target-ad/inbox/:messageId/approve',
                     '• [수정 후 발송]: 편집한 내용으로 발송, EDITED. 같은 API에 {content} 포함',
                     '• [반려]: 사유를 받아 기록만 남김, REJECTED. POST …/reject {reason}',
+                    '• [CJ에 묻기]: 고객 질문일 때만 보임 (CJ 확인 필요면 파란 강조). CJ 회신 초안 모달을 엶',
+                    '【고객 질문 답】',
+                    '• [승인 후 발송]: 답 초안 그대로. 답변 필요(초안 없음)면 비활성',
+                    '• [수정 후 발송] / [작성 후 발송]: 고치거나 직접 쓴 답. POST /admin/target-ad/inbox/:id/approve {content} → OUT 메시지(draft_of_id = 질문), EDITED',
+                    '• 보낼 곳: 고객 마이페이지 안내 기록(MYPAGE) + 알림톡(TA_ANSWERED 〔결정〕). 질문 · 답은 신청 상태를 바꾸지 않음',
                     '【CJ 카카오톡 전송】',
                     '• 카카오톡은 자동 연동이 안 되므로 승인하면 양식이 복사되고 「보냈음 기록」으로 처리',
                     '【결과】',
@@ -579,7 +780,56 @@
                     '• 반려 사유 필수: 분류가 틀림 / 추출 값이 틀림 / 연결된 신청이 틀림 / 문장이 부적절함 / 보내지 않아도 됨',
                     '• 메모는 선택. 프롬프트 개선에 참고',
                     '【결과】',
-                    '• 아무것도 보내지 않음. 필요하면 신청 상세에서 직접 처리'
+                    '• 아무것도 보내지 않음. 필요하면 신청 상세에서 직접 처리',
+                    '• 고객 질문을 반려하면 질문은 미답변으로 남음 (신청 상세에서 직접 답할 수 있음)'
+                ]
+            },
+            {
+                selector: '#questionSummary',
+                title: '10. 고객 질문 처리 흐름',
+                position: { top: '-12px', left: '-10px' },
+                description: '요약 줄 + 링크 (Summary + Link)',
+                function: '고객이 마이페이지에서 남긴 질문의 수와 처리 흐름. [질문만 보기]는 종류 필터를 「고객 질문」으로 맞춤',
+                behavior: [
+                    '【1. 저장】',
+                    '• 마이페이지 [질문 보내기] → POST /target-ad/requests/:no/replies {type: QUESTION, text}',
+                    '• 그 신청의 메시지 기록(target_ad_message)에 저장: direction IN · actor CUSTOMER · channel MYPAGE · category_cd CUSTOMER_QUESTION',
+                    '【2. 중계 에이전트 판단】',
+                    '• POST /agents/relay/answer {requestId, messageId} → 매체 규칙표 · 안내 원칙으로 답할 수 있는지 판단',
+                    '• 답할 수 있음: 답 초안(OUT, approval_cd PENDING, draft_of_id = 질문)을 만들고 근거 규칙을 붙여 확인함 「고객 질문」으로 올림',
+                    '• 답할 수 없음: 초안 없이 「답변 필요」로 올리고 운영자 알림 TA_OP_QUESTION 발송',
+                    '• CJ 확인이 필요한 질문(예: 특정 타겟 조건 가능 여부): needs_cj = true → 「CJ 확인 필요」 표시, 운영자가 [CJ에 묻기]',
+                    '• 금액 · 환불 · 취소 · 법적 문제: 단계와 상관없이 초안을 만들지 않고 「답변 필요」 + TA_OP_QUESTION',
+                    '【3. 운영자 처리】',
+                    '• 승인 · 수정 · 직접 작성 후 발송 → 고객 마이페이지 안내 기록 + 알림톡. 질문은 신청 상태를 바꾸지 않음',
+                    '【미답변 질문 정의】',
+                    '• CUSTOMER_QUESTION 메시지 중, 그것을 근거(draft_of_id)로 한 OUT 메시지가 아직 발송되지 않은 것',
+                    '• 신청 관리 목록의 「새 고객 질문」 카드 · 「질문 N」 배지와 같은 기준',
+                    '【알림 TA_OP_QUESTION】',
+                    '• 받는 쪽: 타겟 광고 운영자 (기한 초과 알림 TA_OP_OVERDUE 와 같은 경로)',
+                    '• 내용: 접수번호 · 현장명 · 질문 앞 40자 · 판단 이유(규칙 없음 / CJ 확인 필요 / 항상 확인 · 환불 등) · 확인함 링크. 고객 이름 · 연락처는 넣지 않음',
+                    '• 답 초안이 만들어진 질문은 알림을 보내지 않음 (확인함 숫자로만)'
+                ]
+            },
+            {
+                selector: '#askCjModal .modal-content',
+                title: '11. CJ에 묻기 모달',
+                position: { top: '8px', left: '8px' },
+                description: '모달 (Modal)',
+                function: '고객 질문을 CJ에 확인하는 회신 초안을 만들고 보냈음을 기록',
+                behavior: [
+                    '【초안】',
+                    '• 코드 템플릿: 머리 [톡벨 접수번호] · 매체사 · 현장명(분양 아니면 캠페인명) · 문의 한 줄',
+                    '• 고객 질문 원문을 그대로 붙이지 않고 문의 문장으로 바꿈. 고객 이름 · 연락처 · 이메일은 넣지 않음',
+                    '• 운영자가 고칠 수 있고, 고칠 때마다 검사를 다시 돌림',
+                    '【검사】',
+                    '• 첫 줄 [톡벨 TA-YYYYMMDD-NNN] 없으면 차단, 전화번호 · 이메일 · 이름 패턴 있으면 차단',
+                    '【버튼】',
+                    '• [복사하고 보냈음 기록]: 클립보드로 복사 + 기록. 슬랙 연결 후에는 해당 신청 스레드로 바로 전송 〔결정〕',
+                    '• API: POST /admin/target-ad/requests/:id/ask-cj {questionMessageId, content} → OUT 메시지(actor OPERATOR, channel CJ_KAKAO)',
+                    '【이후】',
+                    '• 질문은 미답변으로 남고 표시가 「CJ 회신 대기」로 바뀜',
+                    '• CJ 답이 같은 [톡벨 접수번호]로 오면 중계 분류 후, 중계 에이전트가 CJ 답을 근거로 고객 답 초안(draft_of_id = 질문)을 만들어 확인함에 올림'
                 ]
             }
         ];
