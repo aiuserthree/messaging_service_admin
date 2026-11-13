@@ -1,0 +1,166 @@
+/* 타겟 광고 화면 전용 스타일 (target-ad-*.html 4개 페이지에서만 불러옴)
+   admin-common.css 는 건드리지 않고, 필요한 것만 여기에 둔다. */
+
+/* 셀렉트: 기본 화살표를 끄고 오른쪽 테두리에서 12px 안쪽에 직접 그린다 */
+select,
+select.form-control {
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 8px 36px 8px 12px;
+    cursor: pointer;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23777' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center / 10px 6px;
+}
+select.form-control { padding-top: 10px; padding-bottom: 10px; }
+select.form-control.sm, select.sm { padding: 5px 34px 5px 10px; font-size: 13px; }
+
+/* 상태 배지 (설계서 3장 14개) */
+.ta-status { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.ta-status.s-received { background: #fef3c7; color: #92400e; }
+.ta-status.s-wait { background: #dbeafe; color: #1e40af; }
+.ta-status.s-action { background: #ede9fe; color: #5b21b6; }
+.ta-status.s-customer { background: #ccfbf1; color: #115e59; }
+.ta-status.s-done { background: #d1fae5; color: #065f46; }
+.ta-status.s-hold { background: #e2e8f0; color: #475569; }
+.ta-status.s-cancel { background: #fee2e2; color: #991b1b; }
+
+/* 매체 칩 */
+.ta-media { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; margin: 1px 2px 1px 0; white-space: nowrap; }
+
+/* 기한 */
+.ta-due { font-size: 13px; white-space: nowrap; }
+.ta-due.over { color: #dc2626; font-weight: 700; }
+.ta-due.over::before { content: '초과 '; font-size: 11px; background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 4px; margin-right: 4px; }
+.ta-due.soon { color: #b45309; font-weight: 600; }
+tr.row-over td { background: #fff7f7; }
+
+.ta-count { display: inline-flex; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; background: #ef4444; color: #fff; }
+.ta-count.zero { background: #e2e8f0; color: #64748b; }
+
+.ta-muted { color: var(--admin-text-muted); font-size: 12px; }
+.ta-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+.ta-internal { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: #1e293b; color: #fbbf24; white-space: nowrap; }
+.ta-tbd { color: #94a3b8; font-style: italic; }
+.ta-cj { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; background: #fef3c7; color: #92400e; }
+
+/* 필터 체크 */
+.ta-check { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 12px; border: 1px solid var(--admin-border); border-radius: var(--radius-md); background: #fff; font-size: 14px; cursor: pointer; white-space: nowrap; }
+
+/* 상세 상단 */
+.ta-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+.ta-head-left { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.ta-head-no { font-size: 20px; font-weight: 700; }
+.ta-head-meta { display: flex; flex-wrap: wrap; gap: 16px; color: var(--admin-text-secondary); font-size: 13px; margin-top: 8px; }
+.ta-head-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* 정보 표 (항목/값) */
+.ta-kv { width: 100%; border-collapse: collapse; }
+.ta-kv th { width: 160px; background: #f8fafc; text-transform: none; letter-spacing: 0; font-size: 13px; vertical-align: top; border-bottom: 1px solid var(--admin-border); }
+.ta-kv td { vertical-align: top; }
+.ta-kv tr:hover { background: none; }
+
+.ta-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.ta-section + .ta-section { margin-top: 24px; }
+.ta-sub-title { font-size: 15px; font-weight: 700; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+
+/* 메모 목록 */
+.ta-memo { list-style: none; padding: 0; margin: 0; }
+.ta-memo li { padding: 10px 12px; border-left: 3px solid #f59e0b; background: #fffbeb; border-radius: 4px; margin-bottom: 8px; font-size: 13px; }
+
+/* 표 안 입력 */
+.ta-input-sm { width: 100%; min-width: 80px; padding: 5px 8px; border: 1px solid var(--admin-border); border-radius: 6px; font-size: 13px; }
+.ta-num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* 타임라인 */
+.ta-timeline { position: relative; padding-left: 28px; }
+.ta-timeline::before { content: ''; position: absolute; left: 11px; top: 4px; bottom: 4px; width: 2px; background: var(--admin-border); }
+.ta-tl-item { position: relative; margin-bottom: 14px; }
+.ta-tl-dot { position: absolute; left: -24px; top: 4px; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 1px var(--admin-border); }
+.ta-tl-item.a-customer .ta-tl-dot { background: #0d9488; }
+.ta-tl-item.a-bot .ta-tl-dot { background: #8b5cf6; }
+.ta-tl-item.a-cj .ta-tl-dot { background: #f59e0b; }
+.ta-tl-item.a-operator .ta-tl-dot { background: #1e40af; }
+.ta-tl-item.a-agent .ta-tl-dot { background: #6366f1; }
+.ta-tl-item.a-system .ta-tl-dot { background: #94a3b8; }
+.ta-tl-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; color: var(--admin-text-secondary); margin-bottom: 4px; }
+.ta-tl-body { background: #f8fafc; border: 1px solid var(--admin-border); border-radius: 8px; padding: 10px 12px; font-size: 13px; white-space: pre-wrap; }
+.ta-actor { display: inline-flex; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+.ta-actor.customer { background: #ccfbf1; color: #115e59; }
+.ta-actor.bot { background: #ede9fe; color: #5b21b6; }
+.ta-actor.cj { background: #fef3c7; color: #92400e; }
+.ta-actor.operator { background: #dbeafe; color: #1e40af; }
+.ta-actor.agent { background: #e0e7ff; color: #3730a3; }
+.ta-actor.system { background: #e2e8f0; color: #475569; }
+.ta-channel { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 4px; font-size: 11px; border: 1px solid var(--admin-border); background: #fff; color: #334155; }
+.ta-channel svg { width: 12px; height: 12px; }
+.ta-appr { display: inline-flex; padding: 1px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+.ta-appr.pending { background: #fee2e2; color: #991b1b; }
+.ta-appr.approved { background: #d1fae5; color: #065f46; }
+.ta-appr.edited { background: #fef3c7; color: #92400e; }
+.ta-appr.rejected { background: #e2e8f0; color: #475569; text-decoration: line-through; }
+.ta-appr.auto { background: #e0e7ff; color: #3730a3; }
+
+/* 코드 블록 (전달 양식 미리보기) */
+.ta-pre { background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; line-height: 1.7; white-space: pre-wrap; margin: 0; }
+.ta-pre + .ta-pre { margin-top: 12px; }
+
+/* 경고 · 안내 박스 */
+.ta-alert { padding: 12px 14px; border-radius: 8px; font-size: 13px; line-height: 1.6; }
+.ta-alert + .ta-alert { margin-top: 8px; }
+.ta-alert.warn { background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; }
+.ta-alert.danger { background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; }
+.ta-alert.ok { background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; }
+.ta-alert.info { background: #eff6ff; border: 1px solid #93c5fd; color: #1e40af; }
+
+/* 업로드 영역 */
+.ta-drop { border: 2px dashed #cbd5e1; border-radius: 10px; padding: 20px; text-align: center; color: var(--admin-text-secondary); font-size: 13px; background: #f8fafc; }
+.ta-file { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border: 1px solid var(--admin-border); border-radius: 8px; font-size: 13px; margin-bottom: 8px; background: #fff; }
+
+/* 확인함 2단 */
+.ta-inbox { display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start; }
+.ta-inbox-list { padding: 0; overflow: hidden; }
+.ta-inbox-list .card-header { padding: 16px 20px; margin: 0; }
+.ta-inbox-item { display: block; padding: 14px 20px; border-bottom: 1px solid var(--admin-border); cursor: pointer; }
+.ta-inbox-item:hover { background: #f8fafc; }
+.ta-inbox-item.active { background: #eff6ff; box-shadow: inset 3px 0 0 var(--admin-primary); }
+.ta-inbox-item-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
+.ta-kind { display: inline-flex; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+.ta-kind.k-cj { background: #fef3c7; color: #92400e; }
+.ta-kind.k-quote { background: #fee2e2; color: #991b1b; }
+.ta-kind.k-fix { background: #ede9fe; color: #5b21b6; }
+.ta-kind.k-test { background: #ccfbf1; color: #115e59; }
+.ta-kind.k-etc { background: #e2e8f0; color: #475569; }
+.ta-lowconf { display: inline-flex; padding: 1px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; background: #fee2e2; color: #b91c1c; }
+.ta-side { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.ta-pane { border: 1px solid var(--admin-border); border-radius: 8px; overflow: hidden; }
+.ta-pane-head { padding: 8px 12px; background: #f8fafc; border-bottom: 1px solid var(--admin-border); font-size: 12px; font-weight: 700; color: var(--admin-text-secondary); display: flex; justify-content: space-between; gap: 8px; }
+.ta-pane-body { padding: 12px; font-size: 13px; white-space: pre-wrap; line-height: 1.7; min-height: 180px; }
+.ta-checks { list-style: none; margin: 0; padding: 0; }
+.ta-checks li { display: flex; align-items: flex-start; gap: 8px; padding: 8px 0; border-bottom: 1px dashed var(--admin-border); font-size: 13px; }
+.ta-checks li:last-child { border-bottom: none; }
+.ta-checks .r { flex-shrink: 0; font-weight: 700; width: 44px; }
+.ta-checks .r.ok { color: #059669; }
+.ta-checks .r.ng { color: #dc2626; }
+.ta-checks .r.wa { color: #b45309; }
+.ta-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+mark.ta-hl { background: #fef08a; padding: 0 2px; border-radius: 2px; }
+mark.ta-hl.ng { background: #fecaca; }
+
+/* 필수 표시 */
+.ta-req { color: #dc2626; margin-left: 2px; }
+
+@media (max-width: 1200px) {
+    .ta-grid-2, .ta-side { grid-template-columns: 1fr; }
+    .ta-inbox { grid-template-columns: 1fr; }
+}
+
+/* 목록 표: 줄바꿈 막기 (현장명 칸만 허용) */
+.ta-mono { white-space: nowrap; }
+.ta-table th, .ta-table td { white-space: nowrap; padding: 12px 12px; }
+.ta-table th { text-transform: none; letter-spacing: 0; }
+.ta-table td.wrap { white-space: normal; min-width: 140px; }
+
+/* 넓은 표가 본문 폭을 밀어내지 않도록 (표는 .table-container 안에서 가로 스크롤) */
+.admin-main { min-width: 0; }
+.ta-grid-2 > .ta-pre + .ta-pre { margin-top: 0; }
+/* 오른쪽 아래 「화면설계 보기」 버튼이 마지막 버튼을 가리지 않도록 */
+.admin-content { padding-bottom: 88px; }

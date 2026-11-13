@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>타겟 광고 신청 관리 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+    <link rel="stylesheet" href="css/target-ad.css">
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('target-ad-request-list'));
+        </script>
+
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('타겟 광고 신청 관리'));
+            </script>
+
+            <div class="admin-content">
+                <!-- 통계 카드 -->
+                <div class="stats-grid stats-4" id="taStats">
+                    <div class="stat-card" id="statCardNew">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">신규 접수</div>
+                            <div class="stat-card-icon icon-pending">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-card-value">1건</div>
+                        <div class="stat-card-change"><span>CJ 모수확인 요청 전 · 오늘 접수 2건</span></div>
+                    </div>
+                    <div class="stat-card" id="statCardCj">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">CJ 회신 대기</div>
+                            <div class="stat-card-icon icon-processing">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-card-value">3건</div>
+                        <div class="stat-card-change"><span>모수 확인 1 · 문구 검토 1 · 리포트 1</span></div>
+                    </div>
+                    <div class="stat-card" id="statCardCustomer">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">고객 응답 대기</div>
+                            <div class="stat-card-icon icon-user">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-card-value">4건</div>
+                        <div class="stat-card-change"><span>견적 확정 · 결제 · 문구 수정 · 테스트 확인</span></div>
+                    </div>
+                    <div class="stat-card" id="statCardOver">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">기한 초과</div>
+                            <div class="stat-card-icon icon-fail">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-card-value" style="color:#dc2626;">3건</div>
+                        <div class="stat-card-change negative"><span>클릭하면 기한 초과만 봅니다</span></div>
+                    </div>
+                </div>
+
+                <!-- 검색 및 필터 -->
+                <div class="search-filter-bar" id="taFilter">
+                    <div class="search-box">
+                        <input type="text" class="form-control" id="searchInput" placeholder="접수번호 · 상호 · 현장명 검색">
+                    </div>
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <select class="form-control" id="statusFilter">
+                                <option value="">상태 (전체)</option>
+                                <optgroup label="톡벨 처리">
+                                    <option value="RECEIVED">접수 (CJ 요청 확인 대기)</option>
+                                    <option value="AUDIENCE_REPLIED">모수 회신 (견적 확인 필요)</option>
+                                    <option value="REPORTED">리포트 완료 (정산 대기)</option>
+                                </optgroup>
+                                <optgroup label="CJ 대기">
+                                    <option value="CJ_REQUESTED">모수 확인 요청 (CJ 회신 대기)</option>
+                                    <option value="CREATIVE_REVIEW">문구 검토 (CJ 심의 중)</option>
+                                    <option value="SCHEDULED">발송 예정</option>
+                                    <option value="SENT">발송 완료 (리포트 대기)</option>
+                                </optgroup>
+                                <optgroup label="고객 대기">
+                                    <option value="QUOTED">견적 안내 (고객 확정 대기)</option>
+                                    <option value="PAYMENT_WAIT">결제 대기 (입금 대기)</option>
+                                    <option value="CREATIVE_FIX">문구 수정 중 (고객 수정본 대기)</option>
+                                    <option value="TEST_CHECK">테스트 확인 (고객 확인 대기)</option>
+                                </optgroup>
+                                <optgroup label="곁가지 · 끝">
+                                    <option value="ON_HOLD">보류</option>
+                                    <option value="CANCELED">취소</option>
+                                    <option value="CLOSED">종료</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <select class="form-control" id="mediaFilter">
+                                <option value="">매체 (전체)</option>
+                                <optgroup label="통신사">
+                                    <option value="SKT">SKT</option><option value="KT">KT</option><option value="LGU">LGU+</option>
+                                </optgroup>
+                                <optgroup label="카드사">
+                                    <option value="CARD_KB">KB국민카드</option><option value="CARD_SAMSUNG">삼성카드</option><option value="CARD_BC">BC카드</option><option value="CARD_SHINHAN">신한카드</option><option value="CARD_HANA">하나카드</option><option value="CARD_LOTTE">롯데카드</option><option value="CARD_HYUNDAI">현대카드</option>
+                                </optgroup>
+                                <optgroup label="멤버십">
+                                    <option value="CJONE">CJ ONE</option><option value="LPOINT">롯데멤버스</option><option value="SSGPOINT">신세계포인트</option><option value="OKCASHBAG">OK캐쉬백</option>
+                                </optgroup>
+                                <optgroup label="기타">
+                                    <option value="TMAP">T-MAP</option><option value="ZIGBANG">직방</option><option value="HOGANG">호갱노노</option><option value="KAKAOPAY">카카오페이</option><option value="NICE">NICE</option>
+                                </optgroup>
+                                <option value="RECOMMEND">추천 요청</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <select class="form-control" id="industryFilter">
+                                <option value="">업종 (전체)</option>
+                                <option value="REALESTATE">부동산·분양</option>
+                                <option value="LOAN">금융·대출</option>
+                                <option value="CAR">자동차·중고차</option>
+                                <option value="COMMERCE">커머스·쇼핑</option>
+                                <option value="TRAVEL">숙박·여행</option>
+                                <option value="HEALTH_FOOD">건강기능식품</option>
+                                <option value="FASHION">패션·의류</option>
+                                <option value="EDU">교육</option>
+                                <option value="STORE">매장·서비스</option>
+                                <option value="CRYPTO">가상자산</option>
+                                <option value="ETC">기타</option>
+                            </select>
+                        </div>
+                        <div class="filter-item" style="min-width:130px;">
+                            <select class="form-control" id="dateBasis">
+                                <option value="received">접수일</option>
+                                <option value="send">희망 발송일</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <input type="date" class="form-control" id="startDate" value="2026-10-14">
+                        </div>
+                        <div class="filter-item">
+                            <input type="date" class="form-control" id="endDate" value="2026-11-13">
+                        </div>
+                        <label class="ta-check"><input type="checkbox" id="overdueOnly"> 기한 초과만</label>
+                        <button class="btn btn-primary" onclick="applyFilter()">검색</button>
+                        <button class="btn btn-outline" onclick="resetFilter()">초기화</button>
+                        <button class="btn btn-secondary" onclick="showToast('엑셀 파일 다운로드를 시작합니다. 연락처는 마스킹되어 내려받아집니다.', 'success')">엑셀 다운로드</button>
+                    </div>
+                </div>
+
+                <!-- 신청 목록 -->
+                <div class="card" id="taListCard">
+                    <div class="card-header flex-between">
+                        <div>
+                            <h3 class="card-title">신청 목록</h3>
+                            <div class="card-description">챗봇 상담으로 접수된 타겟 광고 신청. 행을 누르면 신청 상세로 이동합니다.</div>
+                        </div>
+                        <div class="ta-muted" id="resultCount">전체 14건</div>
+                    </div>
+                    <div class="table-container">
+                        <table id="requestTable" class="ta-table">
+                            <thead>
+                                <tr>
+                                    <th>접수번호</th>
+                                    <th>상호</th>
+                                    <th>현장 / 캠페인명</th>
+                                    <th>매체</th>
+                                    <th>희망 발송일</th>
+                                    <th>상태</th>
+                                    <th>상태 기한</th>
+                                    <th title="확인함에서 승인을 기다리는 메시지 수">확인 대기</th>
+                                    <th>접수일</th>
+                                </tr>
+                            </thead>
+                            <tbody id="requestTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/admin-common.js"></script>
+    <script>
+        // 상태 코드 → 운영자용 이름, 배지 색 (설계서 3장)
+        const STATUS = {
+            RECEIVED:         { name: '접수',           cls: 's-received' },
+            CJ_REQUESTED:     { name: '모수 확인 요청', cls: 's-wait' },
+            AUDIENCE_REPLIED: { name: '모수 회신',      cls: 's-action' },
+            QUOTED:           { name: '견적 안내',      cls: 's-customer' },
+            PAYMENT_WAIT:     { name: '결제 대기',      cls: 's-customer' },
+            CREATIVE_REVIEW:  { name: '문구 검토',      cls: 's-wait' },
+            CREATIVE_FIX:     { name: '문구 수정 중',   cls: 's-customer' },
+            TEST_CHECK:       { name: '테스트 확인',    cls: 's-customer' },
+            SCHEDULED:        { name: '발송 예정',      cls: 's-wait' },
+            SENT:             { name: '발송 완료',      cls: 's-wait' },
+            REPORTED:         { name: '리포트 완료',    cls: 's-action' },
+            ON_HOLD:          { name: '보류',           cls: 's-hold' },
+            CANCELED:         { name: '취소',           cls: 's-cancel' },
+            CLOSED:           { name: '종료',           cls: 's-done' }
+        };
+        const MEDIA = { SKT:'SKT', KT:'KT', LGU:'LGU+', CARD_KB:'KB국민카드', CARD_SAMSUNG:'삼성카드', CARD_BC:'BC카드', CARD_SHINHAN:'신한카드', CARD_HANA:'하나카드', CARD_LOTTE:'롯데카드', CARD_HYUNDAI:'현대카드', CJONE:'CJ ONE', LPOINT:'롯데멤버스', SSGPOINT:'신세계포인트', OKCASHBAG:'OK캐쉬백', TMAP:'T-MAP', ZIGBANG:'직방', HOGANG:'호갱노노', KAKAOPAY:'카카오페이', NICE:'NICE', RECOMMEND:'추천 요청' };
+
+        // 목업 데이터 (회사 · 현장 · 번호는 모두 가상). 기준일 2026-11-13(금) 16:00
+        const REQUESTS = [
+            { no:'TA-20261113-002', company:'그린모터스',        campaign:'연말 중고차 특가전',  media:['KT','TMAP'],             industry:'CAR',         send:'2026-11-27', status:'RECEIVED',         due:'11/16(월) 11:30', over:false, soon:false, pending:1, received:'2026-11-13 11:30' },
+            { no:'TA-20261113-001', company:'(주)한빛분양마케팅', campaign:'고덕 한빛 리버뷰',    media:['SKT','ZIGBANG'],         industry:'REALESTATE',  send:'2026-11-20', status:'AUDIENCE_REPLIED', due:'11/16(월) 15:20', over:false, soon:false, pending:1, received:'2026-11-13 09:12' },
+            { no:'TA-20261112-002', company:'라온교육',          campaign:'겨울방학 특강 모집',  media:['OKCASHBAG'],             industry:'EDU',         send:'2026-11-26', status:'PAYMENT_WAIT',     due:'11/15(일) 23:59', over:false, soon:false, pending:0, received:'2026-11-12 14:05' },
+            { no:'TA-20261112-001', company:'(주)서해개발',      campaign:'서산 골드클래스 2차', media:['ZIGBANG','KAKAOPAY'],    industry:'REALESTATE',  send:'2026-11-24', status:'CJ_REQUESTED',     due:'11/16(월) 10:00', over:false, soon:false, pending:0, received:'2026-11-12 09:40' },
+            { no:'TA-20261111-002', company:'스타일몰',          campaign:'블랙프라이데이 기획전', media:['SSGPOINT'],            industry:'FASHION',     send:'2026-11-21', status:'CREATIVE_REVIEW',  due:'11/13(금) 10:00', over:true,  soon:false, pending:0, received:'2026-11-11 16:22' },
+            { no:'TA-20261111-001', company:'(주)온누리분양',    campaign:'김해 온누리 풍경채움', media:['CARD_SAMSUNG'],         industry:'REALESTATE',  send:'2026-11-19', status:'CREATIVE_FIX',     due:'11/13(금) 09:00', over:true,  soon:false, pending:1, received:'2026-11-11 10:18' },
+            { no:'TA-20261110-002', company:'바른건강',          campaign:'겨울 홍삼 기획전',    media:['CJONE','LPOINT'],        industry:'HEALTH_FOOD', send:'2026-11-25', status:'QUOTED',           due:'11/13(금) 17:00', over:false, soon:true,  pending:0, received:'2026-11-10 13:50' },
+            { no:'TA-20261110-001', company:'(주)남부하우징',    campaign:'부산 명지 하늘채움',  media:['KAKAOPAY'],              industry:'REALESTATE',  send:'2026-11-18', status:'TEST_CHECK',       due:'11/17(화) 18:00', over:false, soon:false, pending:1, received:'2026-11-10 09:03' },
+            { no:'TA-20261106-001', company:'여행공방',          campaign:'제주 겨울 패키지',    media:['CARD_KB'],               industry:'TRAVEL',      send:'2026-11-16', status:'SCHEDULED',        due:'11/16(월) 10:00', over:false, soon:false,  pending:0, received:'2026-11-06 15:31' },
+            { no:'TA-20261105-001', company:'(주)한강부동산',    campaign:'청량리 한강 시티',    media:['CARD_SHINHAN'],          industry:'REALESTATE',  send:'2026-11-06', status:'SENT',             due:'11/12(목) 18:00', over:true,  soon:false, pending:0, received:'2026-10-29 11:12' },
+            { no:'TA-20261104-001', company:'스마일치과',        campaign:'임플란트 상담 이벤트', media:['SKT'],                  industry:'STORE',       send:'2026-11-10', status:'REPORTED',         due:'-',               over:false, soon:false, pending:0, received:'2026-11-04 10:20' },
+            { no:'TA-20261103-001', company:'(주)대성분양',      campaign:'오산 세교 센트럴',    media:['LGU','RECOMMEND'],       industry:'REALESTATE',  send:'2026-11-30', status:'ON_HOLD',          due:'-',               over:false, soon:false, pending:0, received:'2026-11-03 17:45' },
+            { no:'TA-20261102-001', company:'코인나우',          campaign:'신규 가입 이벤트',    media:['NICE'],                  industry:'CRYPTO',      send:'2026-11-12', status:'CANCELED',         due:'-',               over:false, soon:false, pending:0, received:'2026-11-02 12:00' },
+            { no:'TA-20261028-001', company:'(주)동탄하우스',    campaign:'동탄 레이크 파크',    media:['SKT','KT'],              industry:'REALESTATE',  send:'2026-11-03', status:'CLOSED',           due:'-',               over:false, soon:false, pending:0, received:'2026-10-28 09:30' }
+        ];
+
+        function fmtDate(d) {
+            const days = ['일','월','화','수','목','금','토'];
+            const dt = new Date(d + 'T00:00:00');
+            return `${d.slice(5).replace('-', '/')}(${days[dt.getDay()]})`;
+        }
+
+        function renderRows(rows) {
+            const body = document.getElementById('requestTableBody');
+            if (!rows.length) {
+                body.innerHTML = '<tr><td colspan="9" class="text-center ta-muted" style="padding:40px;">조건에 맞는 신청이 없습니다.</td></tr>';
+            } else {
+                body.innerHTML = rows.map(r => `
+                    <tr class="${r.over ? 'row-over' : ''}" style="cursor:pointer;" onclick="location.href='target-ad-request-detail.html?no=${r.no}'">
+                        <td><a href="target-ad-request-detail.html?no=${r.no}" class="ta-mono" style="color:var(--admin-primary);font-weight:600;text-decoration:none;">${r.no}</a></td>
+                        <td>${r.company}</td>
+                        <td class="wrap">${r.campaign}</td>
+                        <td class="wrap">${r.media.map(m => `<span class="ta-media">${MEDIA[m]}</span>`).join('')}</td>
+                        <td>${fmtDate(r.send)}</td>
+                        <td><span class="ta-status ${STATUS[r.status].cls}">${STATUS[r.status].name}</span></td>
+                        <td><span class="ta-due ${r.over ? 'over' : r.soon ? 'soon' : ''}">${r.due}</span></td>
+                        <td class="text-center"><span class="ta-count ${r.pending ? '' : 'zero'}">${r.pending}</span></td>
+                        <td class="ta-muted">${r.received}</td>
+                    </tr>`).join('');
+            }
+            document.getElementById('resultCount').textContent = `${rows.length}건 / 전체 ${REQUESTS.length}건`;
+        }
+
+        function applyFilter() {
+            const q = document.getElementById('searchInput').value.trim().toLowerCase();
+            const st = document.getElementById('statusFilter').value;
+            const md = document.getElementById('mediaFilter').value;
+            const ind = document.getElementById('industryFilter').value;
+            const basis = document.getElementById('dateBasis').value;
+            const from = document.getElementById('startDate').value;
+            const to = document.getElementById('endDate').value;
+            const over = document.getElementById('overdueOnly').checked;
+            const rows = REQUESTS.filter(r => {
+                if (q && !(r.no.toLowerCase().includes(q) || r.company.toLowerCase().includes(q) || r.campaign.toLowerCase().includes(q))) return false;
+                if (st && r.status !== st) return false;
+                if (md && !r.media.includes(md)) return false;
+                if (ind && r.industry !== ind) return false;
+                const d = basis === 'send' ? r.send : r.received.slice(0, 10);
+                if (from && d < from) return false;
+                if (to && d > to) return false;
+                if (over && !r.over) return false;
+                return true;
+            });
+            renderRows(rows);
+        }
+
+        function resetFilter() {
+            ['searchInput','statusFilter','mediaFilter','industryFilter'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('dateBasis').value = 'received';
+            document.getElementById('startDate').value = '2026-10-14';
+            document.getElementById('endDate').value = '2026-11-13';
+            document.getElementById('overdueOnly').checked = false;
+            applyFilter();
+        }
+
+        document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyFilter(); });
+        ['statusFilter','mediaFilter','industryFilter','dateBasis','startDate','endDate','overdueOnly'].forEach(id =>
+            document.getElementById(id).addEventListener('change', applyFilter));
+        document.getElementById('statCardOver').style.cursor = 'pointer';
+        document.getElementById('statCardOver').addEventListener('click', () => {
+            document.getElementById('overdueOnly').checked = true; applyFilter();
+        });
+
+        renderRows(REQUESTS);
+        createPagination(1, 1, 'pagination');
+    </script>
+
+    <!-- 화면설계 오버레이 -->
+    <script src="js/spec-overlay.js"></script>
+    <script>
+        const specData = [
+            // ===== 통계 영역 =====
+            {
+                selector: '#statCardNew',
+                title: '1. 신규 접수',
+                position: { top: '-10px', left: '-10px' },
+                description: '통계 카드 (Stat Card)',
+                function: 'CJ에 모수확인 요청을 아직 보내지 않은 신청 수',
+                behavior: [
+                    '【집계 기준】',
+                    '• status_cd = RECEIVED 인 신청 수 (is_del = false)',
+                    '• 보조 문구: 오늘 0시 이후 접수 건수 (상태 무관)',
+                    '【갱신】',
+                    '• 페이지 진입 시 GET /admin/target-ad/requests 의 요약 값으로 표시',
+                    '• 클릭하면 상태 필터를 "접수"로 맞춰 목록을 다시 조회'
+                ]
+            },
+            {
+                selector: '#statCardCj',
+                title: '2. CJ 회신 대기',
+                position: { top: '-10px', left: '-10px' },
+                description: '통계 카드 (Stat Card)',
+                function: 'CJ 쪽 회신·처리를 기다리는 신청 수',
+                behavior: [
+                    '【집계 기준】',
+                    '• CJ_REQUESTED(모수 확인 요청) + CREATIVE_REVIEW(문구 검토) + SENT(리포트 대기)',
+                    '• 보조 문구에 상태별 건수를 나눠 표시',
+                    '【비고】',
+                    '• SCHEDULED(발송 예정)는 회신이 아니라 발송 일정 대기이므로 넣지 않음'
+                ]
+            },
+            {
+                selector: '#statCardCustomer',
+                title: '3. 고객 응답 대기',
+                position: { top: '-10px', left: '-10px' },
+                description: '통계 카드 (Stat Card)',
+                function: '고객의 확정·입금·수정본·테스트 확인을 기다리는 신청 수',
+                behavior: [
+                    '【집계 기준】',
+                    '• QUOTED + PAYMENT_WAIT + CREATIVE_FIX + TEST_CHECK',
+                    '【운영】',
+                    '• 고객 응답은 마이페이지 버튼(POST /target-ad/requests/:no/replies)으로만 들어오며, 들어오면 상태가 자동으로 바뀜'
+                ]
+            },
+            {
+                selector: '#statCardOver',
+                title: '4. 기한 초과',
+                position: { top: '-10px', left: '-10px' },
+                description: '통계 카드 (Stat Card)',
+                function: '현재 상태의 기한(status_due_at)을 넘긴 신청 수',
+                behavior: [
+                    '【집계 기준】',
+                    '• status_due_at < 현재 시각, 끝난 상태(CANCELED · CLOSED) 제외',
+                    '• 기한은 상태가 바뀔 때 설계서 3장 기준(영업일 · 일)으로 다시 계산',
+                    '【동작】',
+                    '• 카드 클릭 → 「기한 초과만」 체크 후 목록 재조회',
+                    '• 30분마다 도는 기한 검사 작업이 운영자에게 TA_OP_OVERDUE 알림 발송',
+                    '【주의】',
+                    '• 상태별 기한 값은 〔CJ〕〔결정〕 확정 전 임시값'
+                ]
+            },
+            // ===== 검색 · 필터 =====
+            {
+                selector: '#searchInput',
+                title: '5. 검색어',
+                position: { top: '-10px', left: '-10px' },
+                description: '텍스트 입력 (Input Text)',
+                function: '접수번호 · 상호 · 현장/캠페인명 부분 일치 검색',
+                behavior: [
+                    '【검색 대상】',
+                    '• request_no, company_name, campaign_name',
+                    '• 담당자 이름 · 연락처로는 검색하지 않음 (연락처는 암호화 저장)',
+                    '【동작】',
+                    '• Enter 또는 [검색] 버튼으로 조회'
+                ]
+            },
+            {
+                selector: '#statusFilter',
+                title: '6. 상태 필터',
+                position: { top: '-10px', left: '-10px' },
+                description: '셀렉트 박스 (Select)',
+                function: '설계서 3장 상태 코드 14개를 운영자용 이름으로 골라 보기',
+                behavior: [
+                    '【옵션 묶음】',
+                    '• 톡벨 처리: 접수, 모수 회신, 리포트 완료',
+                    '• CJ 대기: 모수 확인 요청, 문구 검토, 발송 예정, 발송 완료',
+                    '• 고객 대기: 견적 안내, 결제 대기, 문구 수정 중, 테스트 확인',
+                    '• 곁가지 · 끝: 보류, 취소, 종료',
+                    '【값】',
+                    '• option value = status_cd (RECEIVED, CJ_REQUESTED …), 이름은 공통코드 TARGET_AD_STATUS 에서 읽음',
+                    '• 기본값: 전체'
+                ]
+            },
+            {
+                selector: '#mediaFilter',
+                title: '7. 매체 필터',
+                position: { top: '-10px', left: '-10px' },
+                description: '셀렉트 박스 (Select)',
+                function: '신청의 매체별 줄(target_ad_request_media) 중 하나라도 해당 매체가 있으면 표시',
+                behavior: [
+                    '【옵션】',
+                    '• 매체 규칙표(target_ad_media_rule)에서 is_use = true 인 매체를 그룹별로 표시',
+                    '• 「추천 요청」: 고객이 매체를 정하지 않고 추천을 요청한 줄 (media_cd = RECOMMEND)'
+                ]
+            },
+            {
+                selector: '#industryFilter',
+                title: '8. 업종 필터',
+                position: { top: '-10px', left: '-10px' },
+                description: '셀렉트 박스 (Select)',
+                function: '공통코드 TARGET_AD_INDUSTRY 기준 업종 필터',
+                behavior: [
+                    '【옵션】',
+                    '• REALESTATE 부동산·분양, LOAN 금융·대출, CAR 자동차·중고차, COMMERCE 커머스·쇼핑, TRAVEL 숙박·여행, HEALTH_FOOD 건강기능식품, FASHION 패션·의류, EDU 교육, STORE 매장·서비스, CRYPTO 가상자산, ETC 기타'
+                ]
+            },
+            {
+                selector: '#dateBasis',
+                title: '9. 기간',
+                position: { top: '-10px', left: '-10px' },
+                description: '셀렉트 박스 + 날짜 입력 2개 (Select + Date)',
+                function: '접수일 또는 희망 발송일(1순위) 기준 기간 조회',
+                behavior: [
+                    '【기본값】',
+                    '• 기준: 접수일, 기간: 오늘 기준 최근 30일',
+                    '【검사】',
+                    '• 시작일이 종료일보다 늦으면 "시작일을 다시 확인해 주세요" 안내 후 조회하지 않음',
+                    '• 희망 발송일 기준은 send_dates.p1 로 비교'
+                ]
+            },
+            {
+                selector: '.ta-check',
+                title: '10. 기한 초과만',
+                position: { top: '-12px', left: '-10px' },
+                description: '체크박스 (Checkbox)',
+                function: '현재 상태 기한을 넘긴 신청만 보기',
+                behavior: [
+                    '【동작】',
+                    '• 체크하면 overdue=true 로 조회. 다른 필터와 함께 적용',
+                    '• 「기한 초과」 통계 카드를 눌러도 체크됨'
+                ]
+            },
+            // ===== 목록 =====
+            {
+                selector: '#taListCard',
+                title: '11. 신청 목록',
+                position: { top: '-10px', left: '-10px' },
+                description: '테이블 (Table)',
+                function: '타겟 광고 신청 목록. 행 클릭 시 신청 상세(target-ad-request-detail.html)로 이동',
+                behavior: [
+                    '【컬럼】',
+                    '• 접수번호(TA-YYYYMMDD-NNN) · 상호 · 현장/캠페인명 · 매체(여러 개면 칩 여러 개) · 희망 발송일(1순위) · 상태 · 상태 기한 · 확인 대기 · 접수일',
+                    '【강조】',
+                    '• 기한을 넘긴 행은 배경을 붉게, 기한 칸에 「초과」 표시',
+                    '• 기한이 오늘 안에 끝나면 주황 글씨',
+                    '• 확인 대기: 확인함에서 승인 대기 중인(approval_cd = PENDING) 메시지 수. 0이면 회색',
+                    '【정렬 · 페이지】',
+                    '• 기본 정렬: 접수일 최신순, 한 페이지 20건',
+                    '【API】',
+                    '• GET /admin/target-ad/requests?status=&media=&industry=&from=&to=&dateBasis=&overdue=&q=&page='
+                ]
+            }
+        ];
+        initSpecOverlay(specData);
+    </script>
+</body>
+</html>

@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매체 규칙·판매 단가 - 관리자 시스템</title>
+    <link rel="stylesheet" href="css/admin-common.css">
+    <link rel="stylesheet" href="css/target-ad.css">
+    <style>
+        .ta-rule-table th, .ta-rule-table td { padding: 9px 8px; font-size: 13px; white-space: nowrap; }
+        .ta-rule-table th.internal { white-space: normal; min-width: 120px; }
+        .ta-rule-table td.ind { white-space: normal; min-width: 200px; }
+        .ta-rule-table th { text-transform: none; letter-spacing: 0; white-space: nowrap; }
+        .ta-rule-table th.internal, .ta-rule-table td.internal { background: #fffbeb; }
+        .ta-rule-table tr.off td { color: #94a3b8; }
+        .ta-ind { display: inline-flex; padding: 1px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; margin: 1px 2px 1px 0; white-space: nowrap; }
+        .ta-ind.allow { background: #d1fae5; color: #065f46; }
+        .ta-ind.deny { background: #fee2e2; color: #991b1b; }
+        .ta-ind.ask { background: #e2e8f0; color: #475569; }
+        .ta-yn { font-weight: 700; }
+        .ta-yn.y { color: #059669; } .ta-yn.n { color: #dc2626; } .ta-yn.u { color: #94a3b8; font-weight: 500; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+        .ta-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+        .ta-fmt { display: inline-flex; align-items: center; gap: 6px; margin-right: 14px; font-size: 13px; }
+        .ta-ind-edit th, .ta-ind-edit td { padding: 8px 10px; font-size: 13px; text-transform: none; letter-spacing: 0; }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <script src="js/sidebar.js"></script>
+        <script>
+            document.write(getSidebarHTML('target-ad-media-rule'));
+        </script>
+
+        <main class="admin-main">
+            <script>
+                document.write(getHeaderHTML('매체 규칙·판매 단가'));
+            </script>
+
+            <div class="admin-content">
+                <div class="ta-alert info" id="ruleNotice" style="margin-bottom:20px;">
+                    규칙은 코드가 아니라 이 표에 있습니다. 여기서 고치면 챗봇 안내와 견적 계산에 바로 반영됩니다.
+                    <span class="ta-internal">내부 전용</span> 표시가 붙은 수수료율은 고객 화면 · 챗봇에 나가지 않습니다.
+                </div>
+
+                <div class="tabs" id="ruleTabs">
+                    <button class="tab active" data-tab="tabRule" onclick="switchTab('tabRule')">매체 규칙표</button>
+                    <button class="tab" data-tab="tabPrice" onclick="switchTab('tabPrice')">판매 단가</button>
+                </div>
+
+                <!-- 탭 1: 매체 규칙표 -->
+                <div class="tab-panel active" id="tabRule">
+                    <div class="search-filter-bar" id="ruleFilter">
+                        <div class="search-box"><input type="text" class="form-control" id="ruleSearch" placeholder="매체 코드 · 이름 검색" oninput="renderRules()"></div>
+                        <div class="filter-group">
+                            <div class="filter-item">
+                                <select class="form-control" id="groupFilter" onchange="renderRules()">
+                                    <option value="">그룹 (전체)</option>
+                                    <option value="TELCO">통신사 (TELCO)</option>
+                                    <option value="CARD">카드사 (CARD)</option>
+                                    <option value="MEMBERSHIP">멤버십 (MEMBERSHIP)</option>
+                                    <option value="NAV">내비게이션 (NAV)</option>
+                                    <option value="REALESTATE">부동산 앱 (REALESTATE)</option>
+                                    <option value="FINTECH">핀테크 (FINTECH)</option>
+                                    <option value="DATA">데이터 (DATA)</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <select class="form-control" id="useFilter" onchange="renderRules()">
+                                    <option value="">사용 여부 (전체)</option>
+                                    <option value="Y">사용</option>
+                                    <option value="N">미사용</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-outline" onclick="showToast('매체 추가는 CJ 제휴 매체가 늘어날 때만 씁니다.', 'info')">매체 추가</button>
+                        </div>
+                    </div>
+
+                    <div class="card" id="ruleTableCard">
+                        <div class="card-header flex-between">
+                            <div>
+                                <h3 class="card-title">매체 규칙표 <span class="ta-muted" id="ruleCount" style="font-weight:400;"></span></h3>
+                                <div class="card-description">초기값: 11/2 CJ 수수료 테이블, 11/12 CJ 회신. 〔CJ〕 표시는 CJ 확인이 필요한 칸입니다.</div>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="ta-rule-table">
+                                <thead>
+                                    <tr>
+                                        <th>코드</th>
+                                        <th>이름</th>
+                                        <th>그룹</th>
+                                        <th class="ta-num">최소 건수</th>
+                                        <th class="internal" id="feeHead">수수료율 기본 / 고액 <span class="ta-internal">내부 전용</span></th>
+                                        <th>클릭 수 제공</th>
+                                        <th>메시지 형태</th>
+                                        <th>업종 규칙 요약</th>
+                                        <th>사용</th>
+                                        <th>수정</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ruleBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card" id="ruleHistory" style="margin-top:24px;">
+                        <div class="card-header"><h3 class="card-title">변경 이력</h3></div>
+                        <div class="table-container">
+                            <table>
+                                <thead><tr><th>일시</th><th>매체</th><th>항목</th><th>이전 → 이후</th><th>바꾼 사람</th><th>사유</th></tr></thead>
+                                <tbody>
+                                    <tr><td class="ta-muted">11/12 17:10</td><td>삼성 · BC · 신한 · 하나 · 현대카드</td><td>클릭 수 제공</td><td>미확인 → N</td><td>이지원</td><td>CJ 11/12 회신 (클릭 수 미제공 매체)</td></tr>
+                                    <tr><td class="ta-muted">11/02 15:40</td><td>전체 19개</td><td>최초 등록</td><td>— → 초기값</td><td>이지원</td><td>CJ 11/2 수수료 테이블</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 탭 2: 판매 단가 -->
+                <div class="tab-panel" id="tabPrice">
+                    <div class="ta-alert warn" style="margin-bottom:16px;">판매 단가는 아직 정해지지 않았습니다 〔결정〕. 단가가 없는 매체 × 형태는 견적 금액이 「미정」으로 나오고, 확인함에서 견적 안내를 승인할 수 없습니다.</div>
+                    <div class="card" id="priceTableCard">
+                        <div class="card-header flex-between">
+                            <div>
+                                <h3 class="card-title">매체 × 메시지 형태별 판매 단가</h3>
+                                <div class="card-description">건당 판매 단가 (원, 부가세 별도). 견적 = 단가 × 확정 건수, 부가세 10% 별도.</div>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="openModal('priceModal')">단가 등록</button>
+                        </div>
+                        <div class="table-container">
+                            <table class="ta-rule-table">
+                                <thead>
+                                    <tr>
+                                        <th>매체</th>
+                                        <th class="ta-num">LMS</th>
+                                        <th class="ta-num">MMS</th>
+                                        <th class="ta-num">RCS</th>
+                                        <th class="ta-num">앱 카드</th>
+                                        <th>적용 기간</th>
+                                        <th>사용</th>
+                                        <th>수정</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="priceBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="ta-muted" style="margin-top:10px;">— : 이 매체에 없는 형태 · <span class="ta-tbd">미정</span> : 단가 미등록 · <span class="ta-cj">CJ</span> : 매체의 메시지 형태가 아직 확인되지 않음</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 매체 규칙 수정 모달 (SKT 예시로 미리 그려 둠) -->
+    <div class="modal" id="ruleModal">
+        <div class="modal-content" style="max-width:720px;">
+            <div class="modal-header">
+                <h3 class="modal-title">매체 규칙 수정 · <span id="ruleModalName">SKT</span></h3>
+                <button class="modal-close" onclick="closeModal('ruleModal')">&times;</button>
+            </div>
+            <div class="ta-form-grid">
+                <div class="form-group">
+                    <label class="form-label">매체 코드</label>
+                    <input class="form-control" id="ruleCd" value="SKT" readonly style="background:#f8fafc;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">이름<span class="ta-req">*</span></label>
+                    <input class="form-control" id="ruleNameInput" value="SKT">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">그룹<span class="ta-req">*</span></label>
+                    <select class="form-control">
+                        <option selected>통신사 (TELCO)</option><option>카드사 (CARD)</option><option>멤버십 (MEMBERSHIP)</option><option>내비게이션 (NAV)</option><option>부동산 앱 (REALESTATE)</option><option>핀테크 (FINTECH)</option><option>데이터 (DATA)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">최소 건수<span class="ta-req">*</span></label>
+                    <input class="form-control ta-num" id="ruleMin" value="20,000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">수수료율 기본 (%) <span class="ta-internal">내부 전용</span></label>
+                    <input class="form-control ta-num" id="ruleFee1" value="20">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">수수료율 고액 (%) <span class="ta-internal">내부 전용</span></label>
+                    <input class="form-control ta-num" id="ruleFee2" value="22">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">클릭 수 제공</label>
+                    <select class="form-control">
+                        <option>Y (제공)</option><option>N (미제공)</option><option selected>미확인</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">정렬 순서</label>
+                    <input class="form-control ta-num" value="1">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">메시지 형태 <span class="ta-cj">CJ</span></label>
+                <label class="ta-fmt"><input type="checkbox" checked> LMS</label>
+                <label class="ta-fmt"><input type="checkbox" checked> MMS</label>
+                <label class="ta-fmt"><input type="checkbox"> RCS</label>
+                <label class="ta-fmt"><input type="checkbox"> 앱 카드</label>
+            </div>
+            <div class="form-group">
+                <label class="form-label">업종 규칙 <span class="ta-muted" style="font-weight:400;">· 모르는 칸은 「확인」으로 두면 챗봇이 "확인이 필요합니다"로 답합니다</span></label>
+                <div class="table-container">
+                    <table class="ta-ind-edit">
+                        <thead><tr><th>업종 · 조건</th><th style="width:170px;">결과</th></tr></thead>
+                        <tbody>
+                            <tr><td>분양 · 지역주택조합</td><td><select class="sm" style="width:100%;"><option>허용</option><option>불가</option><option selected>확인</option></select></td></tr>
+                            <tr><td>분양 · 시공사 도급 순위</td><td><select class="sm" style="width:100%;"><option>허용</option><option>불가</option><option selected>확인</option></select></td></tr>
+                            <tr><td>대출 · 2금융</td><td><select class="sm" style="width:100%;"><option>허용</option><option>불가</option><option selected>확인</option></select></td></tr>
+                            <tr><td>가상자산</td><td><select class="sm" style="width:100%;"><option>허용</option><option>불가</option><option selected>확인</option></select></td></tr>
+                            <tr><td>그 밖의 업종</td><td><select class="sm" style="width:100%;"><option selected>허용</option><option>불가</option><option>확인</option></select></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="ta-form-grid">
+                <div class="form-group">
+                    <label class="form-label">사용 여부</label>
+                    <select class="form-control"><option selected>사용</option><option>미사용</option></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">메모</label>
+                    <input class="form-control" value="메시지 형태 CJ 확인 중">
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">변경 사유<span class="ta-req">*</span></label>
+                <input class="form-control" id="ruleReason" placeholder="예: CJ 11/20 회신으로 최소 건수 변경">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('ruleModal')">닫기</button>
+                <button class="btn btn-primary" onclick="saveRule()">저장 (바로 반영)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 판매 단가 등록 · 수정 모달 (직방 앱 카드 예시로 미리 그려 둠) -->
+    <div class="modal" id="priceModal">
+        <div class="modal-content" style="max-width:560px;">
+            <div class="modal-header">
+                <h3 class="modal-title">판매 단가 등록 · 수정</h3>
+                <button class="modal-close" onclick="closeModal('priceModal')">&times;</button>
+            </div>
+            <div class="ta-form-grid">
+                <div class="form-group">
+                    <label class="form-label">매체<span class="ta-req">*</span></label>
+                    <select class="form-control" id="priceMedia"></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">메시지 형태<span class="ta-req">*</span></label>
+                    <select class="form-control" id="priceFormat">
+                        <option value="LMS">LMS</option><option value="MMS">MMS</option><option value="RCS">RCS</option><option value="APP_CARD" selected>앱 카드</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">건당 판매 단가 (원, 부가세 별도)<span class="ta-req">*</span></label>
+                    <input class="form-control ta-num" id="priceValue" placeholder="미정">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">사용 여부</label>
+                    <select class="form-control"><option>사용</option><option selected>미사용</option></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">적용 시작일<span class="ta-req">*</span></label>
+                    <input type="date" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">적용 종료일</label>
+                    <input type="date" class="form-control">
+                </div>
+            </div>
+            <div class="ta-alert info">같은 매체 × 형태의 적용 기간이 겹치면 저장되지 않습니다. 이미 견적을 안내한 신청에는 바뀐 단가가 적용되지 않습니다.</div>
+            <div class="form-group" style="margin:12px 0 0;">
+                <label class="form-label">변경 사유<span class="ta-req">*</span></label>
+                <input class="form-control" id="priceReason" placeholder="예: 11월 판매가 결정">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('priceModal')">닫기</button>
+                <button class="btn btn-primary" onclick="savePrice()">저장 (바로 반영)</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin-common.js"></script>
+    <script>
+        const GROUP = { TELCO:'통신사', CARD:'카드사', MEMBERSHIP:'멤버십', NAV:'내비게이션', REALESTATE:'부동산 앱', FINTECH:'핀테크', DATA:'데이터' };
+        // 설계서 2.6 매체 규칙표 초기값 (11/2 CJ 테이블, 11/12 회신). fee null = 〔CJ〕, click null = 미확인, fmts null = 〔CJ〕
+        const ASK_ALL = [['분양 지주택','ask'],['도급 순위','ask'],['2금융','ask'],['가상자산','ask']];
+        const CARD_IND = [['분양 지주택','ask'],['도급 순위','ask'],['2금융','ask'],['가상자산','ask'],['준법감시 심의','ask']];
+        const RE_IND = [['분양 지주택','allow'],['도급 순위 기준 없음','allow'],['분양 외','ask']];
+        const RULES = [
+            { cd:'SKT',          name:'SKT',          group:'TELCO',      min:20000, fee:[20,22],   click:null, fmts:['LMS','MMS'], fmtCj:true,  ind:ASK_ALL, use:true },
+            { cd:'KT',           name:'KT',           group:'TELCO',      min:20000, fee:[20,22],   click:null, fmts:null,          fmtCj:true,  ind:ASK_ALL, use:true },
+            { cd:'LGU',          name:'LGU+',         group:'TELCO',      min:50000, fee:[10,null], click:null, fmts:null,          fmtCj:true,  ind:ASK_ALL, use:true },
+            { cd:'CARD_KB',      name:'KB국민카드',   group:'CARD',       min:30000, fee:[13,14],   click:null, fmts:['LMS'],       fmtCj:false, ind:CARD_IND, use:true },
+            { cd:'CARD_SAMSUNG', name:'삼성카드',     group:'CARD',       min:30000, fee:[13,14],   click:'N',  fmts:['LMS'],       fmtCj:false, ind:CARD_IND, use:true },
+            { cd:'CARD_BC',      name:'BC카드',       group:'CARD',       min:30000, fee:[13,14],   click:'N',  fmts:['LMS'],       fmtCj:false, ind:CARD_IND, use:true },
+            { cd:'CARD_SHINHAN', name:'신한카드',     group:'CARD',       min:50000, fee:[13,14],   click:'N',  fmts:['LMS'],       fmtCj:false, ind:CARD_IND, use:true },
+            { cd:'CARD_HANA',    name:'하나카드',     group:'CARD',       min:50000, fee:[13,14],   click:'N',  fmts:['LMS'],       fmtCj:false, ind:CARD_IND, use:true },
+            { cd:'CARD_LOTTE',   name:'롯데카드',     group:'CARD',       min:50000, fee:[13,14],   click:null, fmts:['LMS'],       fmtCj:false, ind:CARD_IND, use:true },
+            { cd:'CARD_HYUNDAI', name:'현대카드',     group:'CARD',       min:50000, fee:[13,14],   click:'N',  fmts:['LMS'],       fmtCj:false, ind:CARD_IND, use:true },
+            { cd:'CJONE',        name:'CJ ONE',       group:'MEMBERSHIP', min:30000, fee:[15,20],   click:null, fmts:null,          fmtCj:true,  ind:ASK_ALL, use:true },
+            { cd:'LPOINT',       name:'롯데멤버스',   group:'MEMBERSHIP', min:30000, fee:[15,null], click:null, fmts:null,          fmtCj:true,  ind:ASK_ALL, use:true },
+            { cd:'SSGPOINT',     name:'신세계포인트', group:'MEMBERSHIP', min:50000, fee:[10,null], click:null, fmts:null,          fmtCj:true,  ind:ASK_ALL, use:true },
+            { cd:'OKCASHBAG',    name:'OK캐쉬백',     group:'MEMBERSHIP', min:30000, fee:[13,14],   click:null, fmts:null,          fmtCj:true,  ind:ASK_ALL, use:true },
+            { cd:'TMAP',         name:'T-MAP',        group:'NAV',        min:30000, fee:[15,17],   click:null, fmts:null,          fmtCj:true,  ind:ASK_ALL, use:true },
+            { cd:'ZIGBANG',      name:'직방',         group:'REALESTATE', min:20000, fee:[13,14],   click:null, fmts:['APP_CARD'],  fmtCj:false, ind:RE_IND, use:true },
+            { cd:'HOGANG',       name:'호갱노노',     group:'REALESTATE', min:20000, minCj:true, fee:[13,14], click:null, fmts:null, fmtCj:true, ind:RE_IND, use:true },
+            { cd:'KAKAOPAY',     name:'카카오페이',   group:'FINTECH',    min:50000, fee:null,      click:null, fmts:['APP_CARD'],  fmtCj:false, ind:ASK_ALL, use:true },
+            { cd:'NICE',         name:'NICE',         group:'DATA',       min:50000, fee:null,      click:null, fmts:null,          fmtCj:true,  ind:ASK_ALL, use:false, note:'10월 중 제휴 예정' }
+        ];
+        const FMT = { LMS:'LMS', MMS:'MMS', RCS:'RCS', APP_CARD:'앱 카드' };
+        const IND_LABEL = { allow:'허용', deny:'불가', ask:'확인' };
+        const CJ = '<span class="ta-cj">CJ</span>';
+
+        function feeText(f) {
+            if (!f) return CJ;
+            return f[1] === null ? `${f[0]}%` : `${f[0]}% / ${f[1]}%`;
+        }
+        function clickText(c) {
+            if (c === 'Y') return '<span class="ta-yn y">Y</span>';
+            if (c === 'N') return '<span class="ta-yn n">N</span>';
+            return '<span class="ta-yn u">미확인</span>';
+        }
+
+        function renderRules() {
+            const q = document.getElementById('ruleSearch').value.trim().toLowerCase();
+            const g = document.getElementById('groupFilter').value;
+            const u = document.getElementById('useFilter').value;
+            const rows = RULES.filter(r =>
+                (!q || r.cd.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)) &&
+                (!g || r.group === g) &&
+                (!u || (u === 'Y') === r.use));
+            document.getElementById('ruleBody').innerHTML = rows.map(r => `
+                <tr class="${r.use ? '' : 'off'}">
+                    <td class="ta-mono">${r.cd}</td>
+                    <td><b>${r.name}</b>${r.note ? `<div class="ta-muted">${r.note}</div>` : ''}</td>
+                    <td>${GROUP[r.group]}</td>
+                    <td class="ta-num">${r.min.toLocaleString('ko-KR')}${r.minCj ? ' ' + CJ : ''}</td>
+                    <td class="internal ta-num">${feeText(r.fee)}</td>
+                    <td>${clickText(r.click)}</td>
+                    <td>${r.fmts ? r.fmts.map(f => FMT[f]).join(', ') : ''}${r.fmtCj ? (r.fmts ? ' 외 ' : '') + CJ : ''}</td>
+                    <td class="ind">${r.ind.map(([k, v]) => `<span class="ta-ind ${v}">${k} ${IND_LABEL[v]}</span>`).join('')}</td>
+                    <td>${r.use ? '<span class="badge badge-success">사용</span>' : '<span class="badge badge-secondary">미사용</span>'}</td>
+                    <td><button class="btn btn-outline btn-sm" onclick="editRule('${r.cd}')">수정</button></td>
+                </tr>`).join('');
+            document.getElementById('ruleCount').textContent = `${rows.length} / ${RULES.length}개`;
+        }
+
+        function renderPrices() {
+            const tbd = '<span class="ta-tbd">미정</span>';
+            document.getElementById('priceBody').innerHTML = RULES.map(r => {
+                const cells = ['LMS','MMS','RCS','APP_CARD'].map(f => {
+                    if (r.fmts && r.fmts.includes(f)) return `<td class="ta-num">${tbd}</td>`;
+                    if (r.fmtCj && f !== 'APP_CARD') return `<td class="ta-num">${tbd} ${CJ}</td>`;
+                    return '<td class="ta-num ta-muted">—</td>';
+                }).join('');
+                return `<tr class="${r.use ? '' : 'off'}">
+                    <td><b>${r.name}</b> <span class="ta-muted ta-mono">${r.cd}</span></td>
+                    ${cells}
+                    <td>${tbd}</td>
+                    <td><span class="badge badge-secondary">미사용</span></td>
+                    <td><button class="btn btn-outline btn-sm" onclick="editPrice('${r.cd}')">수정</button></td>
+                </tr>`;
+            }).join('');
+            document.getElementById('priceMedia').innerHTML = RULES.map(r => `<option value="${r.cd}" ${r.cd === 'ZIGBANG' ? 'selected' : ''}>${r.name}</option>`).join('');
+        }
+
+        function switchTab(id) {
+            document.querySelectorAll('#ruleTabs .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === id));
+        }
+
+        function editRule(cd) {
+            // 목업: 모달은 SKT 값으로 미리 그려 두고, 코드 · 이름 · 최소 건수 · 수수료율만 바꿔 넣음
+            const r = RULES.find(x => x.cd === cd);
+            document.getElementById('ruleModalName').textContent = r ? r.name : cd;
+            if (r) {
+                document.getElementById('ruleCd').value = r.cd;
+                document.getElementById('ruleNameInput').value = r.name;
+                document.getElementById('ruleMin').value = r.min.toLocaleString('ko-KR');
+                document.getElementById('ruleFee1').value = r.fee ? r.fee[0] : '';
+                document.getElementById('ruleFee2').value = r.fee && r.fee[1] !== null ? r.fee[1] : '';
+            }
+            openModal('ruleModal');
+        }
+        function editPrice(cd) {
+            document.getElementById('priceMedia').value = cd;
+            openModal('priceModal');
+        }
+        function saveRule() {
+            if (!document.getElementById('ruleReason').value.trim()) { showToast('변경 사유를 입력하세요.', 'error'); return; }
+            closeModal('ruleModal');
+            showToast('저장했습니다. 챗봇 안내와 견적 계산에 바로 반영됩니다.', 'success');
+        }
+        function savePrice() {
+            if (!document.getElementById('priceValue').value.trim()) { showToast('판매 단가를 입력하세요.', 'error'); return; }
+            if (!document.getElementById('priceReason').value.trim()) { showToast('변경 사유를 입력하세요.', 'error'); return; }
+            closeModal('priceModal');
+            showToast('판매 단가를 저장했습니다. 새 견적부터 적용됩니다.', 'success');
+        }
+
+        renderRules();
+        renderPrices();
+    </script>
+
+    <!-- 화면설계 오버레이 -->
+    <script src="js/spec-overlay.js"></script>
+    <script>
+        const specData = [
+            {
+                selector: '#ruleNotice',
+                title: '1. 규칙 운영 원칙',
+                position: { top: '-10px', left: '-10px' },
+                description: '안내 박스 (Notice)',
+                function: '이 화면의 값이 챗봇 · 견적 계산의 유일한 기준임을 알림',
+                behavior: [
+                    '【원칙】',
+                    '• 규칙은 코드가 아니라 테이블(target_ad_media_rule, target_ad_price_rule)에 둔다. CJ 조건이 바뀌면 여기서 고친다',
+                    '• 수정 즉시 챗봇 · 견적에 반영: 저장하면 내부 API(/internal/target-ad/media-rules, check/minimum, check/industry)와 QuoteService 가 다음 호출부터 새 값을 씀 (캐시가 있으면 저장 시 비움)',
+                    '• 수수료율은 고객 · 챗봇에 노출 안 됨: 고객 API(/target-ad/media)와 내부 API 응답에서 fee_rate_base · fee_rate_high 를 뺌. 어드민 화면에서만 「내부 전용」으로 표시',
+                    '【반영 범위】',
+                    '• 이미 견적을 안내한 신청의 금액은 바뀌지 않음 (매체별 줄에 저장된 단가 사용)'
+                ]
+            },
+            {
+                selector: '#ruleTabs',
+                title: '2. 탭',
+                position: { top: '-10px', left: '-10px' },
+                description: '탭 (Tabs)',
+                function: '매체 규칙표 / 판매 단가 전환',
+                behavior: [
+                    '【동작】',
+                    '• 기본 탭: 매체 규칙표',
+                    '• 탭을 바꿔도 필터 값은 유지'
+                ]
+            },
+            {
+                selector: '#ruleFilter',
+                title: '3. 규칙 검색 · 필터',
+                position: { top: '-10px', left: '-10px' },
+                description: '검색 + 셀렉트 (Search + Select)',
+                function: '매체 코드 · 이름 검색, 그룹 · 사용 여부 필터',
+                behavior: [
+                    '【그룹】',
+                    '• TELCO 통신사 · CARD 카드사 · MEMBERSHIP 멤버십 · NAV 내비게이션 · REALESTATE 부동산 앱 · FINTECH 핀테크 · DATA 데이터',
+                    '【매체 추가】',
+                    '• CJ 제휴 매체가 늘어날 때만 사용. 코드는 한 번 정하면 바꿀 수 없음'
+                ]
+            },
+            {
+                selector: '#ruleTableCard',
+                title: '4. 매체 규칙표',
+                position: { top: '-10px', left: '-10px' },
+                description: '테이블 (Table)',
+                function: '설계서 2.6 의 19개 매체 규칙 (초기값: 11/2 CJ 테이블, 11/12 회신)',
+                behavior: [
+                    '【컬럼】',
+                    '• 코드(media_cd) · 이름 · 그룹(group_cd) · 최소 건수(min_qty)',
+                    '• 수수료율 기본 / 고액(fee_rate_base / fee_rate_high): 노란 배경 + 「내부 전용」. 고액 값이 없으면 기본만',
+                    '• 클릭 수 제공(click_report_yn): Y / N / 미확인(null). N 이면 챗봇이 "클릭 수는 제공되지 않습니다" 안내',
+                    '• 메시지 형태(msg_formats): LMS · MMS · RCS · 앱 카드. 챗봇은 고른 매체의 형태만 보여 줌',
+                    '• 업종 규칙 요약(industry_rules): 업종 · 조건별 허용 / 불가 / 확인. 「확인」이면 챗봇은 "확인이 필요합니다"로 답하고 메모를 남김',
+                    '• 사용(is_use): 미사용 매체는 회색, 고객 매체 목록에서 빠짐',
+                    '【〔CJ〕 표시】',
+                    '• 값이 아직 CJ 확인 전인 칸 (메시지 형태, 호갱노노 최소 건수, 카카오페이 · NICE 수수료율 등)',
+                    '【정렬】',
+                    '• sort_order 순 (고객 화면 매체 노출 순서와 같음)',
+                    '【API】',
+                    '• GET /admin/target-ad/media-rules'
+                ]
+            },
+            {
+                selector: '#ruleHistory',
+                title: '5. 변경 이력',
+                position: { top: '-10px', left: '-10px' },
+                description: '테이블 (Table)',
+                function: '규칙 · 단가 변경 기록',
+                behavior: [
+                    '【기록】',
+                    '• 일시 · 매체 · 항목 · 이전 → 이후 · 바꾼 사람 · 사유. 저장할 때마다 자동으로 남음',
+                    '• 수수료율 변경 이력도 어드민에만 보임'
+                ]
+            },
+            {
+                selector: '#priceTableCard',
+                title: '6. 판매 단가',
+                position: { top: '-10px', left: '-10px' },
+                description: '매트릭스 테이블 (Matrix Table)',
+                function: '매체 × 메시지 형태별 건당 판매 단가 (target_ad_price_rule)',
+                behavior: [
+                    '【칸 표시】',
+                    '• 숫자: 등록된 단가 (원, 부가세 별도)',
+                    '• 「미정」: 단가 미등록. 지금은 모든 칸이 미정 〔결정〕',
+                    '• 「—」: 그 매체에 없는 형태 · 「CJ」: 매체의 형태가 아직 확인 전',
+                    '【적용】',
+                    '• 적용 기간(valid_from ~ valid_to) 안이고 사용(is_use) 중인 단가만 견적 계산에 씀',
+                    '• 견적 = 단가 × 확정 건수, 부가세 10% 별도 (QuoteService.calc)',
+                    '• 단가가 없으면 견적 금액이 「미정」이고 확인함의 견적 안내 승인이 막힘',
+                    '【노출】',
+                    '• 판매 단가는 견적 단계에서만 고객에게 안내. 챗봇은 금액을 말하지 않음',
+                    '【API】',
+                    '• GET · PUT /admin/target-ad/price-rules'
+                ]
+            },
+            {
+                selector: '#ruleModal .modal-content',
+                title: '7. 매체 규칙 수정 모달',
+                position: { top: '8px', left: '8px' },
+                description: '모달 (Modal)',
+                function: '매체 한 개의 규칙 수정 (SKT 예시로 미리 그림)',
+                behavior: [
+                    '【입력】',
+                    '• 코드(읽기 전용), 이름 · 그룹 · 최소 건수(필수), 수수료율 기본 / 고액(내부 전용), 클릭 수 제공(Y / N / 미확인), 정렬 순서',
+                    '• 메시지 형태: 여러 개 선택',
+                    '• 업종 규칙: 업종 · 조건마다 허용 / 불가 / 확인. 모르는 칸은 「확인」',
+                    '• 사용 여부, 메모, 변경 사유(필수)',
+                    '【검사】',
+                    '• 최소 건수는 1,000 단위 양수, 수수료율은 0~100',
+                    '• 변경 사유 빈칸: "변경 사유를 입력하세요."',
+                    '【저장】',
+                    '• PUT /admin/target-ad/media-rules → 바로 반영, 변경 이력에 남음'
+                ]
+            },
+            {
+                selector: '#priceModal .modal-content',
+                title: '8. 판매 단가 모달',
+                position: { top: '8px', left: '8px' },
+                description: '모달 (Modal)',
+                function: '매체 × 형태 단가 등록 · 수정 (직방 앱 카드 예시로 미리 그림)',
+                behavior: [
+                    '【입력】',
+                    '• 매체 · 메시지 형태 · 건당 단가(원, 부가세 별도) · 적용 시작일(필수) · 적용 종료일 · 사용 여부 · 변경 사유(필수)',
+                    '【검사】',
+                    '• 같은 매체 × 형태에 적용 기간이 겹치면 저장 불가',
+                    '• 단가는 0보다 큰 숫자, 소수 둘째 자리까지',
+                    '【저장】',
+                    '• PUT /admin/target-ad/price-rules → 새 견적부터 적용. 이미 견적을 안내한 신청은 그대로'
+                ]
+            }
+        ];
+        initSpecOverlay(specData);
+    </script>
+</body>
+</html>

@@ -101,6 +101,19 @@ function getSidebarHTML(activeMenu) {
                 </div>
                 
                 <div class="menu-section">
+                    <div class="menu-section-title">타겟 광고</div>
+                    <a href="target-ad-request-list.html" class="menu-item ${activeMenu === 'target-ad-request-list' ? 'active' : ''}">
+                        <span>신청 관리</span>
+                    </a>
+                    <a href="target-ad-inbox.html" class="menu-item ${activeMenu === 'target-ad-inbox' ? 'active' : ''}">
+                        <span>확인함</span>
+                    </a>
+                    <a href="target-ad-media-rule.html" class="menu-item ${activeMenu === 'target-ad-media-rule' ? 'active' : ''}">
+                        <span>매체 규칙·판매 단가</span>
+                    </a>
+                </div>
+
+                <div class="menu-section">
                     <div class="menu-section-title">스팸·제재 관리</div>
                     <a href="spam-filter.html" class="menu-item ${activeMenu === 'spam-filter' ? 'active' : ''}">
                         <span>차단정보(금칙어) 관리</span>
