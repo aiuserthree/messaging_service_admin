@@ -11,11 +11,21 @@
         .ta-nav a { padding: 6px 12px; border-radius: 6px; font-size: 13px; color: var(--admin-text-secondary); text-decoration: none; }
         .ta-nav a:hover { background: var(--admin-bg); color: var(--admin-text-primary); }
         .card.ta-section { scroll-margin-top: 130px; }
-        .ta-media-table td, .ta-media-table th { padding: 10px 10px; font-size: 13px; white-space: nowrap; }
-        .ta-media-table th { text-transform: none; letter-spacing: 0; white-space: nowrap; }
-        .ta-media-table tfoot td { background: #f8fafc; font-weight: 700; border-top: 2px solid var(--admin-border); }
-        .ta-radio { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--admin-border); border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
-        .ta-radio.disabled { opacity: .55; cursor: not-allowed; background: #f8fafc; }
+        .ta-cmp th, .ta-cmp td { padding: 10px 12px; font-size: 13px; text-transform: none; letter-spacing: 0; vertical-align: middle; }
+        .ta-cmp td.v { font-weight: 700; white-space: nowrap; }
+        .ta-cmp tr.diff td { background: #fff7f7; }
+        .ta-cmp .ta-input-sm { max-width: 160px; }
+        .ta-res { display: inline-flex; padding: 1px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+        .ta-res.ok { background: #d1fae5; color: #065f46; }
+        .ta-res.ng { background: #fee2e2; color: #991b1b; }
+        .ta-res.wa { background: #fef3c7; color: #92400e; }
+        .ta-res.na { background: #e2e8f0; color: #475569; }
+        .ta-example { display: inline-flex; padding: 1px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: #e0e7ff; color: #3730a3; }
+        .ta-ai { display: inline-flex; padding: 1px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: #ede9fe; color: #5b21b6; }
+        .ta-copy-diff ins { background: #d1fae5; text-decoration: none; padding: 0 2px; border-radius: 2px; }
+        .ta-copy-diff del { background: #fee2e2; padding: 0 2px; border-radius: 2px; }
+        .ta-notify { display: flex; flex-wrap: wrap; gap: 8px; }
+        .ta-notify .ta-check { height: 36px; }
     </style>
 </head>
 <body>
@@ -40,356 +50,286 @@
                     <div class="ta-head">
                         <div>
                             <div class="ta-head-left">
-                                <span class="ta-head-no ta-mono">TA-20261113-001</span>
-                                <span class="ta-status s-action" id="headStatus">모수 회신</span>
-                                <span class="ta-due">기한 11/16(월) 15:20 · 영업일 1일</span>
-                                <span class="ta-count" title="확인함 승인 대기">1</span><span class="ta-muted">확인 대기</span>
-                                <a href="#questionItem" class="ta-q need" id="headQuestion" title="미답변 고객 질문 · 초안 없음 · CJ 확인 필요">고객 질문 1 · 답변 필요</a>
+                                <span class="ta-head-no ta-mono">TA-20261116-001</span>
+                                <span class="ta-status s-action" id="headStatus">견적 승인 대기</span>
+                                <span class="ta-media">직방/호갱노노</span>
+                                <span class="ta-count" title="확인함에서 처리를 기다리는 일">1</span><span class="ta-muted">확인할 일</span>
+                                <a href="target-ad-inbox.html" class="ta-q need" title="미답변 고객 질문 · 운영자가 직접 답">고객 질문 1 · 답변 필요</a>
                             </div>
                             <div class="ta-head-meta">
                                 <span>(주)한빛분양마케팅</span>
                                 <span>고덕 한빛 리버뷰</span>
-                                <span>부동산·분양</span>
-                                <span>희망 발송 11/20(금)</span>
-                                <span>접수 2026-11-13 09:12</span>
+                                <span>20,000건</span>
+                                <span>희망 발송 11/27(금) 10:00</span>
+                                <span>접수 2026-11-16 09:12</span>
+                                <span>이 고객의 진행 중 신청 1건 (이 신청)</span>
                             </div>
                         </div>
-                        <div class="ta-head-actions">
-                            <a href="target-ad-inbox.html" class="btn btn-info btn-sm">확인함에서 견적 초안 보기</a>
-                            <button class="btn btn-primary btn-sm" id="btnStatus" onclick="openModal('statusModal')">상태 변경</button>
-                            <button class="btn btn-outline btn-sm" id="btnHoldCancel" onclick="openModal('holdModal')">취소 / 보류</button>
+                        <div class="ta-head-actions" id="headActions">
+                            <a href="target-ad-inbox.html" class="btn btn-info btn-sm">확인함에서 보기</a>
+                            <button class="btn btn-outline btn-sm" onclick="openModal('rejectModal')">반려 처리</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- 섹션 이동 -->
                 <nav class="ta-nav" id="taNav">
-                    <a href="#secInfo">신청 정보</a>
-                    <a href="#secMemo">챗봇 메모</a>
-                    <a href="#secMedia">매체별 줄</a>
-                    <a href="#secTimeline">메시지 기록</a>
-                    <a href="#secCjInput">CJ 메시지 등록</a>
-                    <a href="#secForward">CJ 전달 양식</a>
-                    <a href="#secReport">리포트</a>
+                    <a href="#secInfo">신청 내용</a>
+                    <a href="#secQuote">견적 검수 · 승인</a>
+                    <a href="#secCopy">CJ 수정 문구</a>
+                    <a href="#secCancel">취소 요청 처리</a>
+                    <a href="#secSlack">Slack 전달 기록</a>
+                    <a href="#secReport">결과 리포트</a>
                     <a href="#secHistory">상태 이력</a>
-                    <a href="#secFiles">첨부 파일</a>
                 </nav>
 
-                <!-- 신청 정보 -->
+                <!-- 신청 내용 -->
                 <div class="card ta-section" id="secInfo">
                     <div class="card-header">
-                        <h3 class="card-title">신청 정보</h3>
-                        <div class="card-description">고객이 「이대로 접수」를 누른 시점의 정리본(summary). 수정은 고객 재접수 또는 매체별 줄에서만 합니다.</div>
+                        <h3 class="card-title">신청 내용</h3>
+                        <div class="card-description">고객이 신청 양식에서 [신청하기]를 누른 시점의 값. CJ 모수확인 요청 양식에 들어가는 항목만 받습니다 (11/16 회의). 읽기 전용입니다.</div>
                     </div>
                     <div class="ta-grid-2">
                         <div>
-                            <div class="ta-sub-title">광고주</div>
+                            <div class="ta-sub-title">매체 · 대상</div>
                             <div class="table-container">
                                 <table class="ta-kv">
-                                    <tr><th>상호</th><td>(주)한빛분양마케팅</td></tr>
-                                    <tr><th>사업자 유형</th><td>법인</td></tr>
-                                    <tr><th>담당자</th><td>김민수</td></tr>
-                                    <tr><th>연락처</th><td id="contactCell"><span id="phoneValue" class="ta-mono">010-****-7730</span> <button class="btn btn-outline btn-sm" style="margin-left:6px;" onclick="openModal('revealModal')">보기</button></td></tr>
-                                    <tr><th>이메일</th><td><span id="emailValue">mi***@example.com</span></td></tr>
-                                    <tr><th>연락 희망 시간</th><td>오후</td></tr>
+                                    <tr><th>매체</th><td><span class="ta-media">직방/호갱노노</span> <span class="ta-muted">(한 신청에 하나)</span></td></tr>
+                                    <tr><th>현장명 / 캠페인명</th><td>고덕 한빛 리버뷰</td></tr>
+                                    <tr><th>타겟 연령</th><td>30~55세 · 부족 시 연령 확대 <b>가능</b></td></tr>
+                                    <tr><th>지역</th><td>경기 평택시, 경기 오산시 · 부족 시 지역 확대 <b>가능</b></td></tr>
+                                    <tr><th>발송 건수</th><td>20,000건 <span class="ta-muted">· 매체 최소 20,000건 충족</span></td></tr>
                                 </table>
                             </div>
 
-                            <div class="ta-sub-title" style="margin-top:20px;">광고</div>
+                            <div class="ta-sub-title" style="margin-top:20px;">일정</div>
                             <div class="table-container">
                                 <table class="ta-kv">
-                                    <tr><th>업종</th><td>부동산·분양</td></tr>
-                                    <tr><th>목적</th><td>모델하우스 방문, 전화 문의</td></tr>
-                                    <tr><th>상품 설명</th><td>평택 고덕 신축 아파트 잔여세대 분양, 84㎡ 위주</td></tr>
-                                    <tr><th>현장명</th><td>고덕 한빛 리버뷰 (경기 평택시 고덕동)</td></tr>
-                                    <tr><th>분양 유형</th><td>아파트</td></tr>
-                                    <tr><th>시공사</th><td>한빛건설 <span class="badge badge-warning">1군 아님</span></td></tr>
-                                    <tr><th>모델하우스</th><td>평택역 인근</td></tr>
+                                    <tr><th>발송 희망일 · 시간</th><td>1순위 11/27(금) 10:00<br>2순위 11/30(월) 14:00<br>3순위 12/1(화) 10:00</td></tr>
                                 </table>
                             </div>
                         </div>
                         <div>
-                            <div class="ta-sub-title">타겟</div>
+                            <div class="ta-sub-title">제목 · 문구</div>
                             <div class="table-container">
                                 <table class="ta-kv">
-                                    <tr><th>지역</th><td>경기 평택시, 경기 오산시, 경기 화성시(동탄)</td></tr>
-                                    <tr><th>연령</th><td>30~55세</td></tr>
-                                    <tr><th>성별</th><td>전체</td></tr>
-                                    <tr><th>부족 시 확대</th><td>연령 · 지역 모두 가능</td></tr>
-                                    <tr><th>관심 · 행동</th><td>부동산 앱 이용</td></tr>
-                                    <tr><th>제외</th><td class="ta-muted">없음</td></tr>
-                                    <tr><th>확인 필요 조건</th><td>무주택자 <span class="badge badge-warning">챗봇 판단 안 함</span></td></tr>
-                                </table>
-                            </div>
-
-                            <div class="ta-sub-title" style="margin-top:20px;">일정 · 규모 · 메시지</div>
-                            <div class="table-container">
-                                <table class="ta-kv">
-                                    <tr><th>희망 발송일</th><td>1순위 11/20(금) · 2순위 11/24(화) · 3순위 11/25(수) · 오전</td></tr>
-                                    <tr><th>매체 · 희망 건수</th><td><span class="ta-media">SKT</span> 2만 · <span class="ta-media">직방</span> 2만</td></tr>
-                                    <tr><th>예산 참고값</th><td class="ta-muted">없음 (건수로 요청) · 규모 조정 가능</td></tr>
-                                    <tr><th>메시지 형태</th><td>MMS(SKT) · 앱 카드(직방)</td></tr>
-                                    <tr><th>문구 초안</th><td style="white-space:pre-line;">(광고) 고덕 한빛 리버뷰 잔여세대 분양
+                                    <tr><th>제목</th><td>고덕 한빛 리버뷰 잔여세대 분양</td></tr>
+                                    <tr><th>문구</th><td style="white-space:pre-line;" id="origCopy">(광고) 고덕 한빛 리버뷰 잔여세대 분양
 고덕국제신도시 생활권, 84㎡ 선착순 계약
 모델하우스: 평택역 도보 5분
 분양 문의 1600-0000</td></tr>
-                                    <tr><th>이미지 · 링크</th><td>고덕리버뷰_전단.jpg · 링크 없음</td></tr>
-                                    <tr><th>문의 번호</th><td>1600-0000</td></tr>
-                                    <tr><th>테스트 수신번호</th><td class="ta-mono">010-****-7730, 010-****-1184</td></tr>
-                                    <tr><th>타겟 광고 경험</th><td>없음</td></tr>
-                                    <tr><th>추가 요청</th><td class="ta-muted">없음</td></tr>
-                                    <tr><th>동의</th><td>수집 · 이용 11/13 09:11 · 제3자 제공 11/13 09:11 · 마케팅 미동의</td></tr>
-                                    <tr><th>개인정보 파기 예정</th><td class="ta-muted">종료일 + 보관 기간 〔결정〕</td></tr>
+                                    <tr><th>이미지</th><td>고덕리버뷰_전단.jpg · 1.2MB <button class="btn btn-outline btn-sm" style="margin-left:6px;" onclick="showToast('파일을 내려받습니다. 작업 로그에 남습니다.', 'info')">받기</button></td></tr>
+                                    <tr><th>링크</th><td class="ta-muted">없음 (있을 때만 표시)</td></tr>
+                                </table>
+                            </div>
+
+                            <div class="ta-sub-title" style="margin-top:20px;">회원 정보 <span class="ta-muted" style="font-weight:400;">· 신청 항목 아님, 회원 가입 정보</span></div>
+                            <div class="table-container" id="memberInfo">
+                                <table class="ta-kv">
+                                    <tr><th>상호</th><td>(주)한빛분양마케팅 <a href="member-detail.html" style="margin-left:6px;font-size:12px;color:var(--admin-primary);text-decoration:none;">회원 상세</a></td></tr>
+                                    <tr><th>담당자</th><td>김민수</td></tr>
+                                    <tr><th>연락처</th><td id="contactCell"><span id="phoneValue" class="ta-mono">010-****-7730</span> <button class="btn btn-outline btn-sm" style="margin-left:6px;" onclick="openModal('revealModal')">보기</button></td></tr>
+                                    <tr><th>이메일</th><td><span id="emailValue">mi***@example.com</span></td></tr>
                                 </table>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 챗봇 메모 -->
-                <div class="card ta-section" id="secMemo" style="margin-top:24px;">
-                    <div class="card-header">
-                        <h3 class="card-title">챗봇 메모</h3>
-                        <div class="card-description">상담 중 챗봇이 자동으로 남긴 확인 필요 사항 (bot_memo)</div>
-                    </div>
-                    <ul class="ta-memo">
-                        <li>시공사 한빛건설(1군 아님): 매체별 도급 순위 확인 필요</li>
-                        <li>무주택자 조건: 매체에서 가능한지 확인 필요</li>
-                        <li>처음 1만 건 요청(최소 기준 미달) → 매체별 2만 건으로 변경</li>
-                        <li>희망일까지 영업일 5일(빠듯함), 2·3순위 11/24 · 11/25 받음</li>
-                        <li>타겟 광고 첫 이용</li>
-                    </ul>
-                </div>
-
-                <!-- 매체별 줄 -->
-                <div class="card ta-section" id="secMedia" style="margin-top:24px;">
+                <!-- 견적 검수 · 승인 -->
+                <div class="card ta-section" id="secQuote" style="margin-top:24px;">
                     <div class="card-header flex-between">
                         <div>
-                            <h3 class="card-title">매체별 줄</h3>
-                            <div class="card-description">CJ 회신 · 고객 확정 값을 매체마다 관리합니다. 금액은 모두 부가세 별도이며, 공급가 = 판매 단가 × 확정 건수, 부가세 10%.</div>
+                            <h3 class="card-title">견적 검수 · 승인</h3>
+                            <div class="card-description">요청 건수 · CJ 회신 건수 · CJ 회신 금액 · 고객 결제 금액을 나란히 대조합니다. 승인 전에는 고객 마이페이지에 견적이 보이지 않습니다. 금액은 모두 부가세 별도.</div>
                         </div>
-                        <button class="btn btn-primary btn-sm" onclick="saveMedia()">변경 저장</button>
+                        <span class="ta-status s-action">견적 승인 대기</span>
                     </div>
                     <div class="table-container">
-                        <table class="ta-media-table">
-                            <thead>
-                                <tr>
-                                    <th>매체</th>
-                                    <th>형태</th>
-                                    <th class="ta-num">희망</th>
-                                    <th>가능 모수 (CJ)</th>
-                                    <th>확대안</th>
-                                    <th>확정 건수</th>
-                                    <th>발송일</th>
-                                    <th>판매 단가</th>
-                                    <th class="ta-num">공급가</th>
-                                    <th class="ta-num">부가세</th>
-                                    <th>진행</th>
-                                </tr>
-                            </thead>
+                        <table class="ta-cmp">
+                            <thead><tr><th>항목</th><th>값</th><th>근거</th><th>대조</th></tr></thead>
                             <tbody>
-                                <tr data-line="1">
-                                    <td><span class="ta-media">SKT</span></td>
-                                    <td>MMS</td>
-                                    <td class="ta-num">20,000</td>
-                                    <td><input class="ta-input-sm ta-num" value="20,000"></td>
-                                    <td><input class="ta-input-sm" value="" placeholder="없음"></td>
-                                    <td><input class="ta-input-sm ta-num js-qty" value="" placeholder="고객 확정 전"></td>
-                                    <td><input type="date" class="ta-input-sm" value="2026-11-20"></td>
-                                    <td><input class="ta-input-sm ta-num js-price" value="" placeholder="미정"></td>
-                                    <td class="ta-num"><span class="js-supply ta-tbd">미정</span></td>
-                                    <td class="ta-num"><span class="js-vat ta-tbd">미정</span></td>
-                                    <td><span class="ta-status s-action">모수 회신</span></td>
-                                </tr>
-                                <tr data-line="2">
-                                    <td><span class="ta-media">직방</span></td>
-                                    <td>앱 카드</td>
-                                    <td class="ta-num">20,000</td>
-                                    <td><input class="ta-input-sm ta-num" value="15,000"></td>
-                                    <td><input class="ta-input-sm" style="min-width:180px;" value="지역 확대(수원 영통·용인 기흥) 시 2만"></td>
-                                    <td><input class="ta-input-sm ta-num js-qty" value="" placeholder="고객 확정 전"></td>
-                                    <td><input type="date" class="ta-input-sm" value="2026-11-20"></td>
-                                    <td><input class="ta-input-sm ta-num js-price" value="" placeholder="미정"></td>
-                                    <td class="ta-num"><span class="js-supply ta-tbd">미정</span></td>
-                                    <td class="ta-num"><span class="js-vat ta-tbd">미정</span></td>
-                                    <td><span class="ta-status s-action">모수 회신</span></td>
-                                </tr>
+                                <tr><td>요청 건수</td><td class="v">20,000건</td><td class="ta-muted">고객 신청 11/16 09:12</td><td><span class="ta-res na">기준</span></td></tr>
+                                <tr><td>CJ 회신 가능 모수 · 건수</td><td class="v"><input class="ta-input-sm ta-num" id="cjQty" value="20,000"></td><td class="ta-muted">Slack 회신 11/16 16:40 · <span class="ta-ai">AI 보조 · 확인 필요</span> 읽은 값</td><td id="resQty"></td></tr>
+                                <tr><td>요금표 기준 광고비</td><td class="v" id="refAmount">3,000,000원</td><td class="ta-muted">발송단가 150원 × CJ 회신 건수 (이용신청서 요금표 · 직방/호갱노노) · 최소 금액 3,000,000원</td><td id="resMin"></td></tr>
+                                <tr id="rowCjAmount"><td>CJ 회신 금액</td><td class="v"><input class="ta-input-sm ta-num" id="cjAmount" value="2,000,000"></td><td class="ta-muted">Slack 회신 11/16 16:40 「광고비 200만 원(VAT 별도)」 · <span class="ta-ai">AI 보조 · 확인 필요</span></td><td id="resAmount"></td></tr>
+                                <tr><td>판매 단가 (원/건)</td><td class="v"><input class="ta-input-sm ta-num" id="salePrice" placeholder="〔결정〕"></td><td class="ta-muted">「매체 규칙·판매 단가」 미등록 〔결정〕 · 여기 넣은 값은 이 신청에만 적용</td><td id="resPrice"></td></tr>
+                                <tr><td>고객 결제 금액</td><td class="v" id="custAmount"><span class="ta-tbd">미정</span></td><td class="ta-muted">판매 단가 × CJ 회신 건수 · 부가세 10% 별도 · 결제(최종 승인) 시점에 포인트 차감</td><td id="resCust"></td></tr>
                             </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="8" class="text-right">합계 (부가세 별도 공급가 / 부가세)</td>
-                                    <td class="ta-num"><span id="sumSupply" class="ta-tbd">미정</span></td>
-                                    <td class="ta-num"><span id="sumVat" class="ta-tbd">미정</span></td>
-                                    <td></td>
-                                </tr>
-                            </tfoot>
                         </table>
                     </div>
-                    <div class="ta-alert info" style="margin-top:12px;">판매 단가가 아직 정해지지 않았습니다. 「매체 규칙·판매 단가」에 단가가 등록되면 매체 · 형태에 맞는 값이 자동으로 들어옵니다. 여기서 바꾼 단가는 이 신청에만 적용됩니다.</div>
+                    <div id="quoteWarnBox" style="margin-top:12px;"></div>
+                    <div class="ta-alert info" style="margin-top:8px;">CJ에는 발송 D-3 전 현금 선입금 (이용신청서). 1순위 11/27(금) 발송이면 입금 기한 11/24(화). 고객 결제 마감은 발송 ○일 전 〔결정〕.</div>
+                    <div class="ta-actions" style="margin-top:12px;">
+                        <button class="btn btn-outline" onclick="openRecheck()">CJ에 재확인</button>
+                        <button class="btn btn-primary" id="btnApproveQuote" onclick="approveQuote()" disabled>견적 승인 · 고객 노출</button>
+                    </div>
                 </div>
 
-                <!-- 메시지 기록 -->
-                <div class="card ta-section" id="secTimeline" style="margin-top:24px;">
-                    <div class="card-header flex-between">
-                        <div>
-                            <h3 class="card-title">메시지 기록</h3>
-                            <div class="card-description">고객 · 챗봇 · 에이전트 · CJ · 운영자 · 시스템이 주고받은 기록 (target_ad_message). 최신이 아래.</div>
-                        </div>
-                        <select class="form-control sm" style="width:auto;" id="timelineFilter" onchange="filterTimeline(this.value)">
-                            <option value="">전체 보기</option>
-                            <option value="customer">고객</option>
-                            <option value="bot">챗봇</option>
-                            <option value="agent">에이전트</option>
-                            <option value="cj">CJ</option>
-                            <option value="operator">운영자</option>
-                            <option value="system">시스템</option>
-                        </select>
+                <!-- CJ 수정 문구 → 고객 확인 요청 -->
+                <div class="card ta-section" id="secCopy" style="margin-top:24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">CJ 수정 문구 등록 · 고객 확인 요청</h3>
+                        <div class="card-description">반려 코드는 없습니다. CJ가 매체 가이드에 맞춰 고친 문구를 주면 고객 확인을 받고, 고객이 확인하면 그 문구로 매체에 전달합니다 (CJ 11/16 회신).</div>
                     </div>
-                    <div class="ta-timeline" id="timelineList">
-                        <div class="ta-tl-item a-customer" data-actor="customer">
-                            <span class="ta-tl-dot"></span>
-                            <div class="ta-tl-head"><span class="ta-actor customer">고객</span><span class="ta-actor bot">챗봇</span><span class="ta-channel">챗봇 창</span><span>11/13 08:41 ~ 09:11</span></div>
-                            <div class="ta-tl-body">상담 대화 38턴 (단계 ①~⑩, 요약 확인 후 「이대로 접수」) <a href="#" onclick="showToast('상담 대화 전체를 새 창으로 엽니다.', 'info');return false;">대화 전체 보기</a></div>
+                    <div class="ta-alert warn" style="margin-bottom:12px;"><span class="ta-example">예시</span> 결제 후 CJ가 수정 문구를 보내면 씁니다. 지금 상태(견적 승인 대기)에서는 아직 오지 않았고, 아래는 그때의 화면 예시입니다.</div>
+                    <div class="ta-side">
+                        <div class="ta-pane">
+                            <div class="ta-pane-head"><span>원래 문구 (고객 신청)</span><span>11/16 09:12</span></div>
+                            <div class="ta-pane-body ta-copy-diff">(광고) 고덕 한빛 리버뷰 잔여세대 분양
+고덕국제신도시 생활권, 84㎡ <del>선착순 계약</del>
+모델하우스: 평택역 도보 5분
+분양 문의 1600-0000</div>
                         </div>
-                        <div class="ta-tl-item a-system" data-actor="system">
-                            <span class="ta-tl-dot"></span>
-                            <div class="ta-tl-head"><span class="ta-actor system">시스템</span><span class="ta-channel">메일</span><span>11/13 09:12</span><span class="ta-appr auto">자동</span></div>
-                            <div class="ta-tl-body">접수 완료 안내 메일 발송 (TA_RECEIVED) → 고객</div>
-                        </div>
-                        <div class="ta-tl-item a-agent" data-actor="agent">
-                            <span class="ta-tl-dot"></span>
-                            <div class="ta-tl-head"><span class="ta-actor agent">에이전트</span><span class="ta-channel">카카오톡 → CJ</span><span>11/13 09:12</span><span class="ta-appr approved">승인 · 이지원 09:48</span></div>
-                            <div class="ta-tl-body">CJ 모수확인 요청 2건(SKT, 직방) 초안 생성 → 운영자가 확인 후 카카오톡으로 직접 전송하고 「보냈음 기록」</div>
-                        </div>
-                        <div class="ta-tl-item a-cj" data-actor="cj">
-                            <span class="ta-tl-dot"></span>
-                            <div class="ta-tl-head"><span class="ta-actor cj">CJ</span><span class="ta-channel">카카오톡 (수동 등록 · 이지원)</span><span>11/13 15:20</span><span class="badge badge-info">분류: 모수 회신 · 신뢰도 0.97</span></div>
-                            <div class="ta-tl-body">[톡벨 TA-20261113-001] SKT 조건대로 2만 가능합니다. 직방은 1.5만이고 지역 확대(수원 영통, 용인 기흥 추가) 시 2만 가능합니다. 두 매체 모두 11/20 발송 가능합니다.</div>
-                        </div>
-                        <div class="ta-tl-item a-agent" data-actor="agent">
-                            <span class="ta-tl-dot"></span>
-                            <div class="ta-tl-head"><span class="ta-actor agent">에이전트</span><span class="ta-channel">알림톡 + 마이페이지 → 고객</span><span>11/13 15:21</span><span class="ta-appr pending">승인 대기</span></div>
-                            <div class="ta-tl-body">고객 견적 안내 초안 (매체별 가능 인원, 확대안, 견적표) <a href="target-ad-inbox.html">확인함에서 보기</a></div>
-                        </div>
-                        <div class="ta-tl-item a-customer" data-actor="customer" id="questionItem">
-                            <span class="ta-tl-dot"></span>
-                            <div class="ta-tl-head"><span class="ta-actor customer">고객</span><span class="ta-channel">마이페이지 (질문 보내기)</span><span>11/13 15:45</span><span class="badge badge-info">분류: 고객 질문 (CUSTOMER_QUESTION)</span><span class="ta-flag need" id="questionState">미답변</span><span class="ta-flag cj">CJ 확인 필요</span></div>
-                            <div class="ta-tl-body">무주택자만 골라서 보낼 수 있나요?</div>
-                            <div class="ta-muted" style="margin-top:6px;">중계 에이전트 판단 15:45 · 매체 규칙표 · 안내 원칙에 무주택 조건이 없어 답 초안을 만들지 않음 (답변 필요) · 매체 확인 필요(needs_cj) · 운영자 알림 TA_OP_QUESTION 보냄 · 신청 상태는 그대로</div>
-                            <div class="ta-answer-box" id="questionReply">
-                                <label class="form-label" for="qReplyText" style="margin-bottom:6px;">바로 답하기 <span class="ta-muted" style="font-weight:400;">· 고객 마이페이지 안내 기록 + 알림톡으로 갑니다</span></label>
-                                <textarea class="form-control" id="qReplyText" rows="3" placeholder="규칙표로 답할 수 없는 질문입니다. 직접 답을 써 주세요 (CJ 답을 받기 전에는 「가능합니다」라고 쓰지 마세요)" oninput="onReplyInput()"></textarea>
-                                <div class="ta-actions" style="justify-content:space-between;">
-                                    <span class="ta-muted" id="qReplyCheck">답을 쓰면 금지 표현 · 개인정보를 검사합니다.</span>
-                                    <span class="ta-actions">
-                                        <a href="target-ad-inbox.html" style="font-size:13px;color:var(--admin-primary);text-decoration:none;">확인함에서 보기</a>
-                                        <button class="btn btn-info btn-sm" onclick="openAskCj()">CJ에 묻기</button>
-                                        <button class="btn btn-primary btn-sm" id="btnReply" onclick="sendReply()" disabled>답 보내기</button>
-                                    </span>
-                                </div>
+                        <div class="ta-pane">
+                            <div class="ta-pane-head"><span>CJ 수정 문구 (Slack에서 붙여 넣기)</span><span>예시</span></div>
+                            <div class="ta-pane-body" style="padding:8px;">
+                                <textarea class="form-control" id="cjCopy" rows="7" style="font-size:13px;line-height:1.7;">(광고)[한빛분양마케팅] 고덕 한빛 리버뷰 잔여세대 분양
+고덕국제신도시 생활권, 84㎡ 계약 진행 중
+모델하우스: 평택역 도보 5분
+분양 문의 1600-0000
+무료수신거부 080-000-0000</textarea>
                             </div>
                         </div>
                     </div>
-                    <div class="ta-muted" style="margin-top:8px;">색 점: <span class="ta-actor customer">고객</span> <span class="ta-actor bot">챗봇</span> <span class="ta-actor agent">에이전트</span> <span class="ta-actor cj">CJ</span> <span class="ta-actor operator">운영자</span> <span class="ta-actor system">시스템</span></div>
+                    <div class="form-group" style="margin-top:12px;">
+                        <label class="form-label">CJ 메모 <span class="ta-muted" style="font-weight:400;">· 고객 안내에 함께 보여 줌</span></label>
+                        <input class="form-control" id="cjCopyMemo" value="매체 가이드에 맞춰 표현과 전송자 명칭 · 무료 수신거부 문구를 고쳤습니다.">
+                    </div>
+                    <div class="flex-between" style="flex-wrap:wrap;gap:12px;">
+                        <span class="ta-muted">고객 안내는 템플릿 문구(TA_COPY_CONFIRM)로 메일 · 문자 + 마이페이지. 운영자가 확인하고 보냅니다.</span>
+                        <button class="btn btn-primary" onclick="requestCopyConfirm()">고객에게 확인 요청</button>
+                    </div>
+                </div>
+
+                <!-- 취소 요청 처리 -->
+                <div class="card ta-section" id="secCancel" style="margin-top:24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">취소 요청 처리</h3>
+                        <div class="card-description">결제 후 고객 사정 취소는 원칙상 받지 않습니다. 예외 요청은 매체 위약금 가이드로 관리자가 수기 처리합니다 (위약금 공제 후 환불).</div>
+                    </div>
+                    <div class="ta-alert warn" style="margin-bottom:12px;"><span class="ta-example">예시</span> 결제 후 고객이 마이페이지에서 [취소 요청]을 누르면 열립니다. 아래는 이 신청이 결제됐다고 가정한 예시 값입니다.</div>
+                    <div class="ta-grid-2">
+                        <div>
+                            <div class="table-container">
+                                <table class="ta-kv">
+                                    <tr><th>고객 요청 사유</th><td>일정 변경 · 모델하우스 오픈이 12월로 밀렸습니다. <span class="ta-muted">(11/25 10:30 요청)</span></td></tr>
+                                    <tr><th>확정 발송일</th><td>11/27(금) 10:00</td></tr>
+                                    <tr><th>취소 처리 기준일</th><td><input type="date" class="ta-input-sm" id="cancelDate" value="2026-11-25" style="max-width:170px;"> <span id="cancelDn" class="ta-res wa"></span></td></tr>
+                                    <tr><th>매체 위약금 기준</th><td><b>직방/호갱노노</b> (가이드에 따로 없어 「그 밖의 매체」 적용)<br>발송일 3일 전(D-3)까지 취소할 수 있습니다. 그 이후 취소하면 광고비의 20%가 위약금으로 부과됩니다.</td></tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="table-container">
+                                <table class="ta-cmp" id="penaltyTable">
+                                    <thead><tr><th>계산</th><th class="ta-num">금액</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>적용 위약금 비율</td><td class="ta-num v" id="penRate">-</td></tr>
+                                        <tr><td>CJ 광고비 (요금표 150원 × 20,000건)</td><td class="ta-num v">3,000,000원</td></tr>
+                                        <tr><td>CJ에 낼 예상 위약금</td><td class="ta-num v" id="penCj">-</td></tr>
+                                        <tr><td>고객 결제 금액 (판매 단가 × 20,000건)</td><td class="ta-num v" id="penPaid"><span class="ta-tbd">〔결정〕</span></td></tr>
+                                        <tr><td>고객 예상 위약금</td><td class="ta-num v" id="penCust">-</td></tr>
+                                        <tr><td>예상 환불 금액 (결제 − 위약금)</td><td class="ta-num v" id="penRefund">-</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="ta-muted" style="margin-top:6px;">포인트 환불 10% 차감을 함께 적용할지는 회계 확인 뒤 정합니다 〔결정〕. 환불 방식 〔결정〕.</div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top:12px;">
+                        <label class="form-label">처리 메모<span class="ta-req">*</span></label>
+                        <textarea class="form-control" id="cancelMemo" rows="2" placeholder="예: CJ에 Slack으로 취소 가능 여부 확인 중 (11/25 10:50), 매체 부킹 확정 여부 확인"></textarea>
+                    </div>
+                    <div class="ta-actions">
+                        <button class="btn btn-outline" onclick="cancelAction('reject')">취소 불가 안내</button>
+                        <button class="btn btn-info" onclick="cancelAction('cj')">CJ에 취소 요청</button>
+                        <button class="btn btn-danger" onclick="cancelAction('confirm')">취소 확정 · 환불</button>
+                    </div>
+                </div>
+
+                <!-- Slack 전달 기록 -->
+                <div class="card ta-section" id="secSlack" style="margin-top:24px;">
+                    <div class="card-header flex-between">
+                        <div>
+                            <h3 class="card-title">Slack 전달 기록</h3>
+                            <div class="card-description">CJ와 주고받은 Slack 기록과 고객 알림. 스레드 하나 = 신청 하나, 머리에 [톡벨 접수번호]. 최신이 아래.</div>
+                        </div>
+                        <div class="ta-actions">
+                            <button class="btn btn-outline btn-sm" onclick="copyForward()">전달 양식 복사</button>
+                            <button class="btn btn-outline btn-sm" onclick="showToast('Slack으로 신청 전달을 다시 보냈습니다. 기록에 남았습니다.', 'success')">신청 다시 전달</button>
+                        </div>
+                    </div>
+                    <div class="ta-timeline" id="timelineList">
+                        <div class="ta-tl-item a-system">
+                            <span class="ta-tl-dot"></span>
+                            <div class="ta-tl-head"><span class="ta-actor system">시스템</span><span class="ta-channel">메일 · 문자 → 고객</span><span>11/16 09:12</span><span class="ta-appr auto">자동</span></div>
+                            <div class="ta-tl-body">접수 완료 안내 (템플릿 TA_RECEIVED)</div>
+                        </div>
+                        <div class="ta-tl-item a-system">
+                            <span class="ta-tl-dot"></span>
+                            <div class="ta-tl-head"><span class="ta-actor system">시스템</span><span class="ta-channel">Slack → CJ</span><span>11/16 09:13</span><span class="badge badge-info">① 신청 전달</span><span class="ta-appr auto">자동 (배치)</span></div>
+<pre class="ta-pre" id="forwardText">[톡벨 TA-20261116-001] 모수 확인 요청
+- 매체사: 직방/호갱노노
+- 현장명: 고덕 한빛 리버뷰
+- 발송가망일: 11/27 10:00 OR 11/30 14:00 OR 12/1 10:00 (2, 3순위 기재)
+- 발송건수: 2만
+- 타겟 연령: 30~55 (부족할 경우 연령 확대 가능)
+- 지역: 경기 평택시, 경기 오산시 (부족할 경우 지역 확대 가능)
+- 제목: 고덕 한빛 리버뷰 잔여세대 분양
+- 문구: (광고) 고덕 한빛 리버뷰 잔여세대 분양 / 고덕국제신도시 생활권, 84㎡ 선착순 계약 / 모델하우스: 평택역 도보 5분 / 분양 문의 1600-0000
+- 이미지: 고덕리버뷰_전단.jpg (첨부)</pre>
+                        </div>
+                        <div class="ta-tl-item a-cj">
+                            <span class="ta-tl-dot"></span>
+                            <div class="ta-tl-head"><span class="ta-actor cj">CJ</span><span class="ta-channel">Slack 회신</span><span>11/16 16:40</span><span class="badge badge-warning">CJ 회신</span></div>
+                            <div class="ta-tl-body">[톡벨 TA-20261116-001] 직방 조건대로 2만 건 가능합니다. 광고비 200만 원(VAT 별도)이고 11/27 발송 가능합니다.</div>
+                            <div class="ta-answer-box" style="border-color:#c4b5fd;background:#f5f3ff;">
+                                <div style="display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:13px;">
+                                    <span class="ta-ai">AI 보조 · 확인 필요</span>
+                                    <span>읽은 값: 가능 건수 <b>20,000</b> · 금액 <b>2,000,000원</b> · 발송 가능일 <b>11/27</b></span>
+                                    <span class="ta-muted">신뢰도 0.94</span>
+                                </div>
+                                <div class="ta-muted" style="margin-top:6px;">11/16 17:05 이지원 확인 · 건수는 그대로 확정, 금액은 요금표 기준(3,000,000원)과 달라 견적 승인 대기에서 재확인 필요. AI가 읽은 값은 사람이 확인하기 전에는 견적에 쓰지 않습니다.</div>
+                            </div>
+                        </div>
+                        <div class="ta-tl-item a-system">
+                            <span class="ta-tl-dot"></span>
+                            <div class="ta-tl-head"><span class="ta-actor system">시스템</span><span class="ta-channel">Slack → CJ</span><span>결제 완료 시</span><span class="badge badge-secondary">② 결제 승인 전달 · 예정</span></div>
+                            <div class="ta-tl-body ta-muted">고객 결제(포인트 차감)가 끝나면 추가 검수 없이 자동 전달: 「[톡벨 TA-20261116-001] 결제 승인 · 직방/호갱노노 20,000건 · 11/27 10:00 발송 진행 바랍니다」</div>
+                        </div>
+                    </div>
+                    <div class="ta-muted" style="margin-top:8px;">색 점: <span class="ta-actor cj">CJ</span> <span class="ta-actor operator">운영자</span> <span class="ta-actor system">시스템</span></div>
                 </div>
 
                 <div class="ta-grid-2" style="margin-top:24px;">
-                    <!-- CJ 메시지 수동 등록 -->
-                    <div class="card ta-section" id="secCjInput">
-                        <div class="card-header">
-                            <h3 class="card-title">CJ 메시지 수동 등록</h3>
-                            <div class="card-description">카카오톡 · 메일로 받은 CJ 메시지를 그대로 붙여 넣고 분류를 실행합니다.</div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">받은 채널</label>
-                            <select class="form-control" id="cjChannel">
-                                <option value="CJ_KAKAO">카카오톡</option>
-                                <option value="CJ_MAIL">메일</option>
-                                <option value="CJ_SLACK">슬랙 (수동)</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">메시지 원문<span class="ta-req">*</span></label>
-                            <textarea class="form-control" id="cjText" rows="5" placeholder="CJ 메시지를 그대로 붙여 넣으세요. 고치지 말고 원문 그대로."></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">첨부 (이미지 · 엑셀)</label>
-                            <input type="file" class="form-control" multiple accept=".png,.jpg,.jpeg,.xlsx,.pdf">
-                        </div>
-                        <div class="flex-between">
-                            <span class="ta-muted">분류 결과는 기록에 남고, 고객 안내 초안은 확인함으로 갑니다.</span>
-                            <button class="btn btn-primary" onclick="runClassify()">분류 실행</button>
-                        </div>
-                        <div id="cjResult" style="margin-top:16px;"></div>
-                    </div>
-
-                    <!-- 리포트 업로드 -->
+                    <!-- 결과 리포트 -->
                     <div class="card ta-section" id="secReport">
                         <div class="card-header">
-                            <h3 class="card-title">리포트 업로드</h3>
-                            <div class="card-description">CJ 리포트 엑셀(CJ ON_대행사명_현장명_발송일자_리포트 형식.xlsx)과 증빙 이미지를 올립니다.</div>
+                            <h3 class="card-title">결과 리포트 업로드</h3>
+                            <div class="card-description">CJ 리포트 엑셀을 올리면 읽어서 정돈된 표로 고객 마이페이지에 보여 줍니다. 발송 후 약 4일 안에 받습니다.</div>
                         </div>
                         <div class="ta-drop">
                             엑셀 · 이미지를 끌어 놓거나 <button class="btn btn-outline btn-sm" disabled>파일 선택</button><br>
-                            <span class="ta-muted">발송 완료(SENT) 이후에 올릴 수 있습니다. 지금 상태: 모수 회신</span>
+                            <span class="ta-muted">발송 완료 이후에 올릴 수 있습니다. 지금 상태: 견적 승인 대기</span>
                         </div>
-                        <div class="ta-sub-title" style="margin-top:16px;">파싱 결과 미리보기 <span class="ta-muted">(예시: 업로드 후 이렇게 보입니다)</span></div>
+                        <div class="ta-sub-title" style="margin-top:16px;">읽은 결과 미리보기 <span class="ta-muted">(예시: 업로드 후 이렇게 보입니다)</span></div>
                         <div class="table-container">
                             <table class="ta-kv">
                                 <tr><th>현장명</th><td>고덕 한빛 리버뷰 <span class="badge badge-success">일치</span></td></tr>
-                                <tr><th>발송매체 · 상품</th><td>SKT · MMS <span class="badge badge-success">일치</span></td></tr>
-                                <tr><th>발송 일정</th><td>2026-11-20 10:00 <span class="badge badge-success">일치</span></td></tr>
-                                <tr><th>발송 / 성공 / 클릭</th><td>20,000 / <b style="color:#dc2626;">19,820</b> / 412 (2.08%)</td></tr>
+                                <tr><th>매체</th><td>직방/호갱노노 <span class="badge badge-success">일치</span></td></tr>
+                                <tr><th>발송 일시</th><td>2026-11-27 10:00 <span class="badge badge-success">일치</span></td></tr>
+                                <tr><th>발송 / 성공 / 클릭</th><td>20,000 / <b style="color:#dc2626;">19,820</b> / -</td></tr>
                             </table>
                         </div>
-                        <div class="ta-alert danger" style="margin-top:12px;">성공 건수(19,820)가 확정 건수(20,000)보다 적습니다. 운영자 확인 전에는 고객에게 리포트 안내가 나가지 않습니다.</div>
-                        <div class="ta-alert warn">직방 리포트의 클릭 수 칸이 「-」이면 「이 매체는 클릭 수를 제공하지 않습니다」로 표시합니다.</div>
+                        <div class="ta-alert danger" style="margin-top:12px;">성공 건수(19,820)가 확정 건수(20,000)보다 적습니다. 운영자 확인 전에는 고객에게 리포트가 보이지 않습니다.</div>
+                        <div class="ta-alert warn">클릭 수 칸이 「-」이면 고객 화면에 「이 매체는 클릭 수를 제공하지 않습니다」로 표시합니다. 표 모양은 실제 CJ 엑셀로 시험한 뒤 확정합니다.</div>
                         <div class="ta-actions" style="margin-top:12px;">
                             <button class="btn btn-outline btn-sm" disabled>다시 올리기</button>
                             <button class="btn btn-primary btn-sm" disabled>확인하고 고객에게 등록</button>
                         </div>
                     </div>
-                </div>
 
-                <!-- CJ 전달 양식 미리보기 -->
-                <div class="card ta-section" id="secForward" style="margin-top:24px;">
-                    <div class="card-header flex-between">
-                        <div>
-                            <h3 class="card-title">CJ 전달 양식 미리보기</h3>
-                            <div class="card-description">정리본을 CJ 모수확인 요청 양식(설계서 7.1)으로 바꾼 것. 매체마다 한 덩어리, 머리에 접수번호.</div>
-                        </div>
-                        <div class="ta-actions">
-                            <button class="btn btn-outline btn-sm" onclick="copyForward()">복사</button>
-                            <button class="btn btn-outline btn-sm" onclick="markSent()">보냈음 기록</button>
-                            <button class="btn btn-secondary btn-sm" disabled title="슬랙 공유 채널 미연결 〔결정〕">슬랙 전송 (미연결)</button>
-                        </div>
-                    </div>
-                    <div class="ta-alert ok" style="margin-bottom:12px;">전송 전 검사 통과: 전화번호 · 이메일 · 사람 이름 패턴 없음. 11/13 09:48 이지원이 카카오톡으로 보냈다고 기록함.</div>
-                    <div class="ta-grid-2">
-<pre class="ta-pre" id="forwardSkt">[톡벨 TA-20261113-001] 모수 확인 요청
-- 매체사: SKT
-- 현장명: 고덕 한빛 리버뷰
-- 발송가망일: 11/20 OR 11/24 OR 11/25 (2, 3순위 기재)
-- 발송건수: 2만
-- 타겟 연령: 30~55 (부족할 경우 연령 확대 가능)
-- 지역: 경기 평택시, 경기 오산시, 경기 화성시(동탄) (부족할 경우 지역 확대 가능)
-- 성별: 전체
-- 메시지 형태: MMS
-- 추가 요청: 부동산 앱 이용자 / 무주택자 조건 가능 여부 / 시공사 도급 순위(한빛건설, 1군 아님) 진행 가능 여부</pre>
-<pre class="ta-pre" id="forwardZigbang">[톡벨 TA-20261113-001] 모수 확인 요청
-- 매체사: 직방
-- 현장명: 고덕 한빛 리버뷰
-- 발송가망일: 11/20 OR 11/24 OR 11/25 (2, 3순위 기재)
-- 발송건수: 2만
-- 타겟 연령: 30~55 (부족할 경우 연령 확대 가능)
-- 지역: 경기 평택시, 경기 오산시, 경기 화성시(동탄) (부족할 경우 지역 확대 가능)
-- 성별: 전체
-- 메시지 형태: 앱 카드
-- 추가 요청: 부동산 앱 이용자 / 무주택자 조건 가능 여부</pre>
-                    </div>
-                </div>
-
-                <div class="ta-grid-2" style="margin-top:24px;">
                     <!-- 상태 이력 -->
                     <div class="card ta-section" id="secHistory">
                         <div class="card-header">
@@ -399,89 +339,87 @@
                             <table>
                                 <thead><tr><th>일시</th><th>변경</th><th>바꾼 쪽</th><th>사유</th></tr></thead>
                                 <tbody>
-                                    <tr><td class="ta-muted">11/13 15:21</td><td>모수 확인 요청 → <b>모수 회신</b></td><td>시스템 (중계 분류)</td><td>CJ 회신 분류 AUDIENCE_REPLY · 0.97</td></tr>
-                                    <tr><td class="ta-muted">11/13 09:48</td><td>접수 → <b>모수 확인 요청</b></td><td>운영자 이지원</td><td>모수확인 요청 2건 카카오톡 전송</td></tr>
-                                    <tr><td class="ta-muted">11/13 09:12</td><td>— → <b>접수</b></td><td>고객</td><td>챗봇 「이대로 접수」</td></tr>
+                                    <tr><td class="ta-muted">11/16 17:05</td><td>CJ 전달 → <b>견적 승인 대기</b></td><td>운영자 이지원</td><td>CJ 회신 읽은 값 확인</td></tr>
+                                    <tr><td class="ta-muted">11/16 09:13</td><td>접수 → <b>CJ 전달</b></td><td>시스템</td><td>Slack 신청 전달 (배치)</td></tr>
+                                    <tr><td class="ta-muted">11/16 09:12</td><td>— → <b>접수</b></td><td>고객</td><td>신청 양식 [신청하기]</td></tr>
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-
-                    <!-- 첨부 파일 -->
-                    <div class="card ta-section" id="secFiles">
-                        <div class="card-header">
-                            <h3 class="card-title">첨부 파일</h3>
-                        </div>
-                        <div class="ta-file"><span><span class="badge badge-info">문구 이미지</span> 고덕리버뷰_전단.jpg · 1.2MB · 고객 11/13 09:05</span><button class="btn btn-outline btn-sm" onclick="showToast('파일을 내려받습니다.', 'info')">받기</button></div>
-                        <div class="ta-file"><span><span class="badge badge-secondary">테스트 발송본</span> <span class="ta-muted">아직 없음</span></span></div>
-                        <div class="ta-file"><span><span class="badge badge-secondary">리포트 · 증빙</span> <span class="ta-muted">아직 없음</span></span></div>
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- 상태 변경 모달 -->
-    <div class="modal" id="statusModal">
+    <!-- 반려 처리 모달 -->
+    <div class="modal" id="rejectModal">
         <div class="modal-content" style="max-width:560px;">
             <div class="modal-header">
-                <h3 class="modal-title">상태 변경</h3>
-                <button class="modal-close" onclick="closeModal('statusModal')">&times;</button>
+                <h3 class="modal-title">반려 처리</h3>
+                <button class="modal-close" onclick="closeModal('rejectModal')">&times;</button>
+            </div>
+            <p style="font-size:13px;color:var(--admin-text-secondary);margin-bottom:12px;">CJ 반려 코드는 없습니다. 진행할 수 없는 건만 내용을 보고 사유를 직접 적어 반려합니다. 문구만 문제면 반려하지 말고 CJ 수정 문구로 고객 확인을 받으세요.</p>
+            <div class="form-group">
+                <label class="form-label">반려 사유 (고객에게 보임)<span class="ta-req">*</span></label>
+                <textarea class="form-control" id="rejectReason" rows="4" placeholder="예: 요청하신 지역 · 연령으로는 매체에서 최소 발송 건수를 채울 수 없어 진행이 어렵습니다."></textarea>
             </div>
             <div class="form-group">
-                <label class="form-label">현재 상태</label>
-                <div><span class="ta-status s-action">모수 회신</span> <span class="ta-muted">AUDIENCE_REPLIED</span></div>
+                <label class="form-label">고객 알림</label>
+                <div class="ta-notify">
+                    <label class="ta-check"><input type="checkbox" id="notiMail" checked> 메일</label>
+                    <label class="ta-check"><input type="checkbox" id="notiSms" checked> 문자</label>
+                </div>
+                <div class="ta-muted" style="margin-top:6px;">템플릿 TA_REJECTED: 「[톡벨] 고덕 한빛 리버뷰 타겟 광고 신청을 진행하지 못하게 되었습니다. 사유: {반려 사유}. 마이페이지에서 확인하실 수 있습니다.」 결제 전이라 비용은 들지 않습니다.</div>
             </div>
-            <div class="form-group">
-                <label class="form-label">바꿀 상태<span class="ta-req">*</span></label>
-                <select class="form-control" id="statusTo">
-                    <option value="">선택하세요</option>
-                    <option value="QUOTED">견적 안내 (QUOTED)</option>
-                    <option value="CANCELED">취소 (CANCELED)</option>
-                </select>
-                <div class="ta-muted" style="margin-top:6px;">지금 상태에서 갈 수 있는 상태만 보입니다.</div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">사유<span class="ta-req">*</span></label>
-                <textarea class="form-control" id="statusReason" rows="3" placeholder="예: 고객과 통화로 견적 안내 완료 (확인함 초안 반려 후 수동 처리)"></textarea>
-            </div>
-            <div class="ta-alert warn">수동으로 바꾸면 고객 · CJ에게 메시지가 나가지 않습니다. 보통은 확인함에서 견적 안내를 승인하면 상태가 자동으로 바뀝니다.</div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('statusModal')">닫기</button>
-                <button class="btn btn-primary" onclick="submitStatus()">변경</button>
+                <button class="btn btn-outline" onclick="closeModal('rejectModal')">닫기</button>
+                <button class="btn btn-danger" onclick="submitReject()">반려 확정</button>
             </div>
         </div>
     </div>
 
-    <!-- 취소 / 보류 모달 -->
-    <div class="modal" id="holdModal">
+    <!-- CJ 재확인 모달 -->
+    <div class="modal" id="recheckModal">
         <div class="modal-content" style="max-width:560px;">
             <div class="modal-header">
-                <h3 class="modal-title">취소 / 보류</h3>
-                <button class="modal-close" onclick="closeModal('holdModal')">&times;</button>
+                <h3 class="modal-title">CJ에 재확인 (Slack)</h3>
+                <button class="modal-close" onclick="closeModal('recheckModal')">&times;</button>
             </div>
-            <label class="ta-radio disabled"><input type="radio" name="holdType" value="ON_HOLD" disabled> <span><b>보류</b> <span class="ta-muted">· 접수 상태에서만 가능 (최소 기준 미달, 업종 확인 필요 등)</span></span></label>
-            <label class="ta-radio"><input type="radio" name="holdType" value="CANCELED" checked> <span><b>취소</b> <span class="ta-muted">· 고객 요청, 모수 부족 등. 되돌릴 수 없음</span></span></label>
-            <div class="form-group" style="margin-top:12px;">
-                <label class="form-label">사유 구분<span class="ta-req">*</span></label>
-                <select class="form-control" id="holdReasonType">
-                    <option value="">선택하세요</option>
-                    <option>고객 요청</option>
-                    <option>모수 부족</option>
-                    <option>업종 · 문구 제한</option>
-                    <option>일정 불가</option>
-                    <option>기타</option>
-                </select>
-            </div>
+            <p style="font-size:13px;color:var(--admin-text-secondary);margin-bottom:12px;">이 신청의 Slack 스레드에 보냅니다. 고객 이름 · 연락처는 넣지 않습니다.</p>
             <div class="form-group">
-                <label class="form-label">사유<span class="ta-req">*</span></label>
-                <textarea class="form-control" id="holdReason" rows="3"></textarea>
+                <label class="form-label">보낼 내용</label>
+                <textarea class="form-control" id="recheckText" rows="6" style="font-size:13px;line-height:1.7;"></textarea>
             </div>
-            <label class="ta-check" style="height:auto;padding:10px 12px;"><input type="checkbox" checked> 고객 안내 초안을 만들어 확인함에 넣기</label>
-            <div class="ta-alert warn" style="margin-top:12px;">결제 이후 취소 · 환불 규칙은 아직 정해지지 않았습니다 〔결정〕. 결제 대기 이후 상태에서는 취소 전에 경영지원과 확인하세요.</div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('holdModal')">닫기</button>
-                <button class="btn btn-danger" onclick="submitHold()">처리</button>
+                <button class="btn btn-outline" onclick="closeModal('recheckModal')">닫기</button>
+                <button class="btn btn-primary" onclick="sendRecheck()">Slack으로 보내기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 취소 확정 · 환불 모달 -->
+    <div class="modal" id="cancelConfirmModal">
+        <div class="modal-content" style="max-width:520px;">
+            <div class="modal-header">
+                <h3 class="modal-title">취소 확정 · 환불</h3>
+                <button class="modal-close" onclick="closeModal('cancelConfirmModal')">&times;</button>
+            </div>
+            <div class="ta-alert danger">되돌릴 수 없습니다. CJ에서 취소가 확인된 뒤에만 확정하세요.</div>
+            <div class="table-container" style="margin-top:12px;">
+                <table class="ta-kv" id="cancelSummary">
+                    <tr><th>위약금 비율</th><td id="cfRate">-</td></tr>
+                    <tr><th>고객 위약금</th><td id="cfCust">-</td></tr>
+                    <tr><th>환불 금액</th><td id="cfRefund">-</td></tr>
+                </table>
+            </div>
+            <label class="ta-check" style="height:auto;padding:10px 12px;margin-top:12px;"><input type="checkbox" id="cfCjOk"> CJ에서 취소를 확인했습니다 (Slack 회신)</label>
+            <div class="ta-notify" style="margin-top:8px;">
+                <label class="ta-check"><input type="checkbox" checked> 고객 메일</label>
+                <label class="ta-check"><input type="checkbox" checked> 고객 문자</label>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('cancelConfirmModal')">닫기</button>
+                <button class="btn btn-danger" onclick="submitCancel()">취소 확정</button>
             </div>
         </div>
     </div>
@@ -499,7 +437,7 @@
                 <select class="form-control" id="revealReason">
                     <option value="">선택하세요</option>
                     <option>고객 문의 응대</option>
-                    <option>발송 오류 확인</option>
+                    <option>취소 · 환불 처리</option>
                     <option>정산 · 세금계산서</option>
                 </select>
             </div>
@@ -510,159 +448,130 @@
         </div>
     </div>
 
-    <!-- CJ에 묻기 모달 -->
-    <div class="modal" id="askCjModal">
-        <div class="modal-content" style="max-width:560px;">
-            <div class="modal-header">
-                <h3 class="modal-title">CJ에 묻기</h3>
-                <button class="modal-close" onclick="closeModal('askCjModal')">&times;</button>
-            </div>
-            <p style="font-size:13px;color:var(--admin-text-secondary);margin-bottom:12px;">고객 질문을 CJ에 확인하는 회신 초안입니다. 고객 이름 · 연락처는 넣지 않고, 머리에 [톡벨 접수번호]를 붙입니다.</p>
-            <div class="form-group">
-                <label class="form-label">CJ 회신 초안</label>
-                <textarea class="form-control" id="askCjText" rows="7" style="font-size:13px;line-height:1.7;" oninput="askCjChecks()">[톡벨 TA-20261113-001] 조건 확인 요청
-- 매체사: SKT, 직방
-- 현장명: 고덕 한빛 리버뷰
-- 문의: 무주택자만 골라서 발송할 수 있는지 매체별로 확인 부탁드립니다.
-  (11/13 모수 확인 요청의 추가 요청 줄에 적었으나 회신에 없어 다시 여쭙니다)</textarea>
-            </div>
-            <ul class="ta-checks" id="askCjCheckList"></ul>
-            <div class="ta-alert info" style="margin-top:8px;">복사해 카카오톡에 붙여 넣고 「보냈음 기록」으로 남깁니다. 질문은 미답변(CJ 회신 대기)으로 남고, CJ 답이 오면 그 답으로 고객 답 초안이 확인함에 올라갑니다.</div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('askCjModal')">닫기</button>
-                <button class="btn btn-primary" onclick="askCjSend()">복사하고 보냈음 기록</button>
-            </div>
-        </div>
-    </div>
-
     <script src="js/admin-common.js"></script>
     <script>
+        const REQ_QTY = 20000, MEDIA_UNIT = 150, MEDIA_MIN_QTY = 20000, MEDIA_MIN_AMT = 3000000; // 이용신청서 요금표 · 직방/호갱노노
+        const SEND_DATE = '2026-11-27';
         function num(v) { return Number(String(v).replace(/[^0-9.]/g, '')) || 0; }
-        function won(n) { return n.toLocaleString('ko-KR') + '원'; }
+        function won(n) { return Math.round(n).toLocaleString('ko-KR') + '원'; }
+        function res(cls, t) { return `<span class="ta-res ${cls}">${t}</span>`; }
 
-        // 판매 단가 × 확정 건수 → 공급가 · 부가세
-        function recalc() {
-            let sumS = 0, sumV = 0, any = false;
-            document.querySelectorAll('#secMedia tbody tr').forEach(tr => {
-                const q = num(tr.querySelector('.js-qty').value);
-                const p = num(tr.querySelector('.js-price').value);
-                const s = tr.querySelector('.js-supply'), v = tr.querySelector('.js-vat');
-                if (q && p) {
-                    const supply = Math.round(p * q), vat = Math.round(supply * 0.1);
-                    s.textContent = won(supply); v.textContent = won(vat);
-                    s.classList.remove('ta-tbd'); v.classList.remove('ta-tbd');
-                    sumS += supply; sumV += vat; any = true;
-                } else {
-                    s.textContent = '미정'; v.textContent = '미정';
-                    s.classList.add('ta-tbd'); v.classList.add('ta-tbd');
-                }
-            });
-            const a = document.getElementById('sumSupply'), b = document.getElementById('sumVat');
-            a.textContent = any ? won(sumS) : '미정'; b.textContent = any ? won(sumV) : '미정';
-            a.classList.toggle('ta-tbd', !any); b.classList.toggle('ta-tbd', !any);
+        // 견적 대조: 요청 건수 · CJ 회신 건수 · 요금표 기준 · CJ 회신 금액 · 고객 결제 금액
+        function recalcQuote() {
+            const qty = num(document.getElementById('cjQty').value);
+            const cjAmt = num(document.getElementById('cjAmount').value);
+            const price = num(document.getElementById('salePrice').value);
+            const ref = qty * MEDIA_UNIT;
+            const warns = [];
+            document.getElementById('refAmount').textContent = won(ref);
+
+            if (qty === REQ_QTY) document.getElementById('resQty').innerHTML = res('ok', '요청과 같음');
+            else { document.getElementById('resQty').innerHTML = res('ng', `요청과 ${(qty - REQ_QTY).toLocaleString('ko-KR')}건 차이`); warns.push(`CJ 회신 건수(${qty.toLocaleString('ko-KR')})가 요청 건수(20,000)와 다릅니다. 고객에게 바뀐 건수로 안내할지 확인하세요.`); }
+            if (qty < MEDIA_MIN_QTY) warns.push(`매체 최소 건수(${MEDIA_MIN_QTY.toLocaleString('ko-KR')}건)보다 적습니다.`);
+            document.getElementById('resMin').innerHTML = ref >= MEDIA_MIN_AMT ? res('ok', '최소 금액 충족') : res('ng', '최소 금액 미달');
+
+            const amtOk = cjAmt === ref;
+            document.getElementById('resAmount').innerHTML = amtOk ? res('ok', '요금표 기준과 같음') : res('ng', `기준과 ${won(cjAmt - ref)} 차이`);
+            document.getElementById('rowCjAmount').classList.toggle('diff', !amtOk);
+            if (!amtOk) warns.push(`CJ 회신 금액(${won(cjAmt)})이 요금표 기준 광고비(${won(ref)})와 다릅니다. [CJ에 재확인]으로 금액을 확인하세요.`);
+
+            const cust = document.getElementById('custAmount');
+            if (price) {
+                const supply = price * qty;
+                cust.innerHTML = `${won(supply)} <span class="ta-muted" style="font-weight:400;">+ 부가세 ${won(supply * 0.1)}</span>`;
+                document.getElementById('resPrice').innerHTML = res('ok', '입력됨');
+                document.getElementById('resCust').innerHTML = res('ok', `${price.toLocaleString('ko-KR')}원 × ${qty.toLocaleString('ko-KR')}건`);
+            } else {
+                cust.innerHTML = '<span class="ta-tbd">미정</span>';
+                document.getElementById('resPrice').innerHTML = res('wa', '〔결정〕 미등록');
+                document.getElementById('resCust').innerHTML = res('wa', '판매 단가 필요');
+                warns.push('판매 단가가 없어 고객 결제 금액을 계산할 수 없습니다 〔결정〕.');
+            }
+            document.getElementById('quoteWarnBox').innerHTML = warns.length
+                ? warns.map(w => `<div class="ta-alert danger">${w}</div>`).join('')
+                : '<div class="ta-alert ok">대조 통과: 요청 건수 · CJ 회신 건수 · 금액이 맞고 고객 결제 금액이 계산됐습니다.</div>';
+            document.getElementById('btnApproveQuote').disabled = warns.length > 0;
+            recalcCancel();
         }
-        document.querySelectorAll('.js-qty, .js-price').forEach(el => el.addEventListener('input', recalc));
+        ['cjQty', 'cjAmount', 'salePrice'].forEach(id => document.getElementById(id).addEventListener('input', recalcQuote));
 
-        function saveMedia() { showToast('매체별 줄을 저장했습니다. 작업 로그에 남았습니다.', 'success'); }
+        function approveQuote() {
+            document.getElementById('headStatus').textContent = '결제 대기';
+            document.getElementById('headStatus').className = 'ta-status s-customer';
+            showToast('견적을 승인했습니다. 고객 마이페이지에 견적이 보이고, 메일 · 문자로 안내했습니다 (템플릿 TA_QUOTED).', 'success');
+        }
+        function openRecheck() {
+            const qty = num(document.getElementById('cjQty').value), cjAmt = num(document.getElementById('cjAmount').value);
+            document.getElementById('recheckText').value =
+`[톡벨 TA-20261116-001] 견적 재확인 요청
+- 매체사: 직방/호갱노노
+- 현장명: 고덕 한빛 리버뷰
+- 회신 건수: ${qty.toLocaleString('ko-KR')}건 / 회신 금액: ${won(cjAmt)}
+- 요금표 기준(150원 × ${qty.toLocaleString('ko-KR')}건): ${won(qty * MEDIA_UNIT)}
+금액이 달라 확인 부탁드립니다.`;
+            openModal('recheckModal');
+        }
+        function sendRecheck() { closeModal('recheckModal'); showToast('Slack 스레드로 재확인 요청을 보냈습니다. 회신이 오면 확인함에 올라옵니다.', 'info'); }
 
-        function filterTimeline(actor) {
-            document.querySelectorAll('#timelineList .ta-tl-item').forEach(el => {
-                el.style.display = !actor || el.dataset.actor === actor ? '' : 'none';
-            });
+        function requestCopyConfirm() {
+            if (!document.getElementById('cjCopy').value.trim()) { showToast('CJ 수정 문구를 붙여 넣어 주세요.', 'error'); return; }
+            showToast('고객에게 문구 확인을 요청했습니다 (메일 · 문자 + 마이페이지). 상태: 문구 확인 중.', 'success');
         }
 
-        function runClassify() {
-            const text = document.getElementById('cjText').value.trim();
-            if (!text) { showToast('CJ 메시지 원문을 붙여 넣어 주세요.', 'error'); return; }
-            const hasNo = /TA-\d{8}-\d{3}/.test(text);
-            document.getElementById('cjResult').innerHTML = `
-                <div class="ta-alert ${hasNo ? 'ok' : 'warn'}">
-                    <b>분류 결과</b> · ${hasNo ? '접수번호로 이 신청과 연결 (신뢰도 0.95)' : '접수번호가 없어 현장명 · 발송일로 찾았습니다 (신뢰도 0.71) → 운영자 확인 필요'}<br>
-                    분류: 모수 회신(AUDIENCE_REPLY) · 추출: SKT 가능 20,000 / 직방 가능 15,000 (확대 시 20,000)<br>
-                    고객 견적 안내 초안을 확인함에 만들었습니다. CJ 메시지 속 지시 문장은 자동 발송 근거로 쓰지 않습니다.
-                </div>`;
-            showToast('분류를 실행했습니다.', 'success');
+        // 취소: 그 밖의 매체 기준 (D-3까지 취소 가능, 이후 20%) · 달력 일수
+        let cancelCalc = null;
+        function recalcCancel() {
+            const d = document.getElementById('cancelDate').value;
+            const dn = Math.round((new Date(SEND_DATE + 'T00:00:00') - new Date(d + 'T00:00:00')) / 86400000);
+            const rate = dn >= 3 ? 0 : 0.2;
+            document.getElementById('cancelDn').textContent = dn >= 0 ? `D-${dn}` : '발송일 지남';
+            document.getElementById('penRate').textContent = dn >= 3 ? '0% (D-3까지 취소 가능)' : '20% (D-3 이후)';
+            document.getElementById('penCj').textContent = won(MEDIA_UNIT * REQ_QTY * rate);
+            const price = num(document.getElementById('salePrice').value);
+            if (price) {
+                const paid = price * REQ_QTY;
+                document.getElementById('penPaid').textContent = won(paid);
+                document.getElementById('penCust').textContent = won(paid * rate);
+                document.getElementById('penRefund').textContent = won(paid - paid * rate);
+                cancelCalc = { rate, cust: won(paid * rate), refund: won(paid - paid * rate) };
+            } else {
+                document.getElementById('penPaid').innerHTML = '<span class="ta-tbd">〔결정〕</span>';
+                document.getElementById('penCust').textContent = `결제 금액 × ${rate * 100}%`;
+                document.getElementById('penRefund').textContent = `결제 금액 × ${100 - rate * 100}%`;
+                cancelCalc = { rate, cust: `결제 금액 × ${rate * 100}%`, refund: `결제 금액 × ${100 - rate * 100}%` };
+            }
+        }
+        document.getElementById('cancelDate').addEventListener('change', recalcCancel);
+
+        function cancelAction(kind) {
+            if (!document.getElementById('cancelMemo').value.trim()) { showToast('처리 메모를 입력하세요.', 'error'); return; }
+            if (kind === 'cj') { showToast('Slack 스레드로 CJ에 취소 가능 여부를 요청했습니다.', 'info'); return; }
+            if (kind === 'reject') { showToast('취소 불가를 안내했습니다 (템플릿 TA_CANCEL_DENIED · 메일 · 문자). 상태는 원래대로 돌아갑니다.', 'info'); return; }
+            document.getElementById('cfRate').textContent = `${cancelCalc.rate * 100}%`;
+            document.getElementById('cfCust').textContent = cancelCalc.cust;
+            document.getElementById('cfRefund').textContent = cancelCalc.refund;
+            document.getElementById('cfCjOk').checked = false;
+            openModal('cancelConfirmModal');
+        }
+        function submitCancel() {
+            if (!document.getElementById('cfCjOk').checked) { showToast('CJ 취소 확인을 체크하세요.', 'error'); return; }
+            closeModal('cancelConfirmModal');
+            showToast('취소를 확정했습니다. 위약금을 뺀 금액을 환불 처리하고 고객에게 알렸습니다.', 'success');
+        }
+
+        function submitReject() {
+            if (!document.getElementById('rejectReason').value.trim()) { showToast('반려 사유를 입력하세요.', 'error'); return; }
+            const ch = [document.getElementById('notiMail').checked && '메일', document.getElementById('notiSms').checked && '문자'].filter(Boolean);
+            closeModal('rejectModal');
+            document.getElementById('headStatus').textContent = '반려';
+            document.getElementById('headStatus').className = 'ta-status s-hold';
+            showToast(`반려했습니다. ${ch.length ? '고객에게 ' + ch.join(' · ') + '로 알렸습니다.' : '고객 알림은 보내지 않았습니다.'} 마이페이지에서 사유를 볼 수 있습니다.`, 'success');
         }
 
         function copyForward() {
-            const text = document.getElementById('forwardSkt').textContent + '\n\n' + document.getElementById('forwardZigbang').textContent;
+            const text = document.getElementById('forwardText').textContent;
             if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
-            showToast('전달 양식 2건을 복사했습니다. 카카오톡에 붙여 넣은 뒤 「보냈음 기록」을 눌러 주세요.', 'info');
-        }
-        function markSent() { showToast('카카오톡으로 보냈다고 기록했습니다.', 'success'); }
-
-        function submitStatus() {
-            const to = document.getElementById('statusTo').value;
-            const reason = document.getElementById('statusReason').value.trim();
-            if (!to) { showToast('바꿀 상태를 고르세요.', 'error'); return; }
-            if (!reason) { showToast('사유를 입력하세요.', 'error'); return; }
-            closeModal('statusModal');
-            showToast('상태를 바꾸고 상태 이력에 남겼습니다.', 'success');
-        }
-        function submitHold() {
-            if (!document.getElementById('holdReasonType').value || !document.getElementById('holdReason').value.trim()) {
-                showToast('사유 구분과 사유를 입력하세요.', 'error'); return;
-            }
-            closeModal('holdModal');
-            showToast('취소 처리했습니다. 고객 안내 초안이 확인함에 들어갔습니다.', 'success');
-        }
-        // 고객 질문 바로 답하기 (질문은 상태를 바꾸지 않음)
-        function onReplyInput() {
-            const t = document.getElementById('qReplyText').value;
-            const pii = /01[016789]-?\d{3,4}-?\d{4}|[\w.+-]+@[\w-]+\.[\w.]+/.test(t);
-            const banned = [...new Set(t.match(/반드시|보장|확실히|무조건|100%|틀림없이/g) || [])];
-            const el = document.getElementById('qReplyCheck');
-            const ng = pii || banned.length;
-            el.innerHTML = !t.trim() ? '답을 쓰면 금지 표현 · 개인정보를 검사합니다.'
-                : ng ? `<span style="color:#dc2626;font-weight:700;">차단</span> ${pii ? '전화번호 · 이메일 패턴' : ''}${pii && banned.length ? ' · ' : ''}${banned.length ? '금지 표현 ' + banned.join(', ') : ''}`
-                : '<span style="color:#059669;font-weight:700;">통과</span> 금지 표현 · 개인정보 없음';
-            document.getElementById('btnReply').disabled = !t.trim() || ng;
-        }
-        function sendReply() {
-            const t = document.getElementById('qReplyText').value.trim();
-            if (!t) return;
-            const item = document.createElement('div');
-            item.className = 'ta-tl-item a-operator';
-            item.dataset.actor = 'operator';
-            item.innerHTML = `<span class="ta-tl-dot"></span>
-                <div class="ta-tl-head"><span class="ta-actor operator">운영자</span><span class="ta-channel">마이페이지 + 알림톡 → 고객</span><span>방금</span><span class="ta-appr edited">직접 작성 · 이지원</span><span class="ta-muted">고객 질문(15:45)에 대한 답</span></div>
-                <div class="ta-tl-body"></div>`;
-            item.querySelector('.ta-tl-body').textContent = t;
-            document.getElementById('timelineList').appendChild(item);
-            document.getElementById('questionReply').style.display = 'none';
-            const st = document.getElementById('questionState');
-            st.textContent = '답변함'; st.className = 'ta-flag ok';
-            const hq = document.getElementById('headQuestion');
-            hq.textContent = '고객 질문 답변 완료'; hq.className = 'ta-q';
-            showToast('고객에게 답을 보냈습니다 (마이페이지 안내 기록 + 알림톡). 신청 상태는 그대로입니다.', 'success');
-        }
-        function askCjChecks() {
-            const text = document.getElementById('askCjText').value;
-            const pii = /01[016789]-?\d{3,4}-?\d{4}|[\w.+-]+@[\w-]+\.[\w.]+|김민수/.test(text);
-            const head = /^\[톡벨 TA-\d{8}-\d{3}\]/.test(text.trim());
-            const checks = [
-                { r: head ? 'ok' : 'ng', t: head ? '머리: [톡벨 접수번호] 있음' : '머리: 첫 줄에 [톡벨 접수번호]가 없음 → 차단' },
-                { r: pii ? 'ng' : 'ok', t: pii ? '개인정보: 전화번호 · 이메일 · 고객 이름 → 차단' : '개인정보: 고객 이름 · 연락처 없음' }
-            ];
-            const label = { ok: '통과', ng: '차단' };
-            document.getElementById('askCjCheckList').innerHTML = checks.map(c => `<li><span class="r ${c.r}">${label[c.r]}</span><span>${c.t}</span></li>`).join('');
-            return checks.every(c => c.r === 'ok');
-        }
-        function openAskCj() { askCjChecks(); openModal('askCjModal'); }
-        function askCjSend() {
-            if (!askCjChecks()) { showToast('차단된 검사가 있어 보낼 수 없습니다.', 'error'); return; }
-            const text = document.getElementById('askCjText').value;
-            if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
-            closeModal('askCjModal');
-            const item = document.createElement('div');
-            item.className = 'ta-tl-item a-operator';
-            item.dataset.actor = 'operator';
-            item.innerHTML = `<span class="ta-tl-dot"></span>
-                <div class="ta-tl-head"><span class="ta-actor operator">운영자</span><span class="ta-channel">카카오톡 → CJ</span><span>방금</span><span class="ta-appr approved">보냈음 기록 · 이지원</span><span class="ta-muted">고객 질문(15:45) CJ 확인 요청</span></div>
-                <div class="ta-tl-body"></div>`;
-            item.querySelector('.ta-tl-body').textContent = text;
-            document.getElementById('timelineList').appendChild(item);
-            showToast('CJ 회신 초안을 복사하고 「보냈음 기록」을 남겼습니다. 질문은 CJ 회신 대기로 남습니다.', 'info');
+            showToast('전달 양식을 복사했습니다.', 'info');
         }
 
         function revealContact() {
@@ -672,6 +581,8 @@
             closeModal('revealModal');
             showToast('연락처를 표시했습니다. 열람 기록이 남았습니다.', 'info');
         }
+
+        recalcQuote();
     </script>
 
     <!-- 화면설계 오버레이 -->
@@ -684,251 +595,186 @@
                 title: '1. 신청 요약',
                 position: { top: '-10px', left: '-10px' },
                 description: '요약 카드 (Card)',
-                function: '접수번호 · 현재 상태 · 상태 기한 · 확인 대기 수와 신청 핵심 정보를 한 줄로 표시',
+                function: '접수번호 · 현재 상태 · 매체 · 확인할 일 수와 신청 핵심 정보를 한 줄로 표시',
                 behavior: [
                     '【표시 항목】',
-                    '• 접수번호(request_no), 상태 배지(status_cd 운영자용 이름), 기한(status_due_at, 남은 영업일)',
-                    '• 확인 대기: 이 신청의 approval_cd = PENDING 메시지 수 → [확인함에서 … 보기]로 이동',
-                    '• 미답변 고객 질문: 「고객 질문 N · 답변 필요」(초안 없음, 빨강) 또는 「고객 질문 N · 답 초안」(파랑). 누르면 메시지 기록의 그 질문으로 이동. 없으면 숨김',
-                    '• 질문은 상태를 바꾸지 않으므로 상태 배지와 따로 보여 줌',
-                    '• 상호 · 현장명 · 업종 · 희망 발송일(1순위) · 접수 일시',
-                    '【기한 강조】',
-                    '• 기한을 넘기면 붉은 글씨와 「초과」 표시',
+                    '• 접수번호(request_no), 상태 배지(11개 상태 운영자용 이름), 매체 칩(하나)',
+                    '• 확인할 일: 확인함에 올라온 이 신청의 일 수 (견적 승인 · CJ 회신 확인 · 취소 요청 · 고객 질문)',
+                    '• 미답변 고객 질문이 있으면 빨간 배지 → 확인함으로 이동. 없으면 숨김',
+                    '• 상호 · 현장명 · 발송 건수 · 희망 발송일(1순위)과 시간 · 접수 일시',
+                    '• 이 고객의 진행 중 신청 수 (규칙: 고객당 한 건)',
                     '【API】',
-                    '• GET /admin/target-ad/requests/:id (상세 + 전체 메시지 기록 + 상태 이력)'
+                    '• GET /admin/target-ad/requests/:id (상세 + Slack 기록 + 상태 이력)'
                 ]
             },
             {
-                selector: '#btnStatus',
-                title: '2. 상태 변경',
+                selector: '#headActions',
+                title: '2. 상단 버튼',
                 position: { top: '-14px', left: '-14px' },
-                description: '버튼 (Button) → 모달',
-                function: '운영자가 상태를 직접 바꿈. 사유 필수, 허용된 전이만',
+                description: '버튼 묶음 (Buttons)',
+                function: '확인함 이동 · 반려 처리',
                 behavior: [
-                    '【허용 전이 (설계서 3장)】',
-                    '• 접수 → 모수 확인 요청 · 보류 · 취소 / 모수 확인 요청 → 모수 회신 / 모수 회신 → 견적 안내 · 취소',
-                    '• 견적 안내 → 결제 대기 · 모수 회신(조건 변경) · 취소 / 결제 대기 → 문구 검토 · 취소',
-                    '• 문구 검토 → 문구 수정 중 · 테스트 확인 / 문구 수정 중 → 문구 검토 / 테스트 확인 → 발송 예정 · 문구 수정 중',
-                    '• 발송 예정 → 발송 완료 / 발송 완료 → 리포트 완료 / 리포트 완료 → 종료 / 보류 → 접수 · 취소',
-                    '【처리】',
-                    '• PATCH /admin/target-ad/requests/:id/status {to, reason} → TargetAdStatusService.transition() 한 곳에서만 처리',
-                    '• 허용되지 않은 전이는 서버가 거부. 모든 변경은 상태 이력에 남음',
-                    '• 수동 변경은 고객 · CJ에게 메시지를 보내지 않음'
-                ]
-            },
-            {
-                selector: '#btnHoldCancel',
-                title: '3. 취소 / 보류',
-                position: { top: '-14px', left: '-14px' },
-                description: '버튼 (Button) → 모달',
-                function: '신청을 보류하거나 취소',
-                behavior: [
-                    '【조건】',
-                    '• 보류: 현재 상태가 접수(RECEIVED)일 때만. 보류에서는 접수로 되돌리거나 취소할 수 있음',
-                    '• 취소: 허용 전이에 CANCELED 가 있는 상태에서만 (접수 · 모수 회신 · 견적 안내 · 결제 대기 · 보류)',
-                    '【입력】',
-                    '• 사유 구분 + 사유 필수',
-                    '• 「고객 안내 초안 만들기」를 체크하면 안내 초안이 확인함으로 감 (바로 발송하지 않음)',
-                    '【주의】',
-                    '• 결제 이후 취소 · 환불 규칙 〔결정〕. CJ 선불 이후는 CJ 정책에 묶임'
+                    '【버튼】',
+                    '• [확인함에서 보기]: 이 신청의 확인할 일을 확인함에서 엶',
+                    '• [반려 처리]: 진행할 수 없는 건을 관리자가 사유를 직접 적어 반려 (모달). 결제 전 상태에서만',
+                    '【없앤 것】',
+                    '• 수동 상태 변경 버튼은 두지 않음. 상태는 견적 승인 · 결제 · 고객 확인 · Slack 회신 확인 · 리포트 등록 · 반려 · 취소 처리로만 바뀜'
                 ]
             },
             {
                 selector: '#taNav',
-                title: '4. 섹션 이동',
+                title: '3. 섹션 이동',
                 position: { top: '-10px', left: '-10px' },
                 description: '앵커 메뉴 (Anchor Nav)',
                 function: '긴 상세 화면에서 섹션으로 바로 이동',
                 behavior: [
                     '【동작】',
-                    '• 머리글 아래에 붙어 따라옴(sticky)',
-                    '• 누르면 해당 섹션으로 스크롤',
+                    '• 머리글 아래에 붙어 따라옴(sticky), 누르면 해당 섹션으로 스크롤',
                     '【구성】',
-                    '• 신청 정보 · 챗봇 메모 · 매체별 줄 · 메시지 기록 · CJ 메시지 등록 · CJ 전달 양식 · 리포트 · 상태 이력 · 첨부 파일'
+                    '• 신청 내용 · 견적 검수 · 승인 · CJ 수정 문구 · 취소 요청 처리 · Slack 전달 기록 · 결과 리포트 · 상태 이력'
                 ]
             },
-            // ===== 신청 정보 =====
+            // ===== 신청 내용 =====
             {
                 selector: '#secInfo',
-                title: '5. 신청 정보',
+                title: '4. 신청 내용',
                 position: { top: '-10px', left: '-10px' },
                 description: '정보 표 (Key-Value Table)',
-                function: '접수 시점 정리본(target_ad_request.summary)의 전 항목 표시',
+                function: '신청 양식 값 (target_ad_request). CJ 모수확인 요청 양식에 들어가는 항목만',
                 behavior: [
-                    '【묶음】',
-                    '• 광고주: 상호, 사업자 유형(CORP/INDIV), 담당자, 연락처, 이메일, 연락 희망 시간',
-                    '• 광고: 업종, 목적(여러 개), 상품 설명, 현장/캠페인명, 업종별 상세(분양 유형 · 시공사 · 모델하우스 · 금융권 등)',
-                    '• 타겟: 지역, 연령, 성별, 부족 시 확대 허용, 관심 · 행동, 제외, 확인 필요 조건(unverified_conditions)',
-                    '• 일정 · 규모 · 메시지: 희망일 1~3순위와 시간대, 매체 · 희망 건수, 예산 참고값, 규모 조정, 메시지 형태 · 문구 초안 · 이미지 · 링크 · 문의 번호, 테스트 수신번호, 경험, 추가 요청, 동의 시각, 개인정보 파기 예정일',
+                    '【항목 (11/16 회의 확정)】',
+                    '• 매체(1개) · 현장명 또는 캠페인명',
+                    '• 타겟 연령 + 부족 시 연령 확대 여부, 지역 + 부족 시 지역 확대 여부',
+                    '• 발송 건수 (매체 최소 건수 충족 여부 함께 표시)',
+                    '• 발송 희망일 1~3순위와 각 발송 시간 (야간 21시~08시 광고 전송 금지 · 이용약관 제12조 → 선택지는 08~21시)',
+                    '• 제목 · 문구, 이미지 · 링크는 있을 때만',
+                    '【뺀 항목】',
+                    '• 성별, 테스트 수신번호, 연락처, 광고 목적, 사업자 유형, 업종별 질문, 예산, 챗봇 메모',
+                    '【회원 정보】',
+                    '• 신청 항목이 아닌 회원 가입 정보(상호 · 담당자 · 연락처 · 이메일)를 따로 보여 줌. [회원 상세]로 이동',
                     '【수정】',
-                    '• 읽기 전용. 매체 · 건수 · 발송일은 「매체별 줄」에서 고침',
-                    '• 업종별 상세는 업종마다 다른 칸을 보여 줌 (분양이 아니면 현장명 대신 캠페인명)'
+                    '• 읽기 전용. 문구가 바뀌면 「CJ 수정 문구」로만 바뀜'
                 ]
             },
             {
                 selector: '#contactCell',
-                title: '6. 연락처 마스킹 · 보기',
+                title: '5. 연락처 마스킹 · 보기',
                 position: { top: '-12px', left: '-12px' },
                 description: '마스킹 텍스트 + 버튼 (Masked Text + Button)',
-                function: '연락처 · 이메일 · 테스트 수신번호는 마스킹해서 보여 주고, 권한이 있을 때만 원문 열람',
+                function: '회원 연락처 · 이메일은 마스킹해서 보여 주고, 권한이 있을 때만 원문 열람',
                 behavior: [
                     '【기본 표시】',
                     '• 연락처 010-****-1234, 이메일 앞 2자 + ***',
-                    '• 저장은 pgp_sym_encrypt(bytea), 목록 · 엑셀에도 마스킹',
                     '【보기 버튼】',
                     '• 「개인정보 열람」 권한이 있는 관리자에게만 노출',
-                    '• 열람 사유를 골라야 원문 표시, 관리자 접근 로그에 남음',
-                    '• 페이지를 벗어나면 다시 마스킹'
+                    '• 열람 사유를 골라야 원문 표시, 관리자 접근 로그에 남음. 페이지를 벗어나면 다시 마스킹'
                 ]
             },
+            // ===== 견적 =====
             {
-                selector: '#secMemo',
-                title: '7. 챗봇 메모',
+                selector: '#secQuote',
+                title: '6. 견적 검수 · 승인',
                 position: { top: '-10px', left: '-10px' },
-                description: '목록 (List)',
-                function: '상담 중 챗봇이 자동으로 남긴 확인 필요 사항 (bot_memo)',
+                description: '대조 표 + 버튼 (Compare Table + Buttons)',
+                function: '요청 건수 · CJ 회신 건수 · CJ 회신 금액 · 판매 단가 · 고객 결제 금액을 대조하고 승인해야 고객 마이페이지에 견적이 보임',
                 behavior: [
-                    '【자동으로 남는 것】',
-                    '• 최소 건수 미달과 바꾼 내용, 시공사 도급 순위 확인, 확인 안 되는 조건(무주택자 등), 빠듯한 일정, 같은 항목 3번 물어도 답이 없을 때',
-                    '【활용】',
-                    '• CJ 전달 양식의 「추가 요청」 줄과 운영자 확인 근거로 씀',
-                    '• 운영자는 수정할 수 없음 (메모 추가는 메시지 기록에 운영자 메모로)'
+                    '【대조 항목】',
+                    '• 요청 건수(고객) / CJ 회신 가능 모수 · 건수(Slack 회신, AI가 읽고 운영자가 확인) / 요금표 기준 광고비(발송단가 × 건수) / CJ 회신 금액 / 판매 단가 〔결정〕 / 고객 결제 금액 = 판매 단가 × CJ 회신 건수 (부가세 10% 별도)',
+                    '【차이 경고 (빨강)】',
+                    '• CJ 회신 건수 ≠ 요청 건수, 매체 최소 건수 · 최소 금액 미달',
+                    '• CJ 회신 금액 ≠ 요금표 기준 광고비 (예: 300만 원이어야 할 건이 200만 원으로 회신)',
+                    '• 판매 단가 미등록 〔결정〕',
+                    '• 경고가 하나라도 있으면 [견적 승인 · 고객 노출] 비활성',
+                    '【버튼】',
+                    '• [CJ에 재확인]: 회신 값과 기준 값을 넣은 Slack 재확인 문구 모달',
+                    '• [견적 승인 · 고객 노출]: POST /admin/target-ad/requests/:id/quote/approve {cjQty, cjAmount, unitPrice} → 결제 대기, 템플릿 TA_QUOTED 메일 · 문자 + 마이페이지',
+                    '• 승인자 · 승인 시각 · 대조 값을 남김',
+                    '【결제 이후 (참고)】',
+                    '• 고객 포인트 결제(최종 승인 시점 차감) → 추가 검수 없이 Slack 결제 승인 전달 → 발송 준비',
+                    '• CJ 선입금 발송 D-3 전, 고객 결제 마감 〔결정〕'
                 ]
             },
-            // ===== 매체별 줄 =====
             {
-                selector: '#secMedia',
-                title: '8. 매체별 줄',
+                selector: '#secCopy',
+                title: '7. CJ 수정 문구 → 고객 확인 요청',
                 position: { top: '-10px', left: '-10px' },
-                description: '편집 표 (Editable Table)',
-                function: '매체마다 희망 · 가능 모수 · 확대안 · 확정 건수 · 발송일 · 판매 단가 · 공급가 · 부가세 관리',
+                description: '2단 비교 + 입력 + 버튼 (Side by Side + Textarea + Button)',
+                function: 'CJ가 매체 가이드에 맞춰 고친 문구를 등록하고 고객 확인을 요청',
                 behavior: [
-                    '【컬럼 (target_ad_request_media)】',
-                    '• 희망(req_qty): 고객 입력, 읽기 전용',
-                    '• 가능 모수(available_qty) · 확대안(expand_note): CJ 회신 분류로 채워지고 운영자가 고칠 수 있음',
-                    '• 확정 건수(confirmed_qty): 고객 견적 확정 시 채워짐',
-                    '• 발송일(send_date), 판매 단가(unit_price, 부가세 별도)',
-                    '【계산】',
-                    '• 공급가 = 판매 단가 × 확정 건수, 부가세 = 공급가 × 10% (QuoteService.calc, 원 단위 반올림)',
-                    '• 단가 또는 확정 건수가 비면 「미정」',
-                    '• 판매 단가 기본값은 「매체 규칙·판매 단가」의 매체 × 형태 단가. 여기서 고치면 이 신청에만 적용',
-                    '【검사】',
-                    '• 확정 건수 < 매체 최소 건수면 저장 불가 안내',
-                    '• 가능 모수보다 확정 건수가 크면 경고',
-                    '【API】',
-                    '• POST /admin/target-ad/requests/:id/media/:lineId'
+                    '【배경 (CJ 11/16 회신)】',
+                    '• 반려 코드 없음. CJ가 수정 문구 전달 → 광고주 컨펌 → 수정 없으면 그 문구로 매체 전달',
+                    '【화면】',
+                    '• 왼쪽: 고객 원래 문구 (바뀐 부분 빨강) / 오른쪽: Slack에서 받은 CJ 수정 문구 붙여 넣기 + CJ 메모',
+                    '【버튼】',
+                    '• [고객에게 확인 요청]: 템플릿 TA_COPY_CONFIRM 메일 · 문자 + 마이페이지, 상태 → 문구 확인 중',
+                    '• 고객 [확인] → Slack으로 CJ에 「고객 확인 완료」 전달 → 발송 준비',
+                    '• 고객 [수정 요청] → 고객 의견을 Slack으로 CJ에 전달, 문구 확인 중 유지',
+                    '【활성 조건】',
+                    '• 결제 후(발송 준비) CJ 수정 문구가 왔을 때. 지금 화면은 예시'
                 ]
             },
-            // ===== 메시지 기록 =====
             {
-                selector: '#secTimeline',
-                title: '9. 메시지 기록',
+                selector: '#secCancel',
+                title: '8. 취소 요청 처리',
+                position: { top: '-10px', left: '-10px' },
+                description: '정보 표 + 계산 표 + 버튼 (Info + Calc + Buttons)',
+                function: '결제 후 고객 취소 요청을 매체 위약금 가이드로 계산해 수기 처리',
+                behavior: [
+                    '【원칙 (11/16 회의 · 고지 문구)】',
+                    '• 결제 후 고객 사정 취소는 원칙상 불가. 예외 요청만 관리자가 수기 처리 (위약금 공제 후 환불)',
+                    '• 결제 전 취소는 고객이 마이페이지에서 직접, 비용 없음 (이 영역 안 씀)',
+                    '【표시】',
+                    '• 고객 요청 사유(필수 선택 + 직접 입력) · 요청 일시 · 확정 발송일 · 처리 기준일과 D-n',
+                    '• 해당 매체 위약금 기준 문구 (매체 규칙표 「취소 기준」 칸, 고지 문구 파일 2장)',
+                    '• 계산: 적용 비율, CJ 광고비와 CJ에 낼 위약금, 고객 결제 금액 · 고객 위약금 · 예상 환불 금액',
+                    '• 포인트 환불 10% 차감 함께 적용 여부 〔결정〕, 환불 방식 〔결정〕',
+                    '• 영업일 기준 매체(삼성카드 · OK캐쉬백 · T-MAP · 카카오페이 · CJ ONE)는 영업일 달력으로 D-n 계산',
+                    '【버튼 (처리 메모 필수)】',
+                    '• [CJ에 취소 요청]: Slack 스레드로 취소 가능 여부 요청',
+                    '• [취소 확정 · 환불]: CJ 확인 체크 후 확정 모달 → 취소, 위약금 공제 환불, 고객 메일 · 문자',
+                    '• [취소 불가 안내]: 템플릿 TA_CANCEL_DENIED → 원래 상태로 (발송 진행)'
+                ]
+            },
+            {
+                selector: '#secSlack',
+                title: '9. Slack 전달 기록',
                 position: { top: '-10px', left: '-10px' },
                 description: '타임라인 (Timeline)',
-                function: '이 신청에 관한 모든 메시지(target_ad_message)를 시간순으로 표시',
+                function: 'CJ와 Slack으로 주고받은 기록과 고객 알림을 시간순으로 표시',
                 behavior: [
-                    '【보내는 쪽 구분 (actor_cd)】',
-                    '• 고객(CUSTOMER) · 챗봇(BOT) · 에이전트(AGENT) · CJ · 운영자(OPERATOR) · 시스템(SYSTEM), 점 색으로 구분',
-                    '【채널 (channel_cd)】',
-                    '• 챗봇 창(CHAT), 슬랙 · 카카오톡 · 메일(CJ_SLACK / CJ_KAKAO / CJ_MAIL), 알림톡 · 메일(NOTI_ALIMTALK / NOTI_MAIL), 마이페이지(MYPAGE)',
-                    '【승인 상태 (approval_cd)】',
-                    '• 승인 대기(PENDING) · 승인(APPROVED) · 고쳐서 승인(EDITED) · 반려(REJECTED) · 자동(AUTO). NONE 은 표시 안 함',
-                    '• 승인 대기 메시지는 [확인함에서 보기]로 이동',
-                    '【기타】',
-                    '• CJ 메시지에는 분류(category_cd)와 신뢰도 배지',
-                    '• 고객 질문은 분류 CUSTOMER_QUESTION(direction IN · actor CUSTOMER · channel MYPAGE) 배지와 미답변 / 답변함 표시',
-                    '• 상담 대화는 한 덩어리로 접고 [대화 전체 보기]로 펼침',
-                    '• 오른쪽 위 셀렉트로 보내는 쪽 필터'
-                ]
-            },
-            {
-                selector: '#questionItem',
-                title: '10. 고객 질문 · 바로 답하기',
-                position: { top: '-6px', left: '-40px' },
-                description: '타임라인 항목 + 입력 · 버튼 (Timeline Item + Textarea + Buttons)',
-                function: '고객이 마이페이지에서 남긴 질문과 중계 에이전트 판단을 보여 주고, 운영자가 여기서 바로 답하거나 CJ에 물음',
-                behavior: [
-                    '【질문 항목】',
-                    '• 마이페이지 [질문 보내기](POST /target-ad/requests/:no/replies {type: QUESTION}) → 이 신청의 메시지 기록에 IN · CUSTOMER · MYPAGE · CUSTOMER_QUESTION 으로 저장',
-                    '• 미답변 = 이 질문을 근거(draft_of_id)로 한 OUT 메시지가 아직 발송되지 않음. 보내면 「답변함」',
-                    '• 아래 줄에 중계 에이전트(POST /agents/relay/answer) 판단: 답 초안 있음(근거 규칙) / 답변 필요(규칙 없음 · 금액 · 환불 · 취소 · 법적 문제) / CJ 확인 필요(needs_cj)',
-                    '• 질문은 신청 상태를 바꾸지 않음 (지금도 모수 회신 그대로)',
-                    '【바로 답하기】',
-                    '• 미답변일 때만 보임. 답 초안이 있으면 그 초안이 채워지고, 답변 필요면 빈칸',
-                    '• 입력하면 금지 표현 · 개인정보(전화번호 · 이메일) 검사. 차단이면 [답 보내기] 비활성',
-                    '• [답 보내기]: POST /admin/target-ad/inbox/:id/approve {content} (확인함과 같은 API) → OUT 메시지(actor OPERATOR, draft_of_id = 질문, EDITED) → 고객 마이페이지 안내 기록 + 알림톡',
-                    '• 보내면 기록에 운영자 답이 붙고, 확인함 항목 · 목록 배지 · 상단 표시에서 빠짐',
-                    '【CJ에 묻기】',
-                    '• CJ 회신 초안 모달을 엶 (개인정보 없이, 머리에 [톡벨 접수번호]). POST /admin/target-ad/requests/:id/ask-cj',
-                    '• 보낸 뒤에도 질문은 미답변(CJ 회신 대기)으로 남음',
-                    '【확인함에서 보기】',
-                    '• 같은 질문을 확인함(target-ad-inbox.html) 「고객 질문」 종류로 엶. 어느 쪽에서 답해도 결과는 같음'
-                ]
-            },
-            // ===== CJ 메시지 등록 =====
-            {
-                selector: '#secCjInput',
-                title: '11. CJ 메시지 수동 등록',
-                position: { top: '-10px', left: '-10px' },
-                description: '입력 폼 (Form)',
-                function: '카카오톡 · 메일로 받은 CJ 메시지를 붙여 넣어 기록하고 중계 분류 실행',
-                behavior: [
-                    '【입력】',
-                    '• 받은 채널, 메시지 원문(필수, 고치지 않고 그대로), 첨부(이미지 · 엑셀 · PDF)',
-                    '【분류 실행】',
-                    '• POST /admin/target-ad/requests/:id/cj-messages → ai-service /agents/relay/classify',
-                    '• 결과: 분류(모수 회신 · 문구 수정 · 문구 통과 · 테스트 발송 · 발송 · 리포트 · 일정 변경 · 질문 · 기타), 신뢰도, 매체별 추출 값',
-                    '• 신뢰도 0.9 미만이거나 후보 신청이 둘 이상이면 운영자 확인으로 넘김',
-                    '• 고객 안내 초안은 확인함으로 감. 바로 발송하지 않음',
+                    '【항목】',
+                    '• ① 신청 전달: 접수 즉시 배치 · API로 모수확인 요청 양식 전송 (신청 내용과 같은 항목: 매체사 · 현장명 · 발송가망일 1~3순위와 시간 · 건수 · 연령과 확대 여부 · 지역과 확대 여부 · 제목 · 문구 · 이미지 · 링크)',
+                    '• CJ 회신: 원문 그대로 + AI가 읽은 건수 · 금액 · 발송 가능일 · 신뢰도. 「AI 보조 · 확인 필요」 표시, 운영자 확인 전에는 견적에 쓰지 않음',
+                    '• ② 결제 승인 전달: 고객 결제 완료 시 추가 검수 없이 자동 전송',
+                    '• 고객 알림: 템플릿 문구로 보낸 메일 · 문자',
+                    '【버튼】',
+                    '• [전달 양식 복사] · [신청 다시 전달](전송 실패 시)',
                     '【안전】',
-                    '• CJ 메시지 속 지시 문장(예: "고객에게 바로 전달 바랍니다")은 분류에만 쓰고 발송 근거로 쓰지 않음',
-                    '• 숫자는 원문에 있는 것만 뽑음. "약 2만"은 20000 + 메모 "약"'
+                    '• 회원 이름 · 연락처는 CJ에 보내지 않음. 문구 속 광고주 문의 번호는 광고 문구라 그대로 보냄',
+                    '• CJ 회신 속 지시 문장은 데이터로만 다룸'
                 ]
             },
-            // ===== 리포트 =====
             {
                 selector: '#secReport',
-                title: '12. 리포트 업로드',
+                title: '10. 결과 리포트 업로드',
                 position: { top: '-10px', left: '-10px' },
                 description: '파일 업로드 + 미리보기 (Upload + Preview)',
-                function: 'CJ 리포트 엑셀 · 증빙 이미지를 올려 파싱하고 신청과 대조',
+                function: 'CJ 리포트 엑셀을 읽어 정돈된 표로 고객 마이페이지에 등록',
                 behavior: [
                     '【업로드 조건】',
-                    '• 발송 완료(SENT) 이후 활성. 리포트 완료 뒤에는 다시 올리기 가능',
-                    '【파싱 (설계서 7.2)】',
-                    '• 위치가 아니라 라벨로 찾음: 현장명 · 발송 일정 · 발송 건수 · 발송매체 · 발송 상품 → 오른쪽 칸',
-                    '• 「발송 날짜」 행 아래를 시각 · 발송 건수 · 발송 성공 · 클릭수 · 클릭률로 읽고 「테스트 발송」 라벨에서 멈춤',
-                    '• 클릭 수 「-」는 null → 고객 화면에 「이 매체는 클릭 수를 제공하지 않습니다」',
-                    '• 엑셀 속 이미지는 REPORT_PROOF 첨부로 저장',
+                    '• 발송 완료 이후 활성. 발송 후 약 4일 안에 CJ 엑셀 수신 (11/16 회의)',
+                    '【읽기】',
+                    '• 라벨로 찾음: 현장명 · 매체 · 발송 일시 · 발송 · 성공 · 클릭. 클릭 「-」는 「이 매체는 클릭 수를 제공하지 않습니다」',
+                    '• 표 모양은 실제 CJ 엑셀로 시험한 뒤 확정',
                     '【불일치 경고】',
-                    '• 현장명 · 매체 · 발송일이 신청과 다르거나, 성공 건수 < 확정 건수면 붉은 경고. 운영자가 확인해야 고객에게 등록',
+                    '• 현장명 · 매체 · 발송일이 다르거나 성공 건수 < 확정 건수면 빨간 경고. 운영자가 확인해야 고객에게 등록 → 리포트 완료',
                     '【API】',
                     '• POST /admin/target-ad/requests/:id/reports'
                 ]
             },
-            // ===== CJ 전달 양식 =====
-            {
-                selector: '#secForward',
-                title: '13. CJ 전달 양식 미리보기',
-                position: { top: '-10px', left: '-10px' },
-                description: '텍스트 미리보기 + 버튼 (Preview + Buttons)',
-                function: '정리본을 CJ 모수확인 요청 양식으로 바꿔 보여 주고 전송 · 기록',
-                behavior: [
-                    '【양식 (설계서 7.1)】',
-                    '• 매체마다 한 덩어리, 머리에 [톡벨 접수번호]',
-                    '• 매체사 · 현장명(분양 아니면 캠페인명) · 발송가망일 1~3순위 · 발송건수(만 단위) · 타겟 연령과 확대 가능 여부 · 지역과 확대 가능 여부 · 성별 · 메시지 형태 · 추가 요청',
-                    '• 매체가 「추천 요청」이면 매체사 줄에 "추천 요청 (업종: 분양, 목적: 방문)"',
-                    '【버튼】',
-                    '• [복사]: 전체 양식을 클립보드로. 카카오톡에 붙여 넣는 용도',
-                    '• [보냈음 기록]: 카카오톡으로 직접 보냈다고 기록 (POST …/cj-sent, external_ref 없음) → 접수면 모수 확인 요청으로 상태 변경',
-                    '• [슬랙 전송]: 슬랙 공유 채널이 연결됐을 때만 활성 〔결정〕. 스레드 하나 = 신청 하나',
-                    '【전송 전 검사】',
-                    '• 전화번호 · 이메일 · 사람 이름 패턴이 있으면 전송 · 복사를 막음. 광고주 문의 번호는 문구 전달 단계에서만 보냄'
-                ]
-            },
             {
                 selector: '#secHistory',
-                title: '14. 상태 이력',
+                title: '11. 상태 이력',
                 position: { top: '-10px', left: '-10px' },
                 description: '테이블 (Table)',
                 function: '상태 변경 기록 (target_ad_status_history)',
@@ -936,84 +782,65 @@
                     '【컬럼】',
                     '• 일시 · 이전 → 다음 상태 · 바꾼 쪽(고객 / 시스템 / 운영자 이름) · 사유',
                     '【정렬】',
-                    '• 최신이 위',
-                    '• 수정 · 삭제 불가'
-                ]
-            },
-            {
-                selector: '#secFiles',
-                title: '15. 첨부 파일',
-                position: { top: '-10px', left: '-10px' },
-                description: '파일 목록 (File List)',
-                function: '신청에 붙은 파일 (target_ad_attachment)',
-                behavior: [
-                    '【구분 (kind_cd)】',
-                    '• 문구 이미지(CREATIVE) · 테스트 발송본(TEST_SEND) · 리포트 엑셀(REPORT_XLSX) · 리포트 증빙(REPORT_PROOF)',
-                    '【동작】',
-                    '• [받기]로 내려받기, 내려받기는 작업 로그에 남음',
-                    '• 없는 구분은 「아직 없음」'
+                    '• 최신이 위. 수정 · 삭제 불가'
                 ]
             },
             // ===== 모달 =====
             {
-                selector: '#statusModal .modal-content',
-                title: '16. 상태 변경 모달',
+                selector: '#rejectModal .modal-content',
+                title: '12. 반려 처리 모달',
                 position: { top: '8px', left: '8px' },
                 description: '모달 (Modal)',
-                function: '바꿀 상태와 사유를 받아 상태 변경',
+                function: '진행 불가 건을 사유 직접 입력으로 반려하고 고객에게 알림',
                 behavior: [
-                    '【바꿀 상태】',
-                    '• 현재 상태에서 허용된 다음 상태만 옵션으로 보임 (예: 모수 회신 → 견적 안내, 취소)',
-                    '【검사】',
-                    '• 바꿀 상태 미선택: "바꿀 상태를 고르세요."',
-                    '• 사유 빈칸: "사유를 입력하세요."',
+                    '【입력】',
+                    '• 반려 사유(필수, 직접 입력, 고객에게 보임). 사유 코드 · 구분은 두지 않음 (CJ 반려 코드 없음)',
+                    '• 고객 알림: 메일 · 문자 체크 (기본 둘 다). 템플릿 TA_REJECTED + 사유',
                     '【결과】',
-                    '• 성공 시 상단 배지 · 기한 · 상태 이력 갱신, 토스트 "상태를 바꾸고 상태 이력에 남겼습니다."'
+                    '• 상태 → 반려. 고객 마이페이지에서 사유 확인. 결제 전이라 비용 없음',
+                    '• 사유 빈칸: "반려 사유를 입력하세요."'
                 ]
             },
             {
-                selector: '#holdModal .modal-content',
-                title: '17. 취소 / 보류 모달',
+                selector: '#recheckModal .modal-content',
+                title: '13. CJ 재확인 모달',
                 position: { top: '8px', left: '8px' },
                 description: '모달 (Modal)',
-                function: '보류 또는 취소를 사유와 함께 처리',
+                function: '견적 대조에서 차이가 난 값을 Slack으로 CJ에 다시 확인',
                 behavior: [
-                    '【선택】',
-                    '• 지금 상태에서 갈 수 없는 쪽은 흐리게 비활성 (예: 모수 회신에서는 보류 불가)',
-                    '【입력】',
-                    '• 사유 구분(고객 요청 · 모수 부족 · 업종 · 문구 제한 · 일정 불가 · 기타) + 사유 필수',
+                    '【초안 (코드 템플릿)】',
+                    '• 머리 [톡벨 접수번호] · 매체사 · 현장명 · 회신 건수 · 회신 금액 · 요금표 기준 금액',
+                    '• 운영자가 고칠 수 있음. 회원 이름 · 연락처는 넣지 않음',
                     '【결과】',
-                    '• 취소는 되돌릴 수 없음. 고객 안내 초안 체크 시 확인함에 초안 생성'
+                    '• 이 신청 Slack 스레드로 전송, 기록에 남음. 회신은 확인함 「CJ 회신 확인」으로 올라옴'
+                ]
+            },
+            {
+                selector: '#cancelConfirmModal .modal-content',
+                title: '14. 취소 확정 · 환불 모달',
+                position: { top: '8px', left: '8px' },
+                description: '모달 (Modal)',
+                function: '계산된 위약금 · 환불 금액을 확인하고 취소를 확정',
+                behavior: [
+                    '【표시】',
+                    '• 위약금 비율 · 고객 위약금 · 환불 금액 (취소 요청 처리 영역 계산값)',
+                    '【검사】',
+                    '• 「CJ에서 취소를 확인했습니다」 체크 필수',
+                    '【결과】',
+                    '• 상태 → 취소, 위약금 공제 환불(기존 포인트 환불 절차 재사용 〔결정〕), 고객 메일 · 문자. 되돌릴 수 없음'
                 ]
             },
             {
                 selector: '#revealModal .modal-content',
-                title: '18. 연락처 보기 모달',
+                title: '15. 연락처 보기 모달',
                 position: { top: '8px', left: '8px' },
                 description: '모달 (Modal)',
                 function: '열람 사유를 받아 연락처 원문 표시',
                 behavior: [
                     '【입력】',
-                    '• 열람 사유 필수 (고객 문의 응대 · 발송 오류 확인 · 정산 · 세금계산서)',
+                    '• 열람 사유 필수 (고객 문의 응대 · 취소 · 환불 처리 · 정산 · 세금계산서)',
                     '【기록】',
                     '• 관리자, 시각, 신청, 사유를 관리자 접근 로그에 남김'
-                ]
-            },
-            {
-                selector: '#askCjModal .modal-content',
-                title: '19. CJ에 묻기 모달',
-                position: { top: '8px', left: '8px' },
-                description: '모달 (Modal)',
-                function: '고객 질문을 CJ에 확인하는 회신 초안을 만들고 보냈음을 기록',
-                behavior: [
-                    '【초안 (코드 템플릿)】',
-                    '• 머리 [톡벨 접수번호] · 매체사 · 현장명 · 문의 한 줄. 고객 질문 원문 · 고객 이름 · 연락처는 넣지 않음',
-                    '• 운영자가 고칠 수 있음. 고칠 때마다 검사',
-                    '【검사】',
-                    '• 첫 줄 [톡벨 TA-YYYYMMDD-NNN] 없으면 차단, 전화번호 · 이메일 · 고객 이름이 있으면 차단',
-                    '【결과】',
-                    '• [복사하고 보냈음 기록]: 클립보드 복사 + 기록 (POST /admin/target-ad/requests/:id/ask-cj {questionMessageId, content}) → 메시지 기록에 운영자 → CJ 항목',
-                    '• CJ 답이 오면 중계 에이전트가 그 답을 근거로 고객 답 초안을 확인함에 올림'
                 ]
             }
         ];
