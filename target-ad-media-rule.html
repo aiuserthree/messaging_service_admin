@@ -141,7 +141,7 @@
                         <div class="card-header flex-between">
                             <div>
                                 <h3 class="card-title">매체별 판매 단가</h3>
-                                <div class="card-description">건당 판매 단가 (원, 부가세 별도). 고객 결제 금액 = 판매 단가 × CJ 회신 건수, 부가세 10% 별도. 요금표가 매체당 단가 하나라서 매체마다 한 칸입니다.</div>
+                                <div class="card-description">건당 판매 단가 (원, 부가세 별도). 고객 결제 금액(PG · 카드 · 가상계좌) = 판매 단가 × CJ 회신 건수 + 부가세 10%. 요금표가 매체당 단가 하나라서 매체마다 한 칸입니다.</div>
                             </div>
                             <button class="btn btn-primary btn-sm" onclick="openModal('priceModal')">단가 등록</button>
                         </div>
@@ -498,7 +498,7 @@
                     '• 지금은 모든 판매 단가가 〔결정〕 (시장가보다 낮춰 진행하는 방안 CJ 통화 확인 중)',
                     '• 요금표가 매체당 단가 하나(LMS, 카카오톡)라서 메시지 형태별 칸은 없앰',
                     '【적용】',
-                    '• 적용 기간 안이고 사용 중인 단가만 씀. 고객 결제 금액 = 판매 단가 × CJ 회신 건수, 부가세 10% 별도',
+                    '• 적용 기간 안이고 사용 중인 단가만 씀. 고객 결제 금액 = 판매 단가 × CJ 회신 건수 + 부가세 10% → 이니시스 PG에 이 금액만 고정해 카드 · 가상계좌로 결제',
                     '• 단가가 없으면 신청 상세 · 확인함의 견적 승인이 막힘',
                     '【API】',
                     '• GET · PUT /admin/target-ad/price-rules'

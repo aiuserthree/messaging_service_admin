@@ -141,7 +141,7 @@
                     <div class="card-header flex-between">
                         <div>
                             <h3 class="card-title">견적 검수 · 승인</h3>
-                            <div class="card-description">요청 건수 · CJ 회신 건수 · CJ 회신 금액 · 고객 결제 금액을 나란히 대조합니다. 승인 전에는 고객 마이페이지에 견적이 보이지 않습니다. 금액은 모두 부가세 별도.</div>
+                            <div class="card-description">요청 건수 · CJ 회신 건수 · CJ 회신 금액 · 고객 결제 금액을 나란히 대조합니다. 승인 전에는 고객 마이페이지에 견적이 보이지 않습니다. CJ 금액 · 판매 단가는 부가세 별도, 고객 결제 금액은 부가세 포함 견적 금액 (= 포인트 · 마일리지 사용액 + PG 결제액).</div>
                         </div>
                         <span class="ta-status s-action">견적 승인 대기</span>
                     </div>
@@ -154,11 +154,22 @@
                                 <tr><td>요금표 기준 광고비</td><td class="v" id="refAmount">3,000,000원</td><td class="ta-muted">발송단가 150원 × CJ 회신 건수 (이용신청서 요금표 · 직방/호갱노노) · 최소 금액 3,000,000원</td><td id="resMin"></td></tr>
                                 <tr id="rowCjAmount"><td>CJ 회신 금액</td><td class="v"><input class="ta-input-sm ta-num" id="cjAmount" value="2,000,000"></td><td class="ta-muted">Slack 회신 11/16 16:40 「광고비 200만 원(VAT 별도)」 · <span class="ta-ai">AI 보조 · 확인 필요</span></td><td id="resAmount"></td></tr>
                                 <tr><td>판매 단가 (원/건)</td><td class="v"><input class="ta-input-sm ta-num" id="salePrice" placeholder="〔결정〕"></td><td class="ta-muted">「매체 규칙·판매 단가」 미등록 〔결정〕 · 여기 넣은 값은 이 신청에만 적용</td><td id="resPrice"></td></tr>
-                                <tr><td>고객 결제 금액</td><td class="v" id="custAmount"><span class="ta-tbd">미정</span></td><td class="ta-muted">판매 단가 × CJ 회신 건수 · 부가세 10% 별도 · 결제(최종 승인) 시점에 포인트 차감</td><td id="resCust"></td></tr>
+                                <tr><td>고객 결제 금액 (합계)</td><td class="v" id="custAmount"><span class="ta-tbd">미정</span></td><td class="ta-muted">견적 금액 = 공급가(판매 단가 × CJ 회신 건수) + 부가세 10%. 결제 후 포인트 · 마일리지 사용액 + PG 결제액(카드 · 가상계좌)이 이 금액과 같아야 함</td><td id="resCust"></td></tr>
                             </tbody>
                         </table>
                     </div>
                     <div id="quoteWarnBox" style="margin-top:12px;"></div>
+                    <div class="ta-sub-title" style="margin-top:16px;">결제 정보 <span class="ta-muted" style="font-weight:400;">· 견적 승인 후 고객이 결제하면 채워짐 (PG 바로 결제가 기본)</span></div>
+                    <div class="table-container" id="payInfo">
+                        <table class="ta-kv">
+                            <tr><th>포인트 · 마일리지 사용액</th><td><b id="payPoint">0원</b> <span class="ta-muted">(미사용)</span> <span class="ta-res wa">〔결정: 회계 확인 후〕</span><div class="ta-muted" style="margin-top:4px;">고객 화면 선택지로 둘지 회계 확인 후 결정. 쓰면 마일리지 → 포인트 순으로, 결제(발송 승인) 시점에 차감</div></td></tr>
+                            <tr><th>PG 결제액 (카드 / 가상계좌)</th><td><b id="payPg"><span class="ta-tbd">미정</span></b> <span class="ta-muted">· 결제 전 · 이니시스에 이 금액만 고정</span></td></tr>
+                            <tr><th>합계 (= 견적 금액)</th><td><b id="payTotal"><span class="ta-tbd">미정</span></b></td></tr>
+                            <tr><th>결제 수단</th><td class="ta-muted">결제 전 (신용카드 / 가상계좌 / 포인트 · 마일리지만)</td></tr>
+                            <tr><th>승인번호 / 가상계좌번호</th><td class="ta-muted">결제 전 (카드: 승인번호 · 가상계좌: 은행 · 계좌번호 · 입금 기한)</td></tr>
+                            <tr><th>결제 시각</th><td class="ta-muted">결제 전 (카드 승인 · 가상계좌 입금 확인 · 포인트만이면 차감 완료 시각)</td></tr>
+                        </table>
+                    </div>
                     <div class="ta-alert info" style="margin-top:8px;">CJ에는 발송 D-3 전 현금 선입금 (이용신청서). 1순위 11/27(금) 발송이면 입금 기한 11/24(화). 고객 결제 마감은 발송 ○일 전 〔결정〕.</div>
                     <div class="ta-actions" style="margin-top:12px;">
                         <button class="btn btn-outline" onclick="openRecheck()">CJ에 재확인</button>
@@ -228,13 +239,15 @@
                                         <tr><td>적용 위약금 비율</td><td class="ta-num v" id="penRate">-</td></tr>
                                         <tr><td>CJ 광고비 (요금표 150원 × 20,000건)</td><td class="ta-num v">3,000,000원</td></tr>
                                         <tr><td>CJ에 낼 예상 위약금</td><td class="ta-num v" id="penCj">-</td></tr>
-                                        <tr><td>고객 결제 금액 (판매 단가 × 20,000건)</td><td class="ta-num v" id="penPaid"><span class="ta-tbd">〔결정〕</span></td></tr>
+                                        <tr><td>고객 결제 금액 (견적 금액 · 부가세 포함)</td><td class="ta-num v" id="penPaid"><span class="ta-tbd">〔결정〕</span></td></tr>
                                         <tr><td>고객 예상 위약금</td><td class="ta-num v" id="penCust">-</td></tr>
                                         <tr><td>예상 환불 금액 (결제 − 위약금)</td><td class="ta-num v" id="penRefund">-</td></tr>
+                                        <tr><td>└ 포인트 사용분 (기존 포인트 환불 프로세스)</td><td class="ta-num v">0원 <span class="ta-muted" style="font-weight:400;">(미사용)</span></td></tr>
+                                        <tr><td>└ PG 결제분 (결제 수단으로)</td><td class="ta-num v" id="penRefundPg">-</td></tr>
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="ta-muted" style="margin-top:6px;">포인트 환불 10% 차감을 함께 적용할지는 회계 확인 뒤 정합니다 〔결정〕. 환불 방식 〔결정〕.</div>
+                            <div class="ta-muted" style="margin-top:6px;">PG 결제분은 결제 수단으로 (카드 승인 취소 / 가상계좌는 계좌 환불), 포인트 사용분은 기존 포인트 환불 프로세스로 〔결정〕. 위약금을 어느 쪽에서 먼저 뺄지, 포인트 환불 10% 차감 적용 여부는 포인트 · 마일리지 사용 여부와 함께 회계 확인 후 결정합니다.</div>
                         </div>
                     </div>
                     <div class="form-group" style="margin-top:12px;">
@@ -296,7 +309,7 @@
                         <div class="ta-tl-item a-system">
                             <span class="ta-tl-dot"></span>
                             <div class="ta-tl-head"><span class="ta-actor system">시스템</span><span class="ta-channel">Slack → CJ</span><span>결제 완료 시</span><span class="badge badge-secondary">② 결제 승인 전달 · 예정</span></div>
-                            <div class="ta-tl-body ta-muted">고객 결제(포인트 차감)가 끝나면 추가 검수 없이 자동 전달: 「[톡벨 TA-20261116-001] 결제 승인 · 직방/호갱노노 20,000건 · 11/27 10:00 발송 진행 바랍니다」</div>
+                            <div class="ta-tl-body ta-muted">고객 결제가 끝나면(카드 승인 · 가상계좌 입금 확인, 포인트만으로 결제하면 차감 완료) 추가 검수 없이 자동 전달: 「[톡벨 TA-20261116-001] 결제 승인 · 직방/호갱노노 20,000건 · 11/27 10:00 발송 진행 바랍니다」</div>
                         </div>
                     </div>
                     <div class="ta-muted" style="margin-top:8px;">색 점: <span class="ta-actor cj">CJ</span> <span class="ta-actor operator">운영자</span> <span class="ta-actor system">시스템</span></div>
@@ -478,11 +491,16 @@
             const cust = document.getElementById('custAmount');
             if (price) {
                 const supply = price * qty;
-                cust.innerHTML = `${won(supply)} <span class="ta-muted" style="font-weight:400;">+ 부가세 ${won(supply * 0.1)}</span>`;
+                const total = supply * 1.1, point = 0;
+                cust.innerHTML = `${won(total)} <span class="ta-muted" style="font-weight:400;">(공급가 ${won(supply)} + 부가세 ${won(supply * 0.1)})</span>`;
+                document.getElementById('payPoint').textContent = won(point);
+                document.getElementById('payPg').textContent = won(total - point);
+                document.getElementById('payTotal').textContent = won(total);
                 document.getElementById('resPrice').innerHTML = res('ok', '입력됨');
-                document.getElementById('resCust').innerHTML = res('ok', `${price.toLocaleString('ko-KR')}원 × ${qty.toLocaleString('ko-KR')}건`);
+                document.getElementById('resCust').innerHTML = res('ok', `포인트 0원 + PG ${won(total)} = 견적 금액`);
             } else {
                 cust.innerHTML = '<span class="ta-tbd">미정</span>';
+                ['payPg', 'payTotal'].forEach(id => document.getElementById(id).innerHTML = '<span class="ta-tbd">미정</span>');
                 document.getElementById('resPrice').innerHTML = res('wa', '〔결정〕 미등록');
                 document.getElementById('resCust').innerHTML = res('wa', '판매 단가 필요');
                 warns.push('판매 단가가 없어 고객 결제 금액을 계산할 수 없습니다 〔결정〕.');
@@ -529,15 +547,17 @@
             document.getElementById('penCj').textContent = won(MEDIA_UNIT * REQ_QTY * rate);
             const price = num(document.getElementById('salePrice').value);
             if (price) {
-                const paid = price * REQ_QTY;
+                const paid = price * REQ_QTY * 1.1;
                 document.getElementById('penPaid').textContent = won(paid);
                 document.getElementById('penCust').textContent = won(paid * rate);
                 document.getElementById('penRefund').textContent = won(paid - paid * rate);
+                document.getElementById('penRefundPg').textContent = won(paid - paid * rate);
                 cancelCalc = { rate, cust: won(paid * rate), refund: won(paid - paid * rate) };
             } else {
                 document.getElementById('penPaid').innerHTML = '<span class="ta-tbd">〔결정〕</span>';
                 document.getElementById('penCust').textContent = `결제 금액 × ${rate * 100}%`;
                 document.getElementById('penRefund').textContent = `결제 금액 × ${100 - rate * 100}%`;
+                document.getElementById('penRefundPg').textContent = `PG 결제액 − 위약금`;
                 cancelCalc = { rate, cust: `결제 금액 × ${rate * 100}%`, refund: `결제 금액 × ${100 - rate * 100}%` };
             }
         }
@@ -556,7 +576,7 @@
         function submitCancel() {
             if (!document.getElementById('cfCjOk').checked) { showToast('CJ 취소 확인을 체크하세요.', 'error'); return; }
             closeModal('cancelConfirmModal');
-            showToast('취소를 확정했습니다. 위약금을 뺀 금액을 환불 처리하고 고객에게 알렸습니다.', 'success');
+            showToast('취소를 확정했습니다. 위약금을 뺀 금액을 결제 수단으로 환불 처리하고 고객에게 알렸습니다.', 'success');
         }
 
         function submitReject() {
@@ -679,7 +699,7 @@
                 function: '요청 건수 · CJ 회신 건수 · CJ 회신 금액 · 판매 단가 · 고객 결제 금액을 대조하고 승인해야 고객 마이페이지에 견적이 보임',
                 behavior: [
                     '【대조 항목】',
-                    '• 요청 건수(고객) / CJ 회신 가능 모수 · 건수(Slack 회신, AI가 읽고 운영자가 확인) / 요금표 기준 광고비(발송단가 × 건수) / CJ 회신 금액 / 판매 단가 〔결정〕 / 고객 결제 금액 = 판매 단가 × CJ 회신 건수 (부가세 10% 별도)',
+                    '• 요청 건수(고객) / CJ 회신 가능 모수 · 건수(Slack 회신, AI가 읽고 운영자가 확인) / 요금표 기준 광고비(발송단가 × 건수) / CJ 회신 금액 / 판매 단가 〔결정〕 / 고객 결제 금액(합계) = 견적 금액 (공급가 판매 단가 × CJ 회신 건수 + 부가세 10%) = 포인트 · 마일리지 사용액 + PG 결제액',
                     '【차이 경고 (빨강)】',
                     '• CJ 회신 건수 ≠ 요청 건수, 매체 최소 건수 · 최소 금액 미달',
                     '• CJ 회신 금액 ≠ 요금표 기준 광고비 (예: 300만 원이어야 할 건이 200만 원으로 회신)',
@@ -690,7 +710,11 @@
                     '• [견적 승인 · 고객 노출]: POST /admin/target-ad/requests/:id/quote/approve {cjQty, cjAmount, unitPrice} → 결제 대기, 템플릿 TA_QUOTED 메일 · 문자 + 마이페이지',
                     '• 승인자 · 승인 시각 · 대조 값을 남김',
                     '【결제 이후 (참고)】',
-                    '• 고객 포인트 결제(최종 승인 시점 차감) → 추가 검수 없이 Slack 결제 승인 전달 → 발송 준비',
+                    '• 고객 결제 기본: PG 바로 결제. 이니시스 모듈에 PG 결제액만 고정, 신용카드 또는 가상계좌 (지금 톡벨 결제수단 그대로)',
+                    '• 선택지: 포인트 · 마일리지 사용 〔결정: 회계 확인 후 제공 여부〕. 쓰면 마일리지 → 포인트 순, 결제(발송 승인) 시점 차감, 나머지를 PG로',
+                    '• 결제 완료 = 카드 승인 또는 가상계좌 입금 확인(기존 payment/noti/vbank 통지), 포인트만으로 결제하면 차감 완료 → 추가 검수 없이 Slack 결제 승인 전달 → 발송 준비',
+                    '• 결제 정보 칸: 포인트 · 마일리지 사용액(미사용이면 0원, 〔결정〕 배지) · PG 결제액 · 합계(= 견적 금액) · 결제 수단 · 승인번호 또는 가상계좌번호 · 결제 시각',
+                    '• 대조: 포인트 사용액 + PG 결제액 ≠ 견적 금액이면 빨간 경고 (결제 통지 금액 검증)',
                     '• CJ 선입금 발송 D-3 전, 고객 결제 마감 〔결정〕'
                 ]
             },
@@ -727,7 +751,7 @@
                     '• 고객 요청 사유(필수 선택 + 직접 입력) · 요청 일시 · 확정 발송일 · 처리 기준일과 D-n',
                     '• 해당 매체 위약금 기준 문구 (매체 규칙표 「취소 기준」 칸, 고지 문구 파일 2장)',
                     '• 계산: 적용 비율, CJ 광고비와 CJ에 낼 위약금, 고객 결제 금액 · 고객 위약금 · 예상 환불 금액',
-                    '• 포인트 환불 10% 차감 함께 적용 여부 〔결정〕, 환불 방식 〔결정〕',
+                    '• 환불: PG 결제분은 결제 수단으로 (카드 승인 취소 / 가상계좌는 계좌 환불), 포인트 사용분은 기존 포인트 환불 프로세스로 〔결정〕. 위약금 차감 순서 · 포인트 환불 10% 차감 여부는 회계 확인 후 결정',
                     '• 영업일 기준 매체(삼성카드 · OK캐쉬백 · T-MAP · 카카오페이 · CJ ONE)는 영업일 달력으로 D-n 계산',
                     '【버튼 (처리 메모 필수)】',
                     '• [CJ에 취소 요청]: Slack 스레드로 취소 가능 여부 요청',
@@ -745,7 +769,7 @@
                     '【항목】',
                     '• ① 신청 전달: 접수 즉시 배치 · API로 모수확인 요청 양식 전송 (신청 내용과 같은 항목: 매체사 · 현장명 · 발송가망일 1~3순위와 시간 · 건수 · 연령과 확대 여부 · 지역과 확대 여부 · 제목 · 문구 · 이미지 · 링크)',
                     '• CJ 회신: 원문 그대로 + AI가 읽은 건수 · 금액 · 발송 가능일 · 신뢰도. 「AI 보조 · 확인 필요」 표시, 운영자 확인 전에는 견적에 쓰지 않음',
-                    '• ② 결제 승인 전달: 고객 결제 완료 시 추가 검수 없이 자동 전송',
+                    '• ② 결제 승인 전달: 고객 결제 완료(카드 승인 · 가상계좌 입금 확인 통지, 포인트만으로 결제하면 차감 완료) 시 추가 검수 없이 자동 전송',
                     '• 고객 알림: 템플릿 문구로 보낸 메일 · 문자',
                     '【버튼】',
                     '• [전달 양식 복사] · [신청 다시 전달](전송 실패 시)',
@@ -827,7 +851,7 @@
                     '【검사】',
                     '• 「CJ에서 취소를 확인했습니다」 체크 필수',
                     '【결과】',
-                    '• 상태 → 취소, 위약금 공제 환불(기존 포인트 환불 절차 재사용 〔결정〕), 고객 메일 · 문자. 되돌릴 수 없음'
+                    '• 상태 → 취소, 위약금 공제 후 환불: PG 결제분은 결제 수단으로 (카드 승인 취소 · 부분 취소 / 가상계좌는 계좌 환불), 포인트 사용분은 기존 포인트 환불 프로세스로 〔결정〕, 고객 메일 · 문자. 되돌릴 수 없음'
                 ]
             },
             {
