@@ -26,6 +26,18 @@
         .ta-copy-diff del { background: #fee2e2; padding: 0 2px; border-radius: 2px; }
         .ta-notify { display: flex; flex-wrap: wrap; gap: 8px; }
         .ta-notify .ta-check { height: 36px; }
+        .ta-shots { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+        .ta-shot { width: 132px; border: 1px solid var(--admin-border); border-radius: 8px; overflow: hidden; background: #fff; font-size: 12px; }
+        .ta-shot-img { height: 168px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 8px; background: #f1f5f9; color: #64748b; line-height: 1.5; }
+        .ta-shot-meta { display: flex; justify-content: space-between; align-items: center; gap: 4px; padding: 6px 8px; border-top: 1px solid var(--admin-border); }
+        .ta-shot-meta button { border: 0; background: none; color: #94a3b8; cursor: pointer; font-size: 14px; line-height: 1; padding: 0 2px; }
+        .ta-manual { border: 1px solid var(--admin-border); border-radius: 8px; background: #fff; }
+        .ta-manual > summary { cursor: pointer; padding: 10px 14px; font-size: 13px; font-weight: 700; color: var(--admin-text-primary); }
+        .ta-manual-body { padding: 0 14px 14px; }
+        .ta-manual-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; margin-top: 10px; }
+        .ta-manual-grid .form-group { margin-bottom: 0; }
+        .ta-manual-grid .full { grid-column: 1 / -1; }
+        .ta-manual .ta-check { height: auto; padding: 8px 10px; white-space: normal; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -77,6 +89,7 @@
                     <a href="#secInfo">신청 내용</a>
                     <a href="#secQuote">견적 검수 · 승인</a>
                     <a href="#secCopy">CJ 수정 문구</a>
+                    <a href="#secTest">테스트 발송본</a>
                     <a href="#secCancel">취소 요청 처리</a>
                     <a href="#secSlack">Slack 전달 기록</a>
                     <a href="#secReport">결과 리포트</a>
@@ -214,6 +227,32 @@
                     </div>
                 </div>
 
+                <!-- 테스트 발송본 등록 → 고객 확인 요청 -->
+                <div class="card ta-section" id="secTest" style="margin-top:24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">테스트 발송본 등록 · 고객 확인 요청</h3>
+                        <div class="card-description">신청서의 테스트 수신번호 칸은 뺐습니다 (11/16 회의). CJ가 Slack으로 보낸 테스트 발송 캡처를 여기에 올리면 고객 마이페이지 「테스트 발송 확인」에 그대로 보입니다.</div>
+                    </div>
+                    <div class="ta-alert warn" style="margin-bottom:8px;"><span class="ta-example">예시</span> 결제 후 문구가 확정되면(발송 준비) 씁니다. 지금 상태(견적 승인 대기)에서는 아직 쓸 수 없고, 아래는 그때의 화면 예시입니다.</div>
+                    <div class="ta-alert info" style="margin-bottom:12px;"><b>〔CJ 확인 필요〕</b> 테스트 번호 없이 CJ가 테스트 발송 캡처를 Slack으로 보내 주는 방식은 아직 CJ와 협의하지 않았습니다.</div>
+                    <div class="ta-drop">
+                        CJ 테스트 발송 캡처 이미지를 끌어 놓거나 <button class="btn btn-outline btn-sm" onclick="addTestShot()">이미지 선택</button><br>
+                        <span class="ta-muted">여러 장 올릴 수 있습니다 · PNG · JPG</span>
+                    </div>
+                    <div class="ta-shots" id="testShots">
+                        <div class="ta-shot"><div class="ta-shot-img">직방/호갱노노<br>테스트 발송 캡처<br>(Slack에서 받은 이미지)</div><div class="ta-shot-meta"><span class="ta-muted">캡처 1</span><button type="button" title="빼기" onclick="this.closest('.ta-shot').remove()">&times;</button></div></div>
+                    </div>
+                    <div class="form-group" style="margin-top:12px;">
+                        <label class="form-label">CJ 메모 <span class="ta-muted" style="font-weight:400;">· 고객 안내에 함께 보여 줌 (선택)</span></label>
+                        <input class="form-control" id="testMemo" value="11/25 15:12 테스트 발송했습니다. 문의 번호 · 링크를 확인해 주세요.">
+                    </div>
+                    <div class="flex-between" style="flex-wrap:wrap;gap:12px;">
+                        <span class="ta-muted">고객 안내는 템플릿 문구(TA_TEST_CONFIRM)로 메일 · 문자 + 마이페이지. 운영자가 확인하고 보냅니다.</span>
+                        <button class="btn btn-primary" onclick="requestTestConfirm()">고객에게 확인 요청</button>
+                    </div>
+                    <div class="ta-muted" style="margin-top:8px;">고객이 [이상 없음, 발송 진행]을 누르면 Slack으로 CJ에 「테스트 확인 완료, 발송 진행」이 자동으로 전달되고, [수정 요청]을 누르면 고객 의견이 Slack으로 CJ에 전달됩니다.</div>
+                </div>
+
                 <!-- 취소 요청 처리 -->
                 <div class="card ta-section" id="secCancel" style="margin-top:24px;">
                     <div class="card-header">
@@ -313,6 +352,11 @@
                             <div class="ta-tl-head"><span class="ta-actor system">시스템</span><span class="ta-channel">Slack → CJ</span><span>결제 완료 시</span><span class="badge badge-secondary">② 결제 승인 전달 · 예정</span></div>
                             <div class="ta-tl-body ta-muted">고객 결제가 끝나면(카드 승인 · 가상계좌·전용계좌 입금 확인, 포인트만으로 결제하면 차감 완료) 추가 검수 없이 자동 전달: 「[톡벨 TA-20261116-001] 결제 승인 · 직방/호갱노노 20,000건 · 11/27 11:00 발송 진행 바랍니다」</div>
                         </div>
+                        <div class="ta-tl-item a-system">
+                            <span class="ta-tl-dot"></span>
+                            <div class="ta-tl-head"><span class="ta-actor system">시스템</span><span class="ta-channel">Slack → CJ</span><span>고객 테스트 확인 시</span><span class="badge badge-secondary">③ 테스트 확인 전달 · 예정</span></div>
+                            <div class="ta-tl-body ta-muted">고객이 [이상 없음, 발송 진행]을 누르면 자동 전달: 「[톡벨 TA-20261116-001] 테스트 확인 완료, 발송 진행」. [수정 요청]이면 고객 의견을 그대로 전달합니다.</div>
+                        </div>
                     </div>
                     <div class="ta-muted" style="margin-top:8px;">색 점: <span class="ta-actor cj">CJ</span> <span class="ta-actor operator">운영자</span> <span class="ta-actor system">시스템</span></div>
                 </div>
@@ -342,6 +386,28 @@
                         <div class="ta-actions" style="margin-top:12px;">
                             <button class="btn btn-outline btn-sm" disabled>다시 올리기</button>
                             <button class="btn btn-primary btn-sm" disabled>확인하고 고객에게 등록</button>
+                        </div>
+                        <div id="reportManual" style="margin-top:16px;">
+                            <details class="ta-manual">
+                                <summary>엑셀을 읽지 못하면 직접 입력</summary>
+                                <div class="ta-manual-body">
+                                    <div class="ta-muted">엑셀 양식이 다르거나, 리포트가 PDF · 이미지로만 왔을 때 씁니다. 직접 입력한 값도 엑셀과 같은 대조를 거쳐야 고객에게 등록됩니다. <span class="ta-example">예시</span></div>
+                                    <div class="ta-manual-grid">
+                                        <div class="form-group full"><label class="form-label" for="mSentAt">발송 일시<span class="ta-req">*</span></label><input type="datetime-local" class="form-control" id="mSentAt" value="2026-11-27T11:00"></div>
+                                        <div class="form-group"><label class="form-label" for="mSent">발송 건수<span class="ta-req">*</span></label><input class="form-control ta-num" id="mSent" inputmode="numeric" value="20,000"></div>
+                                        <div class="form-group"><label class="form-label" for="mSuccess">성공 건수<span class="ta-req">*</span></label><input class="form-control ta-num" id="mSuccess" inputmode="numeric" value="19,820"></div>
+                                        <div class="form-group full"><label class="form-label" for="mClick">클릭 수</label><input class="form-control ta-num" id="mClick" inputmode="numeric" placeholder="예: 1,240">
+                                            <label class="ta-check" style="margin-top:6px;"><input type="checkbox" id="mNoClick"> 이 매체는 클릭 수 미제공</label></div>
+                                        <div class="form-group full"><label class="form-label">증빙 이미지 첨부<span class="ta-req">*</span></label>
+                                            <div><button type="button" class="btn btn-outline btn-sm" onclick="addEvidence()">이미지 · PDF 첨부</button> <span class="ta-muted" id="mEvidence">첨부 없음</span></div></div>
+                                        <div class="form-group full"><label class="ta-check"><input type="checkbox" id="mSameReq"> 증빙에 적힌 현장명(고덕 한빛 리버뷰) · 매체(직방/호갱노노)가 이 신청과 같습니다</label></div>
+                                    </div>
+                                    <div style="margin-top:12px;"><div id="manualChecks"></div></div>
+                                    <div class="ta-actions" style="margin-top:12px;">
+                                        <button class="btn btn-primary btn-sm" id="btnManualReg" onclick="registerManual()" disabled>확인하고 고객에게 등록</button>
+                                    </div>
+                                </div>
+                            </details>
                         </div>
                     </div>
 
@@ -538,6 +604,50 @@
             showToast('고객에게 문구 확인을 요청했습니다 (메일 · 문자 + 마이페이지). 상태: 문구 확인 중.', 'success');
         }
 
+        // 테스트 발송본: CJ가 Slack으로 보낸 캡처를 올리고 고객 확인 요청 (TA_TEST_CONFIRM)
+        function addTestShot() {
+            const box = document.getElementById('testShots');
+            const n = box.querySelectorAll('.ta-shot').length + 1;
+            box.insertAdjacentHTML('beforeend', `<div class="ta-shot"><div class="ta-shot-img">테스트 발송 캡처 ${n}<br>(예시)</div><div class="ta-shot-meta"><span class="ta-muted">캡처 ${n}</span><button type="button" title="빼기" onclick="this.closest('.ta-shot').remove()">&times;</button></div></div>`);
+        }
+        function requestTestConfirm() {
+            if (!document.querySelectorAll('#testShots .ta-shot').length) { showToast('CJ 테스트 발송 캡처를 한 장 이상 올려 주세요.', 'error'); return; }
+            showToast('고객에게 테스트 발송본 확인을 요청했습니다 (템플릿 TA_TEST_CONFIRM · 메일 · 문자 + 마이페이지).', 'success');
+        }
+
+        // 리포트 직접 입력: 엑셀과 같은 대조 (현장명 · 매체 · 발송일, 성공 < 확정 건수 경고)
+        const CONFIRMED_QTY = 20000;
+        let evidenceCount = 0;
+        function addEvidence() {
+            evidenceCount++;
+            document.getElementById('mEvidence').textContent = `증빙 ${evidenceCount}개 첨부 (예시: CJ리포트_고덕한빛.pdf)`;
+            checkManual();
+        }
+        function checkManual() {
+            const at = document.getElementById('mSentAt').value;
+            const sent = num(document.getElementById('mSent').value), ok = num(document.getElementById('mSuccess').value);
+            const noClick = document.getElementById('mNoClick').checked;
+            const click = document.getElementById('mClick');
+            click.disabled = noClick; if (noClick) click.value = '';
+            const c = [];
+            c.push(document.getElementById('mSameReq').checked ? ['ok', '현장명 · 매체: 증빙과 이 신청이 같음 (운영자 확인)'] : ['danger', '현장명 · 매체: 증빙에 적힌 값이 이 신청과 같은지 확인해 체크하세요.']);
+            c.push(at.slice(0, 10) === SEND_DATE ? ['ok', `발송일: ${at.slice(0, 10)} · 확정 발송일과 같음`] : ['danger', `발송일: ${at ? at.slice(0, 10) : '미입력'} · 확정 발송일(${SEND_DATE})과 다릅니다.`]);
+            if (!sent || !ok) c.push(['danger', '발송 건수 · 성공 건수를 입력하세요.']);
+            else if (ok > sent) c.push(['danger', '성공 건수가 발송 건수보다 많습니다.']);
+            else if (ok < CONFIRMED_QTY) c.push(['warn', `성공 건수(${ok.toLocaleString('ko-KR')})가 확정 건수(${CONFIRMED_QTY.toLocaleString('ko-KR')})보다 적습니다. 운영자 확인 전에는 고객에게 리포트가 보이지 않습니다.`]);
+            if (!noClick && !click.value.trim()) c.push(['warn', '클릭 수가 비어 있습니다. 매체가 클릭 수를 주지 않으면 「이 매체는 클릭 수 미제공」을 체크하세요.']);
+            if (!evidenceCount) c.push(['danger', '증빙 이미지(CJ 리포트 PDF · 캡처)를 첨부하세요.']);
+            document.getElementById('manualChecks').innerHTML = c.map(([k, t]) => `<div class="ta-alert ${k}">${t}</div>`).join('');
+            document.getElementById('btnManualReg').disabled = c.some(([k]) => k === 'danger');
+        }
+        ['mSentAt', 'mSent', 'mSuccess', 'mClick', 'mNoClick', 'mSameReq'].forEach(id => {
+            document.getElementById(id).addEventListener('input', checkManual);
+            document.getElementById(id).addEventListener('change', checkManual);
+        });
+        function registerManual() {
+            showToast('직접 입력한 리포트를 확인하고 고객 마이페이지에 등록했습니다. 증빙과 입력자가 기록에 남았습니다. (상태 → 리포트 완료)', 'success');
+        }
+
         // 취소: 그 밖의 매체 기준 (D-3까지 취소 가능, 이후 20%) · 달력 일수
         let cancelCalc = null;
         function recalcCancel() {
@@ -605,6 +715,7 @@
         }
 
         recalcQuote();
+        checkManual();
     </script>
 
     <!-- 화면설계 오버레이 -->
@@ -621,7 +732,7 @@
                 behavior: [
                     '【표시 항목】',
                     '• 접수번호(request_no), 상태 배지(11개 상태 운영자용 이름), 매체 칩(하나)',
-                    '• 확인할 일: 확인함에 올라온 이 신청의 일 수 (견적 승인 · CJ 회신 확인 · 취소 요청 · 고객 질문)',
+                    '• 확인할 일: 확인함에 올라온 이 신청의 일 수 (견적 승인 · CJ 회신 확인 · 취소 요청 · 고객 질문 · 기한 알림)',
                     '• 미답변 고객 질문이 있으면 빨간 배지 → 확인함으로 이동. 없으면 숨김',
                     '• 상호 · 현장명 · 발송 건수 · 희망 발송일(1순위)과 희망 발송 시각 1순위 · 접수 일시',
                     '• 이 고객의 진행 중 신청 수 (규칙: 고객당 한 건)',
@@ -653,7 +764,7 @@
                     '【동작】',
                     '• 머리글 아래에 붙어 따라옴(sticky), 누르면 해당 섹션으로 스크롤',
                     '【구성】',
-                    '• 신청 내용 · 견적 검수 · 승인 · CJ 수정 문구 · 취소 요청 처리 · Slack 전달 기록 · 결과 리포트 · 상태 이력'
+                    '• 신청 내용 · 견적 검수 · 승인 · CJ 수정 문구 · 테스트 발송본 · 취소 요청 처리 · Slack 전달 기록 · 결과 리포트 · 상태 이력'
                 ]
             },
             // ===== 신청 내용 =====
@@ -741,8 +852,29 @@
                 ]
             },
             {
+                selector: '#secTest',
+                title: '8. 테스트 발송본 등록 → 고객 확인 요청',
+                position: { top: '-10px', left: '-10px' },
+                description: '이미지 업로드 + 메모 + 버튼 (Image Upload + Input + Button)',
+                function: 'CJ가 Slack으로 보낸 테스트 발송 캡처를 올리고 고객에게 확인을 요청. 고객 마이페이지 「테스트 발송 확인」에 보이는 이미지의 출처',
+                behavior: [
+                    '【배경】',
+                    '• 11/16 회의에서 신청서의 「테스트 수신번호」 칸을 뺌 → 고객 휴대폰으로 테스트 문자를 받을 수 없어, 관리자가 CJ 캡처를 올리는 경로를 둠',
+                    '• 〔CJ 확인 필요〕 테스트 번호 없이 CJ가 테스트 발송 캡처를 Slack으로 보내 주는 방식은 아직 CJ와 협의하지 않음',
+                    '【입력】',
+                    '• 테스트 발송 캡처 이미지: 여러 장 가능 (PNG · JPG), 끌어 놓기 또는 [이미지 선택]. 카드의 × 로 뺄 수 있음',
+                    '• CJ 메모(선택): 고객 안내에 함께 보여 줌',
+                    '【버튼】',
+                    '• [고객에게 확인 요청]: 이미지가 한 장 이상일 때. 템플릿 TA_TEST_CONFIRM 메일 · 문자 + 마이페이지(테스트 발송 확인 영역에 캡처 표시). POST /admin/target-ad/requests/:id/test-shots {images[], memo}',
+                    '• 고객 [이상 없음, 발송 진행] → Slack으로 CJ에 「테스트 확인 완료, 발송 진행」 자동 전달 (사람 확인 없음, Slack 전달 기록 ③)',
+                    '• 고객 [수정 요청] → 고객 의견을 Slack으로 CJ에 전달. 고친 테스트 캡처가 오면 다시 올리고 확인 요청',
+                    '【활성 조건】',
+                    '• 결제 후, 문구 확정 뒤(발송 준비). CJ 수정 문구가 있으면 고객이 문구를 확정한 다음. 지금 화면은 예시'
+                ]
+            },
+            {
                 selector: '#secCancel',
-                title: '8. 취소 요청 처리',
+                title: '9. 취소 요청 처리',
                 position: { top: '-10px', left: '-10px' },
                 description: '정보 표 + 계산 표 + 버튼 (Info + Calc + Buttons)',
                 function: '결제 후 고객 취소 요청을 매체 위약금 가이드로 계산해 수기 처리',
@@ -764,7 +896,7 @@
             },
             {
                 selector: '#secSlack',
-                title: '9. Slack 전달 기록',
+                title: '10. Slack 전달 기록',
                 position: { top: '-10px', left: '-10px' },
                 description: '타임라인 (Timeline)',
                 function: 'CJ와 Slack으로 주고받은 기록과 고객 알림을 시간순으로 표시',
@@ -773,6 +905,7 @@
                     '• ① 신청 전달: 접수 즉시 배치 · API로 모수확인 요청 양식 전송 (신청 내용과 같은 항목: 매체사 · 현장명 · 발송가망일 1~3순위 · 희망 시각 1) 2) (예: 1) 11:00 2) 11:30) · 건수 · 연령과 확대 여부 · 지역과 확대 여부 · 제목 · 문구 · 이미지 · 링크)',
                     '• CJ 회신: 원문 그대로 + AI가 읽은 건수 · 금액 · 발송 가능일·부킹 시각 · 신뢰도. 부킹 시각이 희망 시각 1·2순위와 다르면 고객에게 「가까운 시각으로 예약」 안내. 「AI 보조 · 확인 필요」 표시, 운영자 확인 전에는 견적에 쓰지 않음',
                     '• ② 결제 승인 전달: 고객 결제 완료(카드 승인 · 가상계좌·전용계좌 입금 확인 통지, 포인트만으로 결제하면 차감 완료) 시 추가 검수 없이 자동 전송',
+                    '• ③ 테스트 확인 전달: 고객이 테스트 발송본에 [이상 없음, 발송 진행]을 누르면 「테스트 확인 완료, 발송 진행」 자동 전송. [수정 요청]이면 고객 의견 전달',
                     '• 고객 알림: 템플릿 문구로 보낸 메일 · 문자',
                     '【버튼】',
                     '• [전달 양식 복사] · [신청 다시 전달](전송 실패 시)',
@@ -783,7 +916,7 @@
             },
             {
                 selector: '#secReport',
-                title: '10. 결과 리포트 업로드',
+                title: '11. 결과 리포트 업로드',
                 position: { top: '-10px', left: '-10px' },
                 description: '파일 업로드 + 미리보기 (Upload + Preview)',
                 function: 'CJ 리포트 엑셀을 읽어 정돈된 표로 고객 마이페이지에 등록',
@@ -795,13 +928,38 @@
                     '• 표 모양은 실제 CJ 엑셀로 시험한 뒤 확정',
                     '【불일치 경고】',
                     '• 현장명 · 매체 · 발송일이 다르거나 성공 건수 < 확정 건수면 빨간 경고. 운영자가 확인해야 고객에게 등록 → 리포트 완료',
+                    '【읽지 못할 때】',
+                    '• 아래 [엑셀을 읽지 못하면 직접 입력] 펼침으로 (12번)',
+                    '【기한】',
+                    '• 발송 후 영업일 4일이 지나도 등록되지 않으면 확인함에 「기한 알림」이 자동으로 뜸',
                     '【API】',
                     '• POST /admin/target-ad/requests/:id/reports'
                 ]
             },
             {
+                selector: '#reportManual',
+                title: '12. 리포트 직접 입력 (엑셀을 읽지 못할 때)',
+                position: { top: '-10px', left: '-10px' },
+                description: '펼침 + 입력 칸 + 첨부 (Details + Inputs + Attach)',
+                function: 'CJ 리포트를 읽지 못할 때 운영자가 값을 직접 넣고 증빙을 붙여 등록',
+                behavior: [
+                    '【쓰는 경우】',
+                    '• 엑셀 양식이 달라 읽지 못할 때, 리포트가 PDF · 이미지로만 왔을 때',
+                    '【입력】',
+                    '• 발송 일시 · 발송 건수 · 성공 건수 (필수), 클릭 수 (+ 「이 매체는 클릭 수 미제공」 체크 시 칸 비활성 → 고객 화면 「미제공」)',
+                    '• 증빙 이미지 첨부 (CJ 리포트 PDF · 캡처, 필수)',
+                    '【대조 (엑셀과 같음)】',
+                    '• 현장명 · 매체: 증빙에 적힌 값이 이 신청과 같은지 운영자가 확인해 체크 (안 하면 등록 불가)',
+                    '• 발송일: 입력한 발송 일시의 날짜 ≠ 확정 발송일이면 빨간 경고, 등록 불가',
+                    '• 성공 건수 > 발송 건수면 등록 불가, 성공 건수 < 확정 건수면 경고 (운영자 확인 후 등록)',
+                    '【버튼】',
+                    '• [확인하고 고객에게 등록]: 빨간 경고가 없을 때만 활성. POST /admin/target-ad/requests/:id/reports {source: MANUAL, sentAt, sent, success, click | null, clickNotProvided, evidenceFiles[]} → 리포트 완료. 입력자 · 시각 · 증빙을 남김',
+                    '• 고객 화면 리포트는 엑셀로 등록한 것과 같은 모양 (리포트 엑셀 받기는 증빙 파일 또는 입력값으로 만든 엑셀 〔결정〕)'
+                ]
+            },
+            {
                 selector: '#secHistory',
-                title: '11. 상태 이력',
+                title: '13. 상태 이력',
                 position: { top: '-10px', left: '-10px' },
                 description: '테이블 (Table)',
                 function: '상태 변경 기록 (target_ad_status_history)',
@@ -815,7 +973,7 @@
             // ===== 모달 =====
             {
                 selector: '#rejectModal .modal-content',
-                title: '12. 반려 처리 모달',
+                title: '14. 반려 처리 모달',
                 position: { top: '8px', left: '8px' },
                 description: '모달 (Modal)',
                 function: '진행 불가 건을 사유 직접 입력으로 반려하고 고객에게 알림',
@@ -830,7 +988,7 @@
             },
             {
                 selector: '#recheckModal .modal-content',
-                title: '13. CJ 재확인 모달',
+                title: '15. CJ 재확인 모달',
                 position: { top: '8px', left: '8px' },
                 description: '모달 (Modal)',
                 function: '견적 대조에서 차이가 난 값을 Slack으로 CJ에 다시 확인',
@@ -844,7 +1002,7 @@
             },
             {
                 selector: '#cancelConfirmModal .modal-content',
-                title: '14. 취소 확정 · 환불 모달',
+                title: '16. 취소 확정 · 환불 모달',
                 position: { top: '8px', left: '8px' },
                 description: '모달 (Modal)',
                 function: '계산된 위약금 · 환불 금액을 확인하고 취소를 확정',
@@ -859,7 +1017,7 @@
             },
             {
                 selector: '#revealModal .modal-content',
-                title: '15. 연락처 보기 모달',
+                title: '17. 연락처 보기 모달',
                 position: { top: '8px', left: '8px' },
                 description: '모달 (Modal)',
                 function: '열람 사유를 받아 연락처 원문 표시',

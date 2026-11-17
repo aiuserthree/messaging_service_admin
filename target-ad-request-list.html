@@ -206,9 +206,9 @@
             { no:'TA-20261113-001', company:'라온교육',          campaign:'겨울방학 특강 모집',    media:'OKCASHBAG',    qty:30000, send:'2026-11-26', status:'PAYMENT_WAIT', pending:0, received:'2026-11-13 14:05' },
             { no:'TA-20261112-002', company:'스마일치과',        campaign:'임플란트 상담 이벤트',  media:'SKT',          qty:20000, send:'2026-11-25', status:'CJ_REQUESTED', pending:1, note:'CJ 회신 도착 · 금액 없음 (신뢰도 낮음)', received:'2026-11-12 16:20' },
             { no:'TA-20261112-001', company:'(주)온누리분양',    campaign:'김해 온누리 풍경채움',  media:'CARD_SAMSUNG', qty:30000, send:'2026-11-24', status:'COPY_CONFIRM', pending:0, received:'2026-11-12 10:18' },
-            { no:'TA-20261111-001', company:'(주)남부하우징',    campaign:'부산 명지 하늘채움',    media:'KAKAOPAY',     qty:50000, send:'2026-11-20', status:'READY',        pending:0, received:'2026-11-11 09:03' },
+            { no:'TA-20261111-001', company:'(주)남부하우징',    campaign:'부산 명지 하늘채움',    media:'KAKAOPAY',     qty:50000, send:'2026-11-16', status:'READY',        pending:1, late:'기한 알림 · 확정 발송일 11/16 지남, 발송 완료 미처리', received:'2026-11-11 09:03' },
             { no:'TA-20261110-002', company:'바른건강',          campaign:'겨울 홍삼 기획전',      media:'CARD_HANA',    qty:50000, send:'2026-11-19', status:'CANCEL_REQ',   pending:1, q:{ n:1, need:true, note:'환불 질문 · 답변 필요' }, received:'2026-11-10 13:50' },
-            { no:'TA-20261106-001', company:'여행공방',          campaign:'제주 겨울 패키지',      media:'CARD_KB',      qty:30000, send:'2026-11-16', status:'SENT',         pending:0, received:'2026-11-06 15:31' },
+            { no:'TA-20261106-001', company:'여행공방',          campaign:'제주 겨울 패키지',      media:'CARD_KB',      qty:30000, send:'2026-11-10', status:'SENT',         pending:1, late:'기한 알림 · 발송 후 영업일 4일(11/16) 지남, 리포트 미등록', received:'2026-11-06 15:31' },
             { no:'TA-20261105-001', company:'(주)한강부동산',    campaign:'청량리 한강 시티',      media:'CARD_SHINHAN', qty:50000, send:'2026-11-06', status:'REPORTED',     pending:0, received:'2026-10-29 11:12' },
             { no:'TA-20261104-002', company:'(주)한빛분양마케팅', campaign:'동탄 한빛 오피스텔',    media:'ZIGBANG',      qty:20000, send:'2026-11-10', status:'REPORTED',     pending:0, received:'2026-11-04 15:02' },
             { no:'TA-20261103-001', company:'(주)대성분양',      campaign:'오산 세교 센트럴',      media:'LGU',          qty:50000, send:'2026-11-30', status:'REJECTED',     pending:0, received:'2026-11-03 17:45' },
@@ -235,7 +235,7 @@
                         <td><span class="ta-media">${MEDIA[r.media]}</span></td>
                         <td class="ta-num">${r.qty.toLocaleString('ko-KR')}</td>
                         <td>${fmtDate(r.send)}</td>
-                        <td><span class="ta-status ${STATUS[r.status].cls}" ${r.note ? `title="${r.note}"` : ''}>${STATUS[r.status].name}</span>${r.note ? '<div><span class="ta-flag cj" style="margin-top:4px;">회신 도착</span></div>' : ''}</td>
+                        <td><span class="ta-status ${STATUS[r.status].cls}" ${r.note ? `title="${r.note}"` : ''}>${STATUS[r.status].name}</span>${r.note ? '<div><span class="ta-flag cj" style="margin-top:4px;">회신 도착</span></div>' : ''}${r.late ? `<div><a href="target-ad-inbox.html" class="ta-flag need" style="margin-top:4px;text-decoration:none;" title="${r.late}" onclick="event.stopPropagation()">기한 지남</a></div>` : ''}</td>
                         <td class="text-center"><span class="ta-count ${r.pending ? '' : 'zero'}">${r.pending}</span></td>
                         <td class="ta-muted">${r.received.slice(5).replace('-', '/')}</td>
                     </tr>`).join('');
@@ -463,7 +463,8 @@
                     '• 접수번호(TA-YYYYMMDD-NNN) · 상호 · 현장/캠페인명 · 매체(칩 하나) · 발송 건수 · 희망 발송일(1순위) · 상태 · 확인할 일 · 접수일',
                     '【강조】',
                     '• 상태 옆 「회신 도착」: CJ Slack 회신이 왔고 확인함에서 읽은 값 확인을 기다림',
-                    '• 확인할 일: 확인함에 올라온 이 신청의 일(견적 승인 · CJ 회신 확인 · 취소 요청 · 고객 질문) 수. 0이면 회색',
+                    '• 상태 옆 「기한 지남」: 확인함에 기한 알림이 떠 있음 (발송 후 영업일 4일 지나도 리포트 미등록, 또는 확정 발송일이 지났는데 발송 완료 미처리). 누르면 확인함으로 이동',
+                    '• 확인할 일: 확인함에 올라온 이 신청의 일(견적 승인 · CJ 회신 확인 · 취소 요청 · 고객 질문 · 기한 알림) 수. 0이면 회색',
                     '• 질문 배지 「질문 N」: 미답변 고객 질문. 누르면 확인함으로 이동',
                     '【규칙】',
                     '• 진행 중 신청은 고객당 한 건. 끝난 상태(리포트 완료 · 반려 · 취소)가 되면 다음 신청 가능',
