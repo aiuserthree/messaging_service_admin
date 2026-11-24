@@ -16,6 +16,7 @@
         .ta-kind.k-cancel { background: #fee2e2; color: #991b1b; }
         .ta-kind.k-quote { background: #ede9fe; color: #5b21b6; }
         .ta-kind.k-deadline { background: #ffedd5; color: #9a3412; }
+        .ta-kind.k-fetched { background: #d1fae5; color: #065f46; }
         .ta-ai { display: inline-flex; padding: 1px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: #ede9fe; color: #5b21b6; }
         .ta-cmp th, .ta-cmp td { padding: 9px 12px; font-size: 13px; text-transform: none; letter-spacing: 0; }
         .ta-cmp td.v { font-weight: 700; }
@@ -60,6 +61,7 @@
                                 <tr><td>취소 요청 · 반려</td><td class="ta-confirm">관리자 확인</td><td>매체 위약금 가이드로 수기 처리 · 반려 사유는 직접 입력</td></tr>
                                 <tr><td>고객 질문 · 고객 안내</td><td class="ta-confirm">관리자 확인</td><td>질문 답은 운영자가 직접 씀 (AI 답 초안 없음). 안내는 템플릿 문구를 운영자가 확인하고 보냄</td></tr>
                                 <tr><td>기한 알림 (리포트 미등록 · 발송 완료 미처리 · D-7 문구 확정)</td><td><span class="ta-auto">자동 알림</span> · <span class="ta-confirm">처리는 관리자</span></td><td>발송 후 영업일 4일이 지나도 리포트가 없거나, 확정 발송일이 지났는데 발송 완료 처리가 안 되거나, 발송 7일 전(D-7)이 됐는데 고객이 CJ 수정 문구를 확정하지 않았으면 시스템이 띄움(알림만). 관리자가 CJ에 Slack으로 물어보고 리포트를 올리거나 발송 완료로 처리</td></tr>
+                                <tr><td>크루비 답 도착 (수정 문구 · 테스트 발송본)</td><td><span class="ta-auto">가져오기 자동</span> · <span class="ta-confirm">보내기 전 확인은 관리자</span></td><td>크루비가 신청 건 Slack 스레드에 올린 수정 문구 · 캡처와 원문을 시스템이 신청 상세 칸에 자동으로 채움. 관리자가 원문과 맞는지 확인하고 [확인했어요, 고객에게 보내기]. 고객 응답의 크루비 전달은 자동. 못 가져오면 직접 붙여 넣기 (11/24 내부 결정(6·7단계 반자동))</td></tr>
                                 <tr><td>결제 승인 전달</td><td class="ta-auto">자동</td><td>카드 승인 또는 가상계좌·전용계좌 입금 확인(기존 payment/noti/vbank 통지), 포인트만으로 결제하면 차감 완료 시 추가 검수 없이 Slack으로 CJ에 전달 (이 확인함에 오지 않음)</td></tr>
                             </tbody>
                         </table>
@@ -71,7 +73,7 @@
                     <div class="card ta-inbox-list" id="inboxList">
                         <div class="card-header">
                             <div class="flex-between" style="margin-bottom:10px;">
-                                <h3 class="card-title" style="font-size:16px;">확인할 일 <span class="ta-count">9</span></h3>
+                                <h3 class="card-title" style="font-size:16px;">확인할 일 <span class="ta-count">10</span></h3>
                                 <span class="ta-muted">급한 순</span>
                             </div>
                             <select class="form-control sm" id="kindFilter" onchange="filterKind(this.value)">
@@ -81,6 +83,7 @@
                                 <option value="cancel">취소 요청</option>
                                 <option value="question">고객 질문</option>
                                 <option value="deadline">기한 알림</option>
+                                <option value="fetched">크루비 답 도착</option>
                             </select>
                             <div class="ta-q-summary" id="kindSummary">
                                 <span>견적 <b>2</b></span>
@@ -88,6 +91,7 @@
                                 <span class="ta-flag need">취소 1</span>
                                 <span>질문 <b>2</b></span>
                                 <span>기한 <b>2</b></span>
+                                <span>크루비 답 <b>1</b></span>
                             </div>
                         </div>
                         <div id="inboxItems"></div>
@@ -327,6 +331,36 @@
                     { label: '견적 승인 · 고객 노출', cls: 'btn-primary', disabled: true }
                 ],
                 sendTo: '승인하면: 상태 견적 승인 대기 → 결제 대기 · 고객 메일 · 문자 + 마이페이지'
+            },
+            {
+                id: 110, kind: 'fetched', kindName: '크루비 답 도착', no: 'TA-20261112-001', company: '(주)온누리분양', campaign: '김해 온누리 풍경채움',
+                waited: '15분', urgent: '문구 확정 마감 오늘 (D-7)',
+                compareTitle: '크루비 답 도착 — 확인 후 고객에게 보내기',
+                source: `[톡벨 TA-20261112-001] 고객님 요청 반영한 수정 문구입니다.
+(광고)[온누리분양] 김해 온누리 풍경채움 1차 분양
+김해 신도심 생활권, 84㎡ 계약 진행 중
+견본주택: 김해시청역 도보 7분
+분양 문의 1600-0000
+무료수신거부 080-000-0000`,
+                sourceMeta: 'CJ · 신청 스레드 「TA-20261112-001 · 김해 온누리 풍경채움」 11/17 09:05 · Slack에서 자동으로 가져옴 → 신청 상세 「CJ 수정 문구」 칸에 채움',
+                cmpHead: ['항목', '값', '근거'],
+                cmpRows: [
+                    ['가져온 것', '수정 문구 (고객 [수정 요청] 반영본)', '신청 스레드 글 · 머리 [톡벨 접수번호] 일치'],
+                    ['채운 곳', '신청 상세 「CJ 수정 문구」 칸 · CJ 메모', '표시 「Slack에서 자동으로 가져옴 · 11/17 09:05」'],
+                    ['매체 · 확정 발송일', '삼성카드 · 11/24(화)', 'CJ 부킹 결과'],
+                    ['문구 확정 마감', '11/17(화) 오늘 · D-7', '확정 발송일 − 7일 (11/23 내부 결정)', 'diff']
+                ],
+                notice: null,
+                checks: [
+                    { r: 'wa', t: '가져오기는 자동, 보내기 전 확인은 사람: 원래 문구 · 고객 요청과 맞는지 보고 보냄' },
+                    { r: 'ok', t: '같은 스레드 글 · 접수번호 일치 → 자동으로 채움 (스레드 밖 답이면 「직접 붙여 넣기」로 처리)' },
+                    { r: 'ok', t: '고객이 [확인] · [수정 요청]을 누르면 스레드로 크루비에 자동 전달' }
+                ],
+                actions: [
+                    { label: '신청 상세에서 보기', cls: 'btn-outline', href: 'target-ad-request-detail.html?no=TA-20261112-001#secCopy' },
+                    { label: '확인했어요, 고객에게 보내기', cls: 'btn-primary', toast: '확인한 문구로 고객에게 확인을 요청했습니다 (TA_COPY_CONFIRM · 메일 · 문자 + 마이페이지). 고객 응답은 스레드로 크루비에 자동 전달됩니다.' }
+                ],
+                sendTo: '보내면: 고객 · 메일 · 문자 + 마이페이지 「수정 문구 확인」 · 상태 문구 확인 중 유지'
             },
             {
                 id: 108, kind: 'deadline', kindName: '기한 알림', no: 'TA-20261106-001', company: '여행공방', campaign: '제주 겨울 패키지',
@@ -571,6 +605,7 @@
                     '• 견적은 관리자가 승인해야 고객에게 보임 (금액 검수가 핵심 통제)',
                     '• 예외: 결제 완료(카드 승인 · 가상계좌·전용계좌 입금 확인 통지, 포인트만으로 결제하면 차감 완료) 후 Slack 결제 승인 전달은 추가 검수 없이 자동',
                     '• 기한 알림: 시스템이 자동으로 띄우기만 하고(상태는 바꾸지 않음), 처리는 관리자 (CJ에 Slack으로 문의 → 리포트 업로드 또는 발송 완료 처리)',
+                    '• 크루비 답 도착 (11/24 내부 결정(6·7단계 반자동)): 수정 문구 · 테스트 발송본(캡처 · 원문)은 신청 건 Slack 스레드에서 시스템이 자동으로 가져와 채우고, 보내기 전 확인은 관리자. 가져오기는 자동, 보내기 전 확인은 사람 — 위 11/16 원칙과 같음. 운영이 안정되면 완전 자동 검토 (지금은 아님)',
                     '【AI 범위 (축소)】',
                     '• 신청 전 과정 대화형은 하지 않음. CJ Slack 회신에서 건수 · 금액을 읽어 보여 주는 보조만',
                     '• 고객 안내는 템플릿 문구, 고객 질문 답은 운영자가 직접 (AI 답 초안 없음)',
@@ -584,7 +619,7 @@
                 title: '2. 확인할 일 목록',
                 position: { top: '-10px', left: '-10px' },
                 description: '목록 (List)',
-                function: '관리자가 처리해야 할 일 목록 (5종류)',
+                function: '관리자가 처리해야 할 일 목록 (6종류)',
                 behavior: [
                     '【종류】',
                     '• 견적 승인 대기: 상태 QUOTE_REVIEW 신청 (금액 대조). 승인되면 고객이 PG(카드 · 가상계좌 · 전용계좌)로 결제',
@@ -592,13 +627,14 @@
                     '• 취소 요청: 상태 CANCEL_REQ 신청',
                     '• 고객 질문: 마이페이지 [질문 보내기] 중 미답변',
                     '• 기한 알림 (시스템 자동, 매일 확인): ① 발송 완료 후 영업일 4일이 지나도 결과 리포트가 등록되지 않음 ② 확정 발송일이 지났는데 「발송 완료」 처리가 안 됨 (발송 준비에 머묾) ③ D-7 문구 확정: 문구 확정 마감(확정 발송일 − 7일)이 됐는데 고객이 CJ 수정 문구에 [확인]도 [수정 요청]도 누르지 않음 → 관리자가 고객에게 연락 (근거: CJ 11/23 회신(수정은 발송 4~5일 전까지, 테스트는 확정 후 D-1~2까지) + 11/23 내부 결정 D-7). 테스트 확인(D-1~2에 옴)에는 따로 기한 알림을 두지 않음. 리포트 등록 · 발송 완료 처리가 되면 자동으로 빠짐',
+                    '• 크루비 답 도착 (11/24 내부 결정(6·7단계 반자동)): 크루비가 신청 건 Slack 스레드에 수정 문구 또는 캡처 + 원문을 올려 신청 상세에 자동으로 채운 것 → 확인 후 고객에게 보내기. 스레드 밖 답 · 형식이 다른 답은 「자동으로 못 가져옴 · 직접 붙여 넣기」로 올라옴. 봇 연동 · 스레드 운영은 〔CJ 확인 필요〕',
                     '【항목 표시】',
                     '• 종류 · 접수번호 · 상호 · 현장명 · 대기 시간, 빨간 표시(발송 임박 D-n · 금액 차이 · 최소 기준 미달), AI 신뢰도 0.9 미만이면 「AI 신뢰도 낮음」',
                     '【정렬 · 필터】',
                     '• 급한 순: 취소 요청(발송일 가까운 순) → 금액 차이 → 기한 알림(지난 날 많은 순) → 오래 기다린 순. 위 셀렉트로 종류 필터',
                     '• 머리 숫자 = 전체 수, 아래 줄 = 종류별 수',
                     '【API】',
-                    '• GET /admin/target-ad/inbox?kind=QUOTE|CJ_REPLY|CANCEL|QUESTION|DEADLINE'
+                    '• GET /admin/target-ad/inbox?kind=QUOTE|CJ_REPLY|CANCEL|QUESTION|DEADLINE|CJ_FETCHED'
                 ]
             },
             {
@@ -631,7 +667,9 @@
                     '【고객 질문】',
                     '• 질문 원문 · 받은 시각 · 그때 신청 상태',
                     '【기한 알림】',
-                    '• 알림 이유 · 매체 · 건수 · 발송일(또는 확정 발송일·시각) · 기한과 지난 영업일 수 · 지금 상태. 고객 안내 문구는 없어 숨김'
+                    '• 알림 이유 · 매체 · 건수 · 발송일(또는 확정 발송일·시각) · 기한과 지난 영업일 수 · 지금 상태. 고객 안내 문구는 없어 숨김',
+                    '【크루비 답 도착】',
+                    '• 위: 스레드 글 원문 (고치지 않음, 가져온 시각 · 스레드 이름) / 아래: 가져온 것 · 채운 곳 · 확정 발송일 · 문구 확정 마감(D-7). 고객 안내는 TA_COPY_CONFIRM · TA_TEST_CONFIRM 템플릿이라 여기서는 숨김'
                 ]
             },
             {
@@ -684,6 +722,8 @@
                     '【기한 알림】',
                     '• 리포트 미등록: [CJ에 리포트 요청](Slack 재확인 모달) · [신청 상세에서 리포트 등록](엑셀 또는 직접 입력)',
                     '• 발송 완료 미처리: [CJ에 발송 여부 문의] · [발송 완료 처리] (CJ가 Slack으로 발송을 확인해 준 뒤. POST /admin/target-ad/requests/:id/sent → 발송 완료, 리포트 기한 계산 시작)',
+                    '【크루비 답 도착】',
+                    '• [신청 상세에서 보기](채워진 칸 · 직접 붙여 넣기 / 올리기) · [확인했어요, 고객에게 보내기] (수정 문구 → TA_COPY_CONFIRM, 테스트 발송본 → TA_TEST_CONFIRM)',
                     '【결과】',
                     '• 처리자 · 처리 시각 저장, 신청 상세 Slack 전달 기록 · 상태 이력에 반영, 목록에서 빠짐'
                 ]

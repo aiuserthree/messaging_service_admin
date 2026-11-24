@@ -47,6 +47,17 @@
         .ta-test-rule { border: 1px solid var(--admin-border); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; line-height: 1.55; background: #fff; }
         .ta-test-rule b { display: block; font-size: 12px; margin-bottom: 2px; }
         @media (max-width: 900px) { .ta-test-rules { grid-template-columns: 1fr; } }
+        /* 6·7단계 반자동: Slack 스레드에서 자동으로 가져온 값 표시 + 직접 입력(대체 경로) */
+        .ta-fetched { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: #d1fae5; color: #065f46; white-space: nowrap; }
+        .ta-fetched.manual { background: #fef3c7; color: #92400e; }
+        .ta-fetch-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 13px; margin-bottom: 4px; }
+        .ta-linkbtn { border: 0; background: none; padding: 0; color: var(--admin-text-secondary); font-size: 12.5px; text-decoration: underline; cursor: pointer; font-family: inherit; }
+        .ta-linkbtn:hover { color: var(--admin-text-primary); }
+        .ta-fallback { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 8px; font-size: 12.5px; }
+        .ta-auto-text[readonly] { background: #f8fafc; }
+        .ta-thread { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 10px 12px; margin-bottom: 12px; border: 1px solid var(--admin-border); border-radius: 8px; background: #f8fafc; font-size: 13px; }
+        .ta-thread .ta-thread-name { font-weight: 700; }
+        .ta-cjq { display: inline-flex; padding: 1px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: #fef3c7; color: #92400e; }
     </style>
 </head>
 <body>
@@ -205,10 +216,10 @@
                 <!-- CJ 수정 문구 → 고객 확인 요청 -->
                 <div class="card ta-section" id="secCopy" style="margin-top:24px;">
                     <div class="card-header">
-                        <h3 class="card-title">CJ 수정 문구 등록 · 고객 확인 요청</h3>
-                        <div class="card-description">반려 코드는 없습니다. CJ가 매체 가이드에 맞춰 고친 문구를 주면 고객 확인을 받고, 고객이 확인하면 그 문구로 매체에 전달합니다 (CJ 11/16 회신).</div>
+                        <h3 class="card-title">CJ 수정 문구 확인 · 고객에게 보내기</h3>
+                        <div class="card-description">반려 코드는 없습니다. CJ가 이 신청의 Slack 스레드에 수정 문구를 올리면 시스템이 오른쪽 칸에 자동으로 채웁니다. 원래 문구와 맞는지 확인하고 [확인했어요, 고객에게 보내기]를 누르면 고객 확인을 받고, 고객이 확인하면 그 문구로 매체에 전달합니다 (CJ 11/16 회신 · 11/24 내부 결정(6·7단계 반자동)).</div>
                     </div>
-                    <div class="ta-alert warn" style="margin-bottom:12px;"><span class="ta-example">예시</span> 결제 후 CJ가 수정 문구를 보내면 씁니다. 지금 상태(견적 승인 대기)에서는 아직 오지 않았고, 아래는 그때의 화면 예시입니다.</div>
+                    <div class="ta-alert warn" style="margin-bottom:12px;"><span class="ta-example">예시</span> 결제 후 CJ가 스레드에 수정 문구를 올리면 자동으로 채워집니다. 지금 상태(견적 승인 대기)에서는 아직 오지 않았고, 아래는 자동으로 채워진 때의 화면 예시입니다.</div>
                     <div class="ta-test-rules">
                         <div class="ta-test-rule"><b>고객 문구 확정 마감</b>발송 7일 전 (이 신청: 11/27(금) 발송 → <b style="display:inline;">11/20(금)</b>까지). CJ 반영 한도는 발송 4~5일 전이라 그 앞으로 둠</div>
                         <div class="ta-test-rule"><b>고칠 수 있는 것</b>오타만. 금액 · 문구 추가는 일부 매체 말고는 불가 (CJ 11/23 회신)</div>
@@ -223,9 +234,9 @@
 분양 문의 1600-0000</div>
                         </div>
                         <div class="ta-pane">
-                            <div class="ta-pane-head"><span>CJ 수정 문구 (Slack에서 붙여 넣기)</span><span>예시</span></div>
+                            <div class="ta-pane-head"><span>CJ 수정 문구</span><span class="ta-fetched" id="cjCopyBadge">Slack에서 자동으로 가져옴 · 11/19 14:02</span></div>
                             <div class="ta-pane-body" style="padding:8px;">
-                                <textarea class="form-control" id="cjCopy" rows="7" style="font-size:13px;line-height:1.7;">(광고)[한빛분양마케팅] 고덕 한빛 리버뷰 잔여세대 분양
+                                <textarea class="form-control ta-auto-text" id="cjCopy" rows="7" readonly style="font-size:13px;line-height:1.7;">(광고)[한빛분양마케팅] 고덕 한빛 리버뷰 잔여세대 분양
 고덕국제신도시 생활권, 84㎡ 계약 진행 중
 모델하우스: 평택역 도보 5분
 분양 문의 1600-0000
@@ -234,20 +245,21 @@
                         </div>
                     </div>
                     <div class="form-group" style="margin-top:12px;">
-                        <label class="form-label">CJ 메모 <span class="ta-muted" style="font-weight:400;">· 고객 안내에 함께 보여 줌</span></label>
+                        <label class="form-label">CJ 메모 <span class="ta-muted" style="font-weight:400;">· 같은 스레드 글에서 함께 가져옴 · 고객 안내에 함께 보여 줌</span></label>
                         <input class="form-control" id="cjCopyMemo" value="매체 가이드에 맞춰 표현과 전송자 명칭 · 무료 수신거부 문구를 고쳤습니다.">
                     </div>
                     <div class="flex-between" style="flex-wrap:wrap;gap:12px;">
-                        <span class="ta-muted">고객 안내는 템플릿 문구(TA_COPY_CONFIRM)로 메일 · 문자 + 마이페이지. 운영자가 확인하고 보냅니다.</span>
-                        <button class="btn btn-primary" onclick="requestCopyConfirm()">고객에게 확인 요청</button>
+                        <span class="ta-muted">가져오기는 자동, 보내기 전 확인은 사람이 합니다. 원래 문구와 맞는지 보고 누르세요. 고객 안내는 템플릿 문구(TA_COPY_CONFIRM)로 메일 · 문자 + 마이페이지, 고객 응답은 스레드로 CJ에 자동 전달됩니다.</span>
+                        <button class="btn btn-primary" onclick="requestCopyConfirm()">확인했어요, 고객에게 보내기</button>
                     </div>
+                    <div class="ta-fallback"><button type="button" class="ta-linkbtn" id="cjCopyManualLink" onclick="manualCopy()">직접 붙여 넣기</button><span class="ta-muted">· 자동으로 못 가져왔을 때 (CJ가 스레드 밖에 답함, 형식이 다름 등)</span></div>
                 </div>
 
                 <!-- 테스트 발송본 등록 → 고객 확인 요청 -->
                 <div class="card ta-section" id="secTest" style="margin-top:24px;">
                     <div class="card-header">
-                        <h3 class="card-title">테스트 발송본 등록 · 고객 확인 요청</h3>
-                        <div class="card-description">CJ가 확인한 뒤 문구 캡처본과 원문을 Slack(또는 메일)으로 보내 줍니다 (CJ 11/23 회신). 캡처를 올리고 원문을 붙여 넣으면 고객 마이페이지 「테스트 발송 확인」에 그대로 보입니다. 테스트 수신번호는 받지 않습니다.</div>
+                        <h3 class="card-title">테스트 발송본 확인 · 고객에게 보내기</h3>
+                        <div class="card-description">CJ가 이 신청의 Slack 스레드에 문구 캡처 이미지와 원문을 올리면 시스템이 아래 칸에 자동으로 채웁니다 (CJ 11/23 회신 · 11/24 내부 결정(6·7단계 반자동)). 확인하고 [확인했어요, 고객에게 보내기]를 누르면 고객 마이페이지 「테스트 발송 확인」에 그대로 보입니다. 테스트 수신번호는 받지 않습니다.</div>
                     </div>
                     <div class="ta-alert warn" style="margin-bottom:8px;"><span class="ta-example">예시</span> 결제 후 문구가 확정되면(발송 준비) 씁니다. 지금 상태(견적 승인 대기)에서는 아직 쓸 수 없고, 아래는 그때의 화면 예시입니다.</div>
                     <div class="ta-test-rules">
@@ -255,30 +267,32 @@
                         <div class="ta-test-rule"><b>언제 오나</b>문구 확정 후, 보통 발송 1~2일 전까지 CJ가 보내 줌 (CJ 11/23 16:12 회신)</div>
                         <div class="ta-test-rule"><b>〔CJ 확인 필요〕</b>테스트 발송본(D-1~2)에서 오류를 찾으면 그때도 고칠 수 있는지, 다시 테스트하는지, 발송일 변경 · 비용은 답 없음</div>
                     </div>
-                    <div class="ta-drop">
+                    <div class="ta-fetch-row"><span class="ta-fetched" id="testBadge">Slack에서 자동으로 가져옴 · 11/25 10:30</span><span class="ta-muted">스레드 글 하나에서 캡처 1장 · 원문 · 메모를 가져왔습니다</span></div>
+                    <div class="ta-drop" id="testDrop" hidden>
                         CJ 테스트 발송 캡처 이미지를 끌어 놓거나 <button class="btn btn-outline btn-sm" onclick="addTestShot()">이미지 선택</button><br>
-                        <span class="ta-muted">여러 장 올릴 수 있습니다 · PNG · JPG</span>
+                        <span class="ta-muted">자동으로 못 가져왔을 때만 씁니다 · 여러 장 올릴 수 있습니다 · PNG · JPG</span>
                     </div>
                     <div class="ta-shots" id="testShots">
-                        <div class="ta-shot"><div class="ta-shot-img">직방/호갱노노<br>테스트 발송 캡처<br>(Slack에서 받은 이미지)</div><div class="ta-shot-meta"><span class="ta-muted">캡처 1</span><button type="button" title="빼기" onclick="this.closest('.ta-shot').remove()">&times;</button></div></div>
+                        <div class="ta-shot"><div class="ta-shot-img">직방/호갱노노<br>테스트 발송 캡처<br>(스레드에서 자동으로 가져옴)</div><div class="ta-shot-meta"><span class="ta-muted">캡처 1</span><button type="button" title="빼기" onclick="this.closest('.ta-shot').remove()">&times;</button></div></div>
                     </div>
                     <div class="form-group" style="margin-top:12px;">
-                        <label class="form-label">CJ 원문 (Slack에서 붙여 넣기)<span class="ta-req">*</span> <span class="ta-muted" style="font-weight:400;">· 고객 화면에 캡처와 함께 그대로 보여 줌</span></label>
-                        <textarea class="form-control" id="testRaw" rows="6" style="font-size:13px;line-height:1.7;">(광고)[한빛분양마케팅] 고덕 한빛 리버뷰 잔여세대 분양
+                        <label class="form-label">CJ 원문<span class="ta-req">*</span> <span class="ta-muted" style="font-weight:400;">· 스레드에서 자동으로 가져옴 · 고객 화면에 캡처와 함께 그대로 보여 줌</span></label>
+                        <textarea class="form-control ta-auto-text" id="testRaw" rows="6" readonly style="font-size:13px;line-height:1.7;">(광고)[한빛분양마케팅] 고덕 한빛 리버뷰 잔여세대 분양
 고덕국제신도시 생활권, 84㎡ 계약 진행 중
 모델하우스: 평택역 도보 5분
 분양 문의 1600-0000
 무료수신거부 080-000-0000</textarea>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">CJ 메모 <span class="ta-muted" style="font-weight:400;">· 고객 안내에 함께 보여 줌 (선택)</span></label>
-                        <input class="form-control" id="testMemo" value="11/19 테스트 발송본입니다. 문의 번호 · 링크를 확인해 주세요.">
+                        <label class="form-label">CJ 메모 <span class="ta-muted" style="font-weight:400;">· 같은 스레드 글에서 함께 가져옴 · 고객 안내에 함께 보여 줌 (선택)</span></label>
+                        <input class="form-control" id="testMemo" value="11/25 테스트 발송본입니다. 문의 번호 · 링크를 확인해 주세요.">
                     </div>
                     <div class="flex-between" style="flex-wrap:wrap;gap:12px;">
-                        <span class="ta-muted">고객 안내는 템플릿 문구(TA_TEST_CONFIRM)로 메일 · 문자 + 마이페이지. 운영자가 확인하고 보냅니다.</span>
-                        <button class="btn btn-primary" onclick="requestTestConfirm()">고객에게 확인 요청</button>
+                        <span class="ta-muted">가져오기는 자동, 보내기 전 확인은 사람이 합니다. 캡처와 원문이 확정 문구와 맞는지 보고 누르세요. 고객 안내는 템플릿 문구(TA_TEST_CONFIRM)로 메일 · 문자 + 마이페이지.</span>
+                        <button class="btn btn-primary" onclick="requestTestConfirm()">확인했어요, 고객에게 보내기</button>
                     </div>
-                    <div class="ta-muted" style="margin-top:8px;">고객이 [이상 없음, 발송 진행]을 누르면 Slack으로 CJ에 「테스트 확인 완료, 발송 진행」이 자동으로 전달되고, [수정 요청]을 누르면 고객 의견이 Slack으로 CJ에 전달됩니다. 이때 고칠 수 있는지는 CJ에 확인해 고객에게 알려 줍니다 〔CJ 확인 필요〕.</div>
+                    <div class="ta-fallback"><button type="button" class="ta-linkbtn" id="testManualLink" onclick="manualTest()">직접 올리기</button><span class="ta-muted">· 자동으로 못 가져왔을 때 (CJ가 스레드 밖에 답함, 형식이 다름 등) 캡처를 올리고 원문을 붙여 넣습니다</span></div>
+                    <div class="ta-muted" style="margin-top:8px;">고객이 [이상 없음, 발송 진행]을 누르면 이 신청 Slack 스레드로 CJ에 「테스트 확인 완료, 발송 진행」이 자동으로 전달되고, [수정 요청]을 누르면 고객 의견이 같은 스레드로 CJ에 자동 전달됩니다. 이때 고칠 수 있는지는 CJ에 확인해 고객에게 알려 줍니다 〔CJ 확인 필요〕.</div>
                 </div>
 
                 <!-- 취소 요청 처리 -->
@@ -334,13 +348,14 @@
                     <div class="card-header flex-between">
                         <div>
                             <h3 class="card-title">Slack 전달 기록</h3>
-                            <div class="card-description">CJ와 주고받은 Slack 기록과 고객 알림. 스레드 하나 = 신청 하나, 머리에 [톡벨 접수번호]. 최신이 아래.</div>
+                            <div class="card-description">CJ와 주고받은 Slack 기록과 고객 알림. 모수 확인을 요청할 때 시스템(Slack 봇)이 신청 건마다 스레드를 열고, CJ는 그 건의 답을 그 스레드에 씁니다. 스레드 하나 = 신청 하나, 머리에 [톡벨 접수번호]. 최신이 아래.</div>
                         </div>
                         <div class="ta-actions">
                             <button class="btn btn-outline btn-sm" onclick="copyForward()">전달 양식 복사</button>
                             <button class="btn btn-outline btn-sm" onclick="showToast('Slack으로 신청 전달을 다시 보냈습니다. 기록에 남았습니다.', 'success')">신청 다시 전달</button>
                         </div>
                     </div>
+                    <div class="ta-thread" id="slackThread"><span class="ta-muted">이 신청 스레드</span><span class="ta-thread-name">TA-20261116-001 · 고덕 한빛 리버뷰</span><span class="ta-muted">크루비와 같이 쓰는 채널 · 11/16 09:13 시작</span><span class="ta-cjq">〔CJ 확인 필요: 봇 연동 · 스레드 운영〕</span></div>
                     <div class="ta-timeline" id="timelineList">
                         <div class="ta-tl-item a-system">
                             <span class="ta-tl-dot"></span>
@@ -349,7 +364,7 @@
                         </div>
                         <div class="ta-tl-item a-system">
                             <span class="ta-tl-dot"></span>
-                            <div class="ta-tl-head"><span class="ta-actor system">시스템</span><span class="ta-channel">Slack → CJ</span><span>11/16 09:13</span><span class="badge badge-info">① 신청 전달</span><span class="ta-appr auto">자동 (배치)</span></div>
+                            <div class="ta-tl-head"><span class="ta-actor system">시스템</span><span class="ta-channel">Slack → CJ</span><span>11/16 09:13</span><span class="badge badge-info">① 신청 전달 · 스레드 시작</span><span class="ta-appr auto">자동 (배치)</span></div>
 <pre class="ta-pre" id="forwardText">[톡벨 TA-20261116-001] 모수 확인 요청
 - 매체사: 직방/호갱노노
 - 현장명: 고덕 한빛 리버뷰
@@ -380,6 +395,16 @@
                             <span class="ta-tl-dot"></span>
                             <div class="ta-tl-head"><span class="ta-actor system">시스템</span><span class="ta-channel">Slack → CJ</span><span>결제 완료 시</span><span class="badge badge-secondary">② 결제 승인 전달 · 예정</span></div>
                             <div class="ta-tl-body ta-muted">고객 결제가 끝나면(카드 승인 · 가상계좌·전용계좌 입금 확인, 포인트만으로 결제하면 차감 완료) 추가 검수 없이 자동 전달: 「[톡벨 TA-20261116-001] 결제 승인 · 직방/호갱노노 20,000건 · 11/27 11:00 발송 진행 바랍니다」</div>
+                        </div>
+                        <div class="ta-tl-item a-cj">
+                            <span class="ta-tl-dot"></span>
+                            <div class="ta-tl-head"><span class="ta-actor cj">CJ</span><span class="ta-channel">스레드 답</span><span>CJ가 수정 문구를 올리면</span><span class="badge badge-secondary">수정 문구 도착 · 예정</span><span class="ta-appr auto">자동으로 가져옴</span></div>
+                            <div class="ta-tl-body ta-muted">시스템이 「CJ 수정 문구」 칸에 자동으로 채우고 확인함에 「크루비 답 도착 — 확인 후 고객에게 보내기」를 올립니다. 운영자가 확인하고 고객에게 보내면, 고객 응답([확인] · [수정 요청])은 이 스레드로 자동 전달됩니다.</div>
+                        </div>
+                        <div class="ta-tl-item a-cj">
+                            <span class="ta-tl-dot"></span>
+                            <div class="ta-tl-head"><span class="ta-actor cj">CJ</span><span class="ta-channel">스레드 답</span><span>CJ가 테스트 발송본을 올리면</span><span class="badge badge-secondary">테스트 발송본 도착 · 예정</span><span class="ta-appr auto">자동으로 가져옴</span></div>
+                            <div class="ta-tl-body ta-muted">캡처 이미지와 원문을 「테스트 발송본」 칸에 자동으로 채우고 확인함에 올립니다. 운영자가 확인하고 고객에게 보냅니다. 스레드 밖에 답했거나 형식이 달라 못 가져오면 확인함에 「자동으로 못 가져옴 · 직접 붙여 넣기」로 올립니다.</div>
                         </div>
                         <div class="ta-tl-item a-system">
                             <span class="ta-tl-dot"></span>
@@ -629,20 +654,32 @@
         function sendRecheck() { closeModal('recheckModal'); showToast('Slack 스레드로 재확인 요청을 보냈습니다. 회신이 오면 확인함에 올라옵니다.', 'info'); }
 
         function requestCopyConfirm() {
-            if (!document.getElementById('cjCopy').value.trim()) { showToast('CJ 수정 문구를 붙여 넣어 주세요.', 'error'); return; }
-            showToast('고객에게 문구 확인을 요청했습니다 (메일 · 문자 + 마이페이지). 상태: 문구 확인 중.', 'success');
+            if (!document.getElementById('cjCopy').value.trim()) { showToast('CJ 수정 문구가 비어 있습니다. 자동으로 못 가져왔다면 [직접 붙여 넣기]로 넣어 주세요.', 'error'); return; }
+            showToast('확인한 문구로 고객에게 확인을 요청했습니다 (메일 · 문자 + 마이페이지). 상태: 문구 확인 중. 고객 응답은 스레드로 CJ에 자동 전달됩니다.', 'success');
+        }
+        // 6·7단계 반자동 대체 경로: 자동으로 못 가져왔을 때 운영자가 직접 넣음 (11/24 내부 결정)
+        function manualCopy() {
+            const t = document.getElementById('cjCopy');
+            t.readOnly = false; t.value = ''; t.focus();
+            const b = document.getElementById('cjCopyBadge'); b.textContent = '직접 붙여 넣는 중'; b.classList.add('manual');
+        }
+        function manualTest() {
+            document.getElementById('testDrop').hidden = false;
+            const t = document.getElementById('testRaw'); t.readOnly = false;
+            const b = document.getElementById('testBadge'); b.textContent = '직접 올리는 중'; b.classList.add('manual');
+            t.focus();
         }
 
-        // 테스트 발송본: CJ가 Slack으로 보낸 캡처를 올리고 고객 확인 요청 (TA_TEST_CONFIRM)
+        // 테스트 발송본: CJ가 스레드에 올린 캡처 · 원문을 자동으로 채우고, 운영자 확인 후 고객 확인 요청 (TA_TEST_CONFIRM)
         function addTestShot() {
             const box = document.getElementById('testShots');
             const n = box.querySelectorAll('.ta-shot').length + 1;
             box.insertAdjacentHTML('beforeend', `<div class="ta-shot"><div class="ta-shot-img">테스트 발송 캡처 ${n}<br>(예시)</div><div class="ta-shot-meta"><span class="ta-muted">캡처 ${n}</span><button type="button" title="빼기" onclick="this.closest('.ta-shot').remove()">&times;</button></div></div>`);
         }
         function requestTestConfirm() {
-            if (!document.querySelectorAll('#testShots .ta-shot').length) { showToast('CJ 테스트 발송 캡처를 한 장 이상 올려 주세요.', 'error'); return; }
-            if (!document.getElementById('testRaw').value.trim()) { showToast('CJ가 보낸 원문을 붙여 넣어 주세요.', 'error'); return; }
-            showToast('고객에게 테스트 발송본 확인을 요청했습니다 (템플릿 TA_TEST_CONFIRM · 메일 · 문자 + 마이페이지).', 'success');
+            if (!document.querySelectorAll('#testShots .ta-shot').length) { showToast('캡처가 없습니다. 자동으로 못 가져왔다면 [직접 올리기]로 한 장 이상 올려 주세요.', 'error'); return; }
+            if (!document.getElementById('testRaw').value.trim()) { showToast('CJ 원문이 비어 있습니다. [직접 올리기]로 붙여 넣어 주세요.', 'error'); return; }
+            showToast('확인한 테스트 발송본으로 고객에게 확인을 요청했습니다 (템플릿 TA_TEST_CONFIRM · 메일 · 문자 + 마이페이지). 고객 확인은 스레드로 CJ에 자동 전달됩니다.', 'success');
         }
 
         // 리포트 직접 입력: 엑셀과 같은 대조 (현장명 · 매체 · 발송일, 성공 < 확정 건수 경고)
@@ -870,19 +907,26 @@
             },
             {
                 selector: '#secCopy',
-                title: '7. CJ 수정 문구 → 고객 확인 요청',
+                title: '7. CJ 수정 문구 확인 → 고객에게 보내기 (반자동)',
                 position: { top: '-10px', left: '-10px' },
-                description: '2단 비교 + 입력 + 버튼 (Side by Side + Textarea + Button)',
-                function: 'CJ가 매체 가이드에 맞춰 고친 문구를 등록하고 고객 확인을 요청',
+                description: '2단 비교 + 자동 채움 + 버튼 + 대체 링크 (Side by Side + Auto-filled Textarea + Button + Link)',
+                function: 'CJ가 신청 스레드에 올린 수정 문구를 시스템이 자동으로 채우고, 운영자가 확인한 뒤 고객 확인을 요청',
                 behavior: [
                     '【배경 (CJ 11/16 회신)】',
                     '• 반려 코드 없음. CJ가 수정 문구 전달 → 광고주 컨펌 → 수정 없으면 그 문구로 매체 전달',
+                    '【반자동 흐름 (11/24 내부 결정(6·7단계 반자동))】',
+                    '• 가져오기는 자동, 보내기 전 확인은 사람 (11/16 회의 원칙: CJ 회신 확인 · 고객 커뮤니케이션은 사람이)',
+                    '• CJ가 이 신청 Slack 스레드(「10. Slack 전달 기록」)에 수정 문구를 올림 → 시스템이 오른쪽 칸 · CJ 메모에 자동으로 채움, 표시 「Slack에서 자동으로 가져옴 · 시각」 → 확인함에 「크루비 답 도착 — 확인 후 고객에게 보내기」',
+                    '• 운영자는 원래 문구와 맞는지 확인하고 [확인했어요, 고객에게 보내기] 한 번. 자동으로 채운 칸은 읽기 전용',
+                    '• 대체 경로 [직접 붙여 넣기]: 자동으로 못 가져왔을 때(CJ가 스레드 밖에 답함, 형식이 다름 등) 칸을 비우고 운영자가 붙여 넣음. 표시 「직접 붙여 넣는 중」',
+                    '• 운영이 안정되면 확인 없이 완전 자동으로 바꿀 수 있음 (지금은 하지 않음)',
+                    '• 〔CJ 확인 필요〕 Slack 봇을 크루비와 같이 쓰는 채널에 넣는 것 · 신청 건별 스레드로 답하는 운영',
                     '【화면】',
-                    '• 왼쪽: 고객 원래 문구 (바뀐 부분 빨강) / 오른쪽: Slack에서 받은 CJ 수정 문구 붙여 넣기 + CJ 메모',
+                    '• 왼쪽: 고객 원래 문구 (바뀐 부분 빨강) / 오른쪽: 스레드에서 자동으로 가져온 CJ 수정 문구 + CJ 메모',
                     '【버튼】',
-                    '• [고객에게 확인 요청]: 템플릿 TA_COPY_CONFIRM 메일 · 문자 + 마이페이지, 상태 → 문구 확인 중',
-                    '• 고객 [확인] → Slack으로 CJ에 「고객 확인 완료」 전달 → 발송 준비',
-                    '• 고객 [수정 요청] → 고객 의견을 Slack으로 CJ에 전달, 문구 확인 중 유지',
+                    '• [확인했어요, 고객에게 보내기]: 템플릿 TA_COPY_CONFIRM 메일 · 문자 + 마이페이지, 상태 → 문구 확인 중',
+                    '• 고객 [확인] → 스레드로 CJ에 「고객 확인 완료」 자동 전달 → 발송 준비',
+                    '• 고객 [수정 요청] → 고객 의견을 스레드로 CJ에 자동 전달, 문구 확인 중 유지',
                     '【마감 안내 (11/23 결정: 테스트 확인 칸에서 이 칸으로 옮김)】',
                     '• 고객 문구 확정 마감 = 확정 발송일 − 7일 (D-7). 고객 화면 「수정 문구 확인」에도 같은 날짜로 표시 — 근거: CJ 11/23 회신(수정은 발송 4~5일 전까지, 테스트는 확정 후 D-1~2까지) + 11/23 내부 결정 D-7',
                     '• 수정 범위: "오타가 있을 경우에는 수정 가능하나, 금액 및 일부 워딩 추가 등의 수정은 특정 매체 제외하고 불가" — 어느 매체가 예외인지는 답 없음 〔CJ 확인 필요〕',
@@ -890,15 +934,15 @@
                     '• 마감(D-7)이 됐는데 고객이 [확인]도 [수정 요청]도 누르지 않으면 확인함 「기한 알림 · D-7 문구 확정」',
                     '• 확정 뒤: CJ가 확정 문구로 테스트 발송본(캡처 · 원문)을 "보통 D-1~2일전까지" 보냄 (CJ 11/23 16:12) → 「8. 테스트 발송본」',
                     '【활성 조건】',
-                    '• 결제 후(발송 준비) CJ 수정 문구가 왔을 때. 지금 화면은 예시'
+                    '• 결제 후(발송 준비) CJ 수정 문구가 왔을 때. 지금 화면은 자동으로 채워진 때의 예시'
                 ]
             },
             {
                 selector: '#secTest',
-                title: '8. 테스트 발송본 등록 → 고객 확인 요청',
+                title: '8. 테스트 발송본 확인 → 고객에게 보내기 (반자동)',
                 position: { top: '-10px', left: '-10px' },
-                description: '이미지 업로드 + 메모 + 버튼 (Image Upload + Input + Button)',
-                function: 'CJ가 Slack으로 보낸 문구 캡처본 + 원문을 올리고 고객에게 확인을 요청. 고객 마이페이지 「테스트 발송 확인」에 보이는 캡처 · 원문의 출처',
+                description: '자동 채움 이미지 · 원문 + 버튼 + 대체 링크 (Auto-filled Images + Textarea + Button + Link)',
+                function: 'CJ가 신청 스레드에 올린 캡처 이미지 + 원문을 시스템이 자동으로 채우고, 운영자가 확인한 뒤 고객에게 확인을 요청. 고객 마이페이지 「테스트 발송 확인」에 보이는 캡처 · 원문의 출처',
                 behavior: [
                     '【배경 (CJ 11/23 회신)】',
                     '• "저희측에서 확인해 문구 캡쳐본+원문 메일/메신저 등으로 전달드릴 예정입니다" · "Slack으로 소통 가능합니다" → 테스트 수신번호 없이 캡처 + 원문으로 확인 (11/16 회의에서 수신번호 칸을 뺀 것과 맞음)',
@@ -907,16 +951,21 @@
                     '• 확정한 문구가 그대로 나갔는지 보는 최종 확인. D-7 마감 · 오타만 수정 안내는 「7. CJ 수정 문구」로 옮김 — 근거: CJ 11/23 회신(수정은 발송 4~5일 전까지, 테스트는 확정 후 D-1~2까지) + 11/23 내부 결정 D-7',
                     '• 이 단계에는 기한 알림을 따로 두지 않음 (D-7 알림은 문구 확정으로 옮김)',
                     '• 〔CJ 확인 필요〕 테스트 발송본(D-1~2)에서 오류를 찾으면 그때도 고칠 수 있는지, 다시 테스트하는지, 발송일 변경 · 비용은 답 없음 — 화면에서 정하지 않음',
-                    '【입력】',
-                    '• 문구 캡처 이미지: 여러 장 가능 (PNG · JPG), 끌어 놓기 또는 [이미지 선택]. 카드의 × 로 뺄 수 있음',
-                    '• CJ 원문(필수): Slack에서 받은 문구를 그대로 붙여 넣기. 고객 화면 「원문」 칸',
-                    '• CJ 메모(선택): 고객 안내에 함께 보여 줌',
+                    '【반자동 흐름 (11/24 내부 결정(6·7단계 반자동))】',
+                    '• 가져오기는 자동, 보내기 전 확인은 사람. CJ가 이 신청 Slack 스레드에 캡처 이미지 + 원문을 올림 → 시스템이 캡처 · 원문 · 메모를 자동으로 채움, 표시 「Slack에서 자동으로 가져옴 · 시각」 → 확인함에 「크루비 답 도착 — 확인 후 고객에게 보내기」',
+                    '• 운영자는 캡처 · 원문이 확정 문구와 맞는지 확인하고 [확인했어요, 고객에게 보내기] 한 번. 자동으로 채운 원문은 읽기 전용',
+                    '• 대체 경로 [직접 올리기]: 자동으로 못 가져왔을 때(스레드 밖에 답함, 형식이 다름 등) 올리기 칸이 열리고 원문을 직접 붙여 넣음. 표시 「직접 올리는 중」',
+                    '• 운영이 안정되면 확인 없이 완전 자동으로 바꿀 수 있음 (지금은 하지 않음). 봇 연동 · 스레드 운영은 〔CJ 확인 필요〕',
+                    '【채워지는 값】',
+                    '• 문구 캡처 이미지: 여러 장 가능. 카드의 × 로 뺄 수 있음. 직접 올릴 때는 끌어 놓기 또는 [이미지 선택] (PNG · JPG)',
+                    '• CJ 원문(필수): 스레드 글의 문구 그대로. 고객 화면 「원문」 칸',
+                    '• CJ 메모(선택): 같은 스레드 글에서 가져옴, 고객 안내에 함께 보여 줌',
                     '【버튼】',
-                    '• [고객에게 확인 요청]: 이미지 한 장 이상 + 원문이 있을 때. 템플릿 TA_TEST_CONFIRM 메일 · 문자 + 마이페이지(테스트 발송 확인 영역에 캡처 · 원문 표시). POST /admin/target-ad/requests/:id/test-shots {images[], rawText, memo}',
-                    '• 고객 [이상 없음, 발송 진행] → Slack으로 CJ에 「테스트 확인 완료, 발송 진행」 자동 전달 (사람 확인 없음, Slack 전달 기록 ③)',
-                    '• 고객 [수정 요청] → 고객 의견을 Slack으로 CJ에 전달. 이 단계에서 고칠 수 있는지 · 재테스트 여부는 〔CJ 확인 필요〕. CJ가 고친 캡처 · 원문을 주면 다시 올리고 확인 요청',
+                    '• [확인했어요, 고객에게 보내기]: 이미지 한 장 이상 + 원문이 있을 때. 템플릿 TA_TEST_CONFIRM 메일 · 문자 + 마이페이지(테스트 발송 확인 영역에 캡처 · 원문 표시). POST /admin/target-ad/requests/:id/test-shots {images[], rawText, memo}',
+                    '• 고객 [이상 없음, 발송 진행] → 스레드로 CJ에 「테스트 확인 완료, 발송 진행」 자동 전달 (사람 확인 없음, Slack 전달 기록 ③)',
+                    '• 고객 [수정 요청] → 고객 의견을 스레드로 CJ에 자동 전달. 이 단계에서 고칠 수 있는지 · 재테스트 여부는 〔CJ 확인 필요〕. CJ가 고친 캡처 · 원문을 스레드에 올리면 다시 자동으로 채우고, 운영자 확인 후 다시 보냄',
                     '【활성 조건】',
-                    '• 결제 후, 문구 확정 뒤(발송 준비). CJ 수정 문구가 있으면 고객이 문구를 확정한 다음. 지금 화면은 예시'
+                    '• 결제 후, 문구 확정 뒤(발송 준비). CJ 수정 문구가 있으면 고객이 문구를 확정한 다음. 지금 화면은 자동으로 채워진 때의 예시'
                 ]
             },
             {
@@ -948,11 +997,17 @@
                 description: '타임라인 (Timeline)',
                 function: 'CJ와 Slack으로 주고받은 기록과 고객 알림을 시간순으로 표시',
                 behavior: [
+                    '【신청 건별 스레드 (11/24 내부 결정(6·7단계 반자동))】',
+                    '• 모수 확인을 요청할 때 시스템(Slack 봇)이 신청 건마다 스레드를 엶. 스레드 이름 「접수번호 · 현장명」 (예: TA-20261116-001 · 고덕 한빛 리버뷰). CJ는 그 건의 답을 그 스레드에 씀',
+                    '• 스레드의 CJ 답 중 수정 문구 → 「7. CJ 수정 문구」, 캡처 + 원문 → 「8. 테스트 발송본」에 자동으로 채움. 운영자 확인 후 고객에게 보냄',
+                    '• 스레드 밖 답 · 형식이 다른 답은 자동으로 채우지 않고 확인함에 올림 → 운영자가 직접 붙여 넣기 / 올리기',
+                    '• 〔CJ 확인 필요〕 Slack 봇을 크루비와 같이 쓰는 채널에 넣는 것 · 신청 건별 스레드로 답하는 운영',
                     '【항목】',
-                    '• ① 신청 전달: 접수 즉시 배치 · API로 모수확인 요청 양식 전송 (신청 내용과 같은 항목: 매체사 · 현장명 · 발송가망일 1~3순위 · 희망 시각 1) 2) (예: 1) 11:00 2) 11:30) · 건수 · 연령과 부족 시 확대 범위 · 지역과 부족 시 확대 우선순위 · 확대 순서(지역/연령 중 먼저) · 제목 · 문구 · 이미지 · 링크)',
+                    '• ① 신청 전달 · 스레드 시작: 접수 즉시 배치 · API로 모수확인 요청 양식 전송 (신청 내용과 같은 항목: 매체사 · 현장명 · 발송가망일 1~3순위 · 희망 시각 1) 2) (예: 1) 11:00 2) 11:30) · 건수 · 연령과 부족 시 확대 범위 · 지역과 부족 시 확대 우선순위 · 확대 순서(지역/연령 중 먼저) · 제목 · 문구 · 이미지 · 링크)',
                     '• 확대 줄 형식 (CJ 11/23 회신 예시를 따름): "타겟 연령: 30~55 (부족 시 25~60까지 확대 가능)" / "지역: 경기 평택시, 경기 오산시 (부족 시 확대 우선순위: 경기 안성시 > 경기 화성시)" / "확대 순서: 지역 먼저". 확대 안 함이면 "(확대 불가)"',
                     '• CJ 회신: 원문 그대로 + AI가 읽은 건수 · 금액 · 발송 가능일·부킹 시각 · 확대 적용 여부 · 신뢰도. 확대 적용은 견적 검수의 「확대 적용 · 최종 대상 조건」에서 운영자가 확정. 부킹 시각이 희망 시각 1·2순위와 다르면 고객에게 「가까운 시각으로 예약」 안내. 「AI 보조 · 확인 필요」 표시, 운영자 확인 전에는 견적에 쓰지 않음',
                     '• ② 결제 승인 전달: 고객 결제 완료(카드 승인 · 가상계좌·전용계좌 입금 확인 통지, 포인트만으로 결제하면 차감 완료) 시 추가 검수 없이 자동 전송',
+                    '• 수정 문구 도착 · 테스트 발송본 도착: CJ 스레드 답을 자동으로 가져온 기록. 고객 응답은 같은 스레드로 자동 전달',
                     '• ③ 테스트 확인 전달: 고객이 테스트 발송본에 [이상 없음, 발송 진행]을 누르면 「테스트 확인 완료, 발송 진행」 자동 전송. [수정 요청]이면 고객 의견 전달',
                     '• 고객 알림: 템플릿 문구로 보낸 메일 · 문자',
                     '【버튼】',
